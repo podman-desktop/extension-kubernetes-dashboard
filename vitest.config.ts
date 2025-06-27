@@ -26,7 +26,7 @@ export default defineConfig({
       excludeAfterRemap: true,
       provider: 'v8',
       exclude: ['**/coverage/**'],
-      reporter: [process.env.GITHUB_ACTIONS?'html':'text'],
+      reporter: process.env.GITHUB_ACTIONS ? ['html'] : ['text','lcov'],
     },
   },
 });

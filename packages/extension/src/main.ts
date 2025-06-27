@@ -19,12 +19,21 @@
 import type { ExtensionContext } from '@podman-desktop/api';
 
 import { DashboardExtension } from './dashboard-extension';
+import { ContextsManager } from './manager/contexts-manager';
+import { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
 
 let dashboardExtension: DashboardExtension | undefined;
 
 // Initialize the activation of the extension.
 export async function activate(extensionContext: ExtensionContext): Promise<void> {
-  dashboardExtension ??= new DashboardExtension(extensionContext);
+  const contextsManager = new ContextsManager();
+  const apiSender = {
+    send: (channel: string, data?: unknown): void => {
+      console.log(`==> recv data "${data}" on channel ${channel}`);
+    },
+  };
+  const contextsStatesDispatcher = new ContextsStatesDispatcher(contextsManager, apiSender);
+  dashboardExtension ??= new DashboardExtension(extensionContext, contextsManager, contextsStatesDispatcher);
 
   await dashboardExtension.activate();
 }

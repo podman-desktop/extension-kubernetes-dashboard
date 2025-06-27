@@ -17,21 +17,27 @@
  ***********************************************************************/
 
 import type { WebviewPanel, ExtensionContext } from '@podman-desktop/api';
-import { Uri, window } from '@podman-desktop/api';
-import { beforeEach, test, vi } from 'vitest';
+import { kubernetes, Uri, window } from '@podman-desktop/api';
+import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DashboardExtension } from './dashboard-extension';
+import { vol } from 'memfs';
 
-import { readFile } from 'node:fs/promises';
+import type { ContextsManager } from './manager/contexts-manager';
+import type { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
 
 let extensionContextMock: ExtensionContext;
 let dashboardExtension: DashboardExtension;
+let contextsManagerMock: ContextsManager;
+let contextsStatesDispatcher: ContextsStatesDispatcher;
 
 vi.mock(import('node:fs'));
 vi.mock(import('node:fs/promises'));
+vi.mock(import('@kubernetes/client-node'));
 
 beforeEach(() => {
   vi.restoreAllMocks();
   vi.resetAllMocks();
+  vol.reset();
 
   vi.mocked(window.createWebviewPanel).mockReturnValue({
     webview: {
@@ -39,20 +45,73 @@ beforeEach(() => {
       onDidReceiveMessage: vi.fn(),
     },
   } as unknown as WebviewPanel);
-  vi.mocked(Uri.joinPath).mockReturnValue({ fsPath: '' } as unknown as Uri);
-  vi.mocked(readFile).mockResolvedValue('<html></html>');
+  vi.mocked(Uri.joinPath).mockReturnValue({ fsPath: '/path/to/extension/index.html' } as unknown as Uri);
   // Create a mock for the ExtensionContext
   extensionContextMock = {
     subscriptions: [],
   } as unknown as ExtensionContext;
-  dashboardExtension = new DashboardExtension(extensionContextMock);
+  // Create a mock for the contextsManager
+  contextsManagerMock = {
+    update: vi.fn(),
+  } as unknown as ContextsManager;
+  contextsStatesDispatcher = {
+    init: vi.fn(),
+  } as unknown as ContextsStatesDispatcher;
+  dashboardExtension = new DashboardExtension(extensionContextMock, contextsManagerMock, contextsStatesDispatcher);
+  vi.mocked(kubernetes.getKubeconfig).mockReturnValue({
+    path: '/path/to/kube/config',
+  } as Uri);
 });
 
-test('should activate correctly', async () => {
-  await dashboardExtension.activate();
+describe('a kubeconfig file is not present', () => {
+  beforeEach(() => {
+    vol.fromJSON({
+      '/path/to/extension/index.html': '<html></html>',
+    });
+  });
+
+  test('should activate correctly and calls contextsManager every time the kubeconfig file changes', async () => {
+    await dashboardExtension.activate();
+    expect(contextsManagerMock.update).not.toHaveBeenCalled();
+
+    const callback = vi.mocked(kubernetes.onDidUpdateKubeconfig).mock.lastCall?.[0];
+    assert(callback);
+    vi.mocked(contextsManagerMock.update).mockClear();
+    callback({ type: 'UPDATE', location: { path: '/path/to/kube/config' } as Uri });
+    expect(contextsManagerMock.update).toHaveBeenCalledOnce();
+
+    expect(contextsStatesDispatcher.init).toHaveBeenCalledOnce();
+  });
+
+  test('should deactivate correctly', async () => {
+    await dashboardExtension.activate();
+    await dashboardExtension.deactivate();
+  });
 });
 
-test('should deactivate correctly', async () => {
-  await dashboardExtension.activate();
-  await dashboardExtension.deactivate();
+describe('a kubeconfig file is present', () => {
+  beforeEach(() => {
+    vol.fromJSON({
+      '/path/to/extension/index.html': '<html></html>',
+      '/path/to/kube/config': '{}',
+    });
+  });
+
+  test('should activate correctly and calls contextsManager every time the kubeconfig file changes', async () => {
+    await dashboardExtension.activate();
+    expect(contextsManagerMock.update).toHaveBeenCalledOnce();
+
+    const callback = vi.mocked(kubernetes.onDidUpdateKubeconfig).mock.lastCall?.[0];
+    assert(callback);
+    vi.mocked(contextsManagerMock.update).mockClear();
+    callback({ type: 'UPDATE', location: { path: '/path/to/kube/config' } as Uri });
+    expect(contextsManagerMock.update).toHaveBeenCalledOnce();
+
+    expect(contextsStatesDispatcher.init).toHaveBeenCalledOnce();
+  });
+
+  test('should deactivate correctly', async () => {
+    await dashboardExtension.activate();
+    await dashboardExtension.deactivate();
+  });
 });
