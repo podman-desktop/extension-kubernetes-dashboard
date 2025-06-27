@@ -159,8 +159,6 @@ export default [
        */
       quotes: ['error', 'single', { allowTemplateLiterals: true }],
 
-      'capitalized-comments': 'error',
-
       // disabled import/namespace rule as the plug-in is not fully compatible using the compat mode
       'import/namespace': 'off',
       'import/no-duplicates': 'error',
@@ -171,7 +169,8 @@ export default [
       'vitest/consistent-test-filename': 'off',
       'vitest/no-hooks': 'off',
       'vitest/require-top-level-describe': 'off',
-      'import/no-unresolved': 'off'
+      'import/no-unresolved': 'off',
+      'sonarjs/no-nested-functions': 'off'
     },
   },
 
