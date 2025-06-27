@@ -4,8 +4,8 @@
 
 # Install latest release
 
-Install the custom extension `ghcr.io/containers/podman-desktop-extension-kubernetes-dashboard:latest` to try the latest extension.
+Install the custom extension `ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest` to try the latest extension.
 
 # Development version
 
-Install the custom extension `ghcr.io/containers/podman-desktop-extension-kubernetes-dashboard:next` to try the extension published after each commit.
+Install the custom extension `ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:next` to try the extension published after each commit.
