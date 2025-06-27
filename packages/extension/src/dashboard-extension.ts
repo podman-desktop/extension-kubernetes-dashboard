@@ -16,20 +16,55 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { Uri, window, type ExtensionContext } from '@podman-desktop/api';
+import type { WebviewPanel, ExtensionContext, KubeconfigUpdateEvent } from '@podman-desktop/api';
+import { kubernetes, Uri, window } from '@podman-desktop/api';
 
 import { RpcExtension } from '/@common/rpc/rpc';
 
 import { readFile } from 'node:fs/promises';
+import type { ContextsManager } from './manager/contexts-manager';
+import { existsSync } from 'node:fs';
+import { KubeConfig } from '@kubernetes/client-node';
+import type { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
 
 export class DashboardExtension {
   #extensionContext: ExtensionContext;
+  #contextsManager: ContextsManager;
+  #contextsStatesDispatcher: ContextsStatesDispatcher;
 
-  constructor(readonly extensionContext: ExtensionContext) {
+  constructor(
+    readonly extensionContext: ExtensionContext,
+    readonly contextManager: ContextsManager,
+    readonly contextsStatesDispatcher: ContextsStatesDispatcher,
+  ) {
     this.#extensionContext = extensionContext;
+    this.#contextsManager = contextManager;
+    this.#contextsStatesDispatcher = contextsStatesDispatcher;
   }
 
   async activate(): Promise<void> {
+    const panel = await this.createWebview();
+
+    // Register webview communication for this webview
+    const rpcExtension = new RpcExtension(panel.webview);
+    rpcExtension.init();
+    this.#extensionContext.subscriptions.push(rpcExtension);
+
+    const now = performance.now();
+
+    const afterFirst = performance.now();
+
+    console.log('activation time:', afterFirst - now);
+
+    await this.listenMonitoring();
+    await this.startMonitoring();
+  }
+
+  async deactivate(): Promise<void> {
+    console.log('deactivating Kubernetes Dashboard extension');
+  }
+
+  private async createWebview(): Promise<WebviewPanel> {
     const panel = window.createWebviewPanel('kubernetes-dashboard', 'Kubernetes', {
       localResourceRoots: [Uri.joinPath(this.#extensionContext.extensionUri, 'media')],
     });
@@ -70,19 +105,37 @@ export class DashboardExtension {
     // Update the webview panel with the new index.html file with corrected links.
     panel.webview.html = indexHtml;
 
-    // Register webview communication for this webview
-    const rpcExtension = new RpcExtension(panel.webview);
-    rpcExtension.init();
-    this.#extensionContext.subscriptions.push(rpcExtension);
-
-    const now = performance.now();
-
-    const afterFirst = performance.now();
-
-    console.log('activation time:', afterFirst - now);
+    return panel;
   }
 
-  async deactivate(): Promise<void> {
-    console.log('deactivating Kubernetes Dashboard extension');
+  private async listenMonitoring(): Promise<void> {
+    this.#contextsStatesDispatcher.init();
+  }
+
+  private async startMonitoring(): Promise<void> {
+    this.#extensionContext.subscriptions.push(this.#contextsManager);
+
+    const kubeconfigWatcher = kubernetes.onDidUpdateKubeconfig(this.onKubeconfigUpdate.bind(this));
+    this.#extensionContext.subscriptions.push(kubeconfigWatcher);
+
+    // initial state is not sent by watcher, let's get it explicitely
+    const kubeconfig = kubernetes.getKubeconfig();
+    if (existsSync(kubeconfig.path)) {
+      await this.onKubeconfigUpdate({
+        location: kubeconfig,
+        type: 'CREATE',
+      });
+    }
+  }
+
+  private async onKubeconfigUpdate(event: KubeconfigUpdateEvent): Promise<void> {
+    if (event.type === 'DELETE') {
+      // update with an empty KubeConfig
+      await this.#contextsManager.update(new KubeConfig());
+      return;
+    }
+    const kubeConfig = new KubeConfig();
+    kubeConfig.loadFromFile(event.location.path);
+    await this.#contextsManager.update(kubeConfig);
   }
 }

@@ -17,7 +17,6 @@
  ***********************************************************************/
 import { vi } from 'vitest';
 import { EventEmitter } from 'node:events';
-import { parse } from 'node:path';
 
 /**
  * Mock the extension API for vitest.
@@ -75,6 +74,10 @@ const plugin = {
   process: {
     exec: vi.fn(),
   },
+  kubernetes: {
+    onDidUpdateKubeconfig: vi.fn(),
+    getKubeconfig: vi.fn(),
+  }
 };
 
 module.exports = plugin;
