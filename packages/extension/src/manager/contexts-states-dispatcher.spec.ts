@@ -18,7 +18,6 @@
 
 import { expect, test, vi } from 'vitest';
 
-import type { IDisposable } from '../types/disposable.js';
 import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
 
 import type { ApiSenderType } from '/@common/model/api-sender.js';
@@ -28,6 +27,7 @@ import type { DispatcherEvent } from './contexts-dispatcher.js';
 import type { ContextsManager } from './contexts-manager.js';
 import { ContextsStatesDispatcher } from './contexts-states-dispatcher.js';
 import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
+import type { IDisposable } from '/@common/model/disposable.js';
 
 test('ContextsStatesDispatcher should call updateHealthStates when onContextHealthStateChange event is fired', () => {
   const manager: ContextsManager = {
