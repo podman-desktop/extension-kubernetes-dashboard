@@ -16,27 +16,27 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ExtensionContext } from '@podman-desktop/api';
+import type { IDisposable } from '/@common/model/disposable';
+import { RpcBrowser } from '/@common/rpc/rpc';
 
-import { DashboardExtension } from './dashboard-extension';
-
-let dashboardExtension: DashboardExtension | undefined;
-
-// Initialize the activation of the extension.
-export async function activate(extensionContext: ExtensionContext): Promise<void> {
-  dashboardExtension ??= new DashboardExtension(extensionContext);
-
-  await dashboardExtension.activate();
+export interface MainContext {
+  rpcBrowser: RpcBrowser;
 }
 
-export async function deactivate(): Promise<void> {
-  await dashboardExtension?.deactivate();
-  dashboardExtension = undefined;
-}
+export class Main implements IDisposable {
+  private disposables: IDisposable[] = [];
 
-// Expose dashboardExtension for testing purposes
-if (process.env.NODE_ENV === 'test') {
-  Object.defineProperty(global, 'dashboardExtension', {
-    get: () => dashboardExtension,
-  });
+  async init(): Promise<MainContext> {
+    const webViewApi = acquirePodmanDesktopApi();
+    const rpcBrowser: RpcBrowser = new RpcBrowser(window, webViewApi);
+    return {
+      rpcBrowser,
+    };
+  }
+
+  dispose(): void {
+    for (const disposable of this.disposables) {
+      disposable.dispose();
+    }
+  }
 }

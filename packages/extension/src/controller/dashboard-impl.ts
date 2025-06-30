@@ -16,27 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ExtensionContext } from '@podman-desktop/api';
+import type { ContextsStatesDispatcher } from '../manager/contexts-states-dispatcher';
+import { API_DASHBOARD } from '/@common/channels';
+import type { DashboardApi } from '/@common/interface/dashboard-api';
+import type { ResourceCount } from '/@common/model/kubernetes-resource-count';
+import type { RpcChannel } from '/@common/rpc';
 
-import { DashboardExtension } from './dashboard-extension';
+export class DashboardImpl implements DashboardApi {
+  constructor(private contextsStatesDispatcher: ContextsStatesDispatcher) {}
 
-let dashboardExtension: DashboardExtension | undefined;
+  getChannel(): RpcChannel<DashboardApi> {
+    return API_DASHBOARD;
+  }
 
-// Initialize the activation of the extension.
-export async function activate(extensionContext: ExtensionContext): Promise<void> {
-  dashboardExtension ??= new DashboardExtension(extensionContext);
-
-  await dashboardExtension.activate();
-}
-
-export async function deactivate(): Promise<void> {
-  await dashboardExtension?.deactivate();
-  dashboardExtension = undefined;
-}
-
-// Expose dashboardExtension for testing purposes
-if (process.env.NODE_ENV === 'test') {
-  Object.defineProperty(global, 'dashboardExtension', {
-    get: () => dashboardExtension,
-  });
+  async getActiveResourcesCount(): Promise<ResourceCount[]> {
+    return this.contextsStatesDispatcher.getActiveResourcesCount();
+  }
 }

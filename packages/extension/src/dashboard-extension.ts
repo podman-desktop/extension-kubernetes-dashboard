@@ -22,24 +22,19 @@ import { kubernetes, Uri, window } from '@podman-desktop/api';
 import { RpcExtension } from '/@common/rpc/rpc';
 
 import { readFile } from 'node:fs/promises';
-import type { ContextsManager } from './manager/contexts-manager';
+import { ContextsManager } from './manager/contexts-manager';
 import { existsSync } from 'node:fs';
 import { KubeConfig } from '@kubernetes/client-node';
-import type { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
+import { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
+import { DashboardImpl } from './controller/dashboard-impl';
 
 export class DashboardExtension {
   #extensionContext: ExtensionContext;
   #contextsManager: ContextsManager;
   #contextsStatesDispatcher: ContextsStatesDispatcher;
 
-  constructor(
-    readonly extensionContext: ExtensionContext,
-    readonly contextManager: ContextsManager,
-    readonly contextsStatesDispatcher: ContextsStatesDispatcher,
-  ) {
+  constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
-    this.#contextsManager = contextManager;
-    this.#contextsStatesDispatcher = contextsStatesDispatcher;
   }
 
   async activate(): Promise<void> {
@@ -50,11 +45,18 @@ export class DashboardExtension {
     rpcExtension.init();
     this.#extensionContext.subscriptions.push(rpcExtension);
 
+    this.#contextsManager = new ContextsManager();
+    this.#contextsStatesDispatcher = new ContextsStatesDispatcher(this.#contextsManager, rpcExtension);
+
     const now = performance.now();
 
     const afterFirst = performance.now();
 
     console.log('activation time:', afterFirst - now);
+
+    // Register all controllers
+    const dashboardImpl = new DashboardImpl(this.#contextsStatesDispatcher);
+    rpcExtension.registerInstance(dashboardImpl.getChannel(), dashboardImpl);
 
     await this.listenMonitoring();
     await this.startMonitoring();

@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ResourceCount } from '../model/kubernetes-resource-count';
+
 export const DashboardApi = Symbol.for('DashboardApi');
 export interface DashboardApi {
-  ping(): Promise<string>;
+  getActiveResourcesCount(): Promise<ResourceCount[]>;
 }

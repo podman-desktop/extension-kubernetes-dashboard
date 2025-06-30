@@ -1,6 +1,28 @@
 <script lang="ts">
+import { onDestroy, onMount } from 'svelte';
+
 // App.css includes tailwind css dependencies that we use
 import './app.css';
+import { Main, type MainContext } from './main';
+import MainContextAware from './MainContextAware.svelte';
+
+let main: Main | undefined;
+let mainContext: MainContext | undefined = $state();
+
+onMount(async () => {
+  // Perform initalization
+  main = new Main();
+  const now = performance.now();
+  mainContext = await main.init();
+  console.log(`Initialization took ${performance.now() - now}ms`);
+});
+
+onDestroy(() => {
+  // Dispose
+  main?.dispose();
+});
 </script>
 
-Kubernetes Dashboard
+{#if mainContext}
+  <MainContextAware context={mainContext} />
+{/if}
