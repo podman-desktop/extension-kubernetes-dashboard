@@ -22,17 +22,19 @@ import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DashboardExtension } from './dashboard-extension';
 import { vol } from 'memfs';
 
-import type { ContextsManager } from './manager/contexts-manager';
-import type { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
+import { ContextsManager } from './manager/contexts-manager';
+import { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
 
 let extensionContextMock: ExtensionContext;
 let dashboardExtension: DashboardExtension;
 let contextsManagerMock: ContextsManager;
-let contextsStatesDispatcher: ContextsStatesDispatcher;
+let contextsStatesDispatcherMock: ContextsStatesDispatcher;
 
 vi.mock(import('node:fs'));
 vi.mock(import('node:fs/promises'));
 vi.mock(import('@kubernetes/client-node'));
+vi.mock(import('./manager/contexts-manager'));
+vi.mock(import('./manager/contexts-states-dispatcher'));
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -50,14 +52,19 @@ beforeEach(() => {
   extensionContextMock = {
     subscriptions: [],
   } as unknown as ExtensionContext;
+
   // Create a mock for the contextsManager
   contextsManagerMock = {
     update: vi.fn(),
   } as unknown as ContextsManager;
-  contextsStatesDispatcher = {
+  vi.mocked(ContextsManager).mockReturnValue(contextsManagerMock);
+
+  contextsStatesDispatcherMock = {
     init: vi.fn(),
   } as unknown as ContextsStatesDispatcher;
-  dashboardExtension = new DashboardExtension(extensionContextMock, contextsManagerMock, contextsStatesDispatcher);
+  vi.mocked(ContextsStatesDispatcher).mockReturnValue(contextsStatesDispatcherMock);
+
+  dashboardExtension = new DashboardExtension(extensionContextMock);
   vi.mocked(kubernetes.getKubeconfig).mockReturnValue({
     path: '/path/to/kube/config',
   } as Uri);
@@ -80,7 +87,7 @@ describe('a kubeconfig file is not present', () => {
     callback({ type: 'UPDATE', location: { path: '/path/to/kube/config' } as Uri });
     expect(contextsManagerMock.update).toHaveBeenCalledOnce();
 
-    expect(contextsStatesDispatcher.init).toHaveBeenCalledOnce();
+    expect(contextsStatesDispatcherMock.init).toHaveBeenCalledOnce();
   });
 
   test('should deactivate correctly', async () => {
@@ -107,7 +114,7 @@ describe('a kubeconfig file is present', () => {
     callback({ type: 'UPDATE', location: { path: '/path/to/kube/config' } as Uri });
     expect(contextsManagerMock.update).toHaveBeenCalledOnce();
 
-    expect(contextsStatesDispatcher.init).toHaveBeenCalledOnce();
+    expect(contextsStatesDispatcherMock.init).toHaveBeenCalledOnce();
   });
 
   test('should deactivate correctly', async () => {

@@ -22,39 +22,48 @@ import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js'
 import type { KubernetesContextResources } from '/@common/model/kubernetes-resources.js';
 import type { KubernetesTroubleshootingInformation } from '/@common/model/kubernetes-troubleshooting.js';
 
-import type { ApiSenderType } from '/@common/model/api-sender.js';
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import type { ContextsManager } from './contexts-manager.js';
+import type { RpcExtension } from '/@common/rpc/rpc.js';
+import {
+  ACTIVE_RESOURCES_COUNT,
+  CONTEXTS_HEALTHS,
+  CONTEXTS_PERMISSIONS,
+  RESOURCES_COUNT,
+  UPDATE_RESOURCE,
+} from '/@common/channels.js';
 
 export class ContextsStatesDispatcher {
   constructor(
     private manager: ContextsManager,
-    private apiSender: ApiSenderType,
+    private rpcExtension: RpcExtension,
   ) {}
 
   init(): void {
     this.manager.onContextHealthStateChange((_state: ContextHealthState) => this.updateHealthStates());
-    this.manager.onOfflineChange(() => {
-      this.updateHealthStates();
-      this.updateResourcesCount();
-      this.updateActiveResourcesCount();
+    this.manager.onOfflineChange(async () => {
+      await this.updateHealthStates();
+      await this.updateResourcesCount();
+      await this.updateActiveResourcesCount();
     });
     this.manager.onContextPermissionResult((_permissions: ContextPermissionResult) => this.updatePermissions());
-    this.manager.onContextDelete((_state: DispatcherEvent) => {
-      this.updateHealthStates();
-      this.updatePermissions();
+    this.manager.onContextDelete(async (_state: DispatcherEvent) => {
+      await this.updateHealthStates();
+      await this.updatePermissions();
     });
     this.manager.onResourceCountUpdated(() => this.updateResourcesCount());
-    this.manager.onResourceUpdated(event => {
-      this.updateResource(event.resourceName);
-      this.updateActiveResourcesCount();
+    this.manager.onResourceUpdated(async event => {
+      await this.updateResource(event.resourceName, event.contextName);
+      await this.updateActiveResourcesCount();
     });
   }
 
-  updateHealthStates(): void {
-    this.apiSender.send('kubernetes-contexts-healths');
+  async updateHealthStates(): Promise<void> {
+    await this.rpcExtension.fire(CONTEXTS_HEALTHS, {
+      healths: this.getContextsHealths(),
+    });
   }
 
   getContextsHealths(): ContextHealth[] {
@@ -71,20 +80,26 @@ export class ContextsStatesDispatcher {
     return value;
   }
 
-  updatePermissions(): void {
-    this.apiSender.send('kubernetes-contexts-permissions');
+  async updatePermissions(): Promise<void> {
+    await this.rpcExtension.fire(CONTEXTS_PERMISSIONS, {
+      permissions: this.getContextsPermissions(),
+    });
   }
 
   getContextsPermissions(): ContextPermission[] {
     return this.manager.getPermissions();
   }
 
-  updateResourcesCount(): void {
-    this.apiSender.send(`kubernetes-resources-count`);
+  async updateResourcesCount(): Promise<void> {
+    await this.rpcExtension.fire(RESOURCES_COUNT, {
+      counts: this.getResourcesCount(),
+    });
   }
 
-  updateActiveResourcesCount(): void {
-    this.apiSender.send(`kubernetes-active-resources-count`);
+  async updateActiveResourcesCount(): Promise<void> {
+    await this.rpcExtension.fire(ACTIVE_RESOURCES_COUNT, {
+      counts: this.getActiveResourcesCount(),
+    });
   }
 
   getResourcesCount(): ResourceCount[] {
@@ -95,8 +110,12 @@ export class ContextsStatesDispatcher {
     return this.manager.getActiveResourcesCount();
   }
 
-  updateResource(resourceName: string): void {
-    this.apiSender.send(`kubernetes-update-${resourceName}`);
+  async updateResource(resourceName: string, contextName: string): Promise<void> {
+    await this.rpcExtension.fire(UPDATE_RESOURCE, {
+      contextName,
+      resourceName,
+      resources: this.getResources([contextName], resourceName),
+    });
   }
 
   getResources(contextNames: string[], resourceName: string): KubernetesContextResources[] {

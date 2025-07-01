@@ -16,27 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ExtensionContext } from '@podman-desktop/api';
+import type { ContextPermission } from './kubernetes-contexts-permissions';
 
-import { DashboardExtension } from './dashboard-extension';
-
-let dashboardExtension: DashboardExtension | undefined;
-
-// Initialize the activation of the extension.
-export async function activate(extensionContext: ExtensionContext): Promise<void> {
-  dashboardExtension ??= new DashboardExtension(extensionContext);
-
-  await dashboardExtension.activate();
-}
-
-export async function deactivate(): Promise<void> {
-  await dashboardExtension?.deactivate();
-  dashboardExtension = undefined;
-}
-
-// Expose dashboardExtension for testing purposes
-if (process.env.NODE_ENV === 'test') {
-  Object.defineProperty(global, 'dashboardExtension', {
-    get: () => dashboardExtension,
-  });
+export interface ContextsPermissionsInfo {
+  permissions: ContextPermission[];
 }

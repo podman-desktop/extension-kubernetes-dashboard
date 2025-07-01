@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const DashboardApi = Symbol.for('DashboardApi');
-export interface DashboardApi {
-  ping(): Promise<string>;
+import type { ContextHealth } from './kubernetes-contexts-healths';
+
+export interface ContextsHealthsInfo {
+  healths: ContextHealth[];
 }
