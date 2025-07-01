@@ -19,10 +19,10 @@
 import type { CoreV1Event, CoreV1EventList } from '@kubernetes/client-node';
 import { CoreV1Api } from '@kubernetes/client-node';
 
-import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
-import { ResourceInformer } from '../types/resource-informer.js';
+import { ResourceInformer } from '/@/types/resource-informer.js';
 
 export class EventsResourceFactory extends ResourceFactoryBase implements ResourceFactory {
   constructor() {

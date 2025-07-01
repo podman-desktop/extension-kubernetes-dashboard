@@ -19,10 +19,10 @@
 import type { V1CronJob, V1CronJobList } from '@kubernetes/client-node';
 import { BatchV1Api } from '@kubernetes/client-node';
 
-import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
-import { ResourceInformer } from '../types/resource-informer.js';
+import { ResourceInformer } from '/@/types/resource-informer.js';
 
 export class CronjobsResourceFactory extends ResourceFactoryBase implements ResourceFactory {
   constructor() {

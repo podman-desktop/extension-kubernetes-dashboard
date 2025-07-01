@@ -29,10 +29,10 @@ import {
   type ContextResourcePermission,
 } from './context-permissions-checker.js';
 import { ContextsManager } from './contexts-manager.js';
-import { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
-import type { ResourceFactory } from '../resources/resource-factory.js';
-import { ResourceFactoryBase } from '../resources/resource-factory.js';
-import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from '../types/resource-informer.js';
+import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
+import type { ResourceFactory } from '/@/resources/resource-factory.js';
+import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
+import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from '/@/types/resource-informer.js';
 
 const onCacheUpdatedMock = vi.fn<Event<CacheUpdatedEvent>>();
 const onOfflineMock = vi.fn<Event<OfflineEvent>>();
