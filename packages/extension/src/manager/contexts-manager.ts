@@ -48,6 +48,7 @@ import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from '/@/types
 import { RoutesResourceFactory } from '/@/resources/routes-resource-factory.js';
 import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js';
 import { ServicesResourceFactory } from '/@/resources/services-resource-factory.js';
+import { injectable } from 'inversify';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
@@ -59,6 +60,7 @@ const HEALTH_CHECK_TIMEOUT_MS = 5_000;
  *
  * ContextsManager exposes the current state of the health checkers, permission checkers and informers.
  */
+@injectable()
 export class ContextsManager {
   #resourceFactoryHandler: ResourceFactoryHandler;
   #dispatcher: ContextsDispatcher;
