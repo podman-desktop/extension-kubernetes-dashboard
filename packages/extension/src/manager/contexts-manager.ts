@@ -19,7 +19,6 @@
 import type { KubeConfig, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
 
 import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
-import type { ContextGeneralState, ResourceName } from '/@common/model/kubernetes-contexts-states.js';
 import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js';
 import type { KubernetesContextResources } from '/@common/model/kubernetes-resources.js';
 import type { KubernetesTroubleshootingInformation } from '/@common/model/kubernetes-troubleshooting.js';
@@ -201,28 +200,6 @@ export class ContextsManager {
         items: value.list(),
       };
     });
-  }
-
-  getContextsGeneralState(): Map<string, ContextGeneralState> {
-    return new Map<string, ContextGeneralState>();
-  }
-
-  getCurrentContextGeneralState(): ContextGeneralState {
-    return {
-      reachable: false,
-      resources: {
-        pods: 0,
-        deployments: 0,
-      },
-    };
-  }
-
-  registerGetCurrentContextResources(_resourceName: ResourceName): KubernetesObject[] {
-    return [];
-  }
-
-  unregisterGetCurrentContextResources(_resourceName: ResourceName): KubernetesObject[] {
-    return [];
   }
 
   /* dispose all disposable resources created by the instance */
