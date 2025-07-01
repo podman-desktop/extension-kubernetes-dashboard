@@ -18,9 +18,9 @@
 
 import type { KubeConfig } from '@kubernetes/client-node';
 
-import type { Event } from '../types/emitter.js';
-import { Emitter } from '../types/emitter.js';
-import { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
+import type { Event } from '/@/types/emitter.js';
+import { Emitter } from '/@/types/emitter.js';
+import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 
 export interface DispatcherEvent {
   contextName: string;

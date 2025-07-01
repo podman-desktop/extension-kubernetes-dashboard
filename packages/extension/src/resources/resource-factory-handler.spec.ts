@@ -21,7 +21,7 @@ import { expect, test } from 'vitest';
 import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
 import { PodsResourceFactory } from './pods-resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
-import { ResourceFactoryHandler } from '../manager/resource-factory-handler.js';
+import { ResourceFactoryHandler } from '/@/manager/resource-factory-handler.js';
 
 test('with 1 level and same request', () => {
   const factoryHandler = new ResourceFactoryHandler();

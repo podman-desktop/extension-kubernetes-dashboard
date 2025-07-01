@@ -21,7 +21,7 @@ import { KubeConfig } from '@kubernetes/client-node';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { ContextsDispatcher } from './contexts-dispatcher.js';
-import { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
+import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 
 const contexts = [
   {

@@ -21,10 +21,10 @@ import { CustomObjectsApi } from '@kubernetes/client-node';
 
 import type { V1Route } from '/@common/model/openshift-types.js';
 
-import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
-import { ResourceInformer } from '../types/resource-informer.js';
+import { ResourceInformer } from '/@/types/resource-informer.js';
 
 export class RoutesResourceFactory extends ResourceFactoryBase implements ResourceFactory {
   constructor() {

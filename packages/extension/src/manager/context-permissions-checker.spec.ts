@@ -22,7 +22,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ContextPermissionResult, ContextResourcePermission } from './context-permissions-checker.js';
 import { ContextPermissionsChecker } from './context-permissions-checker.js';
-import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 
 describe('ContextPermissionsChecker is built with a non recursive request', async () => {
   let permissionsChecker: ContextPermissionsChecker;
