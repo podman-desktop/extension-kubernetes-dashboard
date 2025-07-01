@@ -25,8 +25,8 @@ import type { KubernetesTroubleshootingInformation } from '/@common/model/kubern
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
-import type { ContextsManager } from './contexts-manager.js';
-import type { RpcExtension } from '/@common/rpc/rpc.js';
+import { ContextsManager } from './contexts-manager.js';
+import { RpcExtension } from '/@common/rpc/rpc.js';
 import {
   ACTIVE_RESOURCES_COUNT,
   CONTEXTS_HEALTHS,
@@ -34,12 +34,15 @@ import {
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
 } from '/@common/channels.js';
+import { inject, injectable } from 'inversify';
 
+@injectable()
 export class ContextsStatesDispatcher {
-  constructor(
-    private manager: ContextsManager,
-    private rpcExtension: RpcExtension,
-  ) {}
+  @inject(ContextsManager)
+  private manager: ContextsManager;
+
+  @inject(RpcExtension)
+  private rpcExtension: RpcExtension;
 
   init(): void {
     this.manager.onContextHealthStateChange((_state: ContextHealthState) => this.updateHealthStates());

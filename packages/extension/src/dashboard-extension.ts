@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { WebviewPanel, ExtensionContext, KubeconfigUpdateEvent } from '@podman-desktop/api';
-import { kubernetes, Uri, window } from '@podman-desktop/api';
+import { env, kubernetes, Uri, window } from '@podman-desktop/api';
 
 import { RpcExtension } from '/@common/rpc/rpc';
 
@@ -26,9 +26,15 @@ import { ContextsManager } from './manager/contexts-manager';
 import { existsSync } from 'node:fs';
 import { KubeConfig } from '@kubernetes/client-node';
 import { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
+import { InversifyBinding } from './inject/inversify-binding';
+import type { Container } from 'inversify';
 
 export class DashboardExtension {
+  #container: Container | undefined;
+  #inversifyBinding: InversifyBinding | undefined;
+
   #extensionContext: ExtensionContext;
+
   #contextsManager: ContextsManager;
   #contextsStatesDispatcher: ContextsStatesDispatcher;
 
@@ -37,6 +43,8 @@ export class DashboardExtension {
   }
 
   async activate(): Promise<void> {
+    const telemetryLogger = env.createTelemetryLogger();
+
     const panel = await this.createWebview();
 
     // Register webview communication for this webview
@@ -44,10 +52,12 @@ export class DashboardExtension {
     rpcExtension.init();
     this.#extensionContext.subscriptions.push(rpcExtension);
 
-    this.#contextsManager = new ContextsManager();
-    this.#contextsStatesDispatcher = new ContextsStatesDispatcher(this.#contextsManager, rpcExtension);
-
     const now = performance.now();
+    this.#inversifyBinding = new InversifyBinding(rpcExtension, this.extensionContext, telemetryLogger);
+    this.#container = await this.#inversifyBinding.initBindings();
+
+    this.#contextsManager = await this.#container.getAsync(ContextsManager);
+    this.#contextsStatesDispatcher = await this.#container.getAsync(ContextsStatesDispatcher);
 
     const afterFirst = performance.now();
 
