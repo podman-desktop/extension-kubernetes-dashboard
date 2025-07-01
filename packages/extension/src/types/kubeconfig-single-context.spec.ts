@@ -20,7 +20,7 @@ import type { Cluster, Context, User } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 import { expect, test } from 'vitest';
 
-import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
+import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 
 const contexts = [
   {

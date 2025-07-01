@@ -18,10 +18,10 @@
 
 import { expect, test } from 'vitest';
 
-import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
-import { PodsResourceFactory } from './pods-resource-factory.js';
-import { ResourceFactoryBase } from './resource-factory.js';
-import { ResourceFactoryHandler } from '../manager/resource-factory-handler.js';
+import { DeploymentsResourceFactory } from '/@/resources/deployments-resource-factory.js';
+import { PodsResourceFactory } from '/@/resources/pods-resource-factory.js';
+import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
+import { ResourceFactoryHandler } from '/@/manager/resource-factory-handler.js';
 
 test('with 1 level and same request', () => {
   const factoryHandler = new ResourceFactoryHandler();

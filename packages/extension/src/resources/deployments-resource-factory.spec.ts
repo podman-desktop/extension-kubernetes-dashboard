@@ -19,7 +19,7 @@
 import type { V1Deployment } from '@kubernetes/client-node';
 import { expect, test } from 'vitest';
 
-import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
+import { DeploymentsResourceFactory } from '/@/resources/deployments-resource-factory.js';
 
 test('deployment with replica=0 is not active', () => {
   const factory = new DeploymentsResourceFactory();

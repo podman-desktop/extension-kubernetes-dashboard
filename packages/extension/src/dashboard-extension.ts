@@ -22,11 +22,11 @@ import { kubernetes, Uri, window } from '@podman-desktop/api';
 import { RpcExtension } from '/@common/rpc/rpc';
 
 import { readFile } from 'node:fs/promises';
-import { ContextsManager } from './manager/contexts-manager';
+import { ContextsManager } from '/@/manager/contexts-manager';
 import { existsSync } from 'node:fs';
 import { KubeConfig } from '@kubernetes/client-node';
-import { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
-import { DashboardImpl } from './controller/dashboard-impl';
+import { ContextsStatesDispatcher } from '/@/manager/contexts-states-dispatcher';
+import { DashboardImpl } from '/@/controller/dashboard-impl';
 
 export class DashboardExtension {
   #extensionContext: ExtensionContext;

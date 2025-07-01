@@ -19,7 +19,7 @@
 import type { V1Node } from '@kubernetes/client-node';
 import { expect, test } from 'vitest';
 
-import { NodesResourceFactory } from './nodes-resource-factory.js';
+import { NodesResourceFactory } from '/@/resources/nodes-resource-factory.js';
 
 test('node with no status is not active', () => {
   const factory = new NodesResourceFactory();

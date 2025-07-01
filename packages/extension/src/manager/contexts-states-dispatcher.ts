@@ -22,10 +22,10 @@ import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js'
 import type { KubernetesContextResources } from '/@common/model/kubernetes-resources.js';
 import type { KubernetesTroubleshootingInformation } from '/@common/model/kubernetes-troubleshooting.js';
 
-import type { ContextHealthState } from './context-health-checker.js';
-import type { ContextPermissionResult } from './context-permissions-checker.js';
-import type { DispatcherEvent } from './contexts-dispatcher.js';
-import type { ContextsManager } from './contexts-manager.js';
+import type { ContextHealthState } from '/@/manager/context-health-checker.js';
+import type { ContextPermissionResult } from '/@/manager/context-permissions-checker.js';
+import type { DispatcherEvent } from '/@/manager/contexts-dispatcher.js';
+import type { ContextsManager } from '/@/manager/contexts-manager.js';
 import type { RpcExtension } from '/@common/rpc/rpc.js';
 import {
   ACTIVE_RESOURCES_COUNT,

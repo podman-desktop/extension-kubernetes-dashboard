@@ -20,8 +20,8 @@ import type { Cluster, Context, User } from '@kubernetes/client-node';
 import { KubeConfig } from '@kubernetes/client-node';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { ContextsDispatcher } from './contexts-dispatcher.js';
-import { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
+import { ContextsDispatcher } from '/@/manager/contexts-dispatcher.js';
+import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 
 const contexts = [
   {

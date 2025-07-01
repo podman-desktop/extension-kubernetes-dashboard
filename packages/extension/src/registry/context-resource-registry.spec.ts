@@ -18,7 +18,7 @@
 
 import { beforeEach, expect, test } from 'vitest';
 
-import { ContextResourceRegistry } from './context-resource-registry.js';
+import { ContextResourceRegistry } from '/@/registry/context-resource-registry.js';
 
 let registry: ContextResourceRegistry<string>;
 

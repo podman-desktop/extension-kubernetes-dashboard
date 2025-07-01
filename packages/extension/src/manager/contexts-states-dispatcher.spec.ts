@@ -20,12 +20,12 @@ import { expect, test, vi } from 'vitest';
 
 import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
 
-import type { ContextHealthState } from './context-health-checker.js';
-import type { ContextPermissionResult } from './context-permissions-checker.js';
-import type { DispatcherEvent } from './contexts-dispatcher.js';
-import type { ContextsManager } from './contexts-manager.js';
-import { ContextsStatesDispatcher } from './contexts-states-dispatcher.js';
-import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
+import type { ContextHealthState } from '/@/manager/context-health-checker.js';
+import type { ContextPermissionResult } from '/@/manager/context-permissions-checker.js';
+import type { DispatcherEvent } from '/@/manager/contexts-dispatcher.js';
+import type { ContextsManager } from '/@/manager/contexts-manager.js';
+import { ContextsStatesDispatcher } from '/@/manager/contexts-states-dispatcher.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { IDisposable } from '/@common/model/disposable.js';
 import type { RpcExtension } from '/@common/rpc/rpc.js';
 import {

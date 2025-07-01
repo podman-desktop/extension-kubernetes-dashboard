@@ -21,18 +21,18 @@ import { KubeConfig } from '@kubernetes/client-node';
 import type { Event } from '@podman-desktop/api';
 import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { ContextHealthState } from './context-health-checker.js';
-import { ContextHealthChecker } from './context-health-checker.js';
+import type { ContextHealthState } from '/@/manager/context-health-checker.js';
+import { ContextHealthChecker } from '/@/manager/context-health-checker.js';
 import {
   ContextPermissionsChecker,
   type ContextPermissionsRequest,
   type ContextResourcePermission,
-} from './context-permissions-checker.js';
-import { ContextsManager } from './contexts-manager.js';
-import { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
-import type { ResourceFactory } from '../resources/resource-factory.js';
-import { ResourceFactoryBase } from '../resources/resource-factory.js';
-import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from '../types/resource-informer.js';
+} from '/@/manager/context-permissions-checker.js';
+import { ContextsManager } from '/@/manager/contexts-manager.js';
+import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
+import type { ResourceFactory } from '/@/resources/resource-factory.js';
+import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
+import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from '/@/types/resource-informer.js';
 
 const onCacheUpdatedMock = vi.fn<Event<CacheUpdatedEvent>>();
 const onOfflineMock = vi.fn<Event<OfflineEvent>>();

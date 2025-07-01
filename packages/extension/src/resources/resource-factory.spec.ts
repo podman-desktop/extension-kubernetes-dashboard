@@ -18,9 +18,9 @@
 import type { V1Pod } from '@kubernetes/client-node';
 import { expect, test } from 'vitest';
 
-import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
-import { isResourceFactoryWithPermissions, ResourceFactoryBase } from './resource-factory.js';
-import type { ResourceInformer } from '../types/resource-informer.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
+import { isResourceFactoryWithPermissions, ResourceFactoryBase } from '/@/resources/resource-factory.js';
+import type { ResourceInformer } from '/@/types/resource-informer.js';
 
 test('ResourceFactoryBase set permissions', () => {
   const factory = new ResourceFactoryBase({ resource: 'resource1' });

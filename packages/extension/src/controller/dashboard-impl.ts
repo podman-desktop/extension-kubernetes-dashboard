@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContextsStatesDispatcher } from '../manager/contexts-states-dispatcher';
+import type { ContextsStatesDispatcher } from '/@/manager/contexts-states-dispatcher';
 import { API_DASHBOARD } from '/@common/channels';
 import type { DashboardApi } from '/@common/interface/dashboard-api';
 import type { ResourceCount } from '/@common/model/kubernetes-resource-count';

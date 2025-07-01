@@ -17,8 +17,8 @@
  ***********************************************************************/
 import type { KubernetesObject, V1ResourceAttributes } from '@kubernetes/client-node';
 
-import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
-import type { ResourceInformer } from '../types/resource-informer.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
+import type { ResourceInformer } from '/@/types/resource-informer.js';
 
 export interface ResourcePermissionsFactory {
   get permissionsRequests(): V1ResourceAttributes[];

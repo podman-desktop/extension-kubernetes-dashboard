@@ -18,9 +18,9 @@
 
 import util from 'node:util';
 
-import type { ContextPermissionsRequest } from './context-permissions-checker.js';
-import type { ResourceFactory } from '../resources/resource-factory.js';
-import { isResourceFactoryWithPermissions } from '../resources/resource-factory.js';
+import type { ContextPermissionsRequest } from '/@/manager/context-permissions-checker.js';
+import type { ResourceFactory } from '/@/resources/resource-factory.js';
+import { isResourceFactoryWithPermissions } from '/@/resources/resource-factory.js';
 
 export class ResourceFactoryHandler {
   #resourceFactories: ResourceFactory[] = [];

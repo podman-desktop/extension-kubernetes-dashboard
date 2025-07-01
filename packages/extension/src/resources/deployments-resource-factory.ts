@@ -19,10 +19,10 @@
 import type { V1Deployment, V1DeploymentList } from '@kubernetes/client-node';
 import { AppsV1Api } from '@kubernetes/client-node';
 
-import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context.js';
-import type { ResourceFactory } from './resource-factory.js';
-import { ResourceFactoryBase } from './resource-factory.js';
-import { ResourceInformer } from '../types/resource-informer.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
+import type { ResourceFactory } from '/@/resources/resource-factory.js';
+import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
+import { ResourceInformer } from '/@/types/resource-informer.js';
 
 export class DeploymentsResourceFactory extends ResourceFactoryBase implements ResourceFactory {
   constructor() {

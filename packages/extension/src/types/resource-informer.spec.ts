@@ -28,8 +28,8 @@ import type {
 import { ApiException, DELETE, ERROR, KubeConfig, UPDATE } from '@kubernetes/client-node';
 import { expect, test, vi } from 'vitest';
 
-import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
-import { ResourceInformer } from './resource-informer.js';
+import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
+import { ResourceInformer } from '/@/types/resource-informer.js';
 
 interface MyResource {
   apiVersion?: string;

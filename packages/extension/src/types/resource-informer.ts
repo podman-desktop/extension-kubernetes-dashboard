@@ -26,9 +26,9 @@ import type {
 import { ADD, ApiException, DELETE, ERROR, ListWatch, UPDATE, Watch } from '@kubernetes/client-node';
 import type { Disposable } from '@podman-desktop/api';
 
-import type { Event } from './emitter.js';
-import { Emitter } from './emitter.js';
-import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
+import type { Event } from '/@/types/emitter.js';
+import { Emitter } from '/@/types/emitter.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 
 interface BaseEvent {
   kubeconfig: KubeConfigSingleContext;
