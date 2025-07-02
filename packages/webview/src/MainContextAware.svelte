@@ -3,7 +3,7 @@ import { setContext } from 'svelte';
 
 import type { MainContext } from './main';
 import { States } from './state/states';
-import ResourcesCount from './component/ResourcesCount.svelte';
+import App from './App.svelte';
 
 interface Props {
   context: MainContext;
@@ -20,9 +20,5 @@ initialized = true;
 </script>
 
 {#if initialized}
-  Kubernetes Dashboard
-
-  <div>
-    <ResourcesCount />
-  </div>
+  <App />
 {/if}
