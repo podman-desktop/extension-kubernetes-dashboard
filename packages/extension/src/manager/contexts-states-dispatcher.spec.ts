@@ -18,7 +18,7 @@
 
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import type { IDisposable } from '/@/types/disposable.js';
+import type { IDisposable } from '/@common/types/disposable.js';
 import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
 
 import type { ContextHealthState } from './context-health-checker.js';
