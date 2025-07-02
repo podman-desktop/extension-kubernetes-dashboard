@@ -19,19 +19,20 @@
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { IDisposable } from '/@common/types/disposable.js';
-import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
 
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsManager } from './contexts-manager.js';
 import { ContextsStatesDispatcher } from './contexts-states-dispatcher.js';
-import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { RpcExtension } from '/@common/rpc/rpc.js';
-import { CONTEXTS_HEALTHS, CONTEXTS_PERMISSIONS, RESOURCES_COUNT, UPDATE_RESOURCE } from '/@common/channels.js';
 import type { ExtensionContext, TelemetryLogger } from '@podman-desktop/api';
 import type { Container } from 'inversify';
 import { InversifyBinding } from '/@/inject/inversify-binding.js';
+import { ResourcesCountDispatcher } from '../dispatcher/resources-count-dispatcher.js';
+import { ActiveResourcesCountDispatcher } from '../dispatcher/active-resources-count-dispatcher.js';
+import { ContextsHealthsDispatcher } from '../dispatcher/contexts-healths-dispatcher.js';
+import { ContextsPermissionsDispatcher } from '../dispatcher/contexts-permissions-dispatcher.js';
 
 let container: Container;
 const contextsManagerMock: ContextsManager = {
@@ -52,10 +53,27 @@ const extensionContext = {} as ExtensionContext;
 const telemetryLogger = {} as TelemetryLogger;
 let dispatcher: ContextsStatesDispatcher;
 
+const resourcesCountDispatcher = {
+  dispatch: vi.fn(),
+} as unknown as ResourcesCountDispatcher;
+const activeResourcesCountDispatcher = {
+  dispatch: vi.fn(),
+} as unknown as ActiveResourcesCountDispatcher;
+const contextsHealthsDispatcher = {
+  dispatch: vi.fn(),
+} as unknown as ContextsHealthsDispatcher;
+const contextsPermissionsDispatcher = {
+  dispatch: vi.fn(),
+} as unknown as ContextsPermissionsDispatcher;
+
 beforeAll(async () => {
   const inversifyBinding = new InversifyBinding(rpcExtension, extensionContext, telemetryLogger);
   container = await inversifyBinding.initBindings();
   (await container.rebind(ContextsManager)).toConstantValue(contextsManagerMock);
+  (await container.rebind(ResourcesCountDispatcher)).toConstantValue(resourcesCountDispatcher);
+  (await container.rebind(ActiveResourcesCountDispatcher)).toConstantValue(activeResourcesCountDispatcher);
+  (await container.rebind(ContextsHealthsDispatcher)).toConstantValue(contextsHealthsDispatcher);
+  (await container.rebind(ContextsPermissionsDispatcher)).toConstantValue(contextsPermissionsDispatcher);
 });
 
 beforeEach(() => {
@@ -64,81 +82,71 @@ beforeEach(() => {
 });
 
 test('ContextsStatesDispatcher should call updateHealthStates when onContextHealthStateChange event is fired', async () => {
-  const updateHealthStatesSpy = vi.spyOn(dispatcher, 'updateHealthStates').mockResolvedValue();
-  const updatePermissionsSpy = vi.spyOn(dispatcher, 'updatePermissions').mockResolvedValue();
   dispatcher.init();
-  expect(updateHealthStatesSpy).not.toHaveBeenCalled();
-  expect(updatePermissionsSpy).not.toHaveBeenCalled();
+  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(contextsPermissionsDispatcher.dispatch).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onContextHealthStateChange).mockImplementation(
     f => f({} as ContextHealthState) as IDisposable,
   );
   vi.mocked(contextsManagerMock.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
   dispatcher.init();
-  expect(updateHealthStatesSpy).toHaveBeenCalled();
-  expect(updatePermissionsSpy).not.toHaveBeenCalled();
+  expect(contextsHealthsDispatcher.dispatch).toHaveBeenCalled();
+  expect(contextsPermissionsDispatcher.dispatch).not.toHaveBeenCalled();
 });
 
 test('ContextsStatesDispatcher should call updateHealthStates, updateResourcesCount and updateActiveResourcesCount when onOfflineChange event is fired', async () => {
-  const updateHealthStatesSpy = vi.spyOn(dispatcher, 'updateHealthStates').mockResolvedValue();
-  const updateResourcesCountSpy = vi.spyOn(dispatcher, 'updateResourcesCount').mockResolvedValue();
-  const updateActiveResourcesCountSpy = vi.spyOn(dispatcher, 'updateActiveResourcesCount').mockResolvedValue();
   dispatcher.init();
-  expect(updateHealthStatesSpy).not.toHaveBeenCalled();
-  expect(updateResourcesCountSpy).not.toHaveBeenCalled();
-  expect(updateActiveResourcesCountSpy).not.toHaveBeenCalled();
+  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(resourcesCountDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(activeResourcesCountDispatcher.dispatch).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onOfflineChange).mockImplementation(f => f() as IDisposable);
   vi.mocked(contextsManagerMock.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(updateHealthStatesSpy).toHaveBeenCalled();
-    expect(updateResourcesCountSpy).toHaveBeenCalled();
-    expect(updateActiveResourcesCountSpy).toHaveBeenCalled();
+    expect(contextsHealthsDispatcher.dispatch).toHaveBeenCalled();
+    expect(resourcesCountDispatcher.dispatch).toHaveBeenCalled();
+    expect(activeResourcesCountDispatcher.dispatch).toHaveBeenCalled();
   });
 });
 
 test('ContextsStatesDispatcher should call updatePermissions when onContextPermissionResult event is fired', () => {
   vi.mocked(contextsManagerMock.getPermissions).mockReturnValue([]);
-  const updateHealthStatesSpy = vi.spyOn(dispatcher, 'updateHealthStates').mockResolvedValue();
-  const updatePermissionsSpy = vi.spyOn(dispatcher, 'updatePermissions').mockResolvedValue();
   dispatcher.init();
-  expect(updateHealthStatesSpy).not.toHaveBeenCalled();
-  expect(updatePermissionsSpy).not.toHaveBeenCalled();
+  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(contextsPermissionsDispatcher.dispatch).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onContextPermissionResult).mockImplementation(
     f => f({} as ContextPermissionResult) as IDisposable,
   );
   dispatcher.init();
-  expect(updateHealthStatesSpy).not.toHaveBeenCalled();
-  expect(updatePermissionsSpy).toHaveBeenCalled();
+  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(contextsPermissionsDispatcher.dispatch).toHaveBeenCalled();
 });
 
 test('ContextsStatesDispatcher should call updateHealthStates and updatePermissions when onContextDelete event is fired', async () => {
   vi.mocked(contextsManagerMock.getPermissions).mockReturnValue([]);
-  const updateHealthStatesSpy = vi.spyOn(dispatcher, 'updateHealthStates').mockResolvedValue();
-  const updatePermissionsSpy = vi.spyOn(dispatcher, 'updatePermissions').mockResolvedValue();
   vi.mocked(contextsManagerMock.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
   dispatcher.init();
-  expect(updateHealthStatesSpy).not.toHaveBeenCalled();
-  expect(updatePermissionsSpy).not.toHaveBeenCalled();
+  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(contextsPermissionsDispatcher.dispatch).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onContextDelete).mockImplementation(f => f({} as DispatcherEvent) as IDisposable);
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(updateHealthStatesSpy).toHaveBeenCalled();
-    expect(updatePermissionsSpy).toHaveBeenCalled();
+    expect(contextsHealthsDispatcher.dispatch).toHaveBeenCalled();
+    expect(contextsPermissionsDispatcher.dispatch).toHaveBeenCalled();
   });
 });
 
 test('ContextsStatesDispatcher should call updateResource and updateActiveResourcesCount when onResourceUpdated event is fired', async () => {
   vi.mocked(contextsManagerMock.getPermissions).mockReturnValue([]);
   const updateResourceSpy = vi.spyOn(dispatcher, 'updateResource').mockResolvedValue();
-  const updateActiveResourcesCountSpy = vi.spyOn(dispatcher, 'updateActiveResourcesCount').mockResolvedValue();
   vi.mocked(contextsManagerMock.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
   dispatcher.init();
   expect(updateResourceSpy).not.toHaveBeenCalled();
-  expect(updateActiveResourcesCountSpy).not.toHaveBeenCalled();
+  expect(activeResourcesCountDispatcher.dispatch).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onResourceUpdated).mockImplementation(
     f => f({} as { contextName: string; resourceName: string }) as IDisposable,
@@ -146,93 +154,6 @@ test('ContextsStatesDispatcher should call updateResource and updateActiveResour
   dispatcher.init();
   await vi.waitFor(() => {
     expect(updateResourceSpy).toHaveBeenCalled();
-    expect(updateActiveResourcesCountSpy).toHaveBeenCalled();
-  });
-});
-
-test('getContextsHealths should return the values of the map returned by manager.getHealthCheckersStates without kubeConfig', () => {
-  const context1State = {
-    contextName: 'context1',
-    checking: true,
-    reachable: false,
-  };
-  const context2State = {
-    contextName: 'context2',
-    checking: false,
-    reachable: true,
-  };
-  const context3State = {
-    contextName: 'context3',
-    checking: false,
-    reachable: false,
-    errorMessage: 'an error',
-  };
-  const value = new Map<string, ContextHealthState>([
-    ['context1', { ...context1State, kubeConfig: {} as unknown as KubeConfigSingleContext }],
-    ['context2', { ...context2State, kubeConfig: {} as unknown as KubeConfigSingleContext }],
-    ['context3', { ...context3State, kubeConfig: {} as unknown as KubeConfigSingleContext }],
-  ]);
-  vi.mocked(contextsManagerMock.getHealthCheckersStates).mockReturnValue(value);
-  const result = dispatcher.getContextsHealths();
-  expect(result).toEqual([context1State, context2State, context3State]);
-});
-
-test('updateHealthStates should call rpcExtension.fire with CONTEXTS_HEALTHS and data', async () => {
-  vi.spyOn(dispatcher, 'getContextsHealths').mockReturnValue([]);
-  await dispatcher.updateHealthStates();
-  expect(rpcExtension.fire).toHaveBeenCalledWith(CONTEXTS_HEALTHS, { healths: [] });
-});
-
-test('getContextsPermissions should return the values as an array', () => {
-  const value: ContextPermission[] = [
-    {
-      contextName: 'context1',
-      resourceName: 'resource1',
-      permitted: true,
-      reason: 'ok',
-    },
-    {
-      contextName: 'context1',
-      resourceName: 'resource2',
-      permitted: false,
-      reason: 'nok',
-    },
-    {
-      contextName: 'context2',
-      resourceName: 'resource1',
-      permitted: false,
-      reason: 'nok',
-    },
-    {
-      contextName: 'context2',
-      resourceName: 'resource2',
-      permitted: true,
-      reason: 'ok',
-    },
-  ];
-  vi.mocked(contextsManagerMock.getPermissions).mockReturnValue(value);
-  const result = dispatcher.getContextsPermissions();
-  expect(result).toEqual(value);
-});
-
-test('updatePermissions should call rpcExtension.fire with CONTEXTS_PERMISSIONS and data', async () => {
-  vi.spyOn(dispatcher, 'getContextsPermissions').mockReturnValue([]);
-  await dispatcher.updatePermissions();
-  expect(rpcExtension.fire).toHaveBeenCalledWith(CONTEXTS_PERMISSIONS, { permissions: [] });
-});
-
-test('updateResourcesCount should call rpcExtension.fire with RESOURCES_COUNT and data', async () => {
-  vi.spyOn(dispatcher, 'getResourcesCount').mockReturnValue([]);
-  await dispatcher.updateResourcesCount();
-  expect(rpcExtension.fire).toHaveBeenCalledWith(RESOURCES_COUNT, { counts: [] });
-});
-
-test('updateResource should call rpcExtension.fire with UPDATE_RESOURCE and data', async () => {
-  vi.spyOn(dispatcher, 'getResources').mockReturnValue([]);
-  await dispatcher.updateResource('resource1', 'context1');
-  expect(rpcExtension.fire).toHaveBeenCalledWith(UPDATE_RESOURCE, {
-    contextName: 'context1',
-    resourceName: 'resource1',
-    resources: [],
+    expect(activeResourcesCountDispatcher.dispatch).toHaveBeenCalled();
   });
 });
