@@ -22,20 +22,22 @@ import { InversifyBinding } from './inject/inversify-binding';
 import { IDisposable } from '/@common/types/disposable';
 import { States } from './state/states';
 import { StateObject } from './state/util/state-object.svelte';
+import type { WebviewApi } from '@podman-desktop/webview-api';
 
 export interface MainContext {
   states: States;
+  webviewApi: WebviewApi;
 }
 
 export class Main implements IDisposable {
   private disposables: IDisposable[] = [];
 
   async init(): Promise<MainContext> {
-    const webViewApi = acquirePodmanDesktopApi();
+    const webviewApi = acquirePodmanDesktopApi();
 
-    const rpcBrowser: RpcBrowser = new RpcBrowser(window, webViewApi);
+    const rpcBrowser: RpcBrowser = new RpcBrowser(window, webviewApi);
 
-    const inversifyBinding = new InversifyBinding(rpcBrowser, webViewApi);
+    const inversifyBinding = new InversifyBinding(rpcBrowser, webviewApi);
     const container = await inversifyBinding.initBindings();
 
     // Grab all state object instances
@@ -52,6 +54,7 @@ export class Main implements IDisposable {
 
     const mainContext: MainContext = {
       states: await container.getAsync<States>(States),
+      webviewApi,
     };
 
     return mainContext;
