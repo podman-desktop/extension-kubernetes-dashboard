@@ -31,7 +31,7 @@ import type { RpcExtension } from '/@common/rpc/rpc.js';
 import { CONTEXTS_HEALTHS, CONTEXTS_PERMISSIONS, RESOURCES_COUNT, UPDATE_RESOURCE } from '/@common/channels.js';
 import type { ExtensionContext, TelemetryLogger } from '@podman-desktop/api';
 import type { Container } from 'inversify';
-import { InversifyBinding } from '../inject/inversify-binding.js';
+import { InversifyBinding } from '/@/inject/inversify-binding.js';
 
 let container: Container;
 const contextsManagerMock: ContextsManager = {
