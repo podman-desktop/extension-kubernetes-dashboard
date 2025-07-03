@@ -19,8 +19,10 @@
 import type { RpcChannel } from '/@common/rpc';
 import type { RpcExtension } from '/@common/rpc/rpc';
 
+export const DispatcherObject = Symbol.for('DispatcherObject');
 export interface DispatcherObject<T> {
-  dispatch(options: T): Promise<void>;
+  get channelName(): string;
+  dispatch(options?: T): Promise<void>;
 }
 
 // Allow to receive event for a given object
@@ -32,6 +34,10 @@ export abstract class AbsDispatcherObjectImpl<T, U> implements DispatcherObject<
     channel: RpcChannel<U>,
   ) {
     this.#channel = channel;
+  }
+
+  get channelName(): string {
+    return this.#channel.name;
   }
 
   async dispatch(options?: T): Promise<void> {

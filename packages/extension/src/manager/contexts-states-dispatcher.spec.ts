@@ -33,6 +33,13 @@ import { ResourcesCountDispatcher } from '../dispatcher/resources-count-dispatch
 import { ActiveResourcesCountDispatcher } from '../dispatcher/active-resources-count-dispatcher.js';
 import { ContextsHealthsDispatcher } from '../dispatcher/contexts-healths-dispatcher.js';
 import { ContextsPermissionsDispatcher } from '../dispatcher/contexts-permissions-dispatcher.js';
+import {
+  ACTIVE_RESOURCES_COUNT,
+  CONTEXTS_HEALTHS,
+  CONTEXTS_PERMISSIONS,
+  RESOURCES_COUNT,
+  UPDATE_RESOURCE,
+} from '/@common/channels.js';
 
 let container: Container;
 const contextsManagerMock: ContextsManager = {
@@ -82,78 +89,72 @@ beforeEach(() => {
 });
 
 test('ContextsStatesDispatcher should call updateHealthStates when onContextHealthStateChange event is fired', async () => {
+  const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
-  expect(contextsPermissionsDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(dispatcherSpy).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onContextHealthStateChange).mockImplementation(
     f => f({} as ContextHealthState) as IDisposable,
   );
-  vi.mocked(contextsManagerMock.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
   dispatcher.init();
-  expect(contextsHealthsDispatcher.dispatch).toHaveBeenCalled();
-  expect(contextsPermissionsDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_HEALTHS);
 });
 
 test('ContextsStatesDispatcher should call updateHealthStates, updateResourcesCount and updateActiveResourcesCount when onOfflineChange event is fired', async () => {
+  const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
-  expect(resourcesCountDispatcher.dispatch).not.toHaveBeenCalled();
-  expect(activeResourcesCountDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(dispatcherSpy).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onOfflineChange).mockImplementation(f => f() as IDisposable);
-  vi.mocked(contextsManagerMock.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(contextsHealthsDispatcher.dispatch).toHaveBeenCalled();
-    expect(resourcesCountDispatcher.dispatch).toHaveBeenCalled();
-    expect(activeResourcesCountDispatcher.dispatch).toHaveBeenCalled();
+    expect(dispatcherSpy).toHaveBeenCalledTimes(3);
   });
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining(CONTEXTS_HEALTHS));
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining(RESOURCES_COUNT));
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining(ACTIVE_RESOURCES_COUNT));
 });
 
 test('ContextsStatesDispatcher should call updatePermissions when onContextPermissionResult event is fired', () => {
-  vi.mocked(contextsManagerMock.getPermissions).mockReturnValue([]);
+  const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
-  expect(contextsPermissionsDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(dispatcherSpy).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onContextPermissionResult).mockImplementation(
     f => f({} as ContextPermissionResult) as IDisposable,
   );
   dispatcher.init();
-  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
-  expect(contextsPermissionsDispatcher.dispatch).toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_PERMISSIONS);
 });
 
 test('ContextsStatesDispatcher should call updateHealthStates and updatePermissions when onContextDelete event is fired', async () => {
-  vi.mocked(contextsManagerMock.getPermissions).mockReturnValue([]);
-  vi.mocked(contextsManagerMock.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
+  const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(contextsHealthsDispatcher.dispatch).not.toHaveBeenCalled();
-  expect(contextsPermissionsDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(dispatcherSpy).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onContextDelete).mockImplementation(f => f({} as DispatcherEvent) as IDisposable);
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(contextsHealthsDispatcher.dispatch).toHaveBeenCalled();
-    expect(contextsPermissionsDispatcher.dispatch).toHaveBeenCalled();
+    expect(dispatcherSpy).toHaveBeenCalledTimes(2);
   });
+  expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_HEALTHS);
+  expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_PERMISSIONS);
 });
 
 test('ContextsStatesDispatcher should call updateResource and updateActiveResourcesCount when onResourceUpdated event is fired', async () => {
-  vi.mocked(contextsManagerMock.getPermissions).mockReturnValue([]);
-  const updateResourceSpy = vi.spyOn(dispatcher, 'updateResource').mockResolvedValue();
-  vi.mocked(contextsManagerMock.getHealthCheckersStates).mockReturnValue(new Map<string, ContextHealthState>());
+  const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(updateResourceSpy).not.toHaveBeenCalled();
-  expect(activeResourcesCountDispatcher.dispatch).not.toHaveBeenCalled();
+  expect(dispatcherSpy).not.toHaveBeenCalled();
 
   vi.mocked(contextsManagerMock.onResourceUpdated).mockImplementation(
-    f => f({} as { contextName: string; resourceName: string }) as IDisposable,
+    f => f({ contextName: 'context1', resourceName: 'res1' }) as IDisposable,
   );
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(updateResourceSpy).toHaveBeenCalled();
-    expect(activeResourcesCountDispatcher.dispatch).toHaveBeenCalled();
+    expect(dispatcherSpy).toHaveBeenCalledTimes(2);
   });
+  expect(dispatcherSpy).toHaveBeenCalledWith(UPDATE_RESOURCE, { contextName: 'context1', resourceName: 'res1' });
+  expect(dispatcherSpy).toHaveBeenCalledWith(ACTIVE_RESOURCES_COUNT);
 });

@@ -21,12 +21,20 @@ import { ActiveResourcesCountDispatcher } from './active-resources-count-dispatc
 import { ContextsHealthsDispatcher } from './contexts-healths-dispatcher';
 import { ContextsPermissionsDispatcher } from './contexts-permissions-dispatcher';
 import { ResourcesCountDispatcher } from './resources-count-dispatcher';
+import { DispatcherObject } from './util/dispatcher-object';
 
 const dispatchersModule = new ContainerModule(options => {
   options.bind<ActiveResourcesCountDispatcher>(ActiveResourcesCountDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(ActiveResourcesCountDispatcher);
+
   options.bind<ContextsHealthsDispatcher>(ContextsHealthsDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(ContextsHealthsDispatcher);
+
   options.bind<ContextsPermissionsDispatcher>(ContextsPermissionsDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(ContextsPermissionsDispatcher);
+
   options.bind<ResourcesCountDispatcher>(ResourcesCountDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(ResourcesCountDispatcher);
 });
 
 export { dispatchersModule };
