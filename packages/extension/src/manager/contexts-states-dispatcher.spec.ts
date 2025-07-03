@@ -158,3 +158,11 @@ test('ContextsStatesDispatcher should call updateResource and updateActiveResour
   expect(dispatcherSpy).toHaveBeenCalledWith(UPDATE_RESOURCE, { contextName: 'context1', resourceName: 'res1' });
   expect(dispatcherSpy).toHaveBeenCalledWith(ACTIVE_RESOURCES_COUNT);
 });
+
+test('dispatchByChannelName is called when onSubscribe emits an event', async () => {
+  const dispatchByChannelNameSpy = vi.spyOn(dispatcher, 'dispatchByChannelName').mockResolvedValue();
+
+  vi.spyOn(dispatcher, 'onSubscribe').mockImplementation(f => f('channel1') as IDisposable);
+  dispatcher.init();
+  expect(dispatchByChannelNameSpy).toHaveBeenCalledWith('channel1');
+});

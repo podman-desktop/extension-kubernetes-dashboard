@@ -16,12 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Event } from './emitter';
+import { Emitter } from './emitter';
+
 interface ChannelSubscriberInfo {
   uid: number;
 }
 
 export class ChannelSubscriber {
   #subscribers: { [channelName: string]: ChannelSubscriberInfo[] } = {};
+
+  #onSubscribe = new Emitter<string>();
+
+  onSubscribe: Event<string> = this.#onSubscribe.event;
 
   async resetChannelSubscribers(channelName: string): Promise<void> {
     this.#subscribers[channelName] = [];
@@ -33,6 +40,7 @@ export class ChannelSubscriber {
       console.warn('subscription already in use for channel', channelName, subscription);
     }
     this.#subscribers[channelName] = [...(this.#subscribers[channelName] ?? []), { uid: subscription }];
+    this.#onSubscribe.fire(channelName);
   }
 
   async unsubscribeFromChannel(channelName: string, subscription: number): Promise<void> {

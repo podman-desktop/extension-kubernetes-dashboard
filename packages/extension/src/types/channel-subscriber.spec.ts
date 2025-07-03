@@ -43,6 +43,17 @@ test('happy path', async () => {
   expect(console.warn).not.toHaveBeenCalled();
 });
 
+test('subscribe makes onSubscribe emit an event', async () => {
+  const channel = 'channel1';
+  const uid = 1;
+  const subscriber = new ChannelSubscriber();
+  const listener = vi.fn();
+  subscriber.onSubscribe(listener);
+  await subscriber.resetChannelSubscribers(channel);
+  await subscriber.subscribeToChannel(channel, uid);
+  expect(listener).toHaveBeenCalledWith(channel);
+});
+
 describe('unexpected paths are safe', () => {
   test('reset is not called', async () => {
     const channel = 'channel1';
