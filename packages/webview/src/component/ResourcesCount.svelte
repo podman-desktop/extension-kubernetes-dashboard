@@ -1,9 +1,13 @@
 <script lang="ts">
-import { getContext } from 'svelte';
+import { getContext, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import { NavPage } from '@podman-desktop/ui-svelte';
 
 const resourcesCount = getContext<States>(States).stateResourcesCountInfoUI;
+
+onMount(() => {
+  return resourcesCount.subscribe();
+});
 </script>
 
 <NavPage title="Resources count" searchEnabled={false}>

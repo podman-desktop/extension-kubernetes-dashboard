@@ -24,6 +24,7 @@ import { Container } from 'inversify';
 import { RpcBrowser } from '/@common/rpc/rpc';
 
 import { statesModule } from '/@/state/state-module';
+import { Remote } from '../remote/remote';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -39,6 +40,7 @@ export class InversifyBinding {
   public async initBindings(): Promise<Container> {
     this.#container = new Container();
     this.#container.bind(RpcBrowser).toConstantValue(this.#rpcBrowser);
+    this.#container.bind(Remote).toConstantValue(this.#rpcBrowser);
     this.#container.bind('WebviewApi').toConstantValue(this.#webviewApi);
 
     await this.#container.load(statesModule);

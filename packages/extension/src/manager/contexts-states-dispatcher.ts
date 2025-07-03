@@ -31,16 +31,19 @@ import {
   UPDATE_RESOURCE,
 } from '/@common/channels.js';
 import { inject, injectable, multiInject } from 'inversify';
-import { DispatcherObject } from '../dispatcher/util/dispatcher-object.js';
+import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
+import { SubscribeApi } from '/@common/interface/subscribe-api.js';
+import { ChannelSubscriber } from '/@/types/channel-subscriber.js';
 
 @injectable()
-export class ContextsStatesDispatcher {
+export class ContextsStatesDispatcher extends ChannelSubscriber implements SubscribeApi {
   @inject(ContextsManager)
   private manager: ContextsManager;
 
   #dispatchers: Map<string, DispatcherObject<unknown>> = new Map();
 
   constructor(@multiInject(DispatcherObject) dispatchers: DispatcherObject<unknown>[]) {
+    super();
     dispatchers.forEach(dispatcher => {
       this.#dispatchers.set(dispatcher.channelName, dispatcher);
     });
@@ -77,6 +80,10 @@ export class ContextsStatesDispatcher {
   }
 
   async dispatch(channel: RpcChannel<unknown>, options?: unknown): Promise<void> {
+    if (!this.hasSubscribers(channel.name)) {
+      return;
+    }
+    console.debug('dispatch data for', channel.name);
     const dispatcher = this.#dispatchers.get(channel.name);
     if (!dispatcher) {
       console.error(`dispatcher not found for channel ${channel.name}`);

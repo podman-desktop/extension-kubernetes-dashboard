@@ -23,10 +23,12 @@ import { IDisposable } from '/@common/types/disposable';
 import { States } from './state/states';
 import { StateObject } from './state/util/state-object.svelte';
 import type { WebviewApi } from '@podman-desktop/webview-api';
+import { Remote } from './remote/remote';
 
 export interface MainContext {
   states: States;
   webviewApi: WebviewApi;
+  remote: Remote;
 }
 
 export class Main implements IDisposable {
@@ -55,6 +57,7 @@ export class Main implements IDisposable {
     const mainContext: MainContext = {
       states: await container.getAsync<States>(States),
       webviewApi,
+      remote: container.get<Remote>(Remote),
     };
 
     return mainContext;

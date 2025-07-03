@@ -28,6 +28,7 @@ import { KubeConfig } from '@kubernetes/client-node';
 import { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
 import { InversifyBinding } from './inject/inversify-binding';
 import type { Container } from 'inversify';
+import { API_SUBSCRIBE } from '/@common/channels';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -62,6 +63,8 @@ export class DashboardExtension {
     const afterFirst = performance.now();
 
     console.log('activation time:', afterFirst - now);
+
+    rpcExtension.registerInstance(API_SUBSCRIBE, this.#contextsStatesDispatcher);
 
     await this.listenMonitoring();
     await this.startMonitoring();
