@@ -16,17 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContextHealth } from '/@common/model/kubernetes-contexts-healths.js';
-import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
-import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js';
-import type { KubernetesContextResources } from '/@common/model/kubernetes-resources.js';
 import type { KubernetesTroubleshootingInformation } from '/@common/model/kubernetes-troubleshooting.js';
 
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsManager } from './contexts-manager.js';
-import { RpcExtension } from '/@common/rpc/rpc.js';
+import { RpcChannel } from '/@common/rpc/rpc.js';
 import {
   ACTIVE_RESOURCES_COUNT,
   CONTEXTS_HEALTHS,
@@ -34,98 +30,58 @@ import {
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
 } from '/@common/channels.js';
-import { inject, injectable } from 'inversify';
+import { inject, injectable, multiInject } from 'inversify';
+import { DispatcherObject } from '../dispatcher/util/dispatcher-object.js';
 
 @injectable()
 export class ContextsStatesDispatcher {
   @inject(ContextsManager)
   private manager: ContextsManager;
 
-  @inject(RpcExtension)
-  private rpcExtension: RpcExtension;
+  #dispatchers: Map<string, DispatcherObject<unknown>> = new Map();
+
+  constructor(@multiInject(DispatcherObject) dispatchers: DispatcherObject<unknown>[]) {
+    dispatchers.forEach(dispatcher => {
+      this.#dispatchers.set(dispatcher.channelName, dispatcher);
+    });
+  }
 
   init(): void {
-    this.manager.onContextHealthStateChange((_state: ContextHealthState) => this.updateHealthStates());
+    this.manager.onContextHealthStateChange(async (_state: ContextHealthState) => {
+      await this.dispatch(CONTEXTS_HEALTHS);
+    });
     this.manager.onOfflineChange(async () => {
-      await this.updateHealthStates();
-      await this.updateResourcesCount();
-      await this.updateActiveResourcesCount();
+      await this.dispatch(CONTEXTS_HEALTHS);
+      await this.dispatch(RESOURCES_COUNT);
+      await this.dispatch(ACTIVE_RESOURCES_COUNT);
     });
-    this.manager.onContextPermissionResult((_permissions: ContextPermissionResult) => this.updatePermissions());
+    this.manager.onContextPermissionResult(async (_permissions: ContextPermissionResult) => {
+      await this.dispatch(CONTEXTS_PERMISSIONS);
+    });
     this.manager.onContextDelete(async (_state: DispatcherEvent) => {
-      await this.updateHealthStates();
-      await this.updatePermissions();
+      await this.dispatch(CONTEXTS_HEALTHS);
+      await this.dispatch(CONTEXTS_PERMISSIONS);
     });
-    this.manager.onResourceCountUpdated(() => this.updateResourcesCount());
+    this.manager.onResourceCountUpdated(async () => {
+      await this.dispatch(RESOURCES_COUNT);
+    });
     this.manager.onResourceUpdated(async event => {
-      await this.updateResource(event.resourceName, event.contextName);
-      await this.updateActiveResourcesCount();
+      await this.dispatch(UPDATE_RESOURCE, { contextName: event.contextName, resourceName: event.resourceName });
+      await this.dispatch(ACTIVE_RESOURCES_COUNT);
     });
   }
 
-  async updateHealthStates(): Promise<void> {
-    await this.rpcExtension.fire(CONTEXTS_HEALTHS, {
-      healths: this.getContextsHealths(),
-    });
-  }
-
-  getContextsHealths(): ContextHealth[] {
-    const value: ContextHealth[] = [];
-    for (const [contextName, health] of this.manager.getHealthCheckersStates()) {
-      value.push({
-        contextName,
-        checking: health.checking,
-        reachable: health.reachable,
-        offline: this.manager.isContextOffline(contextName),
-        errorMessage: health.errorMessage,
-      });
-    }
-    return value;
-  }
-
-  async updatePermissions(): Promise<void> {
-    await this.rpcExtension.fire(CONTEXTS_PERMISSIONS, {
-      permissions: this.getContextsPermissions(),
-    });
-  }
-
-  getContextsPermissions(): ContextPermission[] {
-    return this.manager.getPermissions();
-  }
-
-  async updateResourcesCount(): Promise<void> {
-    await this.rpcExtension.fire(RESOURCES_COUNT, {
-      counts: this.getResourcesCount(),
-    });
-  }
-
-  async updateActiveResourcesCount(): Promise<void> {
-    await this.rpcExtension.fire(ACTIVE_RESOURCES_COUNT, {
-      counts: this.getActiveResourcesCount(),
-    });
-  }
-
-  getResourcesCount(): ResourceCount[] {
-    return this.manager.getResourcesCount();
-  }
-
-  getActiveResourcesCount(): ResourceCount[] {
-    return this.manager.getActiveResourcesCount();
-  }
-
-  async updateResource(resourceName: string, contextName: string): Promise<void> {
-    await this.rpcExtension.fire(UPDATE_RESOURCE, {
-      contextName,
-      resourceName,
-      resources: this.getResources([contextName], resourceName),
-    });
-  }
-
-  getResources(contextNames: string[], resourceName: string): KubernetesContextResources[] {
-    return this.manager.getResources(contextNames, resourceName);
-  }
-
+  // TODO replace this with an event
   getTroubleshootingInformation(): KubernetesTroubleshootingInformation {
     return this.manager.getTroubleshootingInformation();
+  }
+
+  async dispatch(channel: RpcChannel<unknown>, options?: unknown): Promise<void> {
+    const dispatcher = this.#dispatchers.get(channel.name);
+    if (!dispatcher) {
+      console.error(`dispatcher not found for channel ${channel.name}`);
+      return;
+    }
+    await dispatcher.dispatch(options);
   }
 }

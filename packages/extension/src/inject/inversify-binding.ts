@@ -24,6 +24,7 @@ import { Container } from 'inversify';
 import { ExtensionContextSymbol, TelemetryLoggerSymbol } from '/@/inject/symbol';
 import { RpcExtension } from '/@common/rpc/rpc';
 import { managersModule } from '/@/manager/_manager-module';
+import { dispatchersModule } from '/@/dispatcher/_dispatcher-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -52,6 +53,7 @@ export class InversifyBinding {
     this.#container.bind(TelemetryLoggerSymbol).toConstantValue(this.#telemetryLogger);
 
     await this.#container.load(managersModule);
+    await this.#container.load(dispatchersModule);
 
     return this.#container;
   }
