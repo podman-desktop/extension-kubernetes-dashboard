@@ -17,22 +17,24 @@
  ***********************************************************************/
 
 import { inject, injectable } from 'inversify';
-import { StateResourcesCountInfo } from './resources-count.svelte';
-import { StateActiveResourcesCountInfo } from './active-resources-count.svelte';
 
+import { ACTIVE_RESOURCES_COUNT } from '/@common/channels';
+import { RpcBrowser } from '/@common/rpc/rpc';
+
+import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
+import type { ActiveResourcesCountInfo } from '/@common/model/active-resources-count-info';
+
+// Define a state for the ActiveResourcesCountInfo
 @injectable()
-export class States {
-  @inject(StateResourcesCountInfo)
-  private _stateResourcesCountInfoUI: StateResourcesCountInfo;
-
-  get stateResourcesCountInfoUI(): StateResourcesCountInfo {
-    return this._stateResourcesCountInfoUI;
+export class StateActiveResourcesCountInfo
+  extends AbsStateObjectImpl<ActiveResourcesCountInfo>
+  implements StateObject<ActiveResourcesCountInfo>
+{
+  constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
+    super(rpcBrowser);
   }
 
-  @inject(StateActiveResourcesCountInfo)
-  private _stateActiveResourcesCountInfoUI: StateActiveResourcesCountInfo;
-
-  get stateActiveResourcesCountInfoUI(): StateActiveResourcesCountInfo {
-    return this._stateActiveResourcesCountInfoUI;
+  async init(): Promise<void> {
+    await this.initChannel(ACTIVE_RESOURCES_COUNT);
   }
 }
