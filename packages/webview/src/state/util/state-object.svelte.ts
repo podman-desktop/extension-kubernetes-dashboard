@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Unsubscriber } from 'svelte/store';
+import { API_SUBSCRIBE } from '/@common/channels';
+import type { SubscribeApi } from '/@common/interface/subscribe-api';
 import type { RpcBrowser, RpcChannel } from '/@common/rpc/rpc';
 import type { IDisposable } from '/@common/types/disposable';
 
@@ -27,15 +30,20 @@ export interface StateObject<T> extends IDisposable {
 
 // Allow to receive event for a given object
 export abstract class AbsStateObjectImpl<T> implements StateObject<T> {
+  #channelName: string;
   #data = $state<{ value: T | undefined }>({ value: undefined });
+  #subscriberUID: number;
 
   #rpcBrowser: RpcBrowser;
+  #subscribeApi: SubscribeApi;
 
   #disposable: IDisposable | undefined;
 
   constructor(rpcBrowser: RpcBrowser) {
     this.#rpcBrowser = rpcBrowser;
+    this.#subscribeApi = this.#rpcBrowser.getProxy<SubscribeApi>(API_SUBSCRIBE);
     this.#data.value = undefined;
+    this.#subscriberUID = 0;
   }
 
   get data(): T | undefined {
@@ -43,13 +51,27 @@ export abstract class AbsStateObjectImpl<T> implements StateObject<T> {
   }
 
   protected async initChannel(channel: RpcChannel<T>): Promise<void> {
+    this.#channelName = channel.name;
     this.#disposable = this.#rpcBrowser.on(channel, value => {
       this.#data.value = value;
     });
+    await this.#subscribeApi.resetChannelSubscribers(this.#channelName);
   }
 
   dispose(): void {
     this.#disposable?.dispose();
+  }
+
+  protected getNextUID(): number {
+    return ++this.#subscriberUID;
+  }
+
+  subscribe(): Unsubscriber {
+    const subscription = this.getNextUID();
+    this.#subscribeApi.subscribeToChannel(this.#channelName, subscription).catch(console.error);
+    return () => {
+      this.#subscribeApi.unsubscribeFromChannel(this.#channelName, subscription).catch(console.error);
+    };
   }
 
   abstract init(): Promise<void>;

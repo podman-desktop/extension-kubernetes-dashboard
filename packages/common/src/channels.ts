@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { SubscribeApi } from './interface/subscribe-api';
 import type { ActiveResourcesCountInfo } from './model/active-resources-count-info';
 import type { ContextsHealthsInfo } from './model/contexts-healths-info';
 import type { ContextsPermissionsInfo } from './model/contexts-permissions-info';
@@ -23,6 +24,9 @@ import type { ResourcesCountInfo } from './model/resources-count-info';
 import type { UpdateResourceInfo } from './model/update-resource-info';
 
 import { createRpcChannel } from './rpc';
+
+// RPC channels (used by the webview to send requests to the extension)
+export const API_SUBSCRIBE = createRpcChannel<SubscribeApi>('SubscribeApi');
 
 // Broadcast events (sent by extension and received by the webview)
 export const RESOURCES_COUNT = createRpcChannel<ResourcesCountInfo>('ResourcesCount');

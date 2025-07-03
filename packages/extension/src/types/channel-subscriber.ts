@@ -1,0 +1,51 @@
+/**********************************************************************
+ * Copyright (C) 2025 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
+interface ChannelSubscriberInfo {
+  uid: number;
+}
+
+export class ChannelSubscriber {
+  #subscribers: { [channelName: string]: ChannelSubscriberInfo[] } = {};
+
+  async resetChannelSubscribers(channelName: string): Promise<void> {
+    this.#subscribers[channelName] = [];
+  }
+
+  async subscribeToChannel(channelName: string, subscription: number): Promise<void> {
+    // assert that subscriptions are not done with the same UID
+    if ((this.#subscribers[channelName] ?? []).filter(subscriber => subscriber.uid === subscription).length > 0) {
+      console.warn('subscription already in use for channel', channelName, subscription);
+    }
+    this.#subscribers[channelName] = [...(this.#subscribers[channelName] ?? []), { uid: subscription }];
+  }
+
+  async unsubscribeFromChannel(channelName: string, subscription: number): Promise<void> {
+    // assert that a subscription exists with the UID
+    if ((this.#subscribers[channelName] ?? []).filter(subscriber => subscriber.uid === subscription).length === 0) {
+      console.warn('subscription does not exist for channel', channelName, subscription);
+    }
+    this.#subscribers[channelName] = (this.#subscribers[channelName] ?? []).filter(
+      subscriber => subscriber.uid !== subscription,
+    );
+  }
+
+  hasSubscribers(channelName: string): boolean {
+    return channelName in this.#subscribers && this.#subscribers[channelName].length > 0;
+  }
+}
