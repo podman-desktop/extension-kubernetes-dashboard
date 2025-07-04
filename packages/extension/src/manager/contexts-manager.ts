@@ -20,7 +20,6 @@ import type { KubeConfig, KubernetesObject, ObjectCache } from '@kubernetes/clie
 
 import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
 import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js';
-import type { KubernetesContextResources } from '/@common/model/kubernetes-resources.js';
 import type { KubernetesTroubleshootingInformation } from '/@common/model/kubernetes-troubleshooting.js';
 
 import type { Event } from '/@/types/emitter.js';
@@ -49,6 +48,7 @@ import { RoutesResourceFactory } from '/@/resources/routes-resource-factory.js';
 import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js';
 import { ServicesResourceFactory } from '/@/resources/services-resource-factory.js';
 import { injectable } from 'inversify';
+import { ContextResourceItems } from '/@common/model/context-resources-items.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
@@ -205,9 +205,10 @@ export class ContextsManager {
       .filter(f => !!f);
   }
 
-  getResources(contextNames: string[], resourceName: string): KubernetesContextResources[] {
+  getResources(contextNames: string[], resourceName: string): ContextResourceItems[] {
     return this.#objectCaches.getForContextsAndResource(contextNames, resourceName).map(({ contextName, value }) => {
       return {
+        resourceName,
         contextName,
         items: value.list(),
       };
