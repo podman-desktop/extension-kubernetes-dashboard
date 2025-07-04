@@ -1,5 +1,6 @@
 <script lang="ts">
 import ActiveResourcesCount from './component/ActiveResourcesCount.svelte';
+import CurrentContext from './component/CurrentContext.svelte';
 import Dashboard from './component/Dashboard.svelte';
 import ResourcesCount from './component/ResourcesCount.svelte';
 import Navigation from './Navigation.svelte';
@@ -16,6 +17,10 @@ let isMounted = false;
       <div class="flex flex-col w-full h-full">
         <Route path="/">
           <Dashboard />
+        </Route>
+
+        <Route path="/current-context">
+          <CurrentContext />
         </Route>
 
         <Route path="/resources-count">

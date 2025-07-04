@@ -20,6 +20,7 @@ import type { SubscribeApi } from './interface/subscribe-api';
 import type { ActiveResourcesCountInfo } from './model/active-resources-count-info';
 import type { ContextsHealthsInfo } from './model/contexts-healths-info';
 import type { ContextsPermissionsInfo } from './model/contexts-permissions-info';
+import type { CurrentContextInfo } from './model/current-context-info';
 import type { ResourcesCountInfo } from './model/resources-count-info';
 import type { UpdateResourceInfo } from './model/update-resource-info';
 
@@ -34,3 +35,4 @@ export const ACTIVE_RESOURCES_COUNT = createRpcChannel<ActiveResourcesCountInfo>
 export const CONTEXTS_HEALTHS = createRpcChannel<ContextsHealthsInfo>('ContextsHealths');
 export const CONTEXTS_PERMISSIONS = createRpcChannel<ContextsPermissionsInfo>('ContextsPermissions');
 export const UPDATE_RESOURCE = createRpcChannel<UpdateResourceInfo>('UpdateResource');
+export const CURRENT_CONTEXT = createRpcChannel<CurrentContextInfo>('CurrentContext');
