@@ -22,6 +22,7 @@ import { States } from './states';
 import { StateObject } from './util/state-object.svelte';
 import { IDisposable } from '/@common/types/disposable';
 import { StateResourcesCountInfo } from './resources-count.svelte';
+import { StateActiveResourcesCountInfo } from './active-resources-count.svelte';
 
 const statesModule = new ContainerModule(options => {
   options.bind(States).toSelf().inSingletonScope();
@@ -29,6 +30,10 @@ const statesModule = new ContainerModule(options => {
   options.bind(StateResourcesCountInfo).toSelf().inSingletonScope();
   options.bind(StateObject).toService(StateResourcesCountInfo);
   options.bind(IDisposable).toService(StateResourcesCountInfo);
+
+  options.bind(StateActiveResourcesCountInfo).toSelf().inSingletonScope();
+  options.bind(StateObject).toService(StateActiveResourcesCountInfo);
+  options.bind(IDisposable).toService(StateActiveResourcesCountInfo);
 });
 
 export { statesModule };
