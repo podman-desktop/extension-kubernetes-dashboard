@@ -709,10 +709,12 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       expect(resources).toEqual([
         {
           contextName: 'context1',
+          resourceName: 'resource1',
           items: [{ metadata: { name: 'obj1' } }],
         },
         {
           contextName: 'context2',
+          resourceName: 'resource1',
           items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
         },
       ]);
@@ -740,10 +742,12 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       expect(resources).toEqual([
         {
           contextName: 'context1',
+          resourceName: 'resource1',
           items: [{ metadata: { name: 'obj1' } }],
         },
         {
           contextName: 'context2',
+          resourceName: 'resource1',
           items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
         },
       ]);
@@ -767,6 +771,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       expect(resourcesAfter).toEqual([
         {
           contextName: 'context2',
+          resourceName: 'resource1',
           items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
         },
       ]);

@@ -36,7 +36,7 @@ test('happy path', async () => {
   const subscriber = new ChannelSubscriber();
   await subscriber.resetChannelSubscribers(channel);
   expect(subscriber.hasSubscribers(channel)).toBeFalsy();
-  await subscriber.subscribeToChannel(channel, uid);
+  await subscriber.subscribeToChannel(channel, {}, uid);
   expect(subscriber.hasSubscribers(channel)).toBeTruthy();
   await subscriber.unsubscribeFromChannel(channel, uid);
   expect(subscriber.hasSubscribers(channel)).toBeFalsy();
@@ -50,7 +50,7 @@ test('subscribe makes onSubscribe emit an event', async () => {
   const listener = vi.fn();
   subscriber.onSubscribe(listener);
   await subscriber.resetChannelSubscribers(channel);
-  await subscriber.subscribeToChannel(channel, uid);
+  await subscriber.subscribeToChannel(channel, {}, uid);
   expect(listener).toHaveBeenCalledWith(channel);
 });
 
@@ -60,7 +60,7 @@ describe('unexpected paths are safe', () => {
     const uid = 1;
     const subscriber = new ChannelSubscriber();
     expect(subscriber.hasSubscribers(channel)).toBeFalsy();
-    await subscriber.subscribeToChannel(channel, uid);
+    await subscriber.subscribeToChannel(channel, {}, uid);
     expect(subscriber.hasSubscribers(channel)).toBeTruthy();
     await subscriber.unsubscribeFromChannel(channel, uid);
     expect(subscriber.hasSubscribers(channel)).toBeFalsy();
@@ -80,8 +80,8 @@ describe('assertions', () => {
     const channel = 'channel1';
     const uid = 1;
     const subscriber = new ChannelSubscriber();
-    await subscriber.subscribeToChannel(channel, uid);
-    await subscriber.subscribeToChannel(channel, uid);
+    await subscriber.subscribeToChannel(channel, {}, uid);
+    await subscriber.subscribeToChannel(channel, {}, uid);
     expect(console.warn).toHaveBeenCalled();
   });
 
@@ -90,8 +90,8 @@ describe('assertions', () => {
     const channel2 = 'channel2';
     const uid = 1;
     const subscriber = new ChannelSubscriber();
-    await subscriber.subscribeToChannel(channel1, uid);
-    await subscriber.subscribeToChannel(channel2, uid);
+    await subscriber.subscribeToChannel(channel1, {}, uid);
+    await subscriber.subscribeToChannel(channel2, {}, uid);
     expect(console.warn).not.toHaveBeenCalled();
   });
 
@@ -100,7 +100,7 @@ describe('assertions', () => {
     const uid1 = 1;
     const uid2 = 2;
     const subscriber = new ChannelSubscriber();
-    await subscriber.subscribeToChannel(channel, uid1);
+    await subscriber.subscribeToChannel(channel, {}, uid1);
     await subscriber.unsubscribeFromChannel(channel, uid2);
     expect(console.warn).toHaveBeenCalled();
   });

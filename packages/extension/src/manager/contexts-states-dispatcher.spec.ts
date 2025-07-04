@@ -157,7 +157,7 @@ test('ContextsStatesDispatcher should call updateResource and updateActiveResour
   await vi.waitFor(() => {
     expect(dispatcherSpy).toHaveBeenCalledTimes(2);
   });
-  expect(dispatcherSpy).toHaveBeenCalledWith(UPDATE_RESOURCE, { contextName: 'context1', resourceName: 'res1' });
+  expect(dispatcherSpy).toHaveBeenCalledWith(UPDATE_RESOURCE);
   expect(dispatcherSpy).toHaveBeenCalledWith(ACTIVE_RESOURCES_COUNT);
 });
 

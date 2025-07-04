@@ -18,7 +18,8 @@
 
 import type { KubernetesObject } from '@kubernetes/client-node';
 
-export interface KubernetesContextResources {
+export interface ContextResourceItems {
   contextName: string;
+  resourceName: string;
   items: readonly KubernetesObject[];
 }

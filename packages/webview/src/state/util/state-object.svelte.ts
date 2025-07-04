@@ -66,9 +66,9 @@ export abstract class AbsStateObjectImpl<T> implements StateObject<T> {
     return ++this.#subscriberUID;
   }
 
-  subscribe(): Unsubscriber {
+  subscribe(options?: unknown): Unsubscriber {
     const subscription = this.getNextUID();
-    this.#subscribeApi.subscribeToChannel(this.#channelName, subscription).catch(console.error);
+    this.#subscribeApi.subscribeToChannel(this.#channelName, options, subscription).catch(console.error);
     return () => {
       this.#subscribeApi.unsubscribeFromChannel(this.#channelName, subscription).catch(console.error);
     };

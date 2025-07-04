@@ -16,8 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContextResourceItems } from './context-resources-items';
+import { inject, injectable } from 'inversify';
 
-export interface UpdateResourceInfo {
-  resources: ContextResourceItems[];
+import { UPDATE_RESOURCE } from '/@common/channels';
+import { RpcBrowser } from '/@common/rpc/rpc';
+
+import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
+import type { UpdateResourceInfo } from '/@common/model/update-resource-info';
+
+// Define a state for the UpdateResourceInfo
+@injectable()
+export class StateUpdateResourceInfo
+  extends AbsStateObjectImpl<UpdateResourceInfo>
+  implements StateObject<UpdateResourceInfo>
+{
+  constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
+    super(rpcBrowser);
+  }
+
+  async init(): Promise<void> {
+    await this.initChannel(UPDATE_RESOURCE);
+  }
 }
