@@ -72,6 +72,8 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
       await this.dispatch(UPDATE_RESOURCE, { contextName: event.contextName, resourceName: event.resourceName });
       await this.dispatch(ACTIVE_RESOURCES_COUNT);
     });
+
+    this.onSubscribe(channelName => this.dispatchByChannelName(channelName));
   }
 
   // TODO replace this with an event
@@ -80,13 +82,17 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
   }
 
   async dispatch(channel: RpcChannel<unknown>, options?: unknown): Promise<void> {
-    if (!this.hasSubscribers(channel.name)) {
+    return this.dispatchByChannelName(channel.name, options);
+  }
+
+  async dispatchByChannelName(channelName: string, options?: unknown): Promise<void> {
+    if (!this.hasSubscribers(channelName)) {
       return;
     }
-    console.debug('dispatch data for', channel.name);
-    const dispatcher = this.#dispatchers.get(channel.name);
+    console.debug('dispatch data for', channelName);
+    const dispatcher = this.#dispatchers.get(channelName);
     if (!dispatcher) {
-      console.error(`dispatcher not found for channel ${channel.name}`);
+      console.error(`dispatcher not found for channel ${channelName}`);
       return;
     }
     await dispatcher.dispatch(options);
