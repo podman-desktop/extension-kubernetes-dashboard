@@ -68,6 +68,7 @@ export class ContextsManager {
   #permissionsCheckers: ContextPermissionsChecker[];
   #informers: ContextResourceRegistry<ResourceInformer<KubernetesObject>>;
   #objectCaches: ContextResourceRegistry<ObjectCache<KubernetesObject>>;
+  #currentContext?: KubeConfigSingleContext;
 
   #onContextHealthStateChange = new Emitter<ContextHealthState>();
   onContextHealthStateChange: Event<ContextHealthState> = this.#onContextHealthStateChange.event;
@@ -87,6 +88,9 @@ export class ContextsManager {
   #onResourceCountUpdated = new Emitter<{ contextName: string; resourceName: string }>();
   onResourceCountUpdated: Event<{ contextName: string; resourceName: string }> = this.#onResourceCountUpdated.event;
 
+  #onCurrentContextChange = new Emitter<void>();
+  onCurrentContextChange: Event<void> = this.#onCurrentContextChange.event;
+
   constructor() {
     this.#resourceFactoryHandler = new ResourceFactoryHandler();
     for (const resourceFactory of this.getResourceFactories()) {
@@ -102,6 +106,10 @@ export class ContextsManager {
     this.#dispatcher.onDelete(this.onDelete.bind(this));
     this.#dispatcher.onDelete((state: DispatcherEvent) => this.#onContextDelete.fire(state));
     this.#dispatcher.onCurrentChange(this.onCurrentChange.bind(this));
+  }
+
+  get currentContext(): KubeConfigSingleContext | undefined {
+    return this.#currentContext;
   }
 
   protected getResourceFactories(): ResourceFactory[] {
@@ -145,6 +153,8 @@ export class ContextsManager {
     if (state.current && state.currentConfig) {
       await this.startMonitoring(state.currentConfig, state.current);
     }
+    this.#currentContext = state.currentConfig;
+    this.#onCurrentContextChange.fire();
   }
 
   private onStateChange(state: ContextHealthState): void {

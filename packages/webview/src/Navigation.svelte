@@ -24,6 +24,7 @@ const { meta }: Props = $props();
       <span class="text-[color:var(--pd-secondary-nav-header-text)]">STATES</span>
     </div>
 
+    <SettingsNavItem title="Current context" selected={meta.url === '/current-context'} href="/current-context" />
     <SettingsNavItem title="Resources count" selected={meta.url === '/resources-count'} href="/resources-count" />
     <SettingsNavItem
       title="Active resources count"
