@@ -30,5 +30,6 @@ const { meta }: Props = $props();
       title="Active resources count"
       selected={meta.url === '/active-resources-count'}
       href="/active-resources-count" />
+    <SettingsNavItem title="Resources Lists" selected={meta.url === '/lists'} href="/lists" />
   </div>
 </nav>

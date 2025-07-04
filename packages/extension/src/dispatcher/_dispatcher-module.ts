@@ -23,6 +23,7 @@ import { ContextsPermissionsDispatcher } from './contexts-permissions-dispatcher
 import { ResourcesCountDispatcher } from './resources-count-dispatcher';
 import { DispatcherObject } from './util/dispatcher-object';
 import { CurrentContextDispatcher } from './current-context-dispatcher';
+import { UpdateResourceDispatcher } from './update-resource-dispatcher';
 
 const dispatchersModule = new ContainerModule(options => {
   options.bind<ActiveResourcesCountDispatcher>(ActiveResourcesCountDispatcher).toSelf().inSingletonScope();
@@ -39,6 +40,9 @@ const dispatchersModule = new ContainerModule(options => {
 
   options.bind<CurrentContextDispatcher>(CurrentContextDispatcher).toSelf().inSingletonScope();
   options.bind(DispatcherObject).toService(CurrentContextDispatcher);
+
+  options.bind<UpdateResourceDispatcher>(UpdateResourceDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(UpdateResourceDispatcher);
 });
 
 export { dispatchersModule };

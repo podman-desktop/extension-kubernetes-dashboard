@@ -26,6 +26,6 @@ export const SubscribeApi = Symbol.for('SubscribeApi');
  */
 export interface SubscribeApi {
   resetChannelSubscribers(channelName: string): Promise<void>;
-  subscribeToChannel(channelName: string, subscription: number): Promise<void>;
+  subscribeToChannel(channelName: string, options: unknown, subscription: number): Promise<void>;
   unsubscribeFromChannel(channelName: string, subscription: number): Promise<void>;
 }
