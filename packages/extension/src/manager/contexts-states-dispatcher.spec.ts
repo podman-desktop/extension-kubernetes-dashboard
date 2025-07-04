@@ -37,6 +37,7 @@ import {
   ACTIVE_RESOURCES_COUNT,
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
+  CURRENT_CONTEXT,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
 } from '/@common/channels.js';
@@ -52,6 +53,7 @@ const contextsManagerMock: ContextsManager = {
   onResourceCountUpdated: vi.fn(),
   onResourceUpdated: vi.fn(),
   isContextOffline: vi.fn(),
+  onCurrentContextChange: vi.fn(),
 } as unknown as ContextsManager;
 const rpcExtension: RpcExtension = {
   fire: vi.fn(),
@@ -157,6 +159,19 @@ test('ContextsStatesDispatcher should call updateResource and updateActiveResour
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(UPDATE_RESOURCE, { contextName: 'context1', resourceName: 'res1' });
   expect(dispatcherSpy).toHaveBeenCalledWith(ACTIVE_RESOURCES_COUNT);
+});
+
+test('ContextsStatesDispatcher should dispatch CURRENT_CONTEXT when onCurrentContextChange event is fired', async () => {
+  const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
+  dispatcher.init();
+  expect(dispatcherSpy).not.toHaveBeenCalled();
+
+  vi.mocked(contextsManagerMock.onCurrentContextChange).mockImplementation(f => f() as IDisposable);
+  dispatcher.init();
+  await vi.waitFor(() => {
+    expect(dispatcherSpy).toHaveBeenCalledTimes(1);
+  });
+  expect(dispatcherSpy).toHaveBeenCalledWith(CURRENT_CONTEXT);
 });
 
 test('dispatchByChannelName is called when onSubscribe emits an event', async () => {

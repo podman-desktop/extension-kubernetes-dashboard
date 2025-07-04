@@ -1130,3 +1130,50 @@ test('only current context is monitored', async () => {
   expect(manager.stopMonitoring).toHaveBeenCalledWith('context2');
   expect(manager.startMonitoring).not.toHaveBeenCalled();
 });
+
+test('get currentContext', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  const currentContext = manager.currentContext;
+  expect(currentContext?.getKubeConfig().currentContext).toEqual('context1');
+});
+
+test('onCurrentContextChange is fired', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  const listener = vi.fn();
+  manager.onCurrentContextChange(listener);
+  await manager.update(kc);
+  expect(listener).toHaveBeenCalledOnce();
+});
+
+test('onCurrentContextChange is fired only when current context changes', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  const listener = vi.fn();
+  manager.onCurrentContextChange(listener);
+  await manager.update(kc);
+  expect(listener).toHaveBeenCalledOnce();
+
+  // context2 is removed, but context1 is still current one
+  listener.mockClear();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  await manager.update(kc);
+  expect(listener).not.toHaveBeenCalled();
+
+  // change current context
+  listener.mockClear();
+  kc.loadFromOptions(kcWithContext2asDefault);
+  await manager.update(kc);
+  expect(listener).toHaveBeenCalledOnce();
+});
