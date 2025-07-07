@@ -69,7 +69,7 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
     this.manager.onResourceCountUpdated(async () => {
       await this.dispatch(RESOURCES_COUNT);
     });
-    this.manager.onResourceUpdated(async event => {
+    this.manager.onResourceUpdated(async () => {
       await this.dispatch(UPDATE_RESOURCE);
       await this.dispatch(ACTIVE_RESOURCES_COUNT);
     });
