@@ -28,7 +28,7 @@ export default defineProject({
   resolve: {
     alias: {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
-      '/@common/': join(PACKAGE_ROOT, '../common') + '/',
+      '/@common/': join(PACKAGE_ROOT, '../common', 'src') + '/',
     },
   },
   plugins: [svelte({ hot: !process.env.VITEST }), svelteTesting()],
