@@ -8,18 +8,18 @@ import type { ContextResourceItems } from '/@common/model/context-resources-item
 const updateResource = getContext<States>(States).stateUpdateResourceInfoUI;
 const currentContext = getContext<States>(States).stateCurrentContextInfoUI;
 
+let unsubscriberConfigmaps: Unsubscriber | undefined;
+let unsubscriberSecrets: Unsubscriber | undefined;
+
 $effect(() => {
+  // first unsubscribe from previous context
+  unsubscribeFromContext();
   if (currentContext.data?.contextName) {
     subscribeToContext(currentContext.data.contextName);
   }
 });
 
-let unsubscriberConfigmaps: Unsubscriber | undefined;
-let unsubscriberSecrets: Unsubscriber | undefined;
-
 function subscribeToContext(contextName: string): void {
-  unsubscriberConfigmaps?.();
-  unsubscriberSecrets?.();
   unsubscriberConfigmaps = updateResource.subscribe({
     contextName: contextName,
     resourceName: 'configmaps',
@@ -30,13 +30,18 @@ function subscribeToContext(contextName: string): void {
   });
 }
 
+function unsubscribeFromContext(): void {
+  unsubscriberConfigmaps?.();
+  unsubscriberSecrets?.();
+}
+
 onMount(() => {
+  // returns the unsubscriber, which will be called automatically at destroy time
   return currentContext.subscribe();
 });
 
 onDestroy(() => {
-  unsubscriberConfigmaps?.();
-  unsubscriberSecrets?.();
+  unsubscribeFromContext();
 });
 
 function filterResources(allResources: ContextResourceItems[]): ContextResourceItems[] {

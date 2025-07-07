@@ -11,27 +11,31 @@ const currentContext = getContext<States>(States).stateCurrentContextInfoUI;
 let unsubscriber: Unsubscriber | undefined;
 
 $effect(() => {
+  // first unsubscribe from previous context
+  unsubscribeFromContext();
   if (currentContext.data?.contextName) {
     subscribeToContext(currentContext.data.contextName);
-  } else {
-    unsubscriber?.();
   }
 });
 
 function subscribeToContext(contextName: string): void {
-  unsubscriber?.();
   unsubscriber = updateResource.subscribe({
     contextName: contextName,
     resourceName: 'pods',
   });
 }
 
+function unsubscribeFromContext(): void {
+  unsubscriber?.();
+}
+
 onMount(() => {
+  // returns the unsubscriber, which will be called automatically at destroy time
   return currentContext.subscribe();
 });
 
 onDestroy(() => {
-  unsubscriber?.();
+  unsubscribeFromContext();
 });
 
 function filterResources(allResources: ContextResourceItems[]): ContextResourceItems[] {
