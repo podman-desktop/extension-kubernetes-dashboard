@@ -23,12 +23,13 @@ import { RpcBrowser } from '/@common/rpc/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { UpdateResourceInfo } from '/@common/model/update-resource-info';
+import type { UpdateResourceOptions } from '/@common/model/update-resource-options';
 
 // Define a state for the UpdateResourceInfo
 @injectable()
 export class StateUpdateResourceInfo
-  extends AbsStateObjectImpl<UpdateResourceInfo>
-  implements StateObject<UpdateResourceInfo>
+  extends AbsStateObjectImpl<UpdateResourceInfo, UpdateResourceOptions>
+  implements StateObject<UpdateResourceInfo, UpdateResourceOptions>
 {
   constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
     super(rpcBrowser);

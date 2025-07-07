@@ -27,8 +27,8 @@ import type { ResourcesCountInfo } from '/@common/model/resources-count-info';
 // Define a state for the ResourcesCountInfo
 @injectable()
 export class StateResourcesCountInfo
-  extends AbsStateObjectImpl<ResourcesCountInfo>
-  implements StateObject<ResourcesCountInfo>
+  extends AbsStateObjectImpl<ResourcesCountInfo, void>
+  implements StateObject<ResourcesCountInfo, void>
 {
   constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
     super(rpcBrowser);

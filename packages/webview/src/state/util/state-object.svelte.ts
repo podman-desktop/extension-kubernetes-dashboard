@@ -23,13 +23,13 @@ import type { RpcBrowser, RpcChannel } from '/@common/rpc/rpc';
 import type { IDisposable } from '/@common/types/disposable';
 
 export const StateObject = Symbol.for('StateObject');
-export interface StateObject<T> extends IDisposable {
+export interface StateObject<T, U> extends IDisposable {
   get data(): T | undefined;
   init(): Promise<void>;
 }
 
 // Allow to receive event for a given object
-export abstract class AbsStateObjectImpl<T> implements StateObject<T> {
+export abstract class AbsStateObjectImpl<T, U> implements StateObject<T, U> {
   #channelName: string;
   #data = $state<{ value: T | undefined }>({ value: undefined });
   #subscriberUID: number;
@@ -66,9 +66,9 @@ export abstract class AbsStateObjectImpl<T> implements StateObject<T> {
     return ++this.#subscriberUID;
   }
 
-  subscribe(options?: unknown): Unsubscriber {
+  subscribe(options: U): Unsubscriber {
     const subscription = this.getNextUID();
-    this.#subscribeApi.subscribeToChannel(this.#channelName, options, subscription).catch(console.error);
+    this.#subscribeApi.subscribeToChannel<U>(this.#channelName, options, subscription).catch(console.error);
     return () => {
       this.#subscribeApi.unsubscribeFromChannel(this.#channelName, subscription).catch(console.error);
     };

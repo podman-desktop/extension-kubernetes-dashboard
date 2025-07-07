@@ -35,7 +35,7 @@ export class ChannelSubscriber {
     this.#subscribers[channelName] = [];
   }
 
-  async subscribeToChannel(channelName: string, options: unknown, subscription: number): Promise<void> {
+  async subscribeToChannel<T>(channelName: string, options: T, subscription: number): Promise<void> {
     // assert that subscriptions are not done with the same UID
     if ((this.#subscribers[channelName] ?? []).filter(subscriber => subscriber.uid === subscription).length > 0) {
       console.warn('subscription already in use for channel', channelName, subscription);
