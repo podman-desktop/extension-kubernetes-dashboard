@@ -70,7 +70,6 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
       await this.dispatch(RESOURCES_COUNT);
     });
     this.manager.onResourceUpdated(async event => {
-      console.log('==> resource update', event);
       await this.dispatch(UPDATE_RESOURCE);
       await this.dispatch(ACTIVE_RESOURCES_COUNT);
     });
@@ -95,7 +94,6 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
       return;
     }
     const subscriptions = this.getSubscriptions(channelName);
-    console.log('==> subscriptions', subscriptions);
 
     console.debug('dispatch data for', channelName);
     const dispatcher = this.#dispatchers.get(channelName);
