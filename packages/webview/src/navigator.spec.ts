@@ -17,9 +17,13 @@
  ***********************************************************************/
 
 import { router } from 'tinro';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import { navigateTo } from './navigation';
+import { Navigator } from './navigator';
+import { InversifyBinding } from './inject/inversify-binding';
+import type { RpcBrowser } from '/@common/rpc/rpc';
+import type { WebviewApi } from '@podman-desktop/webview-api';
+import type { Container } from 'inversify';
 
 // mock the router
 vi.mock('tinro', () => {
@@ -30,114 +34,123 @@ vi.mock('tinro', () => {
   };
 });
 
+let navigator: Navigator;
+let container: Container;
+
+beforeAll(async () => {
+  const inversifyBinding = new InversifyBinding({} as RpcBrowser, {} as WebviewApi);
+  container = await inversifyBinding.initBindings();
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
+  navigator = container.get<Navigator>(Navigator);
 });
 
 test(`Test navigation to Nodes`, () => {
-  navigateTo({ kind: 'Node' });
+  navigator.navigateTo({ kind: 'Node' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/nodes');
 });
 
 test(`Test navigation to a Node`, () => {
-  navigateTo({ kind: 'Node', name: 'dummy-name' });
+  navigator.navigateTo({ kind: 'Node', name: 'dummy-name' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/nodes/dummy-name/summary');
 });
 
 test(`Test navigation to Services`, () => {
-  navigateTo({ kind: 'Service' });
+  navigator.navigateTo({ kind: 'Service' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/services');
 });
 
 test(`Test navigation to a Service`, () => {
-  navigateTo({ kind: 'Service', name: 'dummy-name', namespace: 'dummy-ns' });
+  navigator.navigateTo({ kind: 'Service', name: 'dummy-name', namespace: 'dummy-ns' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/services/dummy-name/dummy-ns/summary');
 });
 
 test(`Test navigation to Deployments`, () => {
-  navigateTo({ kind: 'Deployment' });
+  navigator.navigateTo({ kind: 'Deployment' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/deployments');
 });
 
 test(`Test navigation to a Deployment`, () => {
-  navigateTo({ kind: 'Deployment', name: 'dummy-name', namespace: 'dummy-ns' });
+  navigator.navigateTo({ kind: 'Deployment', name: 'dummy-name', namespace: 'dummy-ns' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/deployments/dummy-name/dummy-ns/summary');
 });
 
 test(`Test navigation to Pods`, () => {
-  navigateTo({ kind: 'Pod' });
+  navigator.navigateTo({ kind: 'Pod' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/pods');
 });
 
 test(`Test navigation to a Pod`, () => {
-  navigateTo({ kind: 'Pod', name: 'dummy-name', namespace: 'dummy-ns' });
+  navigator.navigateTo({ kind: 'Pod', name: 'dummy-name', namespace: 'dummy-ns' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/pods/dummy-name/dummy-ns/summary');
 });
 
 test(`Test navigation to PersistentVolumeClaims`, () => {
-  navigateTo({ kind: 'PersistentVolumeClaim' });
+  navigator.navigateTo({ kind: 'PersistentVolumeClaim' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/persistentvolumeclaims');
 });
 
 test(`Test navigation to a PersistentVolumeClaim`, () => {
-  navigateTo({ kind: 'PersistentVolumeClaim', name: 'dummy-name', namespace: 'dummy-ns' });
+  navigator.navigateTo({ kind: 'PersistentVolumeClaim', name: 'dummy-name', namespace: 'dummy-ns' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/persistentvolumeclaims/dummy-name/dummy-ns/summary');
 });
 
 test(`Test navigation to Ingresses`, () => {
-  navigateTo({ kind: 'Ingress' });
+  navigator.navigateTo({ kind: 'Ingress' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/ingressesRoutes');
 });
 
 test(`Test navigation to a Ingress`, () => {
-  navigateTo({ kind: 'Ingress', name: 'dummy-name', namespace: 'dummy-ns' });
+  navigator.navigateTo({ kind: 'Ingress', name: 'dummy-name', namespace: 'dummy-ns' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/ingressesRoutes/ingress/dummy-name/dummy-ns/summary');
 });
 
 test(`Test navigation to Routes`, () => {
-  navigateTo({ kind: 'Route' });
+  navigator.navigateTo({ kind: 'Route' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/ingressesRoutes');
 });
 
 test(`Test navigation to a Route`, () => {
-  navigateTo({ kind: 'Route', name: 'dummy-name', namespace: 'dummy-ns' });
+  navigator.navigateTo({ kind: 'Route', name: 'dummy-name', namespace: 'dummy-ns' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/ingressesRoutes/route/dummy-name/dummy-ns/summary');
 });
 
 test(`Test navigation to ConfigMaps`, () => {
-  navigateTo({ kind: 'ConfigMap' });
+  navigator.navigateTo({ kind: 'ConfigMap' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/configmapsSecrets');
 });
 
 test(`Test navigation to a ConfigMap`, () => {
-  navigateTo({ kind: 'ConfigMap', name: 'dummy-name', namespace: 'dummy-ns' });
+  navigator.navigateTo({ kind: 'ConfigMap', name: 'dummy-name', namespace: 'dummy-ns' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/configmapsSecrets/configmap/dummy-name/dummy-ns/summary');
 });
 
 test(`Test navigation to Secrets`, () => {
-  navigateTo({ kind: 'Secret' });
+  navigator.navigateTo({ kind: 'Secret' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/configmapsSecrets');
 });
 
 test(`Test navigation to a Secret`, () => {
-  navigateTo({ kind: 'Secret', name: 'dummy-name', namespace: 'dummy-ns' });
+  navigator.navigateTo({ kind: 'Secret', name: 'dummy-name', namespace: 'dummy-ns' });
 
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/configmapsSecrets/secret/dummy-name/dummy-ns/summary');
 });

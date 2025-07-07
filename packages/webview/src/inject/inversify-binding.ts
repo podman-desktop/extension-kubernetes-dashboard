@@ -25,6 +25,7 @@ import { RpcBrowser } from '/@common/rpc/rpc';
 
 import { statesModule } from '/@/state/state-module';
 import { Remote } from '../remote/remote';
+import { Navigator } from '/@/navigator';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -42,6 +43,7 @@ export class InversifyBinding {
     this.#container.bind(RpcBrowser).toConstantValue(this.#rpcBrowser);
     this.#container.bind(Remote).toConstantValue(this.#rpcBrowser);
     this.#container.bind('WebviewApi').toConstantValue(this.#webviewApi);
+    this.#container.bind<Navigator>(Navigator).toSelf().inSingletonScope();
 
     await this.#container.load(statesModule);
 
