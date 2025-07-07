@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import util from 'node:util';
+
 import type { Event } from './emitter';
 import { Emitter } from './emitter';
 
@@ -62,8 +64,12 @@ export class ChannelSubscriber {
     if (!(channelName in this.#subscribers)) {
       return [];
     }
-    return this.#subscribers[channelName]
-      .filter(subscriber => !!subscriber.options)
-      .map(subscriber => subscriber.options);
+    return (
+      this.#subscribers[channelName]
+        .map(subscriber => subscriber.options)
+        .filter(options => !!options)
+        // return unique values
+        .filter((value, index, self) => self.findIndex(elt => util.isDeepStrictEqual(value, elt)) === index)
+    );
   }
 }
