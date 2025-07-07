@@ -18,23 +18,24 @@
 
 import { inject, injectable } from 'inversify';
 
-import { RESOURCES_COUNT } from '/@common/channels';
+import { UPDATE_RESOURCE } from '/@common/channels';
 import { RpcBrowser } from '/@common/rpc/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { ResourcesCountInfo } from '/@common/model/resources-count-info';
+import type { UpdateResourceInfo } from '/@common/model/update-resource-info';
+import type { UpdateResourceOptions } from '/@common/model/update-resource-options';
 
-// Define a state for the ResourcesCountInfo
+// Define a state for the UpdateResourceInfo
 @injectable()
-export class StateResourcesCountInfo
-  extends AbsStateObjectImpl<ResourcesCountInfo, void>
-  implements StateObject<ResourcesCountInfo, void>
+export class StateUpdateResourceInfo
+  extends AbsStateObjectImpl<UpdateResourceInfo, UpdateResourceOptions>
+  implements StateObject<UpdateResourceInfo, UpdateResourceOptions>
 {
   constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
     super(rpcBrowser);
   }
 
   async init(): Promise<void> {
-    await this.initChannel(RESOURCES_COUNT);
+    await this.initChannel(UPDATE_RESOURCE);
   }
 }

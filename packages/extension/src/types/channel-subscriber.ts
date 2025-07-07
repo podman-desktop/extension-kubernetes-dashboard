@@ -16,11 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import util from 'node:util';
+
 import type { Event } from './emitter';
 import { Emitter } from './emitter';
 
 interface ChannelSubscriberInfo {
   uid: number;
+  options: unknown;
 }
 
 export class ChannelSubscriber {
@@ -34,12 +37,12 @@ export class ChannelSubscriber {
     this.#subscribers[channelName] = [];
   }
 
-  async subscribeToChannel(channelName: string, subscription: number): Promise<void> {
+  async subscribeToChannel<T>(channelName: string, options: T, subscription: number): Promise<void> {
     // assert that subscriptions are not done with the same UID
     if ((this.#subscribers[channelName] ?? []).filter(subscriber => subscriber.uid === subscription).length > 0) {
       console.warn('subscription already in use for channel', channelName, subscription);
     }
-    this.#subscribers[channelName] = [...(this.#subscribers[channelName] ?? []), { uid: subscription }];
+    this.#subscribers[channelName] = [...(this.#subscribers[channelName] ?? []), { uid: subscription, options }];
     this.#onSubscribe.fire(channelName);
   }
 
@@ -55,5 +58,18 @@ export class ChannelSubscriber {
 
   hasSubscribers(channelName: string): boolean {
     return channelName in this.#subscribers && this.#subscribers[channelName].length > 0;
+  }
+
+  getSubscriptions(channelName: string): unknown[] {
+    if (!(channelName in this.#subscribers)) {
+      return [];
+    }
+    return (
+      this.#subscribers[channelName]
+        .map(subscriber => subscriber.options)
+        .filter(options => !!options)
+        // return unique values
+        .filter((value, index, self) => self.findIndex(elt => util.isDeepStrictEqual(value, elt)) === index)
+    );
   }
 }

@@ -16,10 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubernetesContextResources } from './kubernetes-resources';
+import type { ContextResourceItems } from './context-resources-items';
 
 export interface UpdateResourceInfo {
-  contextName: string;
-  resourceName: string;
-  resources: KubernetesContextResources[];
+  resources: ContextResourceItems[];
 }

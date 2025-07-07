@@ -43,7 +43,7 @@ export class Main implements IDisposable {
     const container = await inversifyBinding.initBindings();
 
     // Grab all state object instances
-    const stateObjectInstances = container.getAll<StateObject<unknown>>(StateObject);
+    const stateObjectInstances = container.getAll<StateObject<unknown, unknown>>(StateObject);
 
     // Init all state object instances
     for (const stateObjectInstance of stateObjectInstances) {

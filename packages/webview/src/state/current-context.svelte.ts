@@ -27,8 +27,8 @@ import type { CurrentContextInfo } from '/@common/model/current-context-info';
 // Define a state for the CurrentContextInfo
 @injectable()
 export class StateCurrentContextInfo
-  extends AbsStateObjectImpl<CurrentContextInfo>
-  implements StateObject<CurrentContextInfo>
+  extends AbsStateObjectImpl<CurrentContextInfo, void>
+  implements StateObject<CurrentContextInfo, void>
 {
   constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
     super(rpcBrowser);

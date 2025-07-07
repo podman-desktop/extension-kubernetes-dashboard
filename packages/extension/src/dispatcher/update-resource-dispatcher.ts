@@ -27,8 +27,8 @@ import { UpdateResourceOptions } from '/@common/model/update-resource-options';
 
 @injectable()
 export class UpdateResourceDispatcher
-  extends AbsDispatcherObjectImpl<UpdateResourceOptions, UpdateResourceInfo>
-  implements DispatcherObject<UpdateResourceOptions>
+  extends AbsDispatcherObjectImpl<UpdateResourceOptions[], UpdateResourceInfo>
+  implements DispatcherObject<UpdateResourceOptions[]>
 {
   @inject(ContextsManager)
   private manager: ContextsManager;
@@ -37,11 +37,9 @@ export class UpdateResourceDispatcher
     super(rpcExtension, UPDATE_RESOURCE);
   }
 
-  getData(options: UpdateResourceOptions): UpdateResourceInfo {
+  getData(options: UpdateResourceOptions[]): UpdateResourceInfo {
     return {
-      contextName: options.contextName,
-      resourceName: options.resourceName,
-      resources: this.manager.getResources([options.contextName], options.resourceName),
+      resources: options.flatMap(option => this.manager.getResources([option.contextName], option.resourceName)),
     };
   }
 }
