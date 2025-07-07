@@ -1,18 +1,21 @@
 <script lang="ts">
-export let size = '1em';
-export let solid = false;
-
-let boxStyle = 'fill: currentColor;';
-if (!solid) {
-  boxStyle = 'stroke: currentColor;';
+interface Props {
+  size?: string;
+  solid?: boolean;
+  class?: string;
+  style?: string;
 }
+
+let { size = '40', solid = false, class: className, style }: Props = $props();
+
+let boxStyle = solid ? 'fill: currentColor;' : 'stroke: currentColor;';
 </script>
 
 <svg
   width={size}
   height={size}
-  class={$$props.class}
-  style={$$props.style}
+  class={className}
+  style={style}
   version="1.1"
   aria-label="Service"
   xml:space="preserve"
