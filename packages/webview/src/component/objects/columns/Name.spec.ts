@@ -26,7 +26,7 @@ import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from '/@/compon
 import { Navigator } from '/@/navigator';
 import * as svelte from 'svelte';
 import type { Container } from 'inversify';
-import { ObjectHelper } from '/@/component/objects/helper';
+import { KubernetesObjectUIHelper } from '/@/component/objects/helper';
 
 vi.mock(import('/@/navigator'));
 
@@ -48,9 +48,9 @@ const navigatorMock: Navigator = {
   navigateTo: vi.fn(),
 } as unknown as Navigator;
 
-const objectHelperMock: ObjectHelper = {
+const objectHelperMock: KubernetesObjectUIHelper = {
   isNamespaced: vi.fn(),
-} as unknown as ObjectHelper;
+} as unknown as KubernetesObjectUIHelper;
 
 const containerMock: Container = {
   get: vi.fn(),
@@ -62,7 +62,7 @@ beforeEach(async () => {
   vi.mocked(containerMock.get).mockImplementation(obj => {
     if (obj === Navigator) {
       return navigatorMock;
-    } else if (obj === ObjectHelper) {
+    } else if (obj === KubernetesObjectUIHelper) {
       return objectHelperMock;
     }
   });

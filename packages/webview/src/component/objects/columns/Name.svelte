@@ -1,6 +1,6 @@
 <script lang="ts">
 import { Navigator } from '/@/navigator';
-import { ObjectHelper } from '/@/component/objects/helper';
+import { KubernetesObjectUIHelper } from '/@/component/objects/helper';
 
 import type { ObjectProps } from './object-props';
 import { getContext } from 'svelte';
@@ -10,7 +10,7 @@ let { object }: ObjectProps = $props();
 
 const bindingContainer = getContext<Container>(Container);
 const navigator = bindingContainer.get<Navigator>(Navigator);
-const objectHelper = bindingContainer.get<ObjectHelper>(ObjectHelper);
+const objectHelper = bindingContainer.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
 
 async function openDetails(): Promise<void> {
   if (objectHelper.isNamespaced(object)) {

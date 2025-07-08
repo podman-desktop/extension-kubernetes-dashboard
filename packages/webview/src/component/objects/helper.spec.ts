@@ -19,7 +19,7 @@
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from './KubernetesObjectUI';
-import { ObjectHelper } from './helper';
+import { KubernetesObjectUIHelper } from './helper';
 import { InversifyBinding } from '/@/inject/inversify-binding';
 import type { RpcBrowser } from '/@common/rpc/rpc';
 import type { WebviewApi } from '@podman-desktop/webview-api';
@@ -40,7 +40,7 @@ const deployment: KubernetesNamespacedObjectUI = {
 };
 
 let container: Container;
-let objectHelper: ObjectHelper;
+let helper: KubernetesObjectUIHelper;
 
 beforeAll(async () => {
   const inversifyBinding = new InversifyBinding({} as RpcBrowser, {} as WebviewApi);
@@ -49,13 +49,13 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  objectHelper = container.get<ObjectHelper>(ObjectHelper);
+  helper = container.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
 });
 
 test('isNamespaced is false for nodes', async () => {
-  expect(objectHelper.isNamespaced(node)).toBeFalsy();
+  expect(helper.isNamespaced(node)).toBeFalsy();
 });
 
 test('isNamespaced is true for deployments', async () => {
-  expect(objectHelper.isNamespaced(deployment)).toBeTruthy();
+  expect(helper.isNamespaced(deployment)).toBeTruthy();
 });
