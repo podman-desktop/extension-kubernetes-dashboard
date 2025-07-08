@@ -1,6 +1,6 @@
 <script lang="ts">
-import { isNamespaced } from '/@/component/objects/utils';
 import { Navigator } from '/@/navigator';
+import { ObjectHelper } from '/@/component/objects/helper';
 
 import type { ObjectProps } from './object-props';
 import { getContext } from 'svelte';
@@ -10,9 +10,10 @@ let { object }: ObjectProps = $props();
 
 const bindingContainer = getContext<Container>(Container);
 const navigator = bindingContainer.get<Navigator>(Navigator);
+const objectHelper = bindingContainer.get<ObjectHelper>(ObjectHelper);
 
 async function openDetails(): Promise<void> {
-  if (isNamespaced(object)) {
+  if (objectHelper.isNamespaced(object)) {
     navigator.navigateTo({
       kind: object.kind,
       name: object.name,
@@ -31,7 +32,7 @@ async function openDetails(): Promise<void> {
   <div class="text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis">
     {object.name}
   </div>
-  {#if isNamespaced(object)}
+  {#if objectHelper.isNamespaced(object)}
     <div class="text-[var(--pd-table-body-text)] font-extra-light text-sm overflow-hidden text-ellipsis">
       {object.namespace}
     </div>

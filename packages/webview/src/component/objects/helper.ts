@@ -18,6 +18,8 @@
 
 import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from './KubernetesObjectUI';
 
-export function isNamespaced(object: KubernetesObjectUI): object is KubernetesNamespacedObjectUI {
-  return 'namespace' in object;
+export class ObjectHelper {
+  public isNamespaced(object: KubernetesObjectUI): object is KubernetesNamespacedObjectUI {
+    return 'namespace' in object;
+  }
 }

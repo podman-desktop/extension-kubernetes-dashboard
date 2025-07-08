@@ -16,10 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from './KubernetesObjectUI';
-import { isNamespaced } from './utils';
+import { ObjectHelper } from './helper';
+import { InversifyBinding } from '/@/inject/inversify-binding';
+import type { RpcBrowser } from '/@common/rpc/rpc';
+import type { WebviewApi } from '@podman-desktop/webview-api';
+import type { Container } from 'inversify';
 
 const node: KubernetesObjectUI = {
   kind: 'Node',
@@ -35,10 +39,23 @@ const deployment: KubernetesNamespacedObjectUI = {
   selected: false,
 };
 
+let container: Container;
+let objectHelper: ObjectHelper;
+
+beforeAll(async () => {
+  const inversifyBinding = new InversifyBinding({} as RpcBrowser, {} as WebviewApi);
+  container = await inversifyBinding.initBindings();
+});
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  objectHelper = container.get<ObjectHelper>(ObjectHelper);
+});
+
 test('isNamespaced is false for nodes', async () => {
-  expect(isNamespaced(node)).toBeFalsy();
+  expect(objectHelper.isNamespaced(node)).toBeFalsy();
 });
 
 test('isNamespaced is true for deployments', async () => {
-  expect(isNamespaced(deployment)).toBeTruthy();
+  expect(objectHelper.isNamespaced(deployment)).toBeTruthy();
 });

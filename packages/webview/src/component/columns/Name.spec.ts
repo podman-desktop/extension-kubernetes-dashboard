@@ -23,8 +23,10 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubernetesColumnName from './Name.svelte';
 import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from '/@/component/objects/KubernetesObjectUI';
-import type { Navigator } from '/@/navigator';
+import { Navigator } from '/@/navigator';
 import * as svelte from 'svelte';
+import type { Container } from 'inversify';
+import { ObjectHelper } from '../objects/helper';
 
 vi.mock(import('/@/navigator'));
 
@@ -46,10 +48,23 @@ const navigatorMock: Navigator = {
   navigateTo: vi.fn(),
 } as unknown as Navigator;
 
+const objectHelperMock: ObjectHelper = {
+  isNamespaced: vi.fn(),
+} as unknown as ObjectHelper;
+
+const containerMock: Container = {
+  get: vi.fn(),
+} as unknown as Container;
+
 beforeEach(async () => {
   vi.resetAllMocks();
-  vi.spyOn(svelte, 'getContext').mockReturnValue({
-    get: vi.fn().mockReturnValue(navigatorMock),
+  vi.spyOn(svelte, 'getContext').mockReturnValue(containerMock);
+  vi.mocked(containerMock.get).mockImplementation(obj => {
+    if (obj === Navigator) {
+      return navigatorMock;
+    } else if (obj === ObjectHelper) {
+      return objectHelperMock;
+    }
   });
 });
 
@@ -66,6 +81,7 @@ test('Expect simple column styling', async () => {
 });
 
 test('Expect namespaced column styling', async () => {
+  vi.mocked(objectHelperMock.isNamespaced).mockReturnValue(true);
   render(KubernetesColumnName, { object: deployment });
 
   const name = screen.getByText(deployment.name);
@@ -97,6 +113,7 @@ test('Expect clicking works', async () => {
 });
 
 test('Expect namespaced clicking works', async () => {
+  vi.mocked(objectHelperMock.isNamespaced).mockReturnValue(true);
   render(KubernetesColumnName, {
     object: deployment,
   });
