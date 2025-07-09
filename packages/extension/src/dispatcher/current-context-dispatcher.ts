@@ -22,7 +22,7 @@ import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { CURRENT_CONTEXT } from '/@common/channels';
 import { RpcExtension } from '/@common/rpc/rpc';
 import { CurrentContextInfo } from '/@common/model/current-context-info';
-import { ContextsManager } from '../manager/contexts-manager';
+import { ContextsManager } from '/@/manager/contexts-manager';
 
 @injectable()
 export class CurrentContextDispatcher

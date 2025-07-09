@@ -1,7 +1,7 @@
 import type { ExtensionContext } from '@podman-desktop/api';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { activate, deactivate } from './main';
-import { DashboardExtension } from './dashboard-extension';
+import { activate, deactivate } from '/@/main';
+import { DashboardExtension } from '/@/dashboard-extension';
 
 let extensionContextMock: ExtensionContext;
 

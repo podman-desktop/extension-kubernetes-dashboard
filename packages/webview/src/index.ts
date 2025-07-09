@@ -18,7 +18,7 @@
 
 import { mount } from 'svelte';
 
-import Main from './Main.svelte';
+import Main from '/@/Main.svelte';
 
 /**
  * Mount the Svelte app to the target element with the id 'app'.

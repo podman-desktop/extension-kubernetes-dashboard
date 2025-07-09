@@ -17,14 +17,14 @@
  ***********************************************************************/
 
 import { beforeAll, expect, test, vi } from 'vitest';
-import type { ContextHealthState } from '../manager/context-health-checker';
-import type { KubeConfigSingleContext } from '../types/kubeconfig-single-context';
+import type { ContextHealthState } from '/@/manager/context-health-checker';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
 import { ContextsHealthsDispatcher } from './contexts-healths-dispatcher';
-import { InversifyBinding } from '../inject/inversify-binding';
+import { InversifyBinding } from '/@/inject/inversify-binding';
 import type { ExtensionContext, TelemetryLogger } from '@podman-desktop/api';
 import type { RpcExtension } from '/@common/rpc/rpc';
 import type { Container } from 'inversify';
-import { ContextsManager } from '../manager/contexts-manager';
+import { ContextsManager } from '/@/manager/contexts-manager';
 
 let container: Container;
 const contextsManagerMock = {

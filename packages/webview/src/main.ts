@@ -18,13 +18,13 @@
 
 import { RpcBrowser } from '/@common/rpc/rpc';
 
-import { InversifyBinding } from './inject/inversify-binding';
+import { InversifyBinding } from '/@/inject/inversify-binding';
 import { IDisposable } from '/@common/types/disposable';
-import { States } from './state/states';
-import { StateObject } from './state/util/state-object.svelte';
+import { States } from '/@/state/states';
+import { StateObject } from '/@/state/util/state-object.svelte';
 import type { WebviewApi } from '@podman-desktop/webview-api';
-import { Remote } from './remote/remote';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
+import { Remote } from '/@/remote/remote';
 
 export interface MainContext {
   states: States;

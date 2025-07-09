@@ -1,12 +1,12 @@
 <script lang="ts">
-import ActiveResourcesCount from './component/ActiveResourcesCount.svelte';
-import ConfigsList from './component/ConfigsList.svelte';
-import CurrentContext from './component/CurrentContext.svelte';
-import Dashboard from './component/Dashboard.svelte';
-import PodsList from './component/PodsList.svelte';
-import ResourcesCount from './component/ResourcesCount.svelte';
-import Navigation from './Navigation.svelte';
-import Route from './Route.svelte';
+import ActiveResourcesCount from '/@/component/ActiveResourcesCount.svelte';
+import ConfigsList from '/@/component/ConfigsList.svelte';
+import CurrentContext from '/@/component/CurrentContext.svelte';
+import Dashboard from '/@/component/Dashboard.svelte';
+import PodsList from '/@/component/PodsList.svelte';
+import ResourcesCount from '/@/component/ResourcesCount.svelte';
+import Navigation from '/@/Navigation.svelte';
+import Route from '/@/Route.svelte';
 
 let isMounted = false;
 </script>

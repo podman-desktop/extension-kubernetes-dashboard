@@ -19,7 +19,7 @@
 import { router } from 'tinro';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import { Navigator } from './navigator';
+import { Navigator } from '/@/navigation/navigator';
 import { InversifyBinding } from '/@/inject/inversify-binding';
 import type { RpcBrowser } from '/@common/rpc/rpc';
 import type { WebviewApi } from '@podman-desktop/webview-api';

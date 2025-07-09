@@ -24,7 +24,7 @@ import { Container } from 'inversify';
 import { RpcBrowser } from '/@common/rpc/rpc';
 
 import { statesModule } from '/@/state/state-module';
-import { Remote } from '../remote/remote';
+import { Remote } from '/@/remote/remote';
 import { objectsModule } from '/@/component/objects/_objects-module';
 import { navigationModule } from '/@/navigation/_navigation-module';
 

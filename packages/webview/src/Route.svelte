@@ -1,7 +1,7 @@
 <script lang="ts">
 import { createRouteObject } from 'tinro/dist/tinro_lib';
 import type { TinroRouteMeta } from 'tinro';
-import type { RouterState } from './models/router-state';
+import type { RouterState } from '/@/models/router-state';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import { getContext } from 'svelte';
 

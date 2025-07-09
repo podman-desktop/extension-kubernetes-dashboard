@@ -22,11 +22,11 @@ import { env, kubernetes, Uri, window } from '@podman-desktop/api';
 import { RpcExtension } from '/@common/rpc/rpc';
 
 import { readFile } from 'node:fs/promises';
-import { ContextsManager } from './manager/contexts-manager';
+import { ContextsManager } from '/@/manager/contexts-manager';
 import { existsSync } from 'node:fs';
 import { KubeConfig } from '@kubernetes/client-node';
-import { ContextsStatesDispatcher } from './manager/contexts-states-dispatcher';
-import { InversifyBinding } from './inject/inversify-binding';
+import { ContextsStatesDispatcher } from '/@/manager/contexts-states-dispatcher';
+import { InversifyBinding } from '/@/inject/inversify-binding';
 import type { Container } from 'inversify';
 import { API_SUBSCRIBE } from '/@common/channels';
 
