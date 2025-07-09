@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { router } from 'tinro';
-import type { NavigationRequest } from './models/navigation-request';
+import type { NavigationRequest } from '/@/models/navigation-request';
 import { injectable } from 'inversify';
 
 @injectable()

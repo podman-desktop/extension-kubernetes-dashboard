@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Navigator } from '/@/navigator';
+import { Navigator } from '/@/navigation/navigator';
 import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 
 import type { ObjectProps } from './object-props';

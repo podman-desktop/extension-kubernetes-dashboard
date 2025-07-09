@@ -18,7 +18,7 @@
 
 import { vi } from 'vitest';
 import * as svelte from 'svelte';
-import { Navigator } from '/@/navigator';
+import { Navigator } from '/@/navigation/navigator';
 import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 import type { DependencyAccessor } from '/@/inject/dependency-accessor';
 

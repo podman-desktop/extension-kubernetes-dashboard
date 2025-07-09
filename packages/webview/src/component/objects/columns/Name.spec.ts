@@ -25,7 +25,7 @@ import KubernetesColumnName from './Name.svelte';
 import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from '/@/component/objects/KubernetesObjectUI';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 
-vi.mock(import('/@/navigator'));
+vi.mock(import('/@/navigation/navigator'));
 
 const node: KubernetesObjectUI = {
   kind: 'Node',
