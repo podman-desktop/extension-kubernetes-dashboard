@@ -16,39 +16,69 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { vi } from 'vitest';
+import { assert, vi } from 'vitest';
 import * as svelte from 'svelte';
-import { Navigator } from '/@/navigation/navigator';
-import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 import type { DependencyAccessor } from '/@/inject/dependency-accessor';
+import type { Newable } from 'inversify';
 
 /** Build mocks for dependencies injected in context via inversify
  *
  * To be used for unit tests
+ *
+ * Usage:
+ *
+ * ```
+ *  const dependencyMocks = new DependencyMocks();
+ *
+ *  beforeEach(() => {
+ *    vi.resetAllMocks();
+ *    dependencyMocks.reset();
+ *    dependencyMocks.mock(Class1);
+ *    dependencyMocks.mock(Class2);
+ *  });
+ *
+ *  test('test', () => {
+ *    vi.mocked(dependencyMocks.get(Class1).class1Method).mockReturnValue(true);
+ *    ...
+ *    expect(dependencyMocks.get(Class2).class2Method).toBeCalled();
+ *  });
+ * ```
  */
 export class DependencyMocks {
-  public navigator: Navigator = {
-    navigateTo: vi.fn(),
-    kubernetesResourcesURL: vi.fn(),
-    kubernetesResourceURL: vi.fn(),
-  } as unknown as Navigator;
+  #mocks: Map<Newable, unknown> = new Map();
 
-  public kubernetesObjectUIHelper: KubernetesObjectUIHelper = {
-    isNamespaced: vi.fn(),
-  } as unknown as KubernetesObjectUIHelper;
-
-  constructor() {
+  reset(): void {
+    this.#mocks.clear();
     const dependencyAccessorMock: DependencyAccessor = {
       get: vi.fn(),
     } as unknown as DependencyAccessor;
     vi.spyOn(svelte, 'getContext').mockReturnValue(dependencyAccessorMock);
 
     vi.mocked(dependencyAccessorMock.get).mockImplementation(obj => {
-      if (obj === Navigator) {
-        return this.navigator;
-      } else if (obj === KubernetesObjectUIHelper) {
-        return this.kubernetesObjectUIHelper;
-      }
+      assert(this.#mocks.has(obj));
+      return this.#mocks.get(obj);
     });
+  }
+
+  mock<T>(serviceIdentifier: Newable<T>): T {
+    const mock = this.automock<T>(serviceIdentifier);
+    this.#mocks.set(serviceIdentifier, mock);
+    return mock;
+  }
+
+  get<T>(serviceIdentifier: Newable<T>): T {
+    assert(this.#mocks.has(serviceIdentifier));
+    return this.#mocks.get(serviceIdentifier) as T;
+  }
+
+  private automock<T>(serviceIdentifier: Newable<T>): T {
+    const properties = Object.getOwnPropertyNames(serviceIdentifier.prototype).filter(
+      property => property !== 'constructor',
+    );
+    return properties.reduce((prev, curr) => {
+      prev[curr] = vi.fn();
+      return prev;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }, {} as any);
   }
 }

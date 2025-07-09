@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Container, ServiceIdentifier } from 'inversify';
+import type { Container, Newable } from 'inversify';
 
 export class DependencyAccessor {
   constructor(private container: Container) {}
 
-  get<T>(serviceIdentifier: ServiceIdentifier<T>): T {
+  get<T>(serviceIdentifier: Newable<T>): T {
     return this.container.get<T>(serviceIdentifier);
   }
 }

@@ -23,9 +23,9 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubernetesColumnName from './Name.svelte';
 import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from '/@/component/objects/KubernetesObjectUI';
+import { Navigator } from '/@/navigation/navigator';
+import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
-
-vi.mock(import('/@/navigation/navigator'));
 
 const node: KubernetesObjectUI = {
   kind: 'Node',
@@ -41,11 +41,13 @@ const deployment: KubernetesNamespacedObjectUI = {
   selected: false,
 };
 
-let dependenciesMocks: DependencyMocks;
+const dependencyMocks = new DependencyMocks();
 
 beforeEach(() => {
   vi.resetAllMocks();
-  dependenciesMocks = new DependencyMocks();
+  dependencyMocks.reset();
+  dependencyMocks.mock(Navigator);
+  dependencyMocks.mock(KubernetesObjectUIHelper);
 });
 
 test('Expect simple column styling', async () => {
@@ -61,7 +63,7 @@ test('Expect simple column styling', async () => {
 });
 
 test('Expect namespaced column styling', async () => {
-  vi.mocked(dependenciesMocks.kubernetesObjectUIHelper.isNamespaced).mockReturnValue(true);
+  vi.mocked(dependencyMocks.get(KubernetesObjectUIHelper).isNamespaced).mockReturnValue(true);
   render(KubernetesColumnName, { object: deployment });
 
   const name = screen.getByText(deployment.name);
@@ -89,11 +91,11 @@ test('Expect clicking works', async () => {
 
   await fireEvent.click(name);
 
-  expect(dependenciesMocks.navigator.navigateTo).toBeCalledWith({ kind: node.kind, name: node.name });
+  expect(dependencyMocks.get(Navigator).navigateTo).toBeCalledWith({ kind: node.kind, name: node.name });
 });
 
 test('Expect namespaced clicking works', async () => {
-  vi.mocked(dependenciesMocks.kubernetesObjectUIHelper.isNamespaced).mockReturnValue(true);
+  vi.mocked(dependencyMocks.get(KubernetesObjectUIHelper).isNamespaced).mockReturnValue(true);
   render(KubernetesColumnName, {
     object: deployment,
   });
@@ -103,7 +105,7 @@ test('Expect namespaced clicking works', async () => {
 
   await fireEvent.click(name);
 
-  expect(dependenciesMocks.navigator.navigateTo).toBeCalledWith({
+  expect(dependencyMocks.get(Navigator).navigateTo).toBeCalledWith({
     kind: deployment.kind,
     name: deployment.name,
     namespace: deployment.namespace,
