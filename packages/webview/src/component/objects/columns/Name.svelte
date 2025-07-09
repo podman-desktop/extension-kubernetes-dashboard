@@ -1,16 +1,16 @@
 <script lang="ts">
 import { Navigator } from '/@/navigator';
-import { KubernetesObjectUIHelper } from '/@/component/objects/helper';
+import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 
 import type { ObjectProps } from './object-props';
 import { getContext } from 'svelte';
-import { DependencyGetter } from '/@/inject/dependency-getter';
+import { DependencyAccessor } from '/@/inject/dependency-accessor';
 
 let { object }: ObjectProps = $props();
 
-const dependencyGetter = getContext<DependencyGetter>(DependencyGetter);
-const navigator = dependencyGetter.get<Navigator>(Navigator);
-const objectHelper = dependencyGetter.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
+const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
+const navigator = dependencyAccessor.get<Navigator>(Navigator);
+const objectHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
 
 async function openDetails(): Promise<void> {
   if (objectHelper.isNamespaced(object)) {

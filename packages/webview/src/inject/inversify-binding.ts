@@ -26,7 +26,7 @@ import { RpcBrowser } from '/@common/rpc/rpc';
 import { statesModule } from '/@/state/state-module';
 import { Remote } from '../remote/remote';
 import { Navigator } from '/@/navigator';
-import { KubernetesObjectUIHelper } from '/@/component/objects/helper';
+import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 
 export class InversifyBinding {
   #container: Container | undefined;

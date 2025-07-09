@@ -18,7 +18,7 @@
 
 import type { Container, ServiceIdentifier } from 'inversify';
 
-export class DependencyGetter {
+export class DependencyAccessor {
   constructor(private container: Container) {}
 
   get<T>(serviceIdentifier: ServiceIdentifier<T>): T {

@@ -5,8 +5,7 @@ import type { MainContext } from './main';
 import { States } from './state/states';
 import App from './App.svelte';
 import { Remote } from './remote/remote';
-import { Container } from 'inversify';
-import { DependencyGetter } from './inject/dependency-getter';
+import { DependencyAccessor } from '/@//inject/dependency-accessor';
 
 interface Props {
   context: MainContext;
@@ -19,7 +18,7 @@ let initialized = $state(false);
 // Sets the value in the global svelte context
 setContext(States, context.states);
 setContext(Remote, context.remote);
-setContext(DependencyGetter, context.dependencyGetter);
+setContext(DependencyAccessor, context.dependencyAccessor);
 
 initialized = true;
 </script>

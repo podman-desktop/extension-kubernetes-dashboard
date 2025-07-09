@@ -26,7 +26,7 @@ import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from '/@/compon
 import { Navigator } from '/@/navigator';
 import * as svelte from 'svelte';
 import type { Container } from 'inversify';
-import { KubernetesObjectUIHelper } from '/@/component/objects/helper';
+import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 
 vi.mock(import('/@/navigator'));
 
