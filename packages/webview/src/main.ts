@@ -24,13 +24,13 @@ import { States } from './state/states';
 import { StateObject } from './state/util/state-object.svelte';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import { Remote } from './remote/remote';
-import type { Container } from 'inversify';
+import { DependencyGetter } from './inject/dependency-getter';
 
 export interface MainContext {
   states: States;
   webviewApi: WebviewApi;
   remote: Remote;
-  bindingContainer: Container;
+  dependencyGetter: DependencyGetter;
 }
 
 export class Main implements IDisposable {
@@ -60,7 +60,7 @@ export class Main implements IDisposable {
       states: await container.getAsync<States>(States),
       webviewApi,
       remote: container.get<Remote>(Remote),
-      bindingContainer: container,
+      dependencyGetter: new DependencyGetter(container),
     };
 
     return mainContext;

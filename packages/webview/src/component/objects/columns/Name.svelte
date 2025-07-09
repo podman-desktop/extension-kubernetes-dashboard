@@ -4,13 +4,13 @@ import { KubernetesObjectUIHelper } from '/@/component/objects/helper';
 
 import type { ObjectProps } from './object-props';
 import { getContext } from 'svelte';
-import { Container } from 'inversify';
+import { DependencyGetter } from '/@/inject/dependency-getter';
 
 let { object }: ObjectProps = $props();
 
-const bindingContainer = getContext<Container>(Container);
-const navigator = bindingContainer.get<Navigator>(Navigator);
-const objectHelper = bindingContainer.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
+const dependencyGetter = getContext<DependencyGetter>(DependencyGetter);
+const navigator = dependencyGetter.get<Navigator>(Navigator);
+const objectHelper = dependencyGetter.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
 
 async function openDetails(): Promise<void> {
   if (objectHelper.isNamespaced(object)) {
