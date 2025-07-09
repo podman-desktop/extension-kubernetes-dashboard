@@ -29,10 +29,10 @@ import type { RpcExtension } from '/@common/rpc/rpc.js';
 import type { ExtensionContext, TelemetryLogger } from '@podman-desktop/api';
 import type { Container } from 'inversify';
 import { InversifyBinding } from '/@/inject/inversify-binding.js';
-import { ResourcesCountDispatcher } from '../dispatcher/resources-count-dispatcher.js';
-import { ActiveResourcesCountDispatcher } from '../dispatcher/active-resources-count-dispatcher.js';
-import { ContextsHealthsDispatcher } from '../dispatcher/contexts-healths-dispatcher.js';
-import { ContextsPermissionsDispatcher } from '../dispatcher/contexts-permissions-dispatcher.js';
+import { ResourcesCountDispatcher } from '/@/dispatcher/resources-count-dispatcher.js';
+import { ActiveResourcesCountDispatcher } from '/@/dispatcher/active-resources-count-dispatcher.js';
+import { ContextsHealthsDispatcher } from '/@/dispatcher/contexts-healths-dispatcher.js';
+import { ContextsPermissionsDispatcher } from '/@/dispatcher/contexts-permissions-dispatcher.js';
 import {
   ACTIVE_RESOURCES_COUNT,
   CONTEXTS_HEALTHS,

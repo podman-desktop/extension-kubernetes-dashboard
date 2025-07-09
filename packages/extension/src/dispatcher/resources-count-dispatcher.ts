@@ -19,7 +19,7 @@
 import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { ContextsManager } from '../manager/contexts-manager';
+import { ContextsManager } from '/@/manager/contexts-manager';
 import { RESOURCES_COUNT } from '/@common/channels';
 import { RpcExtension } from '/@common/rpc/rpc';
 import { ResourcesCountInfo } from '/@common/model/resources-count-info';

@@ -18,7 +18,7 @@
 
 import type { ExtensionContext } from '@podman-desktop/api';
 
-import { DashboardExtension } from './dashboard-extension';
+import { DashboardExtension } from '/@/dashboard-extension';
 
 let dashboardExtension: DashboardExtension | undefined;
 
