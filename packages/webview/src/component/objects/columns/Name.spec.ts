@@ -23,10 +23,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubernetesColumnName from './Name.svelte';
 import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from '/@/component/objects/KubernetesObjectUI';
-import { Navigator } from '/@/navigator';
-import * as svelte from 'svelte';
-import type { Container } from 'inversify';
-import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
+import { DependencyMocks } from '/@/tests/dependency-mocks';
 
 vi.mock(import('/@/navigator'));
 
@@ -44,28 +41,11 @@ const deployment: KubernetesNamespacedObjectUI = {
   selected: false,
 };
 
-const navigatorMock: Navigator = {
-  navigateTo: vi.fn(),
-} as unknown as Navigator;
+let dependenciesMocks: DependencyMocks;
 
-const objectHelperMock: KubernetesObjectUIHelper = {
-  isNamespaced: vi.fn(),
-} as unknown as KubernetesObjectUIHelper;
-
-const containerMock: Container = {
-  get: vi.fn(),
-} as unknown as Container;
-
-beforeEach(async () => {
+beforeEach(() => {
   vi.resetAllMocks();
-  vi.spyOn(svelte, 'getContext').mockReturnValue(containerMock);
-  vi.mocked(containerMock.get).mockImplementation(obj => {
-    if (obj === Navigator) {
-      return navigatorMock;
-    } else if (obj === KubernetesObjectUIHelper) {
-      return objectHelperMock;
-    }
-  });
+  dependenciesMocks = new DependencyMocks();
 });
 
 test('Expect simple column styling', async () => {
@@ -81,7 +61,7 @@ test('Expect simple column styling', async () => {
 });
 
 test('Expect namespaced column styling', async () => {
-  vi.mocked(objectHelperMock.isNamespaced).mockReturnValue(true);
+  vi.mocked(dependenciesMocks.kubernetesObjectUIHelper.isNamespaced).mockReturnValue(true);
   render(KubernetesColumnName, { object: deployment });
 
   const name = screen.getByText(deployment.name);
@@ -109,11 +89,11 @@ test('Expect clicking works', async () => {
 
   await fireEvent.click(name);
 
-  expect(navigatorMock.navigateTo).toBeCalledWith({ kind: node.kind, name: node.name });
+  expect(dependenciesMocks.navigator.navigateTo).toBeCalledWith({ kind: node.kind, name: node.name });
 });
 
 test('Expect namespaced clicking works', async () => {
-  vi.mocked(objectHelperMock.isNamespaced).mockReturnValue(true);
+  vi.mocked(dependenciesMocks.kubernetesObjectUIHelper.isNamespaced).mockReturnValue(true);
   render(KubernetesColumnName, {
     object: deployment,
   });
@@ -123,7 +103,7 @@ test('Expect namespaced clicking works', async () => {
 
   await fireEvent.click(name);
 
-  expect(navigatorMock.navigateTo).toBeCalledWith({
+  expect(dependenciesMocks.navigator.navigateTo).toBeCalledWith({
     kind: deployment.kind,
     name: deployment.name,
     namespace: deployment.namespace,
