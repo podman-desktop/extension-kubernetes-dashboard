@@ -1,12 +1,18 @@
 <script lang="ts">
 import type { TinroRouteMeta } from 'tinro';
 import { SettingsNavItem } from '@podman-desktop/ui-svelte';
+import { getContext } from 'svelte';
+import { Navigator } from '/@/navigation/navigator';
+import { DependencyAccessor } from '/@/inject/dependency-accessor';
 
 interface Props {
   meta: TinroRouteMeta;
 }
 
 const { meta }: Props = $props();
+
+const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
+const navigator = dependencyAccessor.get<Navigator>(Navigator);
 </script>
 
 <nav
@@ -19,6 +25,11 @@ const { meta }: Props = $props();
   </div>
   <div class="h-full overflow-hidden hover:overflow-y-auto" style="margin-bottom:auto">
     <SettingsNavItem title="Dashboard" selected={meta.url === '/'} href="/" />
+
+    <SettingsNavItem
+      title="Nodes List"
+      selected={meta.url === navigator.kubernetesResourcesURL('Node')}
+      href={navigator.kubernetesResourcesURL('Node')} />
 
     <div class="pl-3 mt-2 ml-[4px]">
       <span class="text-[color:var(--pd-secondary-nav-header-text)]">STATES</span>

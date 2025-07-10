@@ -66,7 +66,7 @@ export class DependencyMocks {
     });
 
     vi.mocked(dependencyAccessorMock.get).mockImplementation(obj => {
-      assert(this.#mocks.has(obj));
+      assert(this.#mocks.has(obj), `${obj} is not mocked`);
       return this.#mocks.get(obj);
     });
   }

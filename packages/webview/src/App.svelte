@@ -3,6 +3,7 @@ import ActiveResourcesCount from '/@/component/ActiveResourcesCount.svelte';
 import ConfigsList from '/@/component/ConfigsList.svelte';
 import CurrentContext from '/@/component/CurrentContext.svelte';
 import Dashboard from '/@/component/Dashboard.svelte';
+import NodesList from '/@/component/nodes/NodesList.svelte';
 import PodsList from '/@/component/PodsList.svelte';
 import ResourcesCount from '/@/component/ResourcesCount.svelte';
 import Navigation from '/@/Navigation.svelte';
@@ -19,6 +20,14 @@ let isMounted = false;
       <div class="flex flex-col w-full h-full">
         <Route path="/">
           <Dashboard />
+        </Route>
+
+        <Route path="/nodes">
+          <NodesList />
+        </Route>
+
+        <Route path="/nodes/:name/*" let:meta>
+          Node details for {meta.params.name}
         </Route>
 
         <Route path="/current-context">
