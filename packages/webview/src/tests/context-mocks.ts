@@ -26,13 +26,13 @@ import type { StateObject } from '/@/state/util/state-object.svelte';
  * To be used for unit tests
  *
  * ```
- *  const contextMocks = new ContextMocks();
+ *  const statesMocks = new StatesMocks();
  *  const currentContextMock = new FakeStateObject<CurrentContextInfo, void>();
  *
  *  beforeEach(() => {
  *    vi.resetAllMocks();
- *    contextMocks.reset();
- *    contextMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
+ *    statesMocks.reset();
+ *    statesMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
  *  });
  *
  *  test('test with states', () => {
@@ -46,7 +46,7 @@ import type { StateObject } from '/@/state/util/state-object.svelte';
  *  });
  * ```
  */
-export class ContextMocks {
+export class StatesMocks {
   #stateMocks: Map<string, StateObject<unknown, unknown>> = new Map();
   #statesProperties = Object.getOwnPropertyNames(States.prototype).filter(property => property !== 'constructor');
 
