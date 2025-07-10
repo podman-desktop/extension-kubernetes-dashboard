@@ -26,6 +26,7 @@ export const StateObject = Symbol.for('StateObject');
 export interface StateObject<T, U> extends IDisposable {
   get data(): T | undefined;
   init(): Promise<void>;
+  subscribe(options: U): Unsubscriber;
 }
 
 // Allow to receive event for a given object
