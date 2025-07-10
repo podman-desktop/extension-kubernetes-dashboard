@@ -27,6 +27,7 @@ import { statesModule } from '/@/state/state-module';
 import { Remote } from '/@/remote/remote';
 import { objectsModule } from '/@/component/objects/_objects-module';
 import { navigationModule } from '/@/navigation/_navigation-module';
+import { nodesModule } from '/@/component/nodes/_nodes-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -48,6 +49,7 @@ export class InversifyBinding {
     await this.#container.load(statesModule);
     await this.#container.load(objectsModule);
     await this.#container.load(navigationModule);
+    await this.#container.load(nodesModule);
 
     return this.#container;
   }

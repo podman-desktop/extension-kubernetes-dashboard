@@ -22,4 +22,32 @@ export class KubernetesObjectUIHelper {
   public isNamespaced(object: KubernetesObjectUI): object is KubernetesNamespacedObjectUI {
     return 'namespace' in object;
   }
+
+  public findMatchInLeaves(object: unknown, query: string): boolean {
+    if (typeof object === 'string') {
+      return object.toLowerCase().includes(query.toLowerCase());
+    } else if (Array.isArray(object)) {
+      return object.some(element => this.findMatchInLeaves(element, query));
+    } else if (typeof object === 'object') {
+      // we will search only in the leaf of the object
+      return this.aggregateLeaves(object).some(leaf => this.findMatchInLeaves(leaf, query));
+    } else {
+      return false;
+    }
+  }
+
+  // Aggregate all leaves of a given object
+  protected aggregateLeaves(object: unknown): string[] {
+    if (!object) {
+      return [];
+    } else if (typeof object === 'string') {
+      return [object];
+    } else if (Array.isArray(object)) {
+      return object.flatMap(element => this.aggregateLeaves(element));
+    } else if (typeof object === 'object') {
+      return Object.values(object).flatMap(value => this.aggregateLeaves(value));
+    } else {
+      return [];
+    }
+  }
 }

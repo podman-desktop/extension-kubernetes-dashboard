@@ -59,3 +59,77 @@ test('isNamespaced is false for nodes', async () => {
 test('isNamespaced is true for deployments', async () => {
   expect(helper.isNamespaced(deployment)).toBeTruthy();
 });
+
+test('should expect valid match with string', async () => {
+  const object = 'nginx';
+  expect(helper.findMatchInLeaves(object, 'nginx')).toBe(true);
+  expect(helper.findMatchInLeaves(object, 'foo')).toBe(false);
+});
+
+test('should expect valid match with string and case', async () => {
+  const object = 'NgInX';
+  expect(helper.findMatchInLeaves(object, 'nginx')).toBe(true);
+  expect(helper.findMatchInLeaves(object, 'foo')).toBe(false);
+
+  const object2 = 'nginx';
+  expect(helper.findMatchInLeaves(object2, 'NgInX')).toBe(true);
+  expect(helper.findMatchInLeaves(object2, 'foo')).toBe(false);
+});
+
+test('should expect valid match with array of string', async () => {
+  const object = ['a', 'b', 'my super name'];
+  expect(helper.findMatchInLeaves(object, 'name')).toBe(true);
+  expect(helper.findMatchInLeaves(object, 'b')).toBe(true);
+  expect(helper.findMatchInLeaves(object, 'foo')).toBe(false);
+});
+
+test('should expect valid match with array of string and different case', async () => {
+  const object = ['a', 'B', 'My Super Name'];
+  expect(helper.findMatchInLeaves(object, 'name')).toBe(true);
+  expect(helper.findMatchInLeaves(object, 'b')).toBe(true);
+  expect(helper.findMatchInLeaves(object, 'foo')).toBe(false);
+
+  const object2 = ['a', 'b', 'my super name'];
+  expect(helper.findMatchInLeaves(object2, 'NaMe')).toBe(true);
+  expect(helper.findMatchInLeaves(object2, 'B')).toBe(true);
+  expect(helper.findMatchInLeaves(object2, 'foo')).toBe(false);
+});
+
+test('should expect valid match with simple object', async () => {
+  const object = {
+    hello: 'foo',
+    baz: undefined,
+  };
+  expect(helper.findMatchInLeaves(object, 'foo')).toBe(true);
+
+  // should not match on key name
+  expect(helper.findMatchInLeaves(object, 'hello')).toBe(false);
+});
+
+test('should expect valid match with complex object', async () => {
+  const object = {
+    hello: {
+      hello: {
+        hello: 'foo',
+      },
+    },
+  };
+  expect(helper.findMatchInLeaves(object, 'foo')).toBe(true);
+
+  // should not match on key name
+  expect(helper.findMatchInLeaves(object, 'hello')).toBe(false);
+});
+
+test('should expect valid match with complex object and case', async () => {
+  const object = {
+    hello: {
+      hello: {
+        hello: 'FoO',
+      },
+    },
+  };
+  expect(helper.findMatchInLeaves(object, 'foo')).toBe(true);
+
+  // should not match on key name
+  expect(helper.findMatchInLeaves(object, 'hello')).toBe(false);
+});
