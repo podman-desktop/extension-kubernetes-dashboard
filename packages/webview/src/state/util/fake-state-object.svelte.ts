@@ -25,7 +25,7 @@ import { vi } from 'vitest';
 export class FakeStateObject<T, U> implements StateObject<T, U> {
   #data = $state<{ value: T | undefined }>({ value: undefined });
 
-  subscribe = vi.fn();
+  subscribe = vi.fn().mockReturnValue((): void => {});
 
   get data(): T | undefined {
     return this.#data.value;

@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { ContextMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/context-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { UpdateResourceOptions } from '/@common/model/update-resource-options';
 import type { UpdateResourceInfo } from '/@common/model/update-resource-info';
@@ -28,20 +28,23 @@ import { tick } from 'svelte';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { Navigator } from '/@/navigation/navigator';
 
-const contextMocks = new ContextMocks();
+const statesMocks = new StatesMocks();
 const dependencyMocks = new DependencyMocks();
-const updateResourceMock = new FakeStateObject<UpdateResourceInfo, UpdateResourceOptions>();
-const currentContextMock = new FakeStateObject<CurrentContextInfo, void>();
+let updateResourceMock: FakeStateObject<UpdateResourceInfo, UpdateResourceOptions>;
+let currentContextMock: FakeStateObject<CurrentContextInfo, void>;
 
 beforeEach(() => {
   vi.resetAllMocks();
 
+  updateResourceMock = new FakeStateObject();
+  currentContextMock = new FakeStateObject();
+
   dependencyMocks.reset();
   dependencyMocks.mock(Navigator);
 
-  contextMocks.reset();
-  contextMocks.mock<UpdateResourceInfo, UpdateResourceOptions>('stateUpdateResourceInfoUI', updateResourceMock);
-  contextMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
+  statesMocks.reset();
+  statesMocks.mock<UpdateResourceInfo, UpdateResourceOptions>('stateUpdateResourceInfoUI', updateResourceMock);
+  statesMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
 });
 
 test('with no current context', () => {
