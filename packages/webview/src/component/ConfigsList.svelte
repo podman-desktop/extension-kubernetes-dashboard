@@ -4,9 +4,14 @@ import { States } from '/@/state/states';
 import { NavPage } from '@podman-desktop/ui-svelte';
 import type { Unsubscriber } from 'svelte/store';
 import type { ContextResourceItems } from '/@common/model/context-resources-items';
+import { DependencyAccessor } from '../inject/dependency-accessor';
+import { Navigator } from '/@/navigation/navigator';
 
 const updateResource = getContext<States>(States).stateUpdateResourceInfoUI;
 const currentContext = getContext<States>(States).stateCurrentContextInfoUI;
+
+const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
+const navigator = dependencyAccessor.get(Navigator);
 
 let unsubscriberConfigmaps: Unsubscriber | undefined;
 let unsubscriberSecrets: Unsubscriber | undefined;
@@ -62,7 +67,7 @@ function filterResources(allResources: ContextResourceItems[]): ContextResourceI
           <h2>List of {resources.resourceName} in context {resources.contextName}</h2>
           <ul class="list-disc list-inside">
             {#each resources.items as item, index (index)}
-              <li>{item.metadata?.name}</li>
+              <li>{item.metadata?.name} ({navigator.kubernetesResourcesURL('ConfigMap')})</li>
             {/each}
           </ul>
         {/each}

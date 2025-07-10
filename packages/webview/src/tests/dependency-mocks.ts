@@ -18,7 +18,7 @@
 
 import { assert, vi } from 'vitest';
 import * as svelte from 'svelte';
-import type { DependencyAccessor } from '/@/inject/dependency-accessor';
+import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import type { Newable } from 'inversify';
 
 /** Build mocks for dependencies injected in context via inversify
@@ -52,7 +52,18 @@ export class DependencyMocks {
     const dependencyAccessorMock: DependencyAccessor = {
       get: vi.fn(),
     } as unknown as DependencyAccessor;
-    vi.spyOn(svelte, 'getContext').mockReturnValue(dependencyAccessorMock);
+    const nextMock = vi.isMockFunction(svelte.getContext)
+      ? vi.mocked(svelte.getContext)?.getMockImplementation()
+      : undefined;
+    vi.spyOn(svelte, 'getContext').mockImplementation(key => {
+      if (key === DependencyAccessor) {
+        return dependencyAccessorMock;
+      } else if (nextMock) {
+        return nextMock(key);
+      } else {
+        throw new Error(`not supported mock in context: ${key}`);
+      }
+    });
 
     vi.mocked(dependencyAccessorMock.get).mockImplementation(obj => {
       assert(this.#mocks.has(obj));
