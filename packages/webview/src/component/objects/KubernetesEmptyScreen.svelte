@@ -54,7 +54,7 @@ const info: Info = $derived.by(() => {
   const currentContextName = currentContext.data?.contextName;
 
   const health = contextsHealths.data?.healths.find(health => health.contextName === currentContextName);
-  if (!health?.reachable) {
+  if (!health?.reachable || health.offline) {
     return {
       title: 'Context not reachable',
       text: 'The current context is not reachable',
