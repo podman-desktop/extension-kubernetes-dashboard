@@ -22,6 +22,7 @@ import { StateActiveResourcesCountInfo } from './active-resources-count.svelte';
 import { StateCurrentContextInfo } from './current-context.svelte';
 import { StateUpdateResourceInfo } from './update-resource.svelte';
 import { StateContextsPermissionsInfo } from './contexts-permissions.svelte';
+import { StateContextsHealthsInfo } from './contexts-healths.svelte';
 
 @injectable()
 export class States {
@@ -58,5 +59,12 @@ export class States {
 
   get stateContextsPermissionsInfoUI(): StateContextsPermissionsInfo {
     return this._stateContextsPermissionsInfoUI;
+  }
+
+  @inject(StateContextsHealthsInfo)
+  private _stateContextsHealthsInfoUI: StateContextsHealthsInfo;
+
+  get stateContextsHealthsInfoUI(): StateContextsHealthsInfo {
+    return this._stateContextsHealthsInfoUI;
   }
 }

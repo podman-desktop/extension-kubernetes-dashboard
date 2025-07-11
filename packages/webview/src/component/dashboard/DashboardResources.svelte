@@ -2,7 +2,7 @@
 import DashboardResourceCard from './DashboardResourceCard.svelte';
 </script>
 
-<div class="grid grid-cols-4 gap-4 h-fit w-full m-4">
+<div class="grid grid-cols-4 gap-4 h-fit w-full">
   <DashboardResourceCard type="Nodes" resources={['nodes']} kind="Node" />
   <DashboardResourceCard type="Deployments" resources={['deployments']} kind="Deployment" />
   <DashboardResourceCard type="Pods" resources={['pods']} kind="Pod" />
