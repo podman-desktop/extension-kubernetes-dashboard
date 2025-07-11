@@ -11,6 +11,7 @@ import type { NodeUI } from './NodeUI';
 import { NodeHelper } from './node-helper';
 import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
+import NodeEmptyScreen from './NodeEmptyScreen.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const nodeHelper = dependencyAccessor.get<NodeHelper>(NodeHelper);
@@ -75,5 +76,7 @@ const row = new TableRow<NodeUI>({});
   icon={NodeIcon}
   columns={columns}
   row={row}>
-  {#snippet emptySnippet()}No node{/snippet}
+  {#snippet emptySnippet()}
+    <NodeEmptyScreen />
+  {/snippet}
 </KubernetesObjectsList>
