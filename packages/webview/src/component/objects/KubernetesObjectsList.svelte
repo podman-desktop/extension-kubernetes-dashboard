@@ -10,6 +10,7 @@ import { States } from '/@/state/states';
 import type { ContextResourceItems } from '/@common/model/context-resources-items';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
+import CurrentContextConnectionBadge from '/@/component/connection/CurrentContextConnectionBadge.svelte';
 
 export interface Kind {
   resource: string;
@@ -90,6 +91,12 @@ onDestroy(() => {
 </script>
 
 <NavPage bind:searchTerm={searchTerm} title={plural}>
+  {#snippet bottomAdditionalActions()}
+    <div class="flex grow justify-end">
+      <CurrentContextConnectionBadge />
+    </div>
+  {/snippet}
+
   {#snippet content()}
     <div class="flex min-w-full h-full">
       <Table kind={singular} data={objects} columns={columns} row={row} defaultSortColumn="Name"></Table>
