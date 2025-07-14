@@ -27,9 +27,14 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
     <SettingsNavItem title="Dashboard" selected={meta.url === '/'} href="/" />
 
     <SettingsNavItem
-      title="Nodes List"
+      title="Nodes"
       selected={meta.url === navigator.kubernetesResourcesURL('Node')}
       href={navigator.kubernetesResourcesURL('Node')} />
+
+    <SettingsNavItem
+      title="Namespaces"
+      selected={meta.url === navigator.kubernetesResourcesURL('Namespace')}
+      href={navigator.kubernetesResourcesURL('Namespace')} />
 
     <div class="pl-3 mt-2 ml-[4px]">
       <span class="text-[color:var(--pd-secondary-nav-header-text)]">STATES</span>

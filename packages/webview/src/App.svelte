@@ -1,4 +1,5 @@
 <script lang="ts">
+import NamespacesList from './component/namespaces/NamespacesList.svelte';
 import ActiveResourcesCount from '/@/component/ActiveResourcesCount.svelte';
 import ConfigsList from '/@/component/ConfigsList.svelte';
 import CurrentContext from '/@/component/CurrentContext.svelte';
@@ -28,6 +29,10 @@ let isMounted = false;
 
         <Route path="/nodes/:name/*" let:meta>
           Node details for {meta.params.name}
+        </Route>
+
+        <Route path="/namespaces">
+          <NamespacesList />
         </Route>
 
         <Route path="/current-context">
