@@ -26,33 +26,25 @@ import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';
 import CheckConnection from './CheckConnection.svelte';
-import { Remote } from '/@/remote/remote';
-import * as svelte from 'svelte';
-import type { ContextsApi } from '/@common/interface/contexts-api';
 import userEvent from '@testing-library/user-event';
+import { API_CONTEXTS } from '/@common/channels';
+import { RemoteMocks } from '/@/tests/remote-mocks';
 
 const statesMocks = new StatesMocks();
+const remoteMocks = new RemoteMocks();
 
 let currentContextMock: FakeStateObject<CurrentContextInfo, void>;
 let contextsHealthsMock: FakeStateObject<ContextsHealthsInfo, void>;
 
-const refreshContextStateMock = vi.fn();
-
 beforeEach(() => {
   vi.resetAllMocks();
 
-  vi.spyOn(svelte, 'getContext').mockImplementation(key => {
-    if (key === Remote) {
-      return {
-        getProxy: (): ContextsApi => {
-          return {
-            refreshContextState: refreshContextStateMock,
-          };
-        },
-      };
-    }
+  remoteMocks.reset();
+  remoteMocks.mock(API_CONTEXTS, {
+    refreshContextState: vi.fn(),
   });
-  refreshContextStateMock.mockResolvedValue(undefined);
+
+  vi.mocked(remoteMocks.get(API_CONTEXTS).refreshContextState).mockResolvedValue(undefined);
 
   currentContextMock = new FakeStateObject();
   contextsHealthsMock = new FakeStateObject();
@@ -77,7 +69,7 @@ test('button is displayed and active if current context is defined and is not re
   expect(button).toHaveProperty('disabled', false);
 
   await userEvent.click(button);
-  expect(refreshContextStateMock).toHaveBeenCalled();
+  expect(remoteMocks.get(API_CONTEXTS).refreshContextState).toHaveBeenCalled();
 });
 
 test('button is not displayed if current context is defined and is reachable', async () => {
