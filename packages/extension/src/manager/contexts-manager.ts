@@ -49,6 +49,7 @@ import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js
 import { ServicesResourceFactory } from '/@/resources/services-resource-factory.js';
 import { injectable } from 'inversify';
 import { ContextResourceItems } from '/@common/model/context-resources-items.js';
+import { NamespacesResourceFactory } from '../resources/namespaces-resource-factory.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
@@ -120,6 +121,7 @@ export class ContextsManager {
       new DeploymentsResourceFactory(),
       new EventsResourceFactory(),
       new IngressesResourceFactory(),
+      new NamespacesResourceFactory(),
       new NodesResourceFactory(),
       new PodsResourceFactory(),
       new PVCsResourceFactory(),
