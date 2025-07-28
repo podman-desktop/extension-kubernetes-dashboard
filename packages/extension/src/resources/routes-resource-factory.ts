@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubernetesListObject } from '@kubernetes/client-node';
+import type { KubernetesListObject, KubernetesObject, V1Status } from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
 
 import type { V1Route } from '/@common/model/openshift-types.js';
@@ -30,6 +30,7 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
   constructor() {
     super({
       resource: 'routes',
+      kind: 'Route',
     });
 
     this.setPermissions({
@@ -50,6 +51,7 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deleteRoute);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Route> {
@@ -63,6 +65,21 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
         plural: 'routes',
       });
     const path = `/apis/route.openshift.io/v1/namespaces/${namespace}/routes`;
-    return new ResourceInformer<V1Route>({ kubeconfig, path, listFn, kind: 'Route', plural: 'routes' });
+    return new ResourceInformer<V1Route>({ kubeconfig, path, listFn, kind: this.kind, plural: 'routes' });
+  }
+
+  deleteRoute(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CustomObjectsApi);
+    return apiClient.deleteNamespacedCustomObject({
+      group: 'route.openshift.io',
+      version: 'v1',
+      plural: 'routes',
+      name,
+      namespace,
+    });
   }
 }

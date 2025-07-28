@@ -23,7 +23,7 @@ import { isResourceFactoryWithPermissions, ResourceFactoryBase } from './resourc
 import type { ResourceInformer } from '/@/types/resource-informer.js';
 
 test('ResourceFactoryBase set permissions', () => {
-  const factory = new ResourceFactoryBase({ resource: 'resource1' });
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
 
   const permissionsRequests = [
     {
@@ -48,7 +48,7 @@ test('ResourceFactoryBase set permissions', () => {
 });
 
 test('copyWithSlicedPermissions', () => {
-  const factory = new ResourceFactoryBase({ resource: 'resource1' });
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
 
   const permissionsRequests = [
     {
@@ -77,7 +77,7 @@ test('copyWithSlicedPermissions', () => {
 });
 
 test('ResourceFactoryBase set informer', () => {
-  const factory = new ResourceFactoryBase({ resource: 'resource1' });
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
   const createInformer = (_kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Pod> => {
     return {} as ResourceInformer<V1Pod>;
   };

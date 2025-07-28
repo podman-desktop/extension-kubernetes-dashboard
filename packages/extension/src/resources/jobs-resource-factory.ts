@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Job, V1JobList } from '@kubernetes/client-node';
+import type { KubernetesObject, V1Job, V1JobList, V1Status } from '@kubernetes/client-node';
 import { BatchV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -28,6 +28,7 @@ export class JobsResourceFactory extends ResourceFactoryBase implements Resource
   constructor() {
     super({
       resource: 'jobs',
+      kind: 'Job',
     });
 
     this.setPermissions({
@@ -48,6 +49,7 @@ export class JobsResourceFactory extends ResourceFactoryBase implements Resource
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deleteJob);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Job> {
@@ -55,6 +57,15 @@ export class JobsResourceFactory extends ResourceFactoryBase implements Resource
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(BatchV1Api);
     const listFn = (): Promise<V1JobList> => apiClient.listNamespacedJob({ namespace });
     const path = `/apis/batch/v1/namespaces/${namespace}/jobs`;
-    return new ResourceInformer<V1Job>({ kubeconfig, path, listFn, kind: 'Job', plural: 'jobs' });
+    return new ResourceInformer<V1Job>({ kubeconfig, path, listFn, kind: this.kind, plural: 'jobs' });
+  }
+
+  deleteJob(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(BatchV1Api);
+    return apiClient.deleteNamespacedJob({ name, namespace });
   }
 }

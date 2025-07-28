@@ -43,6 +43,10 @@ export class ResourceFactoryHandler {
     return this.#resourceFactories.find(f => f.resource === resource);
   }
 
+  getResourceFactoryByKind(kind: string): ResourceFactory | undefined {
+    return this.#resourceFactories.find(f => f.kind === kind);
+  }
+
   private getNamespacedOrNotPermissionsRequests(
     factories: ResourceFactory[],
     namespace?: string,

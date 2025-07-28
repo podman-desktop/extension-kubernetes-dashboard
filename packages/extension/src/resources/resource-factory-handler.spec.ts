@@ -28,6 +28,7 @@ test('with 1 level and same request', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource1',
       resource: 'resource1',
     }).setPermissions({
       isNamespaced: true,
@@ -43,6 +44,7 @@ test('with 1 level and same request', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource2',
       resource: 'resource2',
     }).setPermissions({
       isNamespaced: true,
@@ -75,6 +77,7 @@ test('with 1 level and different requests', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource1',
       resource: 'resource1',
     }).setPermissions({
       isNamespaced: true,
@@ -90,6 +93,7 @@ test('with 1 level and different requests', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource2',
       resource: 'resource2',
     }).setPermissions({
       isNamespaced: true,
@@ -131,6 +135,7 @@ test('with 2 levels and same request at first level', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource1',
       resource: 'resource1',
     }).setPermissions({
       isNamespaced: true,
@@ -150,6 +155,7 @@ test('with 2 levels and same request at first level', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource2',
       resource: 'resource2',
     }).setPermissions({
       isNamespaced: true,
@@ -206,6 +212,7 @@ test('with 1 level and same request, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource1',
       resource: 'resource1',
     }).setPermissions({
       isNamespaced: false,
@@ -221,6 +228,7 @@ test('with 1 level and same request, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource2',
       resource: 'resource2',
     }).setPermissions({
       isNamespaced: false,
@@ -252,6 +260,7 @@ test('with 1 level and different requests, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource1',
       resource: 'resource1',
     }).setPermissions({
       isNamespaced: false,
@@ -267,6 +276,7 @@ test('with 1 level and different requests, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource2',
       resource: 'resource2',
     }).setPermissions({
       isNamespaced: false,
@@ -306,6 +316,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource1',
       resource: 'resource1',
     }).setPermissions({
       isNamespaced: false,
@@ -325,6 +336,7 @@ test('with 2 levels and same request at first level, non namespaced', () => {
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource2',
       resource: 'resource2',
     }).setPermissions({
       isNamespaced: false,
@@ -378,6 +390,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource1',
       resource: 'resource1',
     }).setPermissions({
       isNamespaced: true,
@@ -393,6 +406,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
 
   factoryHandler.add(
     new ResourceFactoryBase({
+      kind: 'Resource2',
       resource: 'resource2',
     }).setPermissions({
       isNamespaced: false,

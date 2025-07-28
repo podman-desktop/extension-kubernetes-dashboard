@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Pod, V1PodList } from '@kubernetes/client-node';
+import type { KubernetesObject, V1Pod, V1PodList, V1Status } from '@kubernetes/client-node';
 import { CoreV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -28,6 +28,7 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
   constructor() {
     super({
       resource: 'pods',
+      kind: 'Pod',
     });
 
     this.setPermissions({
@@ -47,6 +48,7 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deletePod);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Pod> {
@@ -54,6 +56,15 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1PodList> => apiClient.listNamespacedPod({ namespace });
     const path = `/api/v1/namespaces/${namespace}/pods`;
-    return new ResourceInformer<V1Pod>({ kubeconfig, path, listFn, kind: 'Pod', plural: 'pods' });
+    return new ResourceInformer<V1Pod>({ kubeconfig, path, listFn, kind: this.kind, plural: 'pods' });
+  }
+
+  deletePod(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    return apiClient.deleteNamespacedPod({ name, namespace });
   }
 }

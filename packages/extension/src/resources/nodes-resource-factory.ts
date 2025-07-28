@@ -28,6 +28,7 @@ export class NodesResourceFactory extends ResourceFactoryBase implements Resourc
   constructor() {
     super({
       resource: 'nodes',
+      kind: 'Node',
     });
 
     this.setPermissions({
@@ -54,7 +55,7 @@ export class NodesResourceFactory extends ResourceFactoryBase implements Resourc
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1NodeList> => apiClient.listNode();
     const path = `/api/v1/nodes`;
-    return new ResourceInformer<V1Node>({ kubeconfig, path, listFn, kind: 'Node', plural: 'nodes' });
+    return new ResourceInformer<V1Node>({ kubeconfig, path, listFn, kind: this.kind, plural: 'nodes' });
   }
 
   isNodeActive(node: V1Node): boolean {

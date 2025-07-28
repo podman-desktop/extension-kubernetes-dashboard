@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1ConfigMap, V1ConfigMapList } from '@kubernetes/client-node';
+import type { KubernetesObject, V1ConfigMap, V1ConfigMapList, V1Status } from '@kubernetes/client-node';
 import { CoreV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -28,6 +28,7 @@ export class ConfigmapsResourceFactory extends ResourceFactoryBase implements Re
   constructor() {
     super({
       resource: 'configmaps',
+      kind: 'ConfigMap',
     });
 
     this.setPermissions({
@@ -47,6 +48,7 @@ export class ConfigmapsResourceFactory extends ResourceFactoryBase implements Re
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deleteConfigMap);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1ConfigMap> {
@@ -54,6 +56,15 @@ export class ConfigmapsResourceFactory extends ResourceFactoryBase implements Re
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1ConfigMapList> => apiClient.listNamespacedConfigMap({ namespace });
     const path = `/api/v1/namespaces/${namespace}/configmaps`;
-    return new ResourceInformer<V1ConfigMap>({ kubeconfig, path, listFn, kind: 'ConfigMap', plural: 'configmaps' });
+    return new ResourceInformer<V1ConfigMap>({ kubeconfig, path, listFn, kind: this.kind, plural: 'configmaps' });
+  }
+
+  deleteConfigMap(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    return apiClient.deleteNamespacedConfigMap({ name, namespace });
   }
 }

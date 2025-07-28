@@ -16,7 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1PersistentVolumeClaim, V1PersistentVolumeClaimList } from '@kubernetes/client-node';
+import type {
+  KubernetesObject,
+  V1PersistentVolumeClaim,
+  V1PersistentVolumeClaimList,
+  V1Status,
+} from '@kubernetes/client-node';
 import { CoreV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -28,6 +33,7 @@ export class PVCsResourceFactory extends ResourceFactoryBase implements Resource
   constructor() {
     super({
       resource: 'persistentvolumeclaims',
+      kind: 'PersistentVolumeClaim',
     });
 
     this.setPermissions({
@@ -47,6 +53,7 @@ export class PVCsResourceFactory extends ResourceFactoryBase implements Resource
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deletePVC);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1PersistentVolumeClaim> {
@@ -59,8 +66,17 @@ export class PVCsResourceFactory extends ResourceFactoryBase implements Resource
       kubeconfig,
       path,
       listFn,
-      kind: 'PersistentVolumeClaim',
+      kind: this.kind,
       plural: 'persistentvolumeclaims',
     });
+  }
+
+  deletePVC(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    return apiClient.deleteNamespacedPersistentVolumeClaim({ name, namespace });
   }
 }

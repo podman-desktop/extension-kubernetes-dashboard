@@ -43,6 +43,7 @@ class TestContextsManager extends ContextsManager {
   override getResourceFactories(): ResourceFactory[] {
     return [
       new ResourceFactoryBase({
+        kind: 'Resource1',
         resource: 'resource1',
       })
         .setPermissions({
@@ -69,6 +70,7 @@ class TestContextsManager extends ContextsManager {
           return 'activeField' in resource && resource.activeField === true;
         }),
       new ResourceFactoryBase({
+        kind: 'Resource2',
         resource: 'resource2',
       }).setPermissions({
         isNamespaced: true,
@@ -81,6 +83,7 @@ class TestContextsManager extends ContextsManager {
         ],
       }),
       new ResourceFactoryBase({
+        kind: 'Resource3',
         resource: 'resource3',
       }).setPermissions({
         isNamespaced: false,

@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import type { KubernetesObject, V1ResourceAttributes } from '@kubernetes/client-node';
+import type { KubernetesObject, V1ResourceAttributes, V1Status } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceInformer } from '/@/types/resource-informer.js';
@@ -29,14 +29,28 @@ export interface ResourceInformerFactory {
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<KubernetesObject>;
 }
 
+type DeleteNamespacedObject = (
+  kubeconfig: KubeConfigSingleContext,
+  name: string,
+  namespace: string,
+) => Promise<V1Status | KubernetesObject>;
+
+type DeleteNonNamespacedObject = (
+  kubeconfig: KubeConfigSingleContext,
+  name: string,
+) => Promise<V1Status | KubernetesObject>;
+
 export class ResourceFactoryBase {
   #resource: string;
+  #kind: string;
   #permissions: ResourcePermissionsFactory | undefined;
   #informer: ResourceInformerFactory | undefined;
   #isActive: undefined | ((resource: KubernetesObject) => boolean);
+  #deleteObject: DeleteNamespacedObject | DeleteNonNamespacedObject;
 
-  constructor(options: { resource: string }) {
+  constructor(options: { resource: string; kind: string }) {
     this.#resource = options.resource;
+    this.#kind = options.kind;
   }
 
   setPermissions(options: { permissionsRequests: V1ResourceAttributes[]; isNamespaced: boolean }): ResourceFactoryBase {
@@ -61,8 +75,17 @@ export class ResourceFactoryBase {
     return this;
   }
 
+  setDeleteObject(deleteObject: DeleteNamespacedObject | DeleteNonNamespacedObject): ResourceFactoryBase {
+    this.#deleteObject = deleteObject;
+    return this;
+  }
+
   get resource(): string {
     return this.#resource;
+  }
+
+  get kind(): string {
+    return this.#kind;
   }
 
   get permissions(): ResourcePermissionsFactory | undefined {
@@ -77,12 +100,17 @@ export class ResourceFactoryBase {
     return this.#isActive;
   }
 
+  get deleteObject(): DeleteNamespacedObject | DeleteNonNamespacedObject {
+    return this.#deleteObject;
+  }
+
   copyWithSlicedPermissions(): ResourceFactory {
     if (!this.#permissions) {
       throw new Error('permission must be defined before calling copyWithSlicedPermissions');
     }
     return new ResourceFactoryBase({
       resource: this.#resource,
+      kind: this.#kind,
     }).setPermissions({
       permissionsRequests: this.#permissions.permissionsRequests.slice(1),
       isNamespaced: this.#permissions.isNamespaced,
@@ -92,11 +120,13 @@ export class ResourceFactoryBase {
 
 export interface ResourceFactory {
   get resource(): string;
+  get kind(): string;
   permissions?: ResourcePermissionsFactory;
   informer?: ResourceInformerFactory;
   // isActive returns true if `resource` is considered active
   isActive?: (resource: KubernetesObject) => boolean;
   copyWithSlicedPermissions(): ResourceFactory;
+  deleteObject?: DeleteNamespacedObject | DeleteNonNamespacedObject;
 }
 
 export function isResourceFactoryWithPermissions(object: ResourceFactory): object is ResourceFactoryWithPermissions {

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Secret, V1SecretList } from '@kubernetes/client-node';
+import type { KubernetesObject, V1Secret, V1SecretList, V1Status } from '@kubernetes/client-node';
 import { CoreV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -28,6 +28,7 @@ export class SecretsResourceFactory extends ResourceFactoryBase implements Resou
   constructor() {
     super({
       resource: 'secrets',
+      kind: 'Secret',
     });
 
     this.setPermissions({
@@ -47,6 +48,7 @@ export class SecretsResourceFactory extends ResourceFactoryBase implements Resou
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deleteSecret);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Secret> {
@@ -54,6 +56,15 @@ export class SecretsResourceFactory extends ResourceFactoryBase implements Resou
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1SecretList> => apiClient.listNamespacedSecret({ namespace });
     const path = `/api/v1/namespaces/${namespace}/secrets`;
-    return new ResourceInformer<V1Secret>({ kubeconfig, path, listFn, kind: 'Secret', plural: 'secrets' });
+    return new ResourceInformer<V1Secret>({ kubeconfig, path, listFn, kind: this.kind, plural: 'secrets' });
+  }
+
+  deleteSecret(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    return apiClient.deleteNamespacedSecret({ name, namespace });
   }
 }

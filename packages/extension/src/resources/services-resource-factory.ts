@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Service, V1ServiceList } from '@kubernetes/client-node';
+import type { KubernetesObject, V1Service, V1ServiceList, V1Status } from '@kubernetes/client-node';
 import { CoreV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -28,6 +28,7 @@ export class ServicesResourceFactory extends ResourceFactoryBase implements Reso
   constructor() {
     super({
       resource: 'services',
+      kind: 'Service',
     });
 
     this.setPermissions({
@@ -47,6 +48,7 @@ export class ServicesResourceFactory extends ResourceFactoryBase implements Reso
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deleteService);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Service> {
@@ -54,6 +56,15 @@ export class ServicesResourceFactory extends ResourceFactoryBase implements Reso
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1ServiceList> => apiClient.listNamespacedService({ namespace });
     const path = `/api/v1/namespaces/${namespace}/services`;
-    return new ResourceInformer<V1Service>({ kubeconfig, path, listFn, kind: 'Service', plural: 'services' });
+    return new ResourceInformer<V1Service>({ kubeconfig, path, listFn, kind: this.kind, plural: 'services' });
+  }
+
+  deleteService(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    return apiClient.deleteNamespacedService({ name, namespace });
   }
 }

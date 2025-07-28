@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Ingress, V1IngressList } from '@kubernetes/client-node';
+import type { KubernetesObject, V1Ingress, V1IngressList, V1Status } from '@kubernetes/client-node';
 import { NetworkingV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -28,6 +28,7 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
   constructor() {
     super({
       resource: 'ingresses',
+      kind: 'Ingress',
     });
 
     this.setPermissions({
@@ -48,6 +49,7 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deleteIngress);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Ingress> {
@@ -55,6 +57,15 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(NetworkingV1Api);
     const listFn = (): Promise<V1IngressList> => apiClient.listNamespacedIngress({ namespace });
     const path = `/apis/networking.k8s.io/v1/namespaces/${namespace}/ingresses`;
-    return new ResourceInformer<V1Ingress>({ kubeconfig, path, listFn, kind: 'Ingress', plural: 'ingresses' });
+    return new ResourceInformer<V1Ingress>({ kubeconfig, path, listFn, kind: this.kind, plural: 'ingresses' });
+  }
+
+  deleteIngress(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(NetworkingV1Api);
+    return apiClient.deleteNamespacedIngress({ name, namespace });
   }
 }
