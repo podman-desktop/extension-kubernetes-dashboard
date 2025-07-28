@@ -1,5 +1,6 @@
 <script lang="ts">
 import NamespacesList from './component/namespaces/NamespacesList.svelte';
+import ConfigMapSecretList from './component/configmaps-secrets/ConfigMapSecretList.svelte';
 import ActiveResourcesCount from '/@/component/ActiveResourcesCount.svelte';
 import ConfigsList from '/@/component/ConfigsList.svelte';
 import CurrentContext from '/@/component/CurrentContext.svelte';
@@ -33,6 +34,10 @@ let isMounted = false;
 
         <Route path="/namespaces">
           <NamespacesList />
+        </Route>
+
+        <Route path="/configmapsSecrets">
+          <ConfigMapSecretList />
         </Route>
 
         <Route path="/current-context">
