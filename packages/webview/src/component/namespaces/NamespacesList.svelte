@@ -10,7 +10,7 @@ import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import type { NamespaceUI } from './NamespaceUI';
 import { NamespaceHelper } from './namespace-helper';
 import KubernetesIcon from '../icons/KubernetesIcon.svelte';
-import NamespaceEmptyScreen from './NamespaceEmptyScreen.svelte';
+import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const namespaceHelper = dependencyAccessor.get<NamespaceHelper>(NamespaceHelper);
@@ -51,6 +51,6 @@ const row = new TableRow<NamespaceUI>({});
   columns={columns}
   row={row}>
   {#snippet emptySnippet()}
-    <NamespaceEmptyScreen />
+    <KubernetesEmptyScreen icon={KubernetesIcon} resources={['namespaces']} />
   {/snippet}
 </KubernetesObjectsList>
