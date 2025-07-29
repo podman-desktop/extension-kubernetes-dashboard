@@ -11,6 +11,7 @@ import type { NamespaceUI } from './NamespaceUI';
 import { NamespaceHelper } from './namespace-helper';
 import KubernetesIcon from '../icons/KubernetesIcon.svelte';
 import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
+import ActionsColumn from '/@/component/namespaces/columns/Actions.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const namespaceHelper = dependencyAccessor.get<NamespaceHelper>(NamespaceHelper);
@@ -33,7 +34,12 @@ let ageColumn = new TableColumn<NamespaceUI, Date | undefined>('Age', {
   comparator: (a, b): number => moment(b.created).diff(moment(a.created)),
 });
 
-const columns = [statusColumn, nameColumn, ageColumn];
+const columns = [
+  statusColumn,
+  nameColumn,
+  ageColumn,
+  new TableColumn<NamespaceUI>('Actions', { align: 'right', renderer: ActionsColumn }),
+];
 
 const row = new TableRow<NamespaceUI>({});
 </script>
