@@ -29,6 +29,7 @@ import { objectsModule } from '/@/component/objects/_objects-module';
 import { navigationModule } from '/@/navigation/_navigation-module';
 import { nodesModule } from '/@/component/nodes/_nodes-module';
 import { namespacesModule } from '../component/namespaces/_namespaces-module';
+import { configmapsSecretsModule } from '/@/component/configmaps-secrets/_configmaps-secrets-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -52,6 +53,7 @@ export class InversifyBinding {
     await this.#container.load(navigationModule);
     await this.#container.load(nodesModule);
     await this.#container.load(namespacesModule);
+    await this.#container.load(configmapsSecretsModule);
 
     return this.#container;
   }

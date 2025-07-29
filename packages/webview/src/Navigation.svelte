@@ -36,6 +36,11 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
       selected={meta.url === navigator.kubernetesResourcesURL('Namespace')}
       href={navigator.kubernetesResourcesURL('Namespace')} />
 
+    <SettingsNavItem
+      title="ConfigMaps and Secrets"
+      selected={meta.url === navigator.kubernetesResourcesURL('ConfigMap')}
+      href={navigator.kubernetesResourcesURL('ConfigMap')} />
+
     <div class="pl-3 mt-2 ml-[4px]">
       <span class="text-[color:var(--pd-secondary-nav-header-text)]">STATES</span>
     </div>
