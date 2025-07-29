@@ -16,7 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { CoreV1Api, type V1Namespace, type V1NamespaceList } from '@kubernetes/client-node';
+import {
+  CoreV1Api,
+  type V1Namespace,
+  type V1NamespaceList,
+  type V1Status,
+  type KubernetesObject,
+} from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceFactory } from './resource-factory.js';
@@ -27,6 +33,7 @@ export class NamespacesResourceFactory extends ResourceFactoryBase implements Re
   constructor() {
     super({
       resource: 'namespaces',
+      kind: 'Namespace',
     });
 
     this.setPermissions({
@@ -46,12 +53,18 @@ export class NamespacesResourceFactory extends ResourceFactoryBase implements Re
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deleteNamespace);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Namespace> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     const listFn = (): Promise<V1NamespaceList> => apiClient.listNamespace();
     const path = `/api/v1/namespaces`;
-    return new ResourceInformer<V1Namespace>({ kubeconfig, path, listFn, kind: 'Namespace', plural: 'namespaces' });
+    return new ResourceInformer<V1Namespace>({ kubeconfig, path, listFn, kind: this.kind, plural: 'namespaces' });
+  }
+
+  deleteNamespace(kubeconfig: KubeConfigSingleContext, name: string): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    return apiClient.deleteNamespace({ name });
   }
 }

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Deployment, V1DeploymentList } from '@kubernetes/client-node';
+import type { KubernetesObject, V1Deployment, V1DeploymentList, V1Status } from '@kubernetes/client-node';
 import { AppsV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -28,6 +28,7 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
   constructor() {
     super({
       resource: 'deployments',
+      kind: 'Deployment',
     });
 
     this.setPermissions({
@@ -49,6 +50,7 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
       createInformer: this.createInformer,
     });
     this.setIsActive(this.isDeploymentActive);
+    this.setDeleteObject(this.deleteDeployment);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Deployment> {
@@ -56,10 +58,19 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(AppsV1Api);
     const listFn = (): Promise<V1DeploymentList> => apiClient.listNamespacedDeployment({ namespace });
     const path = `/apis/apps/v1/namespaces/${namespace}/deployments`;
-    return new ResourceInformer<V1Deployment>({ kubeconfig, path, listFn, kind: 'Deployment', plural: 'deployments' });
+    return new ResourceInformer<V1Deployment>({ kubeconfig, path, listFn, kind: this.kind, plural: 'deployments' });
   }
 
   isDeploymentActive(deployment: V1Deployment): boolean {
     return (deployment.spec?.replicas ?? 0) > 0;
+  }
+
+  deleteDeployment(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(AppsV1Api);
+    return apiClient.deleteNamespacedDeployment({ name, namespace });
   }
 }

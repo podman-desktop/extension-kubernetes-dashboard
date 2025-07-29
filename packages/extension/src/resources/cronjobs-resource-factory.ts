@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1CronJob, V1CronJobList } from '@kubernetes/client-node';
+import type { KubernetesObject, V1CronJob, V1CronJobList, V1Status } from '@kubernetes/client-node';
 import { BatchV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -28,6 +28,7 @@ export class CronjobsResourceFactory extends ResourceFactoryBase implements Reso
   constructor() {
     super({
       resource: 'cronjobs',
+      kind: 'CronJob',
     });
 
     this.setPermissions({
@@ -48,6 +49,7 @@ export class CronjobsResourceFactory extends ResourceFactoryBase implements Reso
     this.setInformer({
       createInformer: this.createInformer,
     });
+    this.setDeleteObject(this.deleteCronJob);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1CronJob> {
@@ -55,6 +57,15 @@ export class CronjobsResourceFactory extends ResourceFactoryBase implements Reso
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(BatchV1Api);
     const listFn = (): Promise<V1CronJobList> => apiClient.listNamespacedCronJob({ namespace });
     const path = `/apis/batch/v1/namespaces/${namespace}/cronjobs`;
-    return new ResourceInformer<V1CronJob>({ kubeconfig, path, listFn, kind: 'CronJob', plural: 'cronjobs' });
+    return new ResourceInformer<V1CronJob>({ kubeconfig, path, listFn, kind: this.kind, plural: 'cronjobs' });
+  }
+
+  deleteCronJob(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(BatchV1Api);
+    return apiClient.deleteNamespacedCronJob({ name, namespace });
   }
 }

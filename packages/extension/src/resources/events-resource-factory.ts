@@ -28,6 +28,7 @@ export class EventsResourceFactory extends ResourceFactoryBase implements Resour
   constructor() {
     super({
       resource: 'events',
+      kind: 'Event',
     });
 
     this.setPermissions({
@@ -54,6 +55,6 @@ export class EventsResourceFactory extends ResourceFactoryBase implements Resour
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     const listFn = (): Promise<CoreV1EventList> => apiClient.listNamespacedEvent({ namespace });
     const path = `/api/v1/namespaces/${namespace}/events`;
-    return new ResourceInformer<CoreV1Event>({ kubeconfig, path, listFn, kind: 'Event', plural: 'events' });
+    return new ResourceInformer<CoreV1Event>({ kubeconfig, path, listFn, kind: this.kind, plural: 'events' });
   }
 }
