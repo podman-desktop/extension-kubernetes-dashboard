@@ -108,7 +108,6 @@ export class ContextPermissionsChecker implements Disposable {
   }
 
   private saveAndFireResult(result: ContextPermissionResult): void {
-    this.#onPermissionResult.fire(result);
     for (const resourceName of result.resources) {
       this.#results.push({
         contextName: this.#contextName,
@@ -118,6 +117,7 @@ export class ContextPermissionsChecker implements Disposable {
         reason: result.reason,
       });
     }
+    this.#onPermissionResult.fire(result);
   }
 
   public getPermissions(): ContextResourcePermission[] {
