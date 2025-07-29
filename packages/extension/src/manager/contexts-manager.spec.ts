@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Cluster, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
-import { KubeConfig } from '@kubernetes/client-node';
+import type { Cluster, KubernetesObject, ObjectCache, V1Status } from '@kubernetes/client-node';
+import { ApiException, KubeConfig } from '@kubernetes/client-node';
 import type { Event } from '@podman-desktop/api';
-import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
+import { window } from '@podman-desktop/api';
 
 import type { ContextHealthState } from './context-health-checker.js';
 import { ContextHealthChecker } from './context-health-checker.js';
@@ -38,6 +39,7 @@ const onCacheUpdatedMock = vi.fn<Event<CacheUpdatedEvent>>();
 const onOfflineMock = vi.fn<Event<OfflineEvent>>();
 const startMock = vi.fn();
 const informerDisposeMock = vi.fn();
+const resource4DeleteObjectMock = vi.fn();
 
 class TestContextsManager extends ContextsManager {
   override getResourceFactories(): ResourceFactory[] {
@@ -95,6 +97,34 @@ class TestContextsManager extends ContextsManager {
           },
         ],
       }),
+      new ResourceFactoryBase({
+        kind: 'NonDeletable',
+        resource: 'nonDeletable',
+      }).setPermissions({
+        isNamespaced: true,
+        permissionsRequests: [
+          {
+            group: '*',
+            resource: '*',
+            verb: 'watch',
+          },
+        ],
+      }),
+      new ResourceFactoryBase({
+        kind: 'Resource4',
+        resource: 'resource4',
+      })
+        .setPermissions({
+          isNamespaced: true,
+          permissionsRequests: [
+            {
+              group: '*',
+              resource: '*',
+              verb: 'watch',
+            },
+          ],
+        })
+        .setDeleteObject(resource4DeleteObjectMock),
     ];
   }
 
@@ -104,6 +134,10 @@ class TestContextsManager extends ContextsManager {
 
   public override stopMonitoring(contextName: string): void {
     return super.stopMonitoring(contextName);
+  }
+
+  public override handleStatus(status: V1Status): void {
+    return super.handleStatus(status);
   }
 }
 
@@ -150,10 +184,27 @@ const kcWithContext2asDefault = {
   currentContext: 'context2',
 };
 
+const kcWithNoCurrentContext = {
+  contexts: [context1],
+  clusters: [
+    {
+      name: 'cluster1',
+    },
+  ],
+  users: [
+    {
+      name: 'user1',
+    },
+  ],
+};
+
 vi.mock('./context-health-checker.js');
 vi.mock('./context-permissions-checker.js');
 
 let kcWith2contexts: KubeConfig;
+
+const originalConsoleWarn = console.warn;
+const originalConsoleError = console.error;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -193,6 +244,14 @@ beforeEach(() => {
 
   vi.mocked(ContextHealthChecker).mockClear();
   vi.mocked(ContextPermissionsChecker).mockClear();
+
+  console.warn = vi.fn();
+  console.error = vi.fn();
+});
+
+afterEach(() => {
+  console.warn = originalConsoleWarn;
+  console.error = originalConsoleError;
 });
 
 describe('HealthChecker is built and start is called for each context the first time', async () => {
@@ -1184,4 +1243,170 @@ test('onCurrentContextChange is fired only when current context changes', async 
   kc.loadFromOptions(kcWithContext2asDefault);
   await manager.update(kc);
   expect(listener).toHaveBeenCalledOnce();
+});
+
+test('deleteObject when no current context', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithNoCurrentContext);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.deleteObject('Resource4', 'resource-name', 'ns1');
+  expect(console.warn).toHaveBeenCalledWith('delete object: no current context');
+  expect(window.showInformationMessage).not.toHaveBeenCalled();
+});
+
+test('deleteObject with unhandled resource', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.deleteObject('Unknown', 'resource-name', 'ns1');
+  expect(console.error).toHaveBeenCalledWith('delete object: no handler for kind Unknown');
+  expect(window.showInformationMessage).not.toHaveBeenCalled();
+});
+
+test('deleteObject with non deletable resource', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.deleteObject('NonDeletable', 'resource-name', 'ns1');
+  expect(console.error).toHaveBeenCalledWith('delete object: no handler for kind NonDeletable');
+  expect(window.showInformationMessage).not.toHaveBeenCalled();
+});
+
+test('deleteObject on context namespace', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  await manager.deleteObject('Resource4', 'resource-name');
+  expect(window.showInformationMessage).toHaveBeenCalled();
+  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'ns1');
+});
+
+test('deleteObject on other namespace', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
+  expect(window.showInformationMessage).toHaveBeenCalled();
+  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+});
+
+test('deleteObject handler returns KubernetesObject', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(manager, 'handleStatus');
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  resource4DeleteObjectMock.mockImplementation((): KubernetesObject => {
+    return {
+      apiVersion: 'v1',
+      kind: 'Resource4',
+      metadata: { name: 'resource-name' },
+    };
+  });
+  await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
+  expect(window.showInformationMessage).toHaveBeenCalled();
+  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+  expect(manager.handleStatus).not.toHaveBeenCalled();
+});
+
+test('deleteObject handler returns Status', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(manager, 'handleStatus');
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  const status = {
+    kind: 'Status',
+  };
+  resource4DeleteObjectMock.mockReturnValue(status);
+  await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
+  expect(window.showInformationMessage).toHaveBeenCalled();
+  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+  expect(manager.handleStatus).toHaveBeenCalledWith(status);
+});
+
+test('deleteObject handler throws status embedded in ApiException', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(manager, 'handleStatus');
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  const status = {
+    kind: 'Status',
+  };
+  resource4DeleteObjectMock.mockRejectedValue(new ApiException(400, 'Bad Request', JSON.stringify(status), {}));
+  await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
+  expect(window.showInformationMessage).toHaveBeenCalled();
+  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+  expect(manager.handleStatus).toHaveBeenCalledWith(status);
+});
+
+test('deleteObject handler throws a non-Status in ApiException', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(manager, 'handleStatus');
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  resource4DeleteObjectMock.mockRejectedValue(
+    new ApiException(
+      400,
+      'Bad Request',
+      JSON.stringify({
+        kind: 'NotStatus',
+      }),
+      {},
+    ),
+  );
+  await expect(() => manager.deleteObject('Resource4', 'resource-name', 'other-ns')).rejects.toThrowError(
+    /Message: Bad Request/,
+  );
+  expect(window.showInformationMessage).toHaveBeenCalled();
+  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+  expect(manager.handleStatus).not.toHaveBeenCalled();
+});
+
+test('deleteObject handler throws a non-ApiException', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(manager, 'handleStatus');
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  const error = new Error('an error');
+  resource4DeleteObjectMock.mockRejectedValue(error);
+  await expect(() => manager.deleteObject('Resource4', 'resource-name', 'other-ns')).rejects.toThrowError(error);
+  expect(window.showInformationMessage).toHaveBeenCalled();
+  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+  expect(manager.handleStatus).not.toHaveBeenCalled();
 });

@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const ContextsApi = Symbol.for('ContextsApi');
+import type { NamespaceUI } from '../NamespaceUI';
 
-export interface ContextsApi {
-  refreshContextState(contextName: string): Promise<void>;
-  deleteObject(kind: string, name: string, namespace?: string): Promise<void>;
+export interface Props {
+  object: NamespaceUI;
 }

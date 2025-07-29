@@ -16,11 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubeConfig, KubernetesObject, ObjectCache } from '@kubernetes/client-node';
+import {
+  ApiException,
+  V1Status,
+  type KubeConfig,
+  type KubernetesObject,
+  type ObjectCache,
+} from '@kubernetes/client-node';
 
 import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
 import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js';
 import type { KubernetesTroubleshootingInformation } from '/@common/model/kubernetes-troubleshooting.js';
+import { window } from '@podman-desktop/api';
 
 import type { Event } from '/@/types/emitter.js';
 import { Emitter } from '/@/types/emitter.js';
@@ -382,5 +389,75 @@ export class ContextsManager {
   isContextOffline(contextName: string): boolean {
     const informers = this.#informers.getForContext(contextName);
     return informers.some(informer => informer.isOffline());
+  }
+
+  async deleteObject(kind: string, name: string, namespace?: string): Promise<void> {
+    if (!this.currentContext) {
+      console.warn('delete object: no current context');
+      return;
+    }
+
+    const handler = this.#resourceFactoryHandler.getResourceFactoryByKind(kind);
+    if (!handler?.deleteObject) {
+      console.error(`delete object: no handler for kind ${kind}`);
+      return;
+    }
+
+    const result = await window.showInformationMessage(
+      `Are you sure you want to delete ${kind} ${name}?`,
+      'Yes',
+      'Cancel',
+    );
+    if (result !== 'Yes') {
+      return;
+    }
+
+    const ns = namespace ?? this.currentContext.getNamespace();
+    try {
+      const result = await handler.deleteObject(this.currentContext, name, ns);
+      this.handleResult(result);
+    } catch (error: unknown) {
+      this.handleApiException(error);
+    }
+  }
+
+  private handleResult(result: KubernetesObject | V1Status): void {
+    if (this.isV1Status(result)) {
+      this.handleStatus(result);
+    }
+    // Ignore if result is a KubernetesObject
+  }
+
+  private handleApiException(error: unknown): void {
+    if (error instanceof ApiException) {
+      const statusError = error as ApiException<string>;
+      let status: unknown;
+      try {
+        status = JSON.parse(statusError.body);
+      } catch {
+        throw error;
+      }
+      if (this.isV1Status(status)) {
+        this.handleStatus(status);
+      } else {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
+  }
+
+  private isV1Status(status: unknown): status is V1Status {
+    return (
+      !!status &&
+      typeof status === 'object' &&
+      'kind' in status &&
+      typeof status.kind === 'string' &&
+      status.kind === 'Status'
+    );
+  }
+
+  protected handleStatus(_status: V1Status): void {
+    // TODO: https://github.com/podman-desktop/extension-kubernetes-dashboard/issues/103
   }
 }

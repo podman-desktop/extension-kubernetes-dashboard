@@ -42,6 +42,7 @@ beforeEach(() => {
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
     refreshContextState: vi.fn(),
+    deleteObject: vi.fn(),
   });
 
   vi.mocked(remoteMocks.get(API_CONTEXTS).refreshContextState).mockResolvedValue(undefined);

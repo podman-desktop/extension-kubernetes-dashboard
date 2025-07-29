@@ -11,6 +11,7 @@ import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import ConfigMapSecretIcon from '../icons/ConfigMapSecretIcon.svelte';
 import KubernetesEmptyScreen from '../objects/KubernetesEmptyScreen.svelte';
+import ActionsColumn from '/@/component/configmaps-secrets/columns/Actions.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const configmapSecretHelper = dependencyAccessor.get<ConfigMapSecretHelper>(ConfigMapSecretHelper);
@@ -47,7 +48,14 @@ let typeColumn = new TableColumn<ConfigMapSecretUI>('Type', {
   comparator: (a, b): number => a.type.localeCompare(b.type),
 });
 
-const columns = [statusColumn, nameColumn, typeColumn, keysColumn, ageColumn];
+const columns = [
+  statusColumn,
+  nameColumn,
+  typeColumn,
+  keysColumn,
+  ageColumn,
+  new TableColumn<ConfigMapSecretUI>('Actions', { align: 'right', renderer: ActionsColumn }),
+];
 
 const row = new TableRow<ConfigMapSecretUI>({ selectable: (_configmapSecret): boolean => true });
 </script>
