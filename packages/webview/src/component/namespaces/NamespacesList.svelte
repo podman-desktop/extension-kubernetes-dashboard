@@ -41,7 +41,7 @@ const columns = [
   new TableColumn<NamespaceUI>('Actions', { align: 'right', renderer: ActionsColumn }),
 ];
 
-const row = new TableRow<NamespaceUI>({});
+const row = new TableRow<NamespaceUI>({ selectable: (): boolean => true });
 </script>
 
 <KubernetesObjectsList

@@ -36,7 +36,7 @@ import type { RpcChannel } from '/@common/rpc';
  *    remoteMocks.reset();
  *    remoteMocks.mock(API_CONTEXTS, {
  *      refreshContextState: vi.fn(),
- *    });
+ *    } as unknown as ContextsApi);
  *
  *  test('test', () => {
  *    vi.mocked(remoteMocks.get(API_CONTEXTS).refreshContextState).mockResolvedValue(undefined);

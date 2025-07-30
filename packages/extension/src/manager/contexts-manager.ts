@@ -392,6 +392,19 @@ export class ContextsManager {
   }
 
   async deleteObject(kind: string, name: string, namespace?: string): Promise<void> {
+    const result = await window.showInformationMessage(
+      `Are you sure you want to delete ${kind} ${name}?`,
+      'Yes',
+      'Cancel',
+    );
+    if (result !== 'Yes') {
+      return;
+    }
+
+    await this.deleteObjectInternal(kind, name, namespace);
+  }
+
+  private async deleteObjectInternal(kind: string, name: string, namespace?: string): Promise<void> {
     if (!this.currentContext) {
       console.warn('delete object: no current context');
       return;
@@ -400,15 +413,6 @@ export class ContextsManager {
     const handler = this.#resourceFactoryHandler.getResourceFactoryByKind(kind);
     if (!handler?.deleteObject) {
       console.error(`delete object: no handler for kind ${kind}`);
-      return;
-    }
-
-    const result = await window.showInformationMessage(
-      `Are you sure you want to delete ${kind} ${name}?`,
-      'Yes',
-      'Cancel',
-    );
-    if (result !== 'Yes') {
       return;
     }
 
@@ -459,5 +463,44 @@ export class ContextsManager {
 
   protected handleStatus(_status: V1Status): void {
     // TODO: https://github.com/podman-desktop/extension-kubernetes-dashboard/issues/103
+  }
+
+  async bulkDeleteObjects(objects: { kind: string; name: string; namespace?: string }[]): Promise<void> {
+    const message = this.getTextualObjectsList(objects);
+    const result = await window.showInformationMessage(`Are you sure you want to delete ${message}?`, 'Yes', 'Cancel');
+    if (result !== 'Yes') {
+      return;
+    }
+    for (const object of objects) {
+      await this.deleteObjectInternal(object.kind, object.name, object.namespace);
+    }
+  }
+
+  protected getTextualObjectsList(objects: { kind: string; name: string; namespace?: string }[]): string {
+    const objectsToDelete = objects.reduce(
+      (prev, curr) => {
+        if (prev[curr.kind]) {
+          prev[curr.kind]++;
+        } else {
+          prev[curr.kind] = 1;
+        }
+        return prev;
+      },
+      {} as Record<string, number>,
+    );
+    return Object.entries(objectsToDelete)
+      .map(([kind, count]) => `${count} ${this.getPluralized(count, kind)}`)
+      .join(', ');
+  }
+
+  protected getPluralized(count: number, kind: string): string {
+    // this may be provided by the resource factory in the future
+    if (count === 1) {
+      return kind;
+    }
+    if (kind.endsWith('s')) {
+      return kind + 'es';
+    }
+    return kind + 's';
   }
 }

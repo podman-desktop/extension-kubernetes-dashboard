@@ -29,6 +29,7 @@ import CheckConnection from './CheckConnection.svelte';
 import userEvent from '@testing-library/user-event';
 import { API_CONTEXTS } from '/@common/channels';
 import { RemoteMocks } from '/@/tests/remote-mocks';
+import type { ContextsApi } from '/@common/interface/contexts-api';
 
 const statesMocks = new StatesMocks();
 const remoteMocks = new RemoteMocks();
@@ -42,8 +43,7 @@ beforeEach(() => {
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
     refreshContextState: vi.fn(),
-    deleteObject: vi.fn(),
-  });
+  } as unknown as ContextsApi);
 
   vi.mocked(remoteMocks.get(API_CONTEXTS).refreshContextState).mockResolvedValue(undefined);
 

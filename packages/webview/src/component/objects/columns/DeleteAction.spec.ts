@@ -28,6 +28,7 @@ import { API_CONTEXTS } from '/@common/channels';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { KubernetesObjectUIHelper } from '../kubernetes-object-ui-helper';
 import type { NamespaceUI } from '../../namespaces/NamespaceUI';
+import type { ContextsApi } from '/@common/interface/contexts-api';
 
 const fakeConfigMap: ConfigMapSecretUI = {
   kind: 'ConfigMap',
@@ -67,9 +68,8 @@ beforeEach(() => {
 
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
-    refreshContextState: vi.fn(),
     deleteObject: vi.fn(),
-  });
+  } as unknown as ContextsApi);
 });
 
 test('Expect no error when deleting configmap', async () => {
