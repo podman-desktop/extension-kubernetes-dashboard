@@ -1,9 +1,16 @@
 <script lang="ts">
+import NamespaceDropdown from '../objects/NamespaceDropdown.svelte';
 import DashboardResourceCard from './DashboardResourceCard.svelte';
 </script>
 
 <div class="grid grid-cols-4 gap-4 h-fit w-full">
   <DashboardResourceCard type="Nodes" resources={['nodes']} kind="Node" />
+  <DashboardResourceCard type="Namespaces" resources={['namespaces']} kind="Namespace" />
+</div>
+<div class="flex flex-row justify-end">
+  <NamespaceDropdown />
+</div>
+<div class="grid grid-cols-4 gap-4 h-fit w-full">
   <DashboardResourceCard type="Deployments" resources={['deployments']} kind="Deployment" />
   <DashboardResourceCard type="Pods" resources={['pods']} kind="Pod" />
   <DashboardResourceCard type="Services" resources={['services']} kind="Service" />

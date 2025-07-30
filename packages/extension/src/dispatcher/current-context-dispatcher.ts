@@ -39,6 +39,7 @@ export class CurrentContextDispatcher
   getData(): CurrentContextInfo {
     return {
       contextName: this.manager.currentContext?.getKubeConfig().currentContext,
+      namespace: this.manager.currentContext?.getNamespace(),
     };
   }
 }

@@ -16,13 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import {
-  ApiException,
-  V1Status,
-  type KubeConfig,
-  type KubernetesObject,
-  type ObjectCache,
-} from '@kubernetes/client-node';
+import { ApiException, KubeConfig, V1Status, type KubernetesObject, type ObjectCache } from '@kubernetes/client-node';
 
 import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
 import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js';
@@ -77,6 +71,7 @@ export class ContextsManager {
   #informers: ContextResourceRegistry<ResourceInformer<KubernetesObject>>;
   #objectCaches: ContextResourceRegistry<ObjectCache<KubernetesObject>>;
   #currentContext?: KubeConfigSingleContext;
+  #currentKubeConfig: KubeConfig;
 
   #onContextHealthStateChange = new Emitter<ContextHealthState>();
   onContextHealthStateChange: Event<ContextHealthState> = this.#onContextHealthStateChange.event;
@@ -100,6 +95,7 @@ export class ContextsManager {
   onCurrentContextChange: Event<void> = this.#onCurrentContextChange.event;
 
   constructor() {
+    this.#currentKubeConfig = new KubeConfig();
     this.#resourceFactoryHandler = new ResourceFactoryHandler();
     for (const resourceFactory of this.getResourceFactories()) {
       this.#resourceFactoryHandler.add(resourceFactory);
@@ -139,10 +135,16 @@ export class ContextsManager {
   }
 
   async update(kubeconfig: KubeConfig): Promise<void> {
+    this.#currentKubeConfig = kubeconfig;
     this.#dispatcher.update(kubeconfig);
   }
 
   private async onUpdate(event: DispatcherEvent): Promise<void> {
+    if (event.contextName === this.currentContext?.getKubeConfig().currentContext) {
+      // the context being changed is the current one, we update the current context info
+      this.#currentContext = event.config;
+      this.#onCurrentContextChange.fire();
+    }
     if (this.isMonitored(event.contextName)) {
       // we don't try to update the checkers, we recreate them
       return this.startMonitoring(event.config, event.contextName);
@@ -509,5 +511,26 @@ export class ContextsManager {
       return kind + 'es';
     }
     return kind + 's';
+  }
+
+  async setCurrentNamespace(namespace: string): Promise<void> {
+    // Update state with a copy of the kubeConfig with only the current namespace changed
+    const newConfig = new KubeConfig();
+    newConfig.loadFromOptions({
+      contexts: this.#currentKubeConfig.contexts.map(ctx =>
+        ctx.name !== this.#currentKubeConfig.currentContext
+          ? ctx
+          : {
+              name: ctx.name,
+              cluster: ctx.cluster,
+              namespace: namespace,
+              user: ctx.user,
+            },
+      ),
+      clusters: this.#currentKubeConfig.clusters,
+      users: this.#currentKubeConfig.users,
+      currentContext: this.#currentKubeConfig.currentContext,
+    });
+    await this.update(newConfig);
   }
 }

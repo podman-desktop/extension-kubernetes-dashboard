@@ -61,7 +61,7 @@ export class StatesMocks {
       } else if (nextMock) {
         return nextMock(key);
       } else {
-        throw new Error(`not supported mock in context: ${key}`);
+        throw new Error(`not supported mock in context: ${String(key)}`);
       }
     });
   }
