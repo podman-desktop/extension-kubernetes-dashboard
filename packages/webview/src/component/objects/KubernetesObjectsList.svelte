@@ -99,18 +99,18 @@ let selectedItemsNumber = $state<number>(0);
 
 async function deleteSelectedObjects(): Promise<void> {
   const selectedObjects = objects
-    .filter((object: any) => object?.selected)
-    .map(obj => {
-      if (objectHelper.isNamespaced(obj)) {
+    .filter(object => object.selected)
+    .map(object => {
+      if (objectHelper.isNamespaced(object)) {
         return {
-          kind: obj.kind,
-          name: obj.name,
-          namespace: obj.namespace,
+          kind: object.kind,
+          name: object.name,
+          namespace: object.namespace,
         };
       } else {
         return {
-          kind: obj.kind,
-          name: obj.name,
+          kind: object.kind,
+          name: object.name,
         };
       }
     });
