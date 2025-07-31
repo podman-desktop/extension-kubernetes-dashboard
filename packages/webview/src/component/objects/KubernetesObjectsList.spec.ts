@@ -28,6 +28,9 @@ import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import { StatesMocks } from '/@/tests/context-mocks';
 import * as uiSvelte from '@podman-desktop/ui-svelte';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
+import { RemoteMocks } from '/@/tests/remote-mocks';
+import { API_CONTEXTS } from '/@common/channels';
+import type { ContextsApi } from '/@common/interface/contexts-api';
 
 vi.mock(import('@podman-desktop/ui-svelte'), async () => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -45,6 +48,7 @@ vi.mock(import('/@/component/connection/CurrentContextConnectionBadge.svelte'));
 
 const dependencyMocks = new DependencyMocks();
 const statesMocks = new StatesMocks();
+const remoteMocks = new RemoteMocks();
 
 let updateResourceMock: FakeStateObject<UpdateResourceInfo, UpdateResourceOptions>;
 let currentContextMock: FakeStateObject<CurrentContextInfo, void>;
@@ -69,6 +73,11 @@ beforeEach(() => {
   statesMocks.reset();
   statesMocks.mock<UpdateResourceInfo, UpdateResourceOptions>('stateUpdateResourceInfoUI', updateResourceMock);
   statesMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
+
+  remoteMocks.reset();
+  remoteMocks.mock(API_CONTEXTS, {
+    deleteObjects: vi.fn(),
+  } as unknown as ContextsApi);
 });
 
 afterEach(() => {

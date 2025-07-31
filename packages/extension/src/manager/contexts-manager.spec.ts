@@ -139,6 +139,14 @@ class TestContextsManager extends ContextsManager {
   public override handleStatus(status: V1Status): void {
     return super.handleStatus(status);
   }
+
+  public override getTextualObjectsList(objects: { kind: string; name: string; namespace?: string }[]): string {
+    return super.getTextualObjectsList(objects);
+  }
+
+  public override getPluralized(count: number, kind: string): string {
+    return super.getPluralized(count, kind);
+  }
 }
 
 const context1 = {
@@ -1252,9 +1260,9 @@ test('deleteObject when no current context', async () => {
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
   await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
   await manager.deleteObject('Resource4', 'resource-name', 'ns1');
   expect(console.warn).toHaveBeenCalledWith('delete object: no current context');
-  expect(window.showInformationMessage).not.toHaveBeenCalled();
 });
 
 test('deleteObject with unhandled resource', async () => {
@@ -1264,9 +1272,9 @@ test('deleteObject with unhandled resource', async () => {
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
   await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
   await manager.deleteObject('Unknown', 'resource-name', 'ns1');
   expect(console.error).toHaveBeenCalledWith('delete object: no handler for kind Unknown');
-  expect(window.showInformationMessage).not.toHaveBeenCalled();
 });
 
 test('deleteObject with non deletable resource', async () => {
@@ -1276,9 +1284,9 @@ test('deleteObject with non deletable resource', async () => {
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
   await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
   await manager.deleteObject('NonDeletable', 'resource-name', 'ns1');
   expect(console.error).toHaveBeenCalledWith('delete object: no handler for kind NonDeletable');
-  expect(window.showInformationMessage).not.toHaveBeenCalled();
 });
 
 test('deleteObject on context namespace', async () => {
@@ -1409,4 +1417,57 @@ test('deleteObject handler throws a non-ApiException', async () => {
   expect(window.showInformationMessage).toHaveBeenCalled();
   expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
   expect(manager.handleStatus).not.toHaveBeenCalled();
+});
+
+describe.each([
+  {
+    objects: [
+      { kind: 'Shark', name: 'jaws', namespace: 'ns1' },
+      { kind: 'Shark', name: 'megalodon', namespace: 'ns1' },
+    ],
+    message: '2 Sharks',
+  },
+  {
+    objects: [
+      { kind: 'Shark', name: 'jaws', namespace: 'ns1' },
+      { kind: 'Shark', name: 'megalodon', namespace: 'ns1' },
+      { kind: 'Whale', name: 'moby-dick', namespace: 'ns1' },
+    ],
+    message: '2 Sharks, 1 Whale',
+  },
+])('getTextualObjectsList', ({ objects, message }) => {
+  test(message, () => {
+    const manager = new TestContextsManager();
+    const result = manager.getTextualObjectsList(objects);
+    expect(result).toEqual(message);
+  });
+});
+
+describe.each([
+  {
+    count: 1,
+    kind: 'Shark',
+    message: 'Shark',
+  },
+  {
+    count: 2,
+    kind: 'Shark',
+    message: 'Sharks',
+  },
+  {
+    count: 2,
+    kind: 'Ingress',
+    message: 'Ingresses',
+  },
+  {
+    count: 1,
+    kind: 'Ingress',
+    message: 'Ingress',
+  },
+])('getPluralized', ({ count, kind, message }) => {
+  test(message, () => {
+    const manager = new TestContextsManager();
+    const result = manager.getPluralized(count, kind);
+    expect(result).toEqual(message);
+  });
 });

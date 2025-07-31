@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { KubernetesObject } from '@kubernetes/client-node';
 import type { TableColumn, TableRow } from '@podman-desktop/ui-svelte';
-import { FilteredEmptyScreen, NavPage, Table } from '@podman-desktop/ui-svelte';
+import { Button, FilteredEmptyScreen, NavPage, Table } from '@podman-desktop/ui-svelte';
 import { getContext, onDestroy, onMount, type Snippet } from 'svelte';
 import { type Unsubscriber } from 'svelte/store';
 
@@ -11,6 +11,9 @@ import type { ContextResourceItems } from '/@common/model/context-resources-item
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import CurrentContextConnectionBadge from '/@/component/connection/CurrentContextConnectionBadge.svelte';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Remote } from '/@/remote/remote';
+import { API_CONTEXTS } from '/@common/channels';
 
 export interface Kind {
   resource: string;
@@ -35,6 +38,9 @@ let { kinds, singular, plural, icon, columns, row, emptySnippet }: Props = $prop
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const objectHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
+
+const remote = getContext<Remote>(Remote);
+const contextsApi = remote.getProxy(API_CONTEXTS);
 
 let searchTerm = $state<string>('');
 
@@ -88,10 +94,40 @@ onMount(() => {
 onDestroy(() => {
   unsubscribeFromContext();
 });
+
+let selectedItemsNumber = $state<number>(0);
+
+async function deleteSelectedObjects(): Promise<void> {
+  const selectedObjects = objects
+    .filter(object => object.selected)
+    .map(object => {
+      if (objectHelper.isNamespaced(object)) {
+        return {
+          kind: object.kind,
+          name: object.name,
+          namespace: object.namespace,
+        };
+      } else {
+        return {
+          kind: object.kind,
+          name: object.name,
+        };
+      }
+    });
+  if (selectedObjects.length === 0) {
+    return;
+  }
+
+  await contextsApi.deleteObjects(selectedObjects);
+}
 </script>
 
 <NavPage bind:searchTerm={searchTerm} title={plural}>
   {#snippet bottomAdditionalActions()}
+    {#if selectedItemsNumber > 0}
+      <Button on:click={deleteSelectedObjects} title="Delete {selectedItemsNumber} selected items" icon={faTrash} />
+      <span>On {selectedItemsNumber} selected items.</span>
+    {/if}
     <div class="flex grow justify-end">
       <CurrentContextConnectionBadge />
     </div>
@@ -99,7 +135,13 @@ onDestroy(() => {
 
   {#snippet content()}
     <div class="flex min-w-full h-full">
-      <Table kind={singular} data={objects} columns={columns} row={row} defaultSortColumn="Name"></Table>
+      <Table
+        kind={singular}
+        data={objects}
+        columns={columns}
+        row={row}
+        defaultSortColumn="Name"
+        bind:selectedItemsNumber={selectedItemsNumber}></Table>
 
       {#if objects.length === 0}
         {#if searchTerm}
