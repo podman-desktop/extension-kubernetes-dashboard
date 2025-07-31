@@ -465,14 +465,20 @@ export class ContextsManager {
     // TODO: https://github.com/podman-desktop/extension-kubernetes-dashboard/issues/103
   }
 
-  async bulkDeleteObjects(objects: { kind: string; name: string; namespace?: string }[]): Promise<void> {
+  async deleteObjects(objects: { kind: string; name: string; namespace?: string }[]): Promise<void> {
     const message = this.getTextualObjectsList(objects);
     const result = await window.showInformationMessage(`Are you sure you want to delete ${message}?`, 'Yes', 'Cancel');
     if (result !== 'Yes') {
       return;
     }
     for (const object of objects) {
-      await this.deleteObjectInternal(object.kind, object.name, object.namespace);
+      try {
+        await this.deleteObjectInternal(object.kind, object.name, object.namespace);
+      } catch {
+        // do nothing here:
+        // - we don't want to stop the deletion of other objects
+        // - the error is already handled by deleteObjectInternal
+      }
     }
   }
 
@@ -495,6 +501,7 @@ export class ContextsManager {
 
   protected getPluralized(count: number, kind: string): string {
     // this may be provided by the resource factory in the future
+    // https://github.com/podman-desktop/extension-kubernetes-dashboard/issues/128
     if (count === 1) {
       return kind;
     }

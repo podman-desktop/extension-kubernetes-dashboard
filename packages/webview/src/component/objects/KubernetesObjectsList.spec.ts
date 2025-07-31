@@ -76,7 +76,7 @@ beforeEach(() => {
 
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
-    bulkDeleteObjects: vi.fn(),
+    deleteObjects: vi.fn(),
   } as unknown as ContextsApi);
 });
 

@@ -118,7 +118,7 @@ async function deleteSelectedObjects(): Promise<void> {
     return;
   }
 
-  await contextsApi.bulkDeleteObjects(selectedObjects);
+  await contextsApi.deleteObjects(selectedObjects);
 }
 </script>
 
