@@ -30,6 +30,7 @@ const row = new TableRow<ObjectUI>({});
   ]}
   singular="seal"
   plural="Seals"
+  isNamespaced={true}
   icon={PodIcon}
   columns={columns}
   row={row}>

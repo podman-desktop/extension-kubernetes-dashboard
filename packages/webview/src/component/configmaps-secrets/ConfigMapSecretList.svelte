@@ -73,6 +73,7 @@ const row = new TableRow<ConfigMapSecretUI>({ selectable: (_configmapSecret): bo
   ]}
   singular="configmap and secret"
   plural="configmaps and secrets"
+  isNamespaced={true}
   icon={ConfigMapSecretIcon}
   columns={columns}
   row={row}>

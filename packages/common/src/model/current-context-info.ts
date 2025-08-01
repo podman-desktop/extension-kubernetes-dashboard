@@ -18,4 +18,5 @@
 
 export interface CurrentContextInfo {
   contextName?: string;
+  namespace?: string;
 }

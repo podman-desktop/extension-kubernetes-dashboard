@@ -14,6 +14,7 @@ import CurrentContextConnectionBadge from '/@/component/connection/CurrentContex
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Remote } from '/@/remote/remote';
 import { API_CONTEXTS } from '/@common/channels';
+import NamespaceDropdown from './NamespaceDropdown.svelte';
 
 export interface Kind {
   resource: string;
@@ -24,6 +25,7 @@ interface Props {
   kinds: Kind[];
   singular: string;
   plural: string;
+  isNamespaced: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,7 +36,7 @@ interface Props {
   emptySnippet: Snippet;
 }
 
-let { kinds, singular, plural, icon, columns, row, emptySnippet }: Props = $props();
+let { kinds, singular, plural, isNamespaced, icon, columns, row, emptySnippet }: Props = $props();
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const objectHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
@@ -127,6 +129,9 @@ async function deleteSelectedObjects(): Promise<void> {
     {#if selectedItemsNumber > 0}
       <Button on:click={deleteSelectedObjects} title="Delete {selectedItemsNumber} selected items" icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
+    {/if}
+    {#if isNamespaced}
+      <NamespaceDropdown />
     {/if}
     <div class="flex grow justify-end">
       <CurrentContextConnectionBadge />

@@ -15,7 +15,8 @@ onMount(() => {
     <main class="flex flex-col w-screen h-screen overflow-auto bg-[var(--pd-content-bg)] text-base m-4">
       {#if currentContext.data}
         {#if currentContext.data.contextName}
-          Current context: {currentContext.data.contextName}
+          <p>Current context: {currentContext.data.contextName}</p>
+          <p>Current namespace: {currentContext.data.namespace}</p>
         {:else}
           No current context
         {/if}

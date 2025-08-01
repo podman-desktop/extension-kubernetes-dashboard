@@ -73,6 +73,7 @@ const row = new TableRow<NodeUI>({});
   ]}
   singular="node"
   plural="nodes"
+  isNamespaced={false}
   icon={NodeIcon}
   columns={columns}
   row={row}>

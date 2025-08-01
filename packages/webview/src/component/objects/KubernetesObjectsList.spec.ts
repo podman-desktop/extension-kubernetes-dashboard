@@ -45,6 +45,7 @@ vi.mock(import('@podman-desktop/ui-svelte'), async () => {
 });
 
 vi.mock(import('/@/component/connection/CurrentContextConnectionBadge.svelte'));
+vi.mock(import('./NamespaceDropdown.svelte'));
 
 const dependencyMocks = new DependencyMocks();
 const statesMocks = new StatesMocks();

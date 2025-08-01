@@ -53,6 +53,7 @@ const row = new TableRow<NamespaceUI>({ selectable: (): boolean => true });
   ]}
   singular="namespace"
   plural="namespaces"
+  isNamespaced={false}
   icon={KubernetesIcon}
   columns={columns}
   row={row}>
