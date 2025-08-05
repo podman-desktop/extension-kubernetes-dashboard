@@ -51,6 +51,7 @@ import { ServicesResourceFactory } from '/@/resources/services-resource-factory.
 import { injectable } from 'inversify';
 import { ContextResourceItems } from '/@common/model/context-resources-items.js';
 import { NamespacesResourceFactory } from '../resources/namespaces-resource-factory.js';
+import { ContextResourceDetails } from '/@common/model/context-resources-details.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
@@ -222,6 +223,23 @@ export class ContextsManager {
         resourceName,
         contextName,
         items: value.list(),
+      };
+    });
+  }
+
+  getResourceDetails(
+    contextName: string,
+    resourceName: string,
+    name: string,
+    namespace?: string,
+  ): ContextResourceDetails[] {
+    return this.#objectCaches.getForContextsAndResource([contextName], resourceName).map(({ contextName, value }) => {
+      return {
+        resourceName,
+        contextName,
+        name,
+        namespace,
+        details: value.get(name, namespace),
       };
     });
   }

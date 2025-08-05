@@ -28,6 +28,7 @@ import {
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
+  RESOURCE_DETAILS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
 } from '/@common/channels.js';
@@ -71,6 +72,7 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
     });
     this.manager.onResourceUpdated(async () => {
       await this.dispatch(UPDATE_RESOURCE);
+      await this.dispatch(RESOURCE_DETAILS);
       await this.dispatch(ACTIVE_RESOURCES_COUNT);
     });
     this.manager.onCurrentContextChange(async () => {
