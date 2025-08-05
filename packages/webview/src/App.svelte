@@ -10,6 +10,7 @@ import PodsList from '/@/component/PodsList.svelte';
 import ResourcesCount from '/@/component/ResourcesCount.svelte';
 import Navigation from '/@/Navigation.svelte';
 import Route from '/@/Route.svelte';
+import NodeDetails from '/@/component/nodes/NodeDetails.svelte';
 
 let isMounted = false;
 </script>
@@ -29,7 +30,7 @@ let isMounted = false;
         </Route>
 
         <Route path="/nodes/:name/*" let:meta>
-          Node details for {meta.params.name}
+          <NodeDetails name={decodeURI(meta.params.name)} />
         </Route>
 
         <Route path="/namespaces">
