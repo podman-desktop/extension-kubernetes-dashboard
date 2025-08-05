@@ -48,22 +48,11 @@ let searchTerm = $state<string>('');
 
 const states = getContext<States>(States);
 const updateResource = states.stateUpdateResourceInfoUI;
-const currentContext = states.stateCurrentContextInfoUI;
 
 let unsubscribers: Unsubscriber[] = [];
 
-$effect(() => {
-  // first unsubscribe from previous context
-  unsubscribeFromContext();
-  if (currentContext.data?.contextName) {
-    subscribeToContext(currentContext.data.contextName);
-  }
-});
-
 function filterResources(allResources: ContextResourceItems[], resourceName: string): ContextResourceItems[] {
-  return allResources.filter(
-    resources => resources.contextName === currentContext.data?.contextName && resourceName === resources.resourceName,
-  );
+  return allResources.filter(resources => !resources.contextName && resourceName === resources.resourceName);
 }
 
 const objects = $derived(
@@ -75,26 +64,17 @@ const objects = $derived(
   ),
 );
 
-function subscribeToContext(contextName: string): void {
+onMount(() => {
   unsubscribers = kinds.map(kind =>
     updateResource.subscribe({
-      contextName: contextName,
+      contextName: undefined, // ask for resources in the default context
       resourceName: kind.resource,
     }),
   );
-}
-
-function unsubscribeFromContext(): void {
-  unsubscribers.forEach(unsubscriber => unsubscriber());
-}
-
-onMount(() => {
-  // returns the unsubscriber, which will be called automatically at destroy time
-  return currentContext.subscribe();
 });
 
 onDestroy(() => {
-  unsubscribeFromContext();
+  unsubscribers.forEach(unsubscriber => unsubscriber());
 });
 
 let selectedItemsNumber = $state<number>(0);

@@ -25,61 +25,33 @@ const reachable = $derived(
 
 const namespaces = $derived(
   updateResource?.data?.resources
-    .filter(resources => resources.contextName === currentContextName && resources.resourceName === 'namespaces')
+    .filter(resources => !resources.contextName && resources.resourceName === 'namespaces')
     .flatMap(contextResourceItems =>
       contextResourceItems.items.map(namespace => namespace.metadata?.name ?? '(unknown)'),
     )
     .toSorted(),
 );
 
-let unsubscribers: Unsubscriber[] = [];
-
-$effect(() => {
-  // first unsubscribe from previous context
-  unsubscribeFromContext();
-  if (currentContextName) {
-    subscribeToContext(currentContextName);
-  }
-});
-
-function subscribeToContext(contextName: string): void {
-  unsubscribers.push(
-    updateResource.subscribe({
-      contextName,
-      resourceName: 'namespaces',
-    }),
-  );
-}
-
-function unsubscribeFromContext(): void {
-  unsubscribers.forEach(unsubscriber => unsubscriber());
-}
-
 async function handleNamespaceChange(value: unknown): Promise<void> {
   const namespace = String(value);
   await contextsApi.setCurrentNamespace(namespace);
 }
 
-let unsubscriberCurrentContext: Unsubscriber;
-let unsubscriberContextsHealths: Unsubscriber;
-
-function subscribeToStates(): void {
-  unsubscriberCurrentContext = currentContext.subscribe();
-  unsubscriberContextsHealths = contextsHealth.subscribe();
-}
-
-function unsubscribeFromStates(): void {
-  unsubscriberCurrentContext?.();
-  unsubscriberContextsHealths?.();
-}
+let unsubscribers: Unsubscriber[] = [];
 
 onMount(() => {
-  subscribeToStates();
+  unsubscribers.push(currentContext.subscribe());
+  unsubscribers.push(contextsHealth.subscribe());
+  unsubscribers.push(
+    updateResource.subscribe({
+      contextName: undefined, // current context
+      resourceName: 'namespaces',
+    }),
+  );
 });
 
 onDestroy(() => {
-  unsubscribeFromContext();
-  unsubscribeFromStates();
+  unsubscribers.forEach(unsubscriber => unsubscriber());
 });
 </script>
 

@@ -39,7 +39,9 @@ export class UpdateResourceDispatcher
 
   getData(options: UpdateResourceOptions[]): UpdateResourceInfo {
     return {
-      resources: options.flatMap(option => this.manager.getResources([option.contextName], option.resourceName)),
+      resources: options.flatMap(option =>
+        this.manager.getResources(option.contextName ? [option.contextName] : [], option.resourceName),
+      ),
     };
   }
 }

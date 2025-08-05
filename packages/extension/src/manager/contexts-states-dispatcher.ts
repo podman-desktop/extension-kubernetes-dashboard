@@ -75,6 +75,7 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
     });
     this.manager.onCurrentContextChange(async () => {
       await this.dispatch(CURRENT_CONTEXT);
+      await this.dispatch(UPDATE_RESOURCE);
     });
 
     this.onSubscribe(channelName => this.dispatchByChannelName(channelName));

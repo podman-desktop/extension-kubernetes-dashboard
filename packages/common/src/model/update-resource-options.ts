@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 export interface UpdateResourceOptions {
-  contextName: string;
+  // default context if not set
+  contextName?: string;
   resourceName: string;
 }

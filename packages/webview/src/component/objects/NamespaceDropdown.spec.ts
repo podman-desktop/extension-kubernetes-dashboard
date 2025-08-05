@@ -84,7 +84,8 @@ beforeEach(() => {
   updateResourceMock.setData({
     resources: [
       {
-        contextName: 'context1',
+        // this will be the one used by the component
+        contextName: undefined,
         resourceName: 'namespaces',
         items: [
           {
@@ -100,6 +101,7 @@ beforeEach(() => {
         ],
       },
       {
+        // this one will be ignored by the component
         contextName: 'context2',
         resourceName: 'namespaces',
         items: [
