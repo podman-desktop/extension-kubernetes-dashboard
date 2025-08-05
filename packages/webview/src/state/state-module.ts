@@ -28,6 +28,7 @@ import { StateUpdateResourceInfo } from './update-resource.svelte';
 import { StateContextsPermissionsInfo } from './contexts-permissions.svelte';
 import { StateContextsHealthsInfo } from './contexts-healths.svelte';
 import { StateResourceDetailsInfo } from './resource-details.svelte';
+import { StateResourceEventsInfo } from './resource-events.svelte';
 
 const statesModule = new ContainerModule(options => {
   options.bind(States).toSelf().inSingletonScope();
@@ -59,6 +60,10 @@ const statesModule = new ContainerModule(options => {
   options.bind(StateContextsHealthsInfo).toSelf().inSingletonScope();
   options.bind(StateObject).toService(StateContextsHealthsInfo);
   options.bind(IDisposable).toService(StateContextsHealthsInfo);
+
+  options.bind(StateResourceEventsInfo).toSelf().inSingletonScope();
+  options.bind(StateObject).toService(StateResourceEventsInfo);
+  options.bind(IDisposable).toService(StateResourceEventsInfo);
 });
 
 export { statesModule };
