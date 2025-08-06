@@ -24,6 +24,7 @@ import { ResourcesCountDispatcher } from './resources-count-dispatcher';
 import { DispatcherObject } from './util/dispatcher-object';
 import { CurrentContextDispatcher } from './current-context-dispatcher';
 import { UpdateResourceDispatcher } from './update-resource-dispatcher';
+import { ResourceDetailsDispatcher } from './resource-details-dispatcher';
 
 const dispatchersModule = new ContainerModule(options => {
   options.bind<ActiveResourcesCountDispatcher>(ActiveResourcesCountDispatcher).toSelf().inSingletonScope();
@@ -43,6 +44,9 @@ const dispatchersModule = new ContainerModule(options => {
 
   options.bind<UpdateResourceDispatcher>(UpdateResourceDispatcher).toSelf().inSingletonScope();
   options.bind(DispatcherObject).toService(UpdateResourceDispatcher);
+
+  options.bind<ResourceDetailsDispatcher>(ResourceDetailsDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(ResourceDetailsDispatcher);
 });
 
 export { dispatchersModule };
