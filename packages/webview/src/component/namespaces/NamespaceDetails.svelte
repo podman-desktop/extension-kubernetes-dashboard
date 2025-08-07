@@ -2,7 +2,7 @@
 import { getContext } from 'svelte';
 import KubernetesObjectDetails from '../objects/KubernetesObjectDetails.svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
-import { NodeHelper } from './node-helper';
+import { NamespaceHelper } from './namespace-helper';
 
 interface Props {
   name: string;
@@ -10,18 +10,18 @@ interface Props {
 let { name }: Props = $props();
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
-const nodeHelper = dependencyAccessor.get<NodeHelper>(NodeHelper);
+const namespaceHelper = dependencyAccessor.get<NamespaceHelper>(NamespaceHelper);
 </script>
 
 <KubernetesObjectDetails
-  kind="Node"
-  resourceName="nodes"
+  kind="Namespace"
+  resourceName="namespaces"
   name={name}
-  transformer={nodeHelper.getNodeUI.bind(nodeHelper)}>
-  {#snippet content({ objectUI: nodeUI, object: node, events })}
+  transformer={namespaceHelper.getNamespaceUI.bind(namespaceHelper)}>
+  {#snippet content({ objectUI: namespaceUI, object: namespace, events })}
     <div>
-      <h1>Node Details</h1>
-      <p>Name: {nodeUI.name} / {node.metadata?.name}</p>
+      <h1>Namespace Details</h1>
+      <p>Name: {namespaceUI.name} / {namespace.metadata?.name}</p>
       <p>Events: {events?.length}</p>
     </div>
   {/snippet}
