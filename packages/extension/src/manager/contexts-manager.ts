@@ -16,7 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ApiException, KubeConfig, V1Status, type KubernetesObject, type ObjectCache } from '@kubernetes/client-node';
+import {
+  ApiException,
+  CoreV1Event,
+  KubeConfig,
+  V1Status,
+  type KubernetesObject,
+  type ObjectCache,
+} from '@kubernetes/client-node';
 
 import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
 import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js';
@@ -52,6 +59,7 @@ import { injectable } from 'inversify';
 import { ContextResourceItems } from '/@common/model/context-resources-items.js';
 import { NamespacesResourceFactory } from '../resources/namespaces-resource-factory.js';
 import { ContextResourceDetails } from '/@common/model/context-resources-details.js';
+import { ContextResourceEvents } from '/@common/model/context-resource-events.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
@@ -242,6 +250,23 @@ export class ContextsManager {
         details: value.get(name, namespace),
       };
     });
+  }
+
+  getResourceEvents(contextNames: string[], uid: string): ContextResourceEvents[] {
+    return this.#objectCaches.getForContextsAndResource(contextNames, 'events').map(({ contextName, value }) => {
+      return {
+        contextName,
+        uid,
+        events: value
+          .list()
+          .filter(o => this.isCoreV1Event(o))
+          .filter(event => event.involvedObject.uid === uid),
+      };
+    });
+  }
+
+  isCoreV1Event(resource: KubernetesObject): resource is CoreV1Event {
+    return 'involvedObject' in resource;
   }
 
   /* dispose all disposable resources created by the instance */

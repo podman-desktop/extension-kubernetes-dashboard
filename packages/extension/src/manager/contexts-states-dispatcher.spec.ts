@@ -39,6 +39,7 @@ import {
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
   RESOURCE_DETAILS,
+  RESOURCE_EVENTS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
 } from '/@common/channels.js';
@@ -156,10 +157,11 @@ test('ContextsStatesDispatcher should call updateResource and updateActiveResour
   );
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(dispatcherSpy).toHaveBeenCalledTimes(3);
+    expect(dispatcherSpy).toHaveBeenCalledTimes(4);
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(UPDATE_RESOURCE);
   expect(dispatcherSpy).toHaveBeenCalledWith(RESOURCE_DETAILS);
+  expect(dispatcherSpy).toHaveBeenCalledWith(RESOURCE_EVENTS);
   expect(dispatcherSpy).toHaveBeenCalledWith(ACTIVE_RESOURCES_COUNT);
 });
 
