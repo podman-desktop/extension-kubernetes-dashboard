@@ -93,7 +93,7 @@ test('empty screen because of no resource', () => {
     resources: [
       // resources subscribed from this component
       {
-        contextName: 'ctx1',
+        contextName: undefined,
         resourceName: 'seals',
         items: [], // no resource
       },
@@ -104,7 +104,7 @@ test('empty screen because of no resource', () => {
         items: [{ metadata: { name: 'podman' } }],
       },
       {
-        contextName: 'ctx1',
+        contextName: undefined,
         resourceName: 'dolphin',
         items: [{ metadata: { name: 'flipper' } }],
       },
@@ -117,7 +117,7 @@ test('empty screen because of no resource', () => {
   screen.getByRole('region', { name: 'Seals' });
 
   expect(updateResourceMock.subscribe).toHaveBeenCalledWith({
-    contextName: 'ctx1',
+    contextName: undefined,
     resourceName: 'seals',
   });
 
@@ -136,7 +136,7 @@ describe('resources exist', () => {
       resources: [
         // resources subscribed from this component
         {
-          contextName: 'ctx1',
+          contextName: undefined,
           resourceName: 'seals',
           items: [{ metadata: { name: 'podman' } }], // no resource
         },
@@ -147,7 +147,7 @@ describe('resources exist', () => {
           items: [{ metadata: { name: 'podman2' } }],
         },
         {
-          contextName: 'ctx1',
+          contextName: undefined,
           resourceName: 'dolphin',
           items: [{ metadata: { name: 'flipper' } }],
         },
@@ -159,7 +159,7 @@ describe('resources exist', () => {
     render(KubernetesObjectsListSpec);
 
     expect(updateResourceMock.subscribe).toHaveBeenCalledWith({
-      contextName: 'ctx1',
+      contextName: undefined,
       resourceName: 'seals',
     });
     expect(screen.queryByText('No Seals')).toBeNull();
