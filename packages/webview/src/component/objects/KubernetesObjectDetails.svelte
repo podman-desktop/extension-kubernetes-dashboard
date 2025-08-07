@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" generics="T extends KubernetesObject, U extends KubernetesObjectUI">
 import type { CoreV1Event, KubernetesObject } from '@kubernetes/client-node';
 import { getContext, onDestroy, onMount, type Snippet } from 'svelte';
 import { router } from 'tinro';
@@ -11,14 +11,26 @@ import type { ContextResourceDetails } from '/@common/model/context-resources-de
 import type { ContextResourceEvents } from '/@common/model/context-resource-events';
 import type { KubernetesObjectUI } from './KubernetesObjectUI';
 
-interface Props {
+interface Props<T extends KubernetesObject, U extends KubernetesObjectUI> {
+  typed: T;
+  typedUI: U;
   kind: string;
   resourceName: string;
   name: string;
-  transformer: (o: KubernetesObject) => KubernetesObjectUI;
-  content: Snippet<[{ object: KubernetesObject; objectUI: KubernetesObjectUI; events?: readonly CoreV1Event[] }]>;
+  namespace?: string;
+  transformer: (o: T) => U;
+  content: Snippet<[{ object: T; objectUI: U; events?: readonly CoreV1Event[] }]>;
 }
-let { kind, resourceName, name, transformer, content }: Props = $props();
+let {
+  kind,
+  resourceName,
+  name,
+  namespace,
+  transformer,
+  content,
+  typed: _typed,
+  typedUI: _typedUI,
+}: Props<T, U> = $props();
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const navigator = dependencyAccessor.get(Navigator);
@@ -32,7 +44,7 @@ let unsubscribers: Unsubscriber[] = [];
 let initialCurrentContextName: string | undefined = $state(undefined);
 
 const object = $derived(filterResources(resourceDetails.data?.resources ?? []));
-const objectUI = $derived(object ? transformer(object) : undefined);
+const objectUI = $derived(object ? transformer(object as T) : undefined);
 const events = $derived(
   object?.metadata?.uid && resourceEvents?.data?.events
     ? filterEvents(resourceEvents.data.events, object.metadata.uid)
@@ -72,6 +84,7 @@ onMount(() => {
       contextName: initialCurrentContextName,
       resourceName,
       name,
+      namespace,
     }),
   );
 });
@@ -85,7 +98,8 @@ function filterResources(allResources: ContextResourceDetails[]): KubernetesObje
     resources =>
       resources.contextName === initialCurrentContextName &&
       resources.resourceName === resourceName &&
-      resources.name === name,
+      resources.name === name &&
+      (!namespace || resources.namespace === namespace),
   )?.details;
 }
 
@@ -99,5 +113,5 @@ function navigateToList(): void {
 </script>
 
 {#if objectUI && object}
-  {@render content({ objectUI: objectUI, object: object, events })}
+  {@render content({ objectUI: objectUI as U, object: object as T, events })}
 {/if}
