@@ -54,6 +54,15 @@ export class Navigator {
     return `/${this.resourceKindToURL(kind)}/${name}/summary`;
   }
 
+  public isTabSelected(routerPath: string, tabUrl: string): boolean {
+    return routerPath === this.getTabUrl(routerPath, tabUrl);
+  }
+
+  public getTabUrl(routerPath: string, tabUrl: string): string {
+    const baseURL = routerPath.substring(0, routerPath.lastIndexOf('/'));
+    return `${baseURL}/${tabUrl}`;
+  }
+
   protected gotoKubernetesResources(kind: string): void {
     router.goto(this.kubernetesResourcesURL(kind));
   }

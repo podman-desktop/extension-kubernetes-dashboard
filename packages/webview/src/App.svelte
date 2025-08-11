@@ -10,6 +10,10 @@ import PodsList from '/@/component/PodsList.svelte';
 import ResourcesCount from '/@/component/ResourcesCount.svelte';
 import Navigation from '/@/Navigation.svelte';
 import Route from '/@/Route.svelte';
+import NodeDetails from '/@/component/nodes/NodeDetails.svelte';
+import NamespaceDetails from './component/namespaces/NamespaceDetails.svelte';
+import ConfigMapDetails from './component/configmaps-secrets/ConfigMapDetails.svelte';
+import SecretDetails from './component/configmaps-secrets/SecretDetails.svelte';
 
 let isMounted = false;
 </script>
@@ -29,15 +33,27 @@ let isMounted = false;
         </Route>
 
         <Route path="/nodes/:name/*" let:meta>
-          Node details for {meta.params.name}
+          <NodeDetails name={decodeURI(meta.params.name)} />
         </Route>
 
         <Route path="/namespaces">
           <NamespacesList />
         </Route>
 
+        <Route path="/namespaces/:name/*" let:meta>
+          <NamespaceDetails name={decodeURI(meta.params.name)} />
+        </Route>
+
         <Route path="/configmapsSecrets">
           <ConfigMapSecretList />
+        </Route>
+
+        <Route path="/configmapsSecrets/configmap/:name/:namespace/*" let:meta>
+          <ConfigMapDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+        </Route>
+
+        <Route path="/configmapsSecrets/secret/:name/:namespace/*" let:meta>
+          <SecretDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
 
         <Route path="/current-context">
