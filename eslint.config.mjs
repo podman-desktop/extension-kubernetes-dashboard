@@ -223,4 +223,13 @@ export default [
       },
     },
   },
+
+  {
+    files: ['**/*.spec.ts'],
+
+    rules: {
+      'sonarjs/no-hardcoded-ip': 'off',
+    },
+  },
+
 ];

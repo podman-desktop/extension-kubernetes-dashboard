@@ -5,6 +5,7 @@ import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { NodeHelper } from './node-helper';
 import type { NodeUI } from './NodeUI';
 import type { V1Node } from '@kubernetes/client-node';
+import NodeDetailsSummary from './NodeDetailsSummary.svelte';
 
 interface Props {
   name: string;
@@ -21,7 +22,8 @@ const nodeHelper = dependencyAccessor.get<NodeHelper>(NodeHelper);
   kind="Node"
   resourceName="nodes"
   name={name}
-  transformer={nodeHelper.getNodeUI.bind(nodeHelper)}>
+  transformer={nodeHelper.getNodeUI.bind(nodeHelper)}
+  SummaryComponent={NodeDetailsSummary}>
   {#snippet content({ objectUI: nodeUI, object: node, events })}
     <div>
       <h1>Node Details</h1>
