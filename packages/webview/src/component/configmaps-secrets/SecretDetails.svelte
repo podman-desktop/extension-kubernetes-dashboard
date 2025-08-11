@@ -1,10 +1,11 @@
 <script lang="ts">
 import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
-import { ConfigMapSecretHelper } from './configmap-secret-helper';
-import KubernetesObjectDetails from '../objects/KubernetesObjectDetails.svelte';
+import { ConfigMapSecretHelper } from '/@/component/configmaps-secrets/configmap-secret-helper';
+import KubernetesObjectDetails from '/@/component/objects/KubernetesObjectDetails.svelte';
 import type { V1Secret } from '@kubernetes/client-node';
-import type { ConfigMapSecretUI } from './ConfigMapSecretUI';
+import type { ConfigMapSecretUI } from '/@/component/configmaps-secrets/ConfigMapSecretUI';
+import SecretDetailsSummary from '/@/component/configmaps-secrets/SecretDetailsSummary.svelte';
 
 interface Props {
   name: string;
@@ -21,14 +22,7 @@ const configMapSecretHelper = dependencyAccessor.get<ConfigMapSecretHelper>(Conf
   typedUI={{} as ConfigMapSecretUI}
   kind="Secret"
   resourceName="secrets"
+  SummaryComponent={SecretDetailsSummary}
   name={name}
   namespace={namespace}
-  transformer={configMapSecretHelper.getConfigMapSecretUI.bind(configMapSecretHelper)}>
-  {#snippet content({ objectUI: secretUI, object: secret })}
-    <div>
-      <h1>Secret Details</h1>
-      <p>Namespace: {secretUI.namespace} / {secret.metadata?.namespace}</p>
-      <p>Name: {secretUI.name} / {secret.metadata?.name}</p>
-    </div>
-  {/snippet}
-</KubernetesObjectDetails>
+  transformer={configMapSecretHelper.getConfigMapSecretUI.bind(configMapSecretHelper)} />

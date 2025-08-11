@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import type { V1NodeStatus } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
-import NodeStatusDetails from './NodeStatusDetails.svelte';
+import NodeStatusDetails from '/@/component/nodes/details/NodeStatusDetails.svelte';
 
 // A full V1NodeStatus object with all fields populated
 const fakeNodeStatus = {
@@ -71,7 +71,7 @@ const fakeNodeStatus = {
 } as unknown as V1NodeStatus;
 
 test('Renders node status correctly', () => {
-  render(NodeStatusDetails, { artifact: fakeNodeStatus });
+  render(NodeStatusDetails, { status: fakeNodeStatus });
   expect(screen.getByText('10.0.0.1')).toBeInTheDocument();
   expect(screen.getByText('node1')).toBeInTheDocument();
   expect(screen.getByText('16Gi')).toBeInTheDocument();
