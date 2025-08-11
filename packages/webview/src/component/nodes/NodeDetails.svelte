@@ -1,10 +1,11 @@
 <script lang="ts">
 import { getContext } from 'svelte';
-import KubernetesObjectDetails from '../objects/KubernetesObjectDetails.svelte';
+import KubernetesObjectDetails from '/@/component/objects/KubernetesObjectDetails.svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
-import { NodeHelper } from './node-helper';
-import type { NodeUI } from './NodeUI';
+import { NodeHelper } from '/@/component/nodes/node-helper';
+import type { NodeUI } from '/@/component/nodes/NodeUI';
 import type { V1Node } from '@kubernetes/client-node';
+import NodeDetailsSummary from '/@/component/nodes/NodeDetailsSummary.svelte';
 
 interface Props {
   name: string;
@@ -21,12 +22,5 @@ const nodeHelper = dependencyAccessor.get<NodeHelper>(NodeHelper);
   kind="Node"
   resourceName="nodes"
   name={name}
-  transformer={nodeHelper.getNodeUI.bind(nodeHelper)}>
-  {#snippet content({ objectUI: nodeUI, object: node, events })}
-    <div>
-      <h1>Node Details</h1>
-      <p>Name: {nodeUI.name} / {node.metadata?.name}</p>
-      <p>Events: {events?.length}</p>
-    </div>
-  {/snippet}
-</KubernetesObjectDetails>
+  transformer={nodeHelper.getNodeUI.bind(nodeHelper)}
+  SummaryComponent={NodeDetailsSummary} />

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { DependencyMocks } from '../../tests/dependency-mocks';
 import { render } from '@testing-library/svelte';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
@@ -28,6 +28,9 @@ import type { ResourceEventsInfo } from '/@common/model/resource-events-info';
 import type { ResourceEventsOptions } from '/@common/model/resource-events-options';
 import { Navigator } from '/@/navigation/navigator';
 import KubernetesObjectDetailsSpec from './KubernetesObjectDetailsSpec.svelte';
+import NodeDetailsSummary from '/@/component/nodes/NodeDetailsSummary.svelte';
+import * as svelte from 'svelte';
+import { router } from 'tinro';
 
 vi.mock(import('@podman-desktop/ui-svelte'), async () => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -38,8 +41,10 @@ vi.mock(import('@podman-desktop/ui-svelte'), async () => {
     TableColumn: vi.fn(),
     TableRow: vi.fn(),
     FilteredEmptyScreen: vi.fn(),
+    Page: vi.fn(),
   };
 });
+vi.mock(import('/@/component/nodes/NodeDetailsSummary.svelte'));
 
 const dependencyMocks = new DependencyMocks();
 const statesMocks = new StatesMocks();
@@ -55,6 +60,8 @@ beforeEach(() => {
   resourceEventsMock = new FakeStateObject();
   currentContextMock = new FakeStateObject();
 
+  vi.spyOn(svelte, 'getContext').mockImplementation(() => {});
+
   dependencyMocks.reset();
   dependencyMocks.mock(Navigator);
 
@@ -64,9 +71,7 @@ beforeEach(() => {
   statesMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
 });
 
-afterEach(() => {});
-
-test('resource exists', () => {
+test('resource exists', async () => {
   currentContextMock.setData({
     contextName: 'ctx1',
     namespace: 'ns1',
@@ -76,22 +81,24 @@ test('resource exists', () => {
       // resources subscribed from this component
       {
         contextName: 'ctx1',
-        resourceName: 'namespaces',
-        name: 'ns1',
+        resourceName: 'nodes',
+        name: 'node1',
         details: {
           metadata: {
-            name: 'ns1',
+            name: 'node1',
+            uid: '1234',
           },
         },
       },
       // other resources, subscribed from some other components
       {
         contextName: 'ctx2',
-        resourceName: 'namespaces',
+        resourceName: 'nodes',
         name: 'ns1',
         details: {
           metadata: {
-            name: 'ns1',
+            name: 'node1',
+            uid: '1234',
           },
         },
       },
@@ -104,33 +111,30 @@ test('resource exists', () => {
           metadata: {
             name: 'flipper',
             namespace: 'ns1',
+            uid: '1235',
           },
         },
       },
     ],
   });
 
-  const mock = vi.fn();
-  render(KubernetesObjectDetailsSpec, {
-    mock,
-  });
-
-  expect(mock).toHaveBeenCalledWith(
-    {
-      kind: 'Namespace',
-      name: 'ns1',
-      status: 'RUNNING',
-    },
-    {
-      metadata: {
-        name: 'ns1',
+  router.goto('http://localhost:3000');
+  render(KubernetesObjectDetailsSpec);
+  router.goto('summary');
+  await vi.waitFor(() => {
+    expect(NodeDetailsSummary).toHaveBeenCalledWith(expect.anything(), {
+      object: {
+        metadata: {
+          name: 'node1',
+          uid: '1234',
+        },
       },
-    },
-    [],
-  );
+      events: [],
+    });
+  });
 });
 
-test('resource and events exist', () => {
+test('resource and events exist', async () => {
   currentContextMock.setData({
     contextName: 'ctx1',
     namespace: 'ns1',
@@ -140,11 +144,11 @@ test('resource and events exist', () => {
       // resources subscribed from this component
       {
         contextName: 'ctx1',
-        resourceName: 'namespaces',
-        name: 'ns1',
+        resourceName: 'nodes',
+        name: 'node1',
         details: {
           metadata: {
-            name: 'ns1',
+            name: 'node1',
             uid: '1234',
           },
         },
@@ -152,11 +156,11 @@ test('resource and events exist', () => {
       // other resources, subscribed from some other components
       {
         contextName: 'ctx2',
-        resourceName: 'namespaces',
+        resourceName: 'nodes',
         name: 'ns1',
         details: {
           metadata: {
-            name: 'ns1',
+            name: 'node1',
             uid: '1234',
           },
         },
@@ -185,7 +189,7 @@ test('resource and events exist', () => {
         events: [
           {
             metadata: {
-              name: 'flipper-event',
+              name: 'node1-event',
             },
             involvedObject: {
               uid: '1234',
@@ -196,34 +200,30 @@ test('resource and events exist', () => {
     ],
   });
 
-  const mock = vi.fn();
-  render(KubernetesObjectDetailsSpec, {
-    mock,
-  });
+  router.goto('http://localhost:3000');
+  render(KubernetesObjectDetailsSpec);
+  router.goto('summary');
 
-  expect(mock).toHaveBeenCalledWith(
-    {
-      kind: 'Namespace',
-      name: 'ns1',
-      status: 'RUNNING',
-    },
-    {
-      metadata: {
-        name: 'ns1',
-        uid: '1234',
-      },
-    },
-    [
-      {
+  await vi.waitFor(() => {
+    expect(NodeDetailsSummary).toHaveBeenCalledWith(expect.anything(), {
+      object: {
         metadata: {
-          name: 'flipper-event',
-        },
-        involvedObject: {
+          name: 'node1',
           uid: '1234',
         },
       },
-    ],
-  );
+      events: [
+        {
+          metadata: {
+            name: 'node1-event',
+          },
+          involvedObject: {
+            uid: '1234',
+          },
+        },
+      ],
+    });
+  });
 });
 
 test('context change', async () => {
@@ -236,22 +236,24 @@ test('context change', async () => {
       // resources subscribed from this component
       {
         contextName: 'ctx1',
-        resourceName: 'namespaces',
-        name: 'ns1',
+        resourceName: 'nodes',
+        name: 'node1',
         details: {
           metadata: {
-            name: 'ns1',
+            name: 'node1',
+            uid: '1234',
           },
         },
       },
       // other resources, subscribed from some other components
       {
         contextName: 'ctx2',
-        resourceName: 'namespaces',
+        resourceName: 'nodes',
         name: 'ns1',
         details: {
           metadata: {
-            name: 'ns1',
+            name: 'node1',
+            uid: '1234',
           },
         },
       },
@@ -264,30 +266,16 @@ test('context change', async () => {
           metadata: {
             name: 'flipper',
             namespace: 'ns1',
+            uid: '1235',
           },
         },
       },
     ],
   });
 
-  const mock = vi.fn();
-  render(KubernetesObjectDetailsSpec, {
-    mock,
-  });
-
-  expect(mock).toHaveBeenCalledWith(
-    {
-      kind: 'Namespace',
-      name: 'ns1',
-      status: 'RUNNING',
-    },
-    {
-      metadata: {
-        name: 'ns1',
-      },
-    },
-    [],
-  );
+  router.goto('http://localhost:3000');
+  render(KubernetesObjectDetailsSpec);
+  router.goto('summary');
 
   currentContextMock.setData({
     contextName: 'ctx2',
@@ -295,6 +283,6 @@ test('context change', async () => {
   });
 
   await vi.waitFor(() => {
-    expect(dependencyMocks.get(Navigator).kubernetesResourcesURL).toHaveBeenCalledWith('Namespace');
+    expect(dependencyMocks.get(Navigator).kubernetesResourcesURL).toHaveBeenCalledWith('Node');
   });
 });
