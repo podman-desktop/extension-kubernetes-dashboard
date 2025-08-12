@@ -30,6 +30,7 @@ import { navigationModule } from '/@/navigation/_navigation-module';
 import { nodesModule } from '/@/component/nodes/_nodes-module';
 import { namespacesModule } from '../component/namespaces/_namespaces-module';
 import { configmapsSecretsModule } from '/@/component/configmaps-secrets/_configmaps-secrets-module';
+import { servicesModule } from '../component/services/_services-module';
 import { ingressesRoutesModule } from '../component/ingresses-routes/_ingresses-routes-module';
 
 export class InversifyBinding {
@@ -55,6 +56,7 @@ export class InversifyBinding {
     await this.#container.load(nodesModule);
     await this.#container.load(namespacesModule);
     await this.#container.load(configmapsSecretsModule);
+    await this.#container.load(servicesModule);
     await this.#container.load(ingressesRoutesModule);
 
     return this.#container;

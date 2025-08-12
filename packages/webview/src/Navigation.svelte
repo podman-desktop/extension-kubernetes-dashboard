@@ -37,6 +37,11 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
       href={navigator.kubernetesResourcesURL('Namespace')} />
 
     <SettingsNavItem
+      title="Services"
+      selected={meta.url === navigator.kubernetesResourcesURL('Service')}
+      href={navigator.kubernetesResourcesURL('Service')} />
+
+    <SettingsNavItem
       title="Ingresses & Routes"
       selected={meta.url === navigator.kubernetesResourcesURL('Ingress')}
       href={navigator.kubernetesResourcesURL('Ingress')} />
