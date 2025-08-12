@@ -6,6 +6,7 @@ import { NamespaceHelper } from '/@/component/namespaces/namespace-helper';
 import type { V1Namespace } from '@kubernetes/client-node';
 import type { NamespaceUI } from '/@/component/namespaces/NamespaceUI';
 import NamespaceDetailsSummary from '/@/component/namespaces/NamespaceDetailsSummary.svelte';
+import Actions from '/@/component/namespaces/columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -21,6 +22,8 @@ const namespaceHelper = dependencyAccessor.get<NamespaceHelper>(NamespaceHelper)
   typedUI={{} as NamespaceUI}
   kind="Namespace"
   resourceName="namespaces"
+  listName="Namespaces"
   SummaryComponent={NamespaceDetailsSummary}
+  ActionsComponent={Actions}
   name={name}
   transformer={namespaceHelper.getNamespaceUI.bind(namespaceHelper)} />

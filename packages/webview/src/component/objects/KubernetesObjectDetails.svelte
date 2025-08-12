@@ -15,24 +15,29 @@ import Route from '/@/Route.svelte';
 import KubernetesIcon from '/@/component/icons/KubernetesIcon.svelte';
 import { icon } from '/@/component/icons/icon';
 import type { EventUI } from '/@/component/objects/EventUI';
+import StateChange from '/@/component/objects/StateChange.svelte';
 
 interface Props<T extends KubernetesObject, U extends KubernetesObjectUI> {
   typed: T;
   typedUI: U;
   kind: string;
   resourceName: string;
+  listName: string;
   name: string;
   namespace?: string;
   transformer: (o: T) => U;
   SummaryComponent: Component<{ object: T; events: readonly EventUI[] }>;
+  ActionsComponent?: Component<{ object: U }>;
 }
 let {
   kind,
   resourceName,
   name,
   namespace,
+  listName,
   transformer,
   SummaryComponent,
+  ActionsComponent,
   typed: _typed,
   typedUI: _typedUI,
 }: Props<T, U> = $props();
@@ -120,9 +125,25 @@ function navigateToList(): void {
 </script>
 
 {#if objectUI && object}
-  <DetailsPage title={objectUI.name} bind:this={detailsPage}>
+  <DetailsPage
+    title={objectUI.name}
+    bind:this={detailsPage}
+    breadcrumbLeftPart={listName}
+    breadcrumbRightPart="Details"
+    onbreadcrumbClick={navigateToList}
+    onclose={navigateToList}>
     {#snippet iconSnippet()}
       {#if object}<StatusIcon icon={icon[kind] ?? KubernetesIcon} size={24} status={objectUI.status} />{/if}
+    {/snippet}
+    {#snippet actionsSnippet()}
+      {#if ActionsComponent && objectUI}<ActionsComponent object={objectUI} />{/if}
+    {/snippet}
+    {#snippet detailSnippet()}
+      {#if objectUI}
+        <div class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
+          <StateChange state={objectUI.status} />
+        </div>
+      {/if}
     {/snippet}
     {#snippet tabsSnippet()}
       <Tab

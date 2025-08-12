@@ -21,6 +21,7 @@ const nodeHelper = dependencyAccessor.get<NodeHelper>(NodeHelper);
   typedUI={{} as NodeUI}
   kind="Node"
   resourceName="nodes"
+  listName="Nodes"
   name={name}
   transformer={nodeHelper.getNodeUI.bind(nodeHelper)}
   SummaryComponent={NodeDetailsSummary} />
