@@ -1,13 +1,8 @@
 <script lang="ts">
 import NamespacesList from './component/namespaces/NamespacesList.svelte';
 import ConfigMapSecretList from './component/configmaps-secrets/ConfigMapSecretList.svelte';
-import ActiveResourcesCount from '/@/component/ActiveResourcesCount.svelte';
-import ConfigsList from '/@/component/ConfigsList.svelte';
-import CurrentContext from '/@/component/CurrentContext.svelte';
 import Dashboard from '/@/component/dashboard/Dashboard.svelte';
 import NodesList from '/@/component/nodes/NodesList.svelte';
-import PodsList from '/@/component/PodsList.svelte';
-import ResourcesCount from '/@/component/ResourcesCount.svelte';
 import Navigation from '/@/Navigation.svelte';
 import Route from '/@/Route.svelte';
 import NodeDetails from '/@/component/nodes/NodeDetails.svelte';
@@ -54,25 +49,6 @@ let isMounted = false;
 
         <Route path="/configmapsSecrets/secret/:name/:namespace/*" let:meta>
           <SecretDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
-        </Route>
-
-        <Route path="/current-context">
-          <CurrentContext />
-        </Route>
-
-        <Route path="/resources-count">
-          <ResourcesCount />
-        </Route>
-
-        <Route path="/active-resources-count">
-          <ActiveResourcesCount />
-        </Route>
-
-        <Route path="/lists">
-          <div class="flex flex-row">
-            <PodsList />
-            <ConfigsList />
-          </div>
         </Route>
       </div>
     </div>
