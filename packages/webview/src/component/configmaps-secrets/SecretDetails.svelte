@@ -6,6 +6,7 @@ import KubernetesObjectDetails from '/@/component/objects/KubernetesObjectDetail
 import type { V1Secret } from '@kubernetes/client-node';
 import type { ConfigMapSecretUI } from '/@/component/configmaps-secrets/ConfigMapSecretUI';
 import SecretDetailsSummary from '/@/component/configmaps-secrets/SecretDetailsSummary.svelte';
+import Actions from '/@/component/configmaps-secrets/columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -22,7 +23,9 @@ const configMapSecretHelper = dependencyAccessor.get<ConfigMapSecretHelper>(Conf
   typedUI={{} as ConfigMapSecretUI}
   kind="Secret"
   resourceName="secrets"
+  listName="ConfigMaps and Secrets"
   SummaryComponent={SecretDetailsSummary}
+  ActionsComponent={Actions}
   name={name}
   namespace={namespace}
   transformer={configMapSecretHelper.getConfigMapSecretUI.bind(configMapSecretHelper)} />
