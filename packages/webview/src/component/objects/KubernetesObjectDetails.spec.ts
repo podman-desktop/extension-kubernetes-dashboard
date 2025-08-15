@@ -31,6 +31,7 @@ import KubernetesObjectDetailsSpec from './KubernetesObjectDetailsSpec.svelte';
 import NodeDetailsSummary from '/@/component/nodes/NodeDetailsSummary.svelte';
 import * as svelte from 'svelte';
 import { router } from 'tinro';
+import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 
 vi.mock(import('@podman-desktop/ui-svelte'), async () => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -64,6 +65,7 @@ beforeEach(() => {
 
   dependencyMocks.reset();
   dependencyMocks.mock(Navigator);
+  dependencyMocks.mock(KubernetesObjectUIHelper);
 
   statesMocks.reset();
   statesMocks.mock<ResourceDetailsInfo, ResourceDetailsOptions>('stateResourceDetailsInfoUI', resourceDetailsMock);
