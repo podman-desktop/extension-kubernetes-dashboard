@@ -40,17 +40,5 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
       title="ConfigMaps and Secrets"
       selected={meta.url === navigator.kubernetesResourcesURL('ConfigMap')}
       href={navigator.kubernetesResourcesURL('ConfigMap')} />
-
-    <div class="pl-3 mt-2 ml-[4px]">
-      <span class="text-[color:var(--pd-secondary-nav-header-text)]">STATES</span>
-    </div>
-
-    <SettingsNavItem title="Current context" selected={meta.url === '/current-context'} href="/current-context" />
-    <SettingsNavItem title="Resources count" selected={meta.url === '/resources-count'} href="/resources-count" />
-    <SettingsNavItem
-      title="Active resources count"
-      selected={meta.url === '/active-resources-count'}
-      href="/active-resources-count" />
-    <SettingsNavItem title="Resources Lists" selected={meta.url === '/lists'} href="/lists" />
   </div>
 </nav>
