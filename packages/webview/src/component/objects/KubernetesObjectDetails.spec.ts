@@ -286,3 +286,88 @@ test('context change', async () => {
     expect(dependencyMocks.get(Navigator).kubernetesResourcesURL).toHaveBeenCalledWith('Node');
   });
 });
+
+test('resource deleted', async () => {
+  currentContextMock.setData({
+    contextName: 'ctx1',
+    namespace: 'ns1',
+  });
+  resourceDetailsMock.setData({
+    resources: [
+      // resources subscribed from this component
+      {
+        contextName: 'ctx1',
+        resourceName: 'nodes',
+        name: 'node1',
+        details: {
+          metadata: {
+            name: 'node1',
+            uid: '1234',
+          },
+        },
+      },
+      // other resources, subscribed from some other components
+      {
+        contextName: 'ctx2',
+        resourceName: 'nodes',
+        name: 'ns1',
+        details: {
+          metadata: {
+            name: 'node1',
+            uid: '1234',
+          },
+        },
+      },
+      {
+        contextName: 'ctx1',
+        resourceName: 'dolphin',
+        name: 'flipper',
+        namespace: 'ns1',
+        details: {
+          metadata: {
+            name: 'flipper',
+            namespace: 'ns1',
+            uid: '1235',
+          },
+        },
+      },
+    ],
+  });
+
+  router.goto('http://localhost:3000');
+  render(KubernetesObjectDetailsSpec);
+  router.goto('summary');
+
+  resourceDetailsMock.setData({
+    resources: [
+      // other resources, subscribed from some other components
+      {
+        contextName: 'ctx2',
+        resourceName: 'nodes',
+        name: 'ns1',
+        details: {
+          metadata: {
+            name: 'node1',
+            uid: '1234',
+          },
+        },
+      },
+      {
+        contextName: 'ctx1',
+        resourceName: 'dolphin',
+        name: 'flipper',
+        namespace: 'ns1',
+        details: {
+          metadata: {
+            name: 'flipper',
+            namespace: 'ns1',
+            uid: '1235',
+          },
+        },
+      },
+    ],
+  });
+  await vi.waitFor(() => {
+    expect(dependencyMocks.get(Navigator).kubernetesResourcesURL).toHaveBeenCalledWith('Node');
+  });
+});
