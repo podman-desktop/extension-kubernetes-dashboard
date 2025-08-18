@@ -9,6 +9,7 @@ import NodeDetails from '/@/component/nodes/NodeDetails.svelte';
 import NamespaceDetails from './component/namespaces/NamespaceDetails.svelte';
 import ConfigMapDetails from './component/configmaps-secrets/ConfigMapDetails.svelte';
 import SecretDetails from './component/configmaps-secrets/SecretDetails.svelte';
+import ServicesList from './component/services/ServicesList.svelte';
 import IngressesRoutesList from './component/ingresses-routes/IngressesRoutesList.svelte';
 
 let isMounted = false;
@@ -38,6 +39,10 @@ let isMounted = false;
 
         <Route path="/namespaces/:name/*" let:meta>
           <NamespaceDetails name={decodeURI(meta.params.name)} />
+        </Route>
+
+        <Route path="/services">
+          <ServicesList />
         </Route>
 
         <Route path="/ingressesRoutes">
