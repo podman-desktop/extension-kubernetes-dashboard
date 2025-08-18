@@ -86,6 +86,19 @@ $effect(() => {
   }
 });
 
+let found = $state(false);
+$effect(() => {
+  if (!found && object) {
+    found = true;
+  }
+});
+
+$effect(() => {
+  if (found && !object) {
+    navigateToList();
+  }
+});
+
 onMount(() => {
   initialCurrentContextName = currentContext.data?.contextName;
   if (!initialCurrentContextName) {
