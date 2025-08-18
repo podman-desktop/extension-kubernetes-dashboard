@@ -22,7 +22,7 @@ import * as podmanDesktopApi from '@podman-desktop/api';
 
 @injectable()
 export class SystemApiImpl implements SystemApi {
-  async openExternal(uri: string): Promise<void> {
-    await podmanDesktopApi.env.openExternal(podmanDesktopApi.Uri.parse(uri));
+  async openExternal(uri: string): Promise<boolean> {
+    return podmanDesktopApi.env.openExternal(podmanDesktopApi.Uri.parse(uri));
   }
 }

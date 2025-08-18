@@ -19,5 +19,5 @@
 export const SystemApi = Symbol.for('SystemApi');
 
 export interface SystemApi {
-  openExternal(uri: string): Promise<void>;
+  openExternal(uri: string): Promise<boolean>;
 }
