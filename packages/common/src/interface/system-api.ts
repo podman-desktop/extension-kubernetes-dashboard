@@ -16,16 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
+export const SystemApi = Symbol.for('SystemApi');
 
-import { ContextsManager } from './contexts-manager';
-import { ContextsStatesDispatcher } from './contexts-states-dispatcher';
-import { SystemApiImpl } from './system-api';
-
-const managersModule = new ContainerModule(options => {
-  options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
-  options.bind<ContextsStatesDispatcher>(ContextsStatesDispatcher).toSelf().inSingletonScope();
-  options.bind<SystemApiImpl>(SystemApiImpl).toSelf().inSingletonScope();
-});
-
-export { managersModule };
+export interface SystemApi {
+  openExternal(uri: string): Promise<boolean>;
+}

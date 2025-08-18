@@ -17,15 +17,10 @@
  ***********************************************************************/
 
 import { ContainerModule } from 'inversify';
+import { IngressRouteHelper } from './ingress-route-helper';
 
-import { ContextsManager } from './contexts-manager';
-import { ContextsStatesDispatcher } from './contexts-states-dispatcher';
-import { SystemApiImpl } from './system-api';
-
-const managersModule = new ContainerModule(options => {
-  options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
-  options.bind<ContextsStatesDispatcher>(ContextsStatesDispatcher).toSelf().inSingletonScope();
-  options.bind<SystemApiImpl>(SystemApiImpl).toSelf().inSingletonScope();
+const ingressesRoutesModule = new ContainerModule(options => {
+  options.bind<IngressRouteHelper>(IngressRouteHelper).toSelf().inSingletonScope();
 });
 
-export { managersModule };
+export { ingressesRoutesModule };
