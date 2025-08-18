@@ -21,15 +21,15 @@ import type { V1ManagedFieldsEntry } from '@kubernetes/client-node';
 export type V1Route = {
   apiVersion?: string;
   kind?: string;
-  metadata: {
-    name: string;
-    namespace: string;
+  metadata?: {
+    name?: string;
+    namespace?: string;
     annotations?: { [key: string]: string };
     labels?: { [key: string]: string };
     managedFields?: Array<V1ManagedFieldsEntry>;
     creationTimestamp?: Date;
   };
-  spec: {
+  spec?: {
     host: string;
     port?: {
       targetPort: string;

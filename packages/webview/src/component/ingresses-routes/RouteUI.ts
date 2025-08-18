@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2023-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
+import type { KubernetesNamespacedObjectUI } from '/@/component/objects/KubernetesObjectUI';
 
-import { ContextsManager } from './contexts-manager';
-import { ContextsStatesDispatcher } from './contexts-states-dispatcher';
-import { SystemApiImpl } from './system-api';
+export interface RouteToReference {
+  kind: string;
+  name: string;
+}
 
-const managersModule = new ContainerModule(options => {
-  options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
-  options.bind<ContextsStatesDispatcher>(ContextsStatesDispatcher).toSelf().inSingletonScope();
-  options.bind<SystemApiImpl>(SystemApiImpl).toSelf().inSingletonScope();
-});
-
-export { managersModule };
+export interface RouteUI extends KubernetesNamespacedObjectUI {
+  host: string;
+  port?: string;
+  path?: string;
+  to: RouteToReference;
+  tlsEnabled: boolean;
+  created?: Date;
+}

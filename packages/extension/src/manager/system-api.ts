@@ -16,16 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
+import { injectable } from 'inversify';
+import type { SystemApi } from '/@common/interface/system-api';
+import * as podmanDesktopApi from '@podman-desktop/api';
 
-import { ContextsManager } from './contexts-manager';
-import { ContextsStatesDispatcher } from './contexts-states-dispatcher';
-import { SystemApiImpl } from './system-api';
-
-const managersModule = new ContainerModule(options => {
-  options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
-  options.bind<ContextsStatesDispatcher>(ContextsStatesDispatcher).toSelf().inSingletonScope();
-  options.bind<SystemApiImpl>(SystemApiImpl).toSelf().inSingletonScope();
-});
-
-export { managersModule };
+@injectable()
+export class SystemApiImpl implements SystemApi {
+  async openExternal(uri: string): Promise<void> {
+    await podmanDesktopApi.env.openExternal(podmanDesktopApi.Uri.parse(uri));
+  }
+}
