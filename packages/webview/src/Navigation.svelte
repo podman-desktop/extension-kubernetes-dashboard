@@ -65,5 +65,10 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
       title="Jobs"
       selected={meta.url === navigator.kubernetesResourcesURL('Job')}
       href={navigator.kubernetesResourcesURL('Job')} />
+
+    <SettingsNavItem
+      title="CronJobs"
+      selected={meta.url === navigator.kubernetesResourcesURL('CronJob')}
+      href={navigator.kubernetesResourcesURL('CronJob')} />
   </div>
 </nav>

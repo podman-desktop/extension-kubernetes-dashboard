@@ -14,6 +14,7 @@ import ServicesList from './component/services/ServicesList.svelte';
 import IngressesRoutesList from './component/ingresses-routes/IngressesRoutesList.svelte';
 import PVCsList from './component/pvcs/PVCsList.svelte';
 import JobsList from './component/jobs/JobsList.svelte';
+import CronjobsList from './component/cronjobs/CronjobsList.svelte';
 
 let isMounted = false;
 </script>
@@ -74,6 +75,10 @@ let isMounted = false;
 
         <Route path="/jobs">
           <JobsList />
+        </Route>
+
+        <Route path="/cronjobs">
+          <CronjobsList />
         </Route>
       </div>
     </div>
