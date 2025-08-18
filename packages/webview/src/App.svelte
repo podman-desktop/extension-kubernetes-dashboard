@@ -12,6 +12,7 @@ import SecretDetails from './component/configmaps-secrets/SecretDetails.svelte';
 import DeploymentList from './component/deployments/DeploymentList.svelte';
 import ServicesList from './component/services/ServicesList.svelte';
 import IngressesRoutesList from './component/ingresses-routes/IngressesRoutesList.svelte';
+import PVCsList from './component/pvcs/PVCsList.svelte';
 
 let isMounted = false;
 </script>
@@ -52,6 +53,10 @@ let isMounted = false;
 
         <Route path="/ingressesRoutes">
           <IngressesRoutesList />
+        </Route>
+
+        <Route path="/persistentvolumeclaims">
+          <PVCsList />
         </Route>
 
         <Route path="/configmapsSecrets">
