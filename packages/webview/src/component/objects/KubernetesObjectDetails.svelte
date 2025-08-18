@@ -16,6 +16,7 @@ import KubernetesIcon from '/@/component/icons/KubernetesIcon.svelte';
 import { icon } from '/@/component/icons/icon';
 import type { EventUI } from '/@/component/objects/EventUI';
 import StateChange from '/@/component/objects/StateChange.svelte';
+import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 
 interface Props<T extends KubernetesObject, U extends KubernetesObjectUI> {
   typed: T;
@@ -46,6 +47,7 @@ let detailsPage: DetailsPage | undefined = $state(undefined);
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const navigator = dependencyAccessor.get(Navigator);
+const objectHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
 
 const resourceDetails = getContext<States>(States).stateResourceDetailsInfoUI;
 const resourceEvents = getContext<States>(States).stateResourceEventsInfoUI;
@@ -62,6 +64,7 @@ const events = $derived(
     ? filterEvents(resourceEvents.data.events, object.metadata.uid)
     : [],
 );
+const subtitle = $derived(objectUI && objectHelper.isNamespaced(objectUI) ? objectUI.namespace : undefined);
 
 let eventsSubscribed = false;
 $effect(() => {
@@ -127,6 +130,7 @@ function navigateToList(): void {
 {#if objectUI && object}
   <DetailsPage
     title={objectUI.name}
+    subtitle={subtitle}
     bind:this={detailsPage}
     breadcrumbLeftPart={listName}
     breadcrumbRightPart="Details"
