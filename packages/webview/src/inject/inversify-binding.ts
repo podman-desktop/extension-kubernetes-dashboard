@@ -32,6 +32,7 @@ import { namespacesModule } from '../component/namespaces/_namespaces-module';
 import { configmapsSecretsModule } from '/@/component/configmaps-secrets/_configmaps-secrets-module';
 import { servicesModule } from '../component/services/_services-module';
 import { ingressesRoutesModule } from '../component/ingresses-routes/_ingresses-routes-module';
+import { pvcsModule } from '../component/pvcs/_pvcs-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -58,6 +59,7 @@ export class InversifyBinding {
     await this.#container.load(configmapsSecretsModule);
     await this.#container.load(servicesModule);
     await this.#container.load(ingressesRoutesModule);
+    await this.#container.load(pvcsModule);
 
     return this.#container;
   }
