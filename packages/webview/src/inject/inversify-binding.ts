@@ -36,6 +36,7 @@ import { ingressesRoutesModule } from '../component/ingresses-routes/_ingresses-
 import { pvcsModule } from '../component/pvcs/_pvcs-module';
 import { jobsModule } from '../component/jobs/_jobs-module';
 import { cronjobsModule } from '../component/cronjobs/_cronjobs-module';
+import { podsModule } from '../component/pods/_pods-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -66,6 +67,7 @@ export class InversifyBinding {
     await this.#container.load(pvcsModule);
     await this.#container.load(jobsModule);
     await this.#container.load(cronjobsModule);
+    await this.#container.load(podsModule);
 
     return this.#container;
   }

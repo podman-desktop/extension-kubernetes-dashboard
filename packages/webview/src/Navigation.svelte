@@ -42,6 +42,11 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
       href={navigator.kubernetesResourcesURL('Deployment')} />
 
     <SettingsNavItem
+      title="Pods"
+      selected={meta.url === navigator.kubernetesResourcesURL('Pod')}
+      href={navigator.kubernetesResourcesURL('Pod')} />
+
+    <SettingsNavItem
       title="Services"
       selected={meta.url === navigator.kubernetesResourcesURL('Service')}
       href={navigator.kubernetesResourcesURL('Service')} />
