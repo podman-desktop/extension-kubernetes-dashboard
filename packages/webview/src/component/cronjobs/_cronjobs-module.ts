@@ -17,10 +17,10 @@
  ***********************************************************************/
 
 import { ContainerModule } from 'inversify';
-import { CronjobHelper } from './cronjob-helper';
+import { CronJobHelper } from './cronjob-helper';
 
 const cronjobsModule = new ContainerModule(options => {
-  options.bind<CronjobHelper>(CronjobHelper).toSelf().inSingletonScope();
+  options.bind<CronJobHelper>(CronJobHelper).toSelf().inSingletonScope();
 });
 
 export { cronjobsModule };

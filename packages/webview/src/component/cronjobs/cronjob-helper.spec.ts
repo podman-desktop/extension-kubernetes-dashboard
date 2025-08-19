@@ -18,13 +18,13 @@
 
 import type { V1CronJob } from '@kubernetes/client-node';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { CronjobHelper } from './cronjob-helper';
+import { CronJobHelper } from './cronjob-helper';
 
-let cronjobHelper: CronjobHelper;
+let cronjobHelper: CronJobHelper;
 
 beforeEach(() => {
   vi.clearAllMocks();
-  cronjobHelper = new CronjobHelper();
+  cronjobHelper = new CronJobHelper();
 });
 
 test('expect basic UI conversion', async () => {

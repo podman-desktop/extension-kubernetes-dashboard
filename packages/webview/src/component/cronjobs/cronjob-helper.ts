@@ -19,7 +19,7 @@
 import type { V1CronJob } from '@kubernetes/client-node';
 import type { CronJobUI } from './CronJobUI';
 
-export class CronjobHelper {
+export class CronJobHelper {
   getCronJobUI(cronjob: V1CronJob): CronJobUI {
     return {
       kind: 'CronJob',

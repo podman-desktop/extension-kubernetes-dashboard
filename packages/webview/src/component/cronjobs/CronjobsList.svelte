@@ -8,13 +8,13 @@ import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
 import ActionsColumn from '/@/component/cronjobs/columns/Actions.svelte';
-import { CronjobHelper } from './cronjob-helper';
+import { CronJobHelper } from './cronjob-helper';
 import type { CronJobUI } from './CronJobUI';
 import CronJobIcon from '../icons/CronJobIcon.svelte';
 import { KubernetesObjectUIHelper } from '../objects/kubernetes-object-ui-helper';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
-const cronjobHelper = dependencyAccessor.get<CronjobHelper>(CronjobHelper);
+const cronjobHelper = dependencyAccessor.get<CronJobHelper>(CronJobHelper);
 const kubernetesObjectUIHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
 
 let statusColumn = new TableColumn<CronJobUI>('Status', {
