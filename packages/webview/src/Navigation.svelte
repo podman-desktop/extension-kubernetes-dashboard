@@ -60,5 +60,10 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
       title="ConfigMaps and Secrets"
       selected={meta.url === navigator.kubernetesResourcesURL('ConfigMap')}
       href={navigator.kubernetesResourcesURL('ConfigMap')} />
+
+    <SettingsNavItem
+      title="Jobs"
+      selected={meta.url === navigator.kubernetesResourcesURL('Job')}
+      href={navigator.kubernetesResourcesURL('Job')} />
   </div>
 </nav>

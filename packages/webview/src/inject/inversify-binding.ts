@@ -34,6 +34,7 @@ import { deploymentsModule } from '../component/deployments/deployments-module';
 import { servicesModule } from '../component/services/_services-module';
 import { ingressesRoutesModule } from '../component/ingresses-routes/_ingresses-routes-module';
 import { pvcsModule } from '../component/pvcs/_pvcs-module';
+import { jobsModule } from '../component/jobs/_jobs-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -62,6 +63,7 @@ export class InversifyBinding {
     await this.#container.load(servicesModule);
     await this.#container.load(ingressesRoutesModule);
     await this.#container.load(pvcsModule);
+    await this.#container.load(jobsModule);
 
     return this.#container;
   }

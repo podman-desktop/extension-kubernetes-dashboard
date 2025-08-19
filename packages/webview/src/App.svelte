@@ -13,6 +13,7 @@ import DeploymentList from './component/deployments/DeploymentList.svelte';
 import ServicesList from './component/services/ServicesList.svelte';
 import IngressesRoutesList from './component/ingresses-routes/IngressesRoutesList.svelte';
 import PVCsList from './component/pvcs/PVCsList.svelte';
+import JobsList from './component/jobs/JobsList.svelte';
 
 let isMounted = false;
 </script>
@@ -69,6 +70,10 @@ let isMounted = false;
 
         <Route path="/configmapsSecrets/secret/:name/:namespace/*" let:meta>
           <SecretDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+        </Route>
+
+        <Route path="/jobs">
+          <JobsList />
         </Route>
       </div>
     </div>
