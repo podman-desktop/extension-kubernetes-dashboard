@@ -13,7 +13,7 @@ import DeploymentList from './component/deployments/DeploymentList.svelte';
 import ServicesList from './component/services/ServicesList.svelte';
 import IngressesRoutesList from './component/ingresses-routes/IngressesRoutesList.svelte';
 import PVCsList from './component/pvcs/PVCsList.svelte';
-import JobList from './component/jobs/JobList.svelte';
+import JobsList from './component/jobs/JobsList.svelte';
 
 let isMounted = false;
 </script>
@@ -73,7 +73,7 @@ let isMounted = false;
         </Route>
 
         <Route path="/jobs">
-          <JobList />
+          <JobsList />
         </Route>
       </div>
     </div>
