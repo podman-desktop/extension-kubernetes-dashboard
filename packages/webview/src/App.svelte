@@ -15,6 +15,7 @@ import IngressesRoutesList from './component/ingresses-routes/IngressesRoutesLis
 import PVCsList from './component/pvcs/PVCsList.svelte';
 import JobsList from './component/jobs/JobsList.svelte';
 import CronJobsList from './component/cronjobs/CronJobsList.svelte';
+import PodsList from './component/pods/PodsList.svelte';
 
 let isMounted = false;
 </script>
@@ -47,6 +48,10 @@ let isMounted = false;
 
         <Route path="/deployments">
           <DeploymentList />
+        </Route>
+
+        <Route path="/pods">
+          <PodsList />
         </Route>
 
         <Route path="/services">
