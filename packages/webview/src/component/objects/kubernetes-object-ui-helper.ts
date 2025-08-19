@@ -50,4 +50,9 @@ export class KubernetesObjectUIHelper {
       return [];
     }
   }
+
+  // Capitalize the first letter of a string
+  public capitalize(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
 }
