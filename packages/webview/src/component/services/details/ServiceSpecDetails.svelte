@@ -1,0 +1,53 @@
+<script lang="ts">
+import type { V1ServiceSpec } from '@kubernetes/client-node';
+
+import Cell from '/@/component/details/Cell.svelte';
+import Title from '/@/component/details/Title.svelte';
+
+interface Props {
+  spec: V1ServiceSpec;
+  serviceName?: string;
+  namespace?: string;
+}
+let { spec: spec, serviceName, namespace }: Props = $props();
+</script>
+
+{#if spec}
+  <tr>
+    <Title>Details</Title>
+  </tr>
+  <tr>
+    <Cell>Type</Cell>
+    <Cell>{spec?.type}</Cell>
+  </tr>
+  <tr>
+    <Cell>Cluster IP</Cell>
+    <Cell>{spec?.clusterIP}</Cell>
+  </tr>
+  {#if spec?.externalIPs}
+    <tr>
+      <Cell>External IPs</Cell>
+      <Cell>{spec?.externalIPs?.join(', ') || ''}</Cell>
+    </tr>
+  {/if}
+  <tr>
+    <Cell>Session Affinity</Cell>
+    <Cell>{spec?.sessionAffinity}</Cell>
+  </tr>
+  <!--KubePorts namespace={namespace} resourceName={serviceName} kind={WorkloadKind.SERVICE} ports={artifact.ports?.map((port) => ({
+    name: port.name,
+    value: port.port,
+    protocol: port.protocol,
+    displayValue: `${port.name ? port.name + ':' : ''}${port.port}${port.nodePort ? ':' + port.nodePort : ''}/${port.protocol}`,
+  }))}/-->
+  {#if spec.selector}
+    <tr>
+      <Cell>Selectors</Cell>
+      <Cell>
+        {#each Object.entries(spec.selector) as [key, value] (key)}
+          <div>{key}: {value}</div>
+        {/each}
+      </Cell>
+    </tr>
+  {/if}
+{/if}
