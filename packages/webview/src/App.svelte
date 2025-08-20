@@ -16,6 +16,7 @@ import PVCsList from './component/pvcs/PVCsList.svelte';
 import JobsList from './component/jobs/JobsList.svelte';
 import CronJobsList from './component/cronjobs/CronJobsList.svelte';
 import PodsList from './component/pods/PodsList.svelte';
+import DeploymentDetails from './component/deployments/DeploymentDetails.svelte';
 
 let isMounted = false;
 </script>
@@ -48,6 +49,10 @@ let isMounted = false;
 
         <Route path="/deployments">
           <DeploymentList />
+        </Route>
+
+        <Route path="/deployments/:name/:namespace/*" let:meta>
+          <DeploymentDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
 
         <Route path="/pods">
