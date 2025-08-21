@@ -18,6 +18,8 @@ import CronJobsList from './component/cronjobs/CronJobsList.svelte';
 import PodsList from './component/pods/PodsList.svelte';
 import DeploymentDetails from './component/deployments/DeploymentDetails.svelte';
 import ServiceDetails from './component/services/ServiceDetails.svelte';
+import IngressDetails from './component/ingresses-routes/IngressDetails.svelte';
+import RouteDetails from './component/ingresses-routes/RouteDetails.svelte';
 
 let isMounted = false;
 </script>
@@ -70,6 +72,14 @@ let isMounted = false;
 
         <Route path="/ingressesRoutes">
           <IngressesRoutesList />
+        </Route>
+
+        <Route path="/ingressesRoutes/ingress/:name/:namespace/*" let:meta>
+          <IngressDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+        </Route>
+
+        <Route path="/ingressesRoutes/route/:name/:namespace/*" let:meta>
+          <RouteDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
 
         <Route path="/persistentvolumeclaims">
