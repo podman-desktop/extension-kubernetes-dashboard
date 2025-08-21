@@ -29,21 +29,23 @@ export type V1Route = {
     managedFields?: Array<V1ManagedFieldsEntry>;
     creationTimestamp?: Date;
   };
-  spec?: {
-    host: string;
-    port?: {
-      targetPort: string;
-    };
-    path?: string;
-    tls: {
-      insecureEdgeTerminationPolicy: string;
-      termination: string;
-    };
-    to: {
-      kind: string;
-      name: string;
-      weight: number;
-    };
-    wildcardPolicy: string;
+  spec?: V1RouteSpec;
+};
+
+export type V1RouteSpec = {
+  host: string;
+  port?: {
+    targetPort: string;
   };
+  path?: string;
+  tls: {
+    insecureEdgeTerminationPolicy: string;
+    termination: string;
+  };
+  to: {
+    kind: string;
+    name: string;
+    weight: number;
+  };
+  wildcardPolicy: string;
 };
