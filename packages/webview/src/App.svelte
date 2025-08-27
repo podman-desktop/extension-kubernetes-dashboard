@@ -22,6 +22,7 @@ import IngressDetails from './component/ingresses-routes/IngressDetails.svelte';
 import RouteDetails from './component/ingresses-routes/RouteDetails.svelte';
 import PVCDetails from './component/pvcs/PVCDetails.svelte';
 import JobDetails from './component/jobs/JobDetails.svelte';
+import CronJobDetails from './component/cronjobs/CronJobDetails.svelte';
 
 let isMounted = false;
 </script>
@@ -114,6 +115,10 @@ let isMounted = false;
 
         <Route path="/cronjobs">
           <CronJobsList />
+        </Route>
+
+        <Route path="/cronjobs/:name/:namespace/*" let:meta>
+          <CronJobDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
       </div>
     </div>
