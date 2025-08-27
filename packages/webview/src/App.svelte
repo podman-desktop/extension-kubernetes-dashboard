@@ -21,6 +21,7 @@ import ServiceDetails from './component/services/ServiceDetails.svelte';
 import IngressDetails from './component/ingresses-routes/IngressDetails.svelte';
 import RouteDetails from './component/ingresses-routes/RouteDetails.svelte';
 import PVCDetails from './component/pvcs/PVCDetails.svelte';
+import JobDetails from './component/jobs/JobDetails.svelte';
 
 let isMounted = false;
 </script>
@@ -105,6 +106,10 @@ let isMounted = false;
 
         <Route path="/jobs">
           <JobsList />
+        </Route>
+
+        <Route path="/jobs/:name/:namespace/*" let:meta>
+          <JobDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
 
         <Route path="/cronjobs">
