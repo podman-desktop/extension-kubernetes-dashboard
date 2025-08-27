@@ -23,6 +23,7 @@ import RouteDetails from './component/ingresses-routes/RouteDetails.svelte';
 import PVCDetails from './component/pvcs/PVCDetails.svelte';
 import JobDetails from './component/jobs/JobDetails.svelte';
 import CronJobDetails from './component/cronjobs/CronJobDetails.svelte';
+import PodDetails from './component/pods/PodDetails.svelte';
 
 let isMounted = false;
 </script>
@@ -63,6 +64,10 @@ let isMounted = false;
 
         <Route path="/pods">
           <PodsList />
+        </Route>
+
+        <Route path="/pods/:name/:namespace/*" let:meta>
+          <PodDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
 
         <Route path="/services">
