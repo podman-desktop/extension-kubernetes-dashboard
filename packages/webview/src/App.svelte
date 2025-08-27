@@ -20,6 +20,7 @@ import DeploymentDetails from './component/deployments/DeploymentDetails.svelte'
 import ServiceDetails from './component/services/ServiceDetails.svelte';
 import IngressDetails from './component/ingresses-routes/IngressDetails.svelte';
 import RouteDetails from './component/ingresses-routes/RouteDetails.svelte';
+import PVCDetails from './component/pvcs/PVCDetails.svelte';
 
 let isMounted = false;
 </script>
@@ -84,6 +85,10 @@ let isMounted = false;
 
         <Route path="/persistentvolumeclaims">
           <PVCsList />
+        </Route>
+
+        <Route path="/persistentvolumeclaims/:name/:namespace/*" let:meta>
+          <PVCDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
         </Route>
 
         <Route path="/configmapsSecrets">
