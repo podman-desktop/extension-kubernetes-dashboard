@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,59 +18,40 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { V1IngressSpec } from '@kubernetes/client-node';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import IngressSpecDetails from './IngressSpecDetails.svelte';
+import CopyToClipboard from './CopyToClipboard.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_SYSTEM } from '/@common/channels';
 import type { SystemApi } from '/@common/interface/system-api';
-
-const fakeIngressSpec: V1IngressSpec = {
-  rules: [
-    {
-      host: 'example.com',
-      http: {
-        paths: [
-          {
-            path: '/api',
-            pathType: 'Prefix',
-            backend: {
-              service: {
-                name: 'api-service',
-                port: {
-                  number: 8080,
-                },
-              },
-            },
-          },
-        ],
-      },
-    },
-  ],
-  tls: [
-    {
-      hosts: ['example.com'],
-      secretName: 'example-tls',
-    },
-  ],
-};
 
 const remoteMocks = new RemoteMocks();
 
 beforeEach(() => {
   vi.resetAllMocks();
+
   remoteMocks.reset();
   remoteMocks.mock(API_SYSTEM, {
-    openExternal: vi.fn(),
+    clipboardWriteText: vi.fn(),
   } as unknown as SystemApi);
 });
 
-test('Ingress artifact renders with correct values', async () => {
-  render(IngressSpecDetails, { spec: fakeIngressSpec });
+test('Expect text to be copied to clipboard', async () => {
+  const textToCopy = 'Podman Text';
+  const title = 'Podman';
 
-  expect(screen.getByText(/Path: \/api/)).toBeInTheDocument();
-  expect(screen.getByText(/https:\/\/example\.com\/api/)).toBeInTheDocument();
-  expect(screen.getByText(/api-service:8080/)).toBeInTheDocument();
+  render(CopyToClipboard, { clipboardData: textToCopy, title });
+
+  const componentText = screen.getByTitle(title);
+  expect(componentText).toBeInTheDocument();
+
+  const button = screen.getByRole('button', { name: 'Copy To Clipboard' });
+
+  expect(button).toBeInTheDocument();
+  expect(button).toBeEnabled();
+
+  await fireEvent.click(button);
+
+  expect(remoteMocks.get(API_SYSTEM).clipboardWriteText).toHaveBeenCalledWith(textToCopy);
 });

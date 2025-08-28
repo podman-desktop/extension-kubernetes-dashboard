@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2024 Red Hat, Inc.
+ * Copyright (C) 2023-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import '@testing-library/jest-dom/vitest';
 
 import type { V1PodSpec } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 
-import KubePodSpecArtifact from './PodSpecDetails.svelte'; // Ensure this path matches your file structure
+import PodSpecDetails from './PodSpecDetails.svelte';
 
 const fakePodSpec: V1PodSpec = {
   nodeName: 'node-01',
@@ -53,8 +53,10 @@ const fakePodSpec: V1PodSpec = {
   ],
 };
 
+vi.mock(import('/@/component/port-forward/KubePortsList.svelte'));
+
 test('Renders pod spec correctly', () => {
-  render(KubePodSpecArtifact, { spec: fakePodSpec });
+  render(PodSpecDetails, { spec: fakePodSpec });
 
   // Static details
   expect(screen.getByText('Details')).toBeInTheDocument();

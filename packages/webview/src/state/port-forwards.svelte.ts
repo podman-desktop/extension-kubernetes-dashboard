@@ -16,18 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
+import { inject, injectable } from 'inversify';
 
-import { ContextsManager } from './contexts-manager';
-import { ContextsStatesDispatcher } from './contexts-states-dispatcher';
-import { SystemApiImpl } from './system-api';
-import { PortForwardApiImpl } from './port-forward-api-impl';
+import { PORT_FORWARDS } from '/@common/channels';
+import { RpcBrowser } from '/@common/rpc/rpc';
 
-const managersModule = new ContainerModule(options => {
-  options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
-  options.bind<ContextsStatesDispatcher>(ContextsStatesDispatcher).toSelf().inSingletonScope();
-  options.bind<SystemApiImpl>(SystemApiImpl).toSelf().inSingletonScope();
-  options.bind<PortForwardApiImpl>(PortForwardApiImpl).toSelf().inSingletonScope();
-});
+import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
+import type { PortForwardsInfo } from '/@common/model/port-forward-info';
 
-export { managersModule };
+// Define a state for the PortForwardsInfo
+@injectable()
+export class StatePortForwardsInfo
+  extends AbsStateObjectImpl<PortForwardsInfo, void>
+  implements StateObject<PortForwardsInfo, void>
+{
+  constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
+    super(rpcBrowser);
+  }
+
+  async init(): Promise<void> {
+    await this.initChannel(PORT_FORWARDS);
+  }
+}

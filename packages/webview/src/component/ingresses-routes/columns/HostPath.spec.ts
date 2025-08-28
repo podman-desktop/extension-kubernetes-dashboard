@@ -28,6 +28,7 @@ import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { IngressRouteHelper } from '../ingress-route-helper';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_SYSTEM } from '/@common/channels';
+import type { SystemApi } from '/@common/interface/system-api';
 
 const dependencyMocks = new DependencyMocks();
 const remoteMocks = new RemoteMocks();
@@ -40,7 +41,7 @@ beforeEach(() => {
   remoteMocks.reset();
   remoteMocks.mock(API_SYSTEM, {
     openExternal: vi.fn(),
-  });
+  } as unknown as SystemApi);
 });
 
 test('Expect simple column styling with single host/path ingress', async () => {

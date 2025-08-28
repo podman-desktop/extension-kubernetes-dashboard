@@ -25,6 +25,7 @@ import { StateContextsPermissionsInfo } from './contexts-permissions.svelte';
 import { StateContextsHealthsInfo } from './contexts-healths.svelte';
 import { StateResourceDetailsInfo } from './resource-details.svelte';
 import { StateResourceEventsInfo } from './resource-events.svelte';
+import { StatePortForwardsInfo } from './port-forwards.svelte';
 
 @injectable()
 export class States {
@@ -82,5 +83,12 @@ export class States {
 
   get stateResourceEventsInfoUI(): StateResourceEventsInfo {
     return this._stateResourceEventsInfoUI;
+  }
+
+  @inject(StatePortForwardsInfo)
+  private _statePortForwardsInfoUI: StatePortForwardsInfo;
+
+  get statePortForwardsInfoUI(): StatePortForwardsInfo {
+    return this._statePortForwardsInfoUI;
   }
 }

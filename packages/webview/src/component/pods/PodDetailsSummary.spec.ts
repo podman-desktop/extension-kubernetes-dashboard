@@ -35,7 +35,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import PodDetailsSummary from './PodDetailsSummary.svelte';
 import * as eventsTable from '/@/component/objects/details/EventsTable.svelte';
 
-vi.mock('/@/stores/kubernetes-contexts-state');
+vi.mock(import('/@/component/port-forward/KubePortsList.svelte'));
 
 const fakePod: V1Pod = {
   apiVersion: 'v1',
