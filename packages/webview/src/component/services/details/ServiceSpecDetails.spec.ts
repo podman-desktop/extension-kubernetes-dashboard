@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import KubeServiceSpecArtifact from './ServiceSpecDetails.svelte';
+import ServiceSpecDetails from './ServiceSpecDetails.svelte';
 
 const fakeServiceSpec = {
   type: 'ClusterIP',
@@ -39,12 +39,14 @@ const fakeServiceSpec = {
   },
 };
 
+vi.mock(import('/@/component/port-forward/KubePortsList.svelte'));
+
 beforeEach(() => {
   vi.resetAllMocks();
 });
 
 test('Renders service spec correctly', () => {
-  render(KubeServiceSpecArtifact, { spec: fakeServiceSpec });
+  render(ServiceSpecDetails, { spec: fakeServiceSpec });
 
   // Verify static details
   expect(screen.getByText('Details')).toBeInTheDocument();
@@ -56,12 +58,6 @@ test('Renders service spec correctly', () => {
   expect(screen.getByText('192.168.1.1, 192.168.1.2')).toBeInTheDocument();
   expect(screen.getByText('Session Affinity')).toBeInTheDocument();
   expect(screen.getByText('None')).toBeInTheDocument();
-
-  // Verify ports are displayed correctly
-  //  expect(screen.getByText('Ports')).toBeInTheDocument();
-  //  expect(screen.getByText('http:80/TCP')).toBeInTheDocument();
-  //  expect(screen.getByText('http2:80:12345/TCP')).toBeInTheDocument();
-  //  expect(screen.getByText('443/TCP')).toBeInTheDocument();
 
   // Verify selectors are displayed correctly
   expect(screen.getByText('Selectors')).toBeInTheDocument();

@@ -17,12 +17,14 @@
  ***********************************************************************/
 
 import type { ContextsApi } from './interface/contexts-api';
+import type { PortForwardApi } from './interface/port-forward-api';
 import type { SubscribeApi } from './interface/subscribe-api';
 import type { SystemApi } from './interface/system-api';
 import type { ActiveResourcesCountInfo } from './model/active-resources-count-info';
 import type { ContextsHealthsInfo } from './model/contexts-healths-info';
 import type { ContextsPermissionsInfo } from './model/contexts-permissions-info';
 import type { CurrentContextInfo } from './model/current-context-info';
+import type { PortForwardsInfo } from './model/port-forward-info';
 import type { ResourceDetailsInfo } from './model/resource-details-info';
 import type { ResourceEventsInfo } from './model/resource-events-info';
 import type { ResourcesCountInfo } from './model/resources-count-info';
@@ -34,6 +36,7 @@ import { createRpcChannel } from './rpc';
 export const API_CONTEXTS = createRpcChannel<ContextsApi>('ContextsApi');
 export const API_SUBSCRIBE = createRpcChannel<SubscribeApi>('SubscribeApi');
 export const API_SYSTEM = createRpcChannel<SystemApi>('SystemApi');
+export const API_PORT_FORWARD = createRpcChannel<PortForwardApi>('PortForwardApi');
 
 // Broadcast events (sent by extension and received by the webview)
 export const RESOURCES_COUNT = createRpcChannel<ResourcesCountInfo>('ResourcesCount');
@@ -44,3 +47,4 @@ export const UPDATE_RESOURCE = createRpcChannel<UpdateResourceInfo>('UpdateResou
 export const CURRENT_CONTEXT = createRpcChannel<CurrentContextInfo>('CurrentContext');
 export const RESOURCE_DETAILS = createRpcChannel<ResourceDetailsInfo>('ResourceDetailsInfo');
 export const RESOURCE_EVENTS = createRpcChannel<ResourceEventsInfo>('ResourceEvents');
+export const PORT_FORWARDS = createRpcChannel<PortForwardsInfo>('PortForwards');

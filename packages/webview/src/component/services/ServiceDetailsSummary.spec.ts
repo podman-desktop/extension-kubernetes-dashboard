@@ -46,6 +46,8 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
+vi.mock(import('/@/component/port-forward/KubePortsList.svelte'));
+
 test('Expect basic rendering', async () => {
   render(ServiceDetailsSummary, { props: { object: service, events: [] } });
 

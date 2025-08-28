@@ -20,4 +20,6 @@ export const SystemApi = Symbol.for('SystemApi');
 
 export interface SystemApi {
   openExternal(uri: string): Promise<boolean>;
+  clipboardWriteText(text: string): Promise<void>;
+  getFreePort(startPort: number): Promise<number>;
 }

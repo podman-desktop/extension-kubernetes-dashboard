@@ -5,7 +5,7 @@ import Title from '/@/component/details/Title.svelte';
 import Cell from '/@/component/details/Cell.svelte';
 import Subtitle from '/@/component/details/Subtitle.svelte';
 import ContainerDetails from './ContainerDetails.svelte';
-import { WorkloadKind } from './workload-kind';
+import { WorkloadKind } from '/@common/model/port-forward';
 
 interface Props {
   spec: V1DeploymentSpec;
@@ -46,6 +46,6 @@ let { spec, name, namespace }: Props = $props();
     <tr>
       <Subtitle>{container.name}</Subtitle>
     </tr>
-    <ContainerDetails kind={WorkloadKind.DEPLOYMENT} namespace={namespace} resourceName={name} artifact={container} />
+    <ContainerDetails kind={WorkloadKind.DEPLOYMENT} namespace={namespace} resourceName={name} container={container} />
   {/each}
 {/if}

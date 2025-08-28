@@ -23,9 +23,7 @@ import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubeContainerArtifact from './ContainerDetails.svelte';
-import { WorkloadKind } from './workload-kind';
-
-vi.mock('/@/stores/kubernetes-contexts-state', async () => ({}));
+import { WorkloadKind } from '/@common/model/port-forward';
 
 const fakeContainer: V1Container = {
   name: 'fakeContainerName',
@@ -45,12 +43,14 @@ const fakeContainer: V1Container = {
   ],
 };
 
+vi.mock(import('/@/component/port-forward/KubePortsList.svelte'));
+
 beforeEach(() => {
   vi.resetAllMocks();
 });
 
 test('Container artifact renders with correct values', async () => {
-  render(KubeContainerArtifact, { kind: WorkloadKind.POD, artifact: fakeContainer });
+  render(KubeContainerArtifact, { kind: WorkloadKind.POD, container: fakeContainer });
 
   // Check if basic container info is displayed
   expect(screen.getByText('Name')).toBeInTheDocument();

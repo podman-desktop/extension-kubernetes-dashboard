@@ -16,18 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
+import type { ForwardConfig, ForwardOptions } from '../model/port-forward';
 
-import { ContextsManager } from './contexts-manager';
-import { ContextsStatesDispatcher } from './contexts-states-dispatcher';
-import { SystemApiImpl } from './system-api';
-import { PortForwardApiImpl } from './port-forward-api-impl';
+export const PortForwardApi = Symbol.for('PortForwardApi');
 
-const managersModule = new ContainerModule(options => {
-  options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
-  options.bind<ContextsStatesDispatcher>(ContextsStatesDispatcher).toSelf().inSingletonScope();
-  options.bind<SystemApiImpl>(SystemApiImpl).toSelf().inSingletonScope();
-  options.bind<PortForwardApiImpl>(PortForwardApiImpl).toSelf().inSingletonScope();
-});
-
-export { managersModule };
+export interface PortForwardApi {
+  createPortForward(config: ForwardOptions): Promise<void>;
+  deletePortForward(config: ForwardConfig): Promise<void>;
+}

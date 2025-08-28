@@ -35,8 +35,6 @@ const firstNS = 'ns1';
 const secondNS = 'ns2';
 const thirdNS = 'ns3';
 
-vi.mock('/@/stores/kubernetes-contexts-state');
-
 const statesMocks = new StatesMocks();
 const remoteMocks = new RemoteMocks();
 

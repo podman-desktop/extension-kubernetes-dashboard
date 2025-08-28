@@ -5,9 +5,9 @@ import Cell from '/@/component/details/Cell.svelte';
 import Subtitle from '/@/component/details/Subtitle.svelte';
 import Title from '/@/component/details/Title.svelte';
 
-import { WorkloadKind } from '/@/component/deployments/details/workload-kind';
 import ContainerDetails from '/@/component/deployments/details/ContainerDetails.svelte';
 import VolumeDetails from './VolumeDetails.svelte';
+import { WorkloadKind } from '/@common/model/port-forward';
 
 interface Props {
   spec: V1PodSpec;
@@ -46,7 +46,7 @@ let { spec: spec, podName, namespace }: Props = $props();
       <tr>
         <Subtitle>{container.name}</Subtitle>
       </tr>
-      <ContainerDetails kind={WorkloadKind.POD} namespace={namespace} resourceName={podName} artifact={container} />
+      <ContainerDetails kind={WorkloadKind.POD} namespace={namespace} resourceName={podName} container={container} />
     {/each}
   {/if}
 

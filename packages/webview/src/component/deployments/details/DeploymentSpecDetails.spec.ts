@@ -49,6 +49,8 @@ const fakeDeploymentSpec: V1DeploymentSpec = {
   },
 };
 
+vi.mock(import('/@/component/port-forward/KubePortsList.svelte'));
+
 test('DeploymentSpec artifact renders with correct values', async () => {
   render(KubeDeploymentArtifact, { spec: fakeDeploymentSpec });
 
@@ -77,12 +79,12 @@ test('Container compoennt called for each container in the template', async () =
     kind: 'deployment',
     resourceName: 'my-deployment',
     namespace: 'my-ns',
-    artifact: { name: 'container1' },
+    container: { name: 'container1' },
   });
   expect(containerSpy).toHaveBeenCalledWith(expect.anything(), {
     kind: 'deployment',
     resourceName: 'my-deployment',
     namespace: 'my-ns',
-    artifact: { name: 'container2' },
+    container: { name: 'container2' },
   });
 });

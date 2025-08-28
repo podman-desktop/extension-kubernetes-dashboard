@@ -28,8 +28,9 @@ import { KubeConfig } from '@kubernetes/client-node';
 import { ContextsStatesDispatcher } from '/@/manager/contexts-states-dispatcher';
 import { InversifyBinding } from '/@/inject/inversify-binding';
 import type { Container } from 'inversify';
-import { API_CONTEXTS, API_SUBSCRIBE, API_SYSTEM } from '/@common/channels';
+import { API_CONTEXTS, API_PORT_FORWARD, API_SUBSCRIBE, API_SYSTEM } from '/@common/channels';
 import { SystemApiImpl } from './manager/system-api';
+import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -40,6 +41,7 @@ export class DashboardExtension {
   #contextsManager: ContextsManager;
   #contextsStatesDispatcher: ContextsStatesDispatcher;
   #systemApiImpl: SystemApiImpl;
+  #portForwardApiImpl: PortForwardApiImpl;
 
   constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
@@ -62,6 +64,7 @@ export class DashboardExtension {
     this.#contextsManager = await this.#container.getAsync(ContextsManager);
     this.#contextsStatesDispatcher = await this.#container.getAsync(ContextsStatesDispatcher);
     this.#systemApiImpl = await this.#container.getAsync(SystemApiImpl);
+    this.#portForwardApiImpl = await this.#container.getAsync(PortForwardApiImpl);
 
     const afterFirst = performance.now();
 
@@ -70,6 +73,7 @@ export class DashboardExtension {
     rpcExtension.registerInstance(API_SUBSCRIBE, this.#contextsStatesDispatcher);
     rpcExtension.registerInstance(API_CONTEXTS, this.#contextsManager);
     rpcExtension.registerInstance(API_SYSTEM, this.#systemApiImpl);
+    rpcExtension.registerInstance(API_PORT_FORWARD, this.#portForwardApiImpl);
 
     await this.listenMonitoring();
     await this.startMonitoring();

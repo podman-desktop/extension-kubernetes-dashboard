@@ -16,11 +16,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-/**
- * Enumeration representing the kind of Kubernetes workload.
- */
-export enum WorkloadKind {
-  POD = 'pod',
-  DEPLOYMENT = 'deployment',
-  SERVICE = 'service',
+import { injectable } from 'inversify';
+import { PortForwardApi } from '/@common/interface/port-forward-api';
+import { ForwardConfig, ForwardOptions } from '/@common/model/port-forward';
+
+@injectable()
+export class PortForwardApiImpl implements PortForwardApi {
+  // PortForwardAPi interface implementation
+  createPortForward(_config: ForwardOptions): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  deletePortForward(_config: ForwardConfig): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  getPortForwards(): ForwardConfig[] {
+    return [];
+  }
 }

@@ -25,4 +25,12 @@ export class SystemApiImpl implements SystemApi {
   async openExternal(uri: string): Promise<boolean> {
     return podmanDesktopApi.env.openExternal(podmanDesktopApi.Uri.parse(uri));
   }
+
+  async clipboardWriteText(text: string): Promise<void> {
+    return podmanDesktopApi.env.clipboard.writeText(text);
+  }
+
+  async getFreePort(startPort: number): Promise<number> {
+    return podmanDesktopApi.net.getFreePort(startPort);
+  }
 }

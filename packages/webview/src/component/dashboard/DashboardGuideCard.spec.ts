@@ -24,6 +24,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import DashboardGuideCard from './DashboardGuideCard.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_SYSTEM } from '/@common/channels';
+import type { SystemApi } from '/@common/interface/system-api';
 
 const remoteMocks = new RemoteMocks();
 
@@ -33,7 +34,7 @@ beforeEach(() => {
   remoteMocks.reset();
   remoteMocks.mock(API_SYSTEM, {
     openExternal: vi.fn(),
-  });
+  } as unknown as SystemApi);
 });
 
 test('Verify basic card format', async () => {

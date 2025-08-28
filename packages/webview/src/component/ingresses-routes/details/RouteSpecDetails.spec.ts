@@ -24,6 +24,7 @@ import RouteSpecDetails from './RouteSpecDetails.svelte';
 import type { V1RouteSpec } from '/@common/model/openshift-types';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_SYSTEM } from '/@common/channels';
+import type { SystemApi } from '/@common/interface/system-api';
 
 const fakeRouteSpec: V1RouteSpec = {
   host: 'example.com',
@@ -50,7 +51,7 @@ beforeEach(() => {
   remoteMocks.reset();
   remoteMocks.mock(API_SYSTEM, {
     openExternal: vi.fn(),
-  });
+  } as unknown as SystemApi);
 });
 
 test('Renders V1Route details correctly with hardcoded values', () => {
