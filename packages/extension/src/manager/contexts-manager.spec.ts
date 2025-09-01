@@ -1434,7 +1434,6 @@ test('deleteObject handler throws a non-ApiException', async () => {
   expect(manager.handleStatus).not.toHaveBeenCalled();
 });
 
-
 test('searchBySelector when no current context', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithNoCurrentContext);
@@ -1475,8 +1474,16 @@ test('searchBySelector on context namespace', async () => {
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
   await manager.update(kc);
-  await manager.searchBySelector('Resource4', { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' }, 'ns1');
-  expect(resource4SearchBySelectorMock).toHaveBeenCalledWith(expect.anything(), { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' }, 'ns1');
+  await manager.searchBySelector(
+    'Resource4',
+    { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' },
+    'ns1',
+  );
+  expect(resource4SearchBySelectorMock).toHaveBeenCalledWith(
+    expect.anything(),
+    { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' },
+    'ns1',
+  );
 });
 
 test('searchBySelector on other namespace', async () => {
@@ -1486,8 +1493,16 @@ test('searchBySelector on other namespace', async () => {
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
   await manager.update(kc);
-  await manager.searchBySelector('Resource4', { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' }, 'other-ns');
-  expect(resource4SearchBySelectorMock).toHaveBeenCalledWith(expect.anything(), { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' }, 'other-ns');
+  await manager.searchBySelector(
+    'Resource4',
+    { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' },
+    'other-ns',
+  );
+  expect(resource4SearchBySelectorMock).toHaveBeenCalledWith(
+    expect.anything(),
+    { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' },
+    'other-ns',
+  );
 });
 
 test('searchBySelector handler returns KubernetesObject', async () => {

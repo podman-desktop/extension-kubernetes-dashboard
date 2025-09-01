@@ -72,7 +72,7 @@ async function removePortForward(): Promise<void> {
   error = undefined;
 
   try {
-    await portForwardApi.deletePortForward(forwardConfig);
+    await portForwardApi.deletePortForward($state.snapshot(forwardConfig));
   } catch (err: unknown) {
     console.error(err);
     error = String(err);

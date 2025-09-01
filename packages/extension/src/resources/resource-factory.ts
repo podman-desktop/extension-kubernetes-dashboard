@@ -43,7 +43,7 @@ type DeleteNonNamespacedObject = (
 export type SelectorOptions = {
   labelSelector?: string;
   fieldSelector?: string;
-}
+};
 type SearchBySelectorNamespacedObject = (
   kubeconfig: KubeConfigSingleContext,
   options: SelectorOptions,
@@ -96,7 +96,9 @@ export class ResourceFactoryBase {
     return this;
   }
 
-  setSearchBySelector(searchBySelector: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject): ResourceFactoryBase {
+  setSearchBySelector(
+    searchBySelector: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject,
+  ): ResourceFactoryBase {
     this.#searchBySelector = searchBySelector;
     return this;
   }
@@ -136,10 +138,12 @@ export class ResourceFactoryBase {
     return new ResourceFactoryBase({
       resource: this.#resource,
       kind: this.#kind,
-    }).setPermissions({
-      permissionsRequests: this.#permissions.permissionsRequests.slice(1),
-      isNamespaced: this.#permissions.isNamespaced,
-    }).setSearchBySelector(this.#searchBySelector);
+    })
+      .setPermissions({
+        permissionsRequests: this.#permissions.permissionsRequests.slice(1),
+        isNamespaced: this.#permissions.isNamespaced,
+      })
+      .setSearchBySelector(this.#searchBySelector);
   }
 }
 

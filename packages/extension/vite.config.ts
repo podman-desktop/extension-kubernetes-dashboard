@@ -32,6 +32,7 @@ const config = {
       external: [
         '@podman-desktop/api',
         'node-pty',
+        'isomorphic-ws', // needed for port-forwarding
         ...builtinModules.flatMap(p => [p, `node:${p}`]),
       ],
       output: {
