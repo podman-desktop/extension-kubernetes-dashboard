@@ -40,6 +40,21 @@ type DeleteNonNamespacedObject = (
   name: string,
 ) => Promise<V1Status | KubernetesObject>;
 
+export type SelectorOptions = {
+  labelSelector?: string;
+  fieldSelector?: string;
+}
+type SearchBySelectorNamespacedObject = (
+  kubeconfig: KubeConfigSingleContext,
+  options: SelectorOptions,
+  namespace: string,
+) => Promise<KubernetesObject[]>;
+
+type SearchBySelectorNonNamespacedObject = (
+  kubeconfig: KubeConfigSingleContext,
+  options: SelectorOptions,
+) => Promise<KubernetesObject[]>;
+
 export class ResourceFactoryBase {
   #resource: string;
   #kind: string;
@@ -47,6 +62,7 @@ export class ResourceFactoryBase {
   #informer: ResourceInformerFactory | undefined;
   #isActive: undefined | ((resource: KubernetesObject) => boolean);
   #deleteObject: DeleteNamespacedObject | DeleteNonNamespacedObject;
+  #searchBySelector: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject;
 
   constructor(options: { resource: string; kind: string }) {
     this.#resource = options.resource;
@@ -80,6 +96,11 @@ export class ResourceFactoryBase {
     return this;
   }
 
+  setSearchBySelector(searchBySelector: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject): ResourceFactoryBase {
+    this.#searchBySelector = searchBySelector;
+    return this;
+  }
+
   get resource(): string {
     return this.#resource;
   }
@@ -104,6 +125,10 @@ export class ResourceFactoryBase {
     return this.#deleteObject;
   }
 
+  get searchBySelector(): SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject {
+    return this.#searchBySelector;
+  }
+
   copyWithSlicedPermissions(): ResourceFactory {
     if (!this.#permissions) {
       throw new Error('permission must be defined before calling copyWithSlicedPermissions');
@@ -114,7 +139,7 @@ export class ResourceFactoryBase {
     }).setPermissions({
       permissionsRequests: this.#permissions.permissionsRequests.slice(1),
       isNamespaced: this.#permissions.isNamespaced,
-    });
+    }).setSearchBySelector(this.#searchBySelector);
   }
 }
 
@@ -127,6 +152,7 @@ export interface ResourceFactory {
   isActive?: (resource: KubernetesObject) => boolean;
   copyWithSlicedPermissions(): ResourceFactory;
   deleteObject?: DeleteNamespacedObject | DeleteNonNamespacedObject;
+  searchBySelector?: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject;
 }
 
 export function isResourceFactoryWithPermissions(object: ResourceFactory): object is ResourceFactoryWithPermissions {

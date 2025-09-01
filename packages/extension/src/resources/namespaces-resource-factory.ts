@@ -25,7 +25,7 @@ import {
 } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
-import type { ResourceFactory } from './resource-factory.js';
+import type { ResourceFactory, SelectorOptions } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
 
@@ -54,6 +54,7 @@ export class NamespacesResourceFactory extends ResourceFactoryBase implements Re
       createInformer: this.createInformer,
     });
     this.setDeleteObject(this.deleteNamespace);
+    this.setSearchBySelector(this.searchNamespacesBySelector);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Namespace> {
@@ -66,5 +67,14 @@ export class NamespacesResourceFactory extends ResourceFactoryBase implements Re
   deleteNamespace(kubeconfig: KubeConfigSingleContext, name: string): Promise<V1Status | KubernetesObject> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     return apiClient.deleteNamespace({ name });
+  }
+
+  async searchNamespacesBySelector(
+    kubeconfig: KubeConfigSingleContext,
+    options: SelectorOptions,
+  ): Promise<V1Namespace[]> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    const list = await apiClient.listNamespace({ ...options });
+    return list.items;
   }
 }
