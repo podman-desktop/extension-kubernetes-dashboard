@@ -352,7 +352,7 @@ describe('ConfigManagementService', () => {
   });
 
   test('should list all forward configurations', async () => {
-    mockConfigStorage.listForwards = vi.fn().mockResolvedValue([sampleConfig]);
+    mockConfigStorage.listForwards = vi.fn().mockReturnValue([sampleConfig]);
     const service = new ConfigManagementService(mockConfigStorage);
 
     const result = service.listForwards();
@@ -362,7 +362,7 @@ describe('ConfigManagementService', () => {
   });
 
   test('should update configurations', async () => {
-    mockConfigStorage.listForwards = vi.fn().mockResolvedValue([sampleConfig]);
+    mockConfigStorage.listForwards = vi.fn().mockReturnValue([sampleConfig]);
     const service = new ConfigManagementService(mockConfigStorage);
 
     const old: ForwardConfig = {

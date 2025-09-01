@@ -35,7 +35,7 @@ import {
   type PortMapping,
   WorkloadKind,
 } from '/@common/model/port-forward';
-import type { ContextsManager } from '../manager/contexts-manager';
+import type { ContextsManager } from '/@/manager/contexts-manager';
 
 const mockKubeConfig = {
   makeApiClient: vi.fn(),
@@ -70,23 +70,25 @@ vi.mock('node:net', async () => {
   };
 });
 
+vi.mock('@kubernetes/client-node', async () => {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  const actual = await vi.importActual<typeof import('@kubernetes/client-node')>('@kubernetes/client-node');
+  return {
+    ...actual,
+    PortForward: vi.fn(() => mockPortForward),
+  };
+});
+
 const originalFetchFn = global.fetch;
+
+const contextsManager = {
+  searchBySelector: vi.fn(),
+  getResourceDetails: vi.fn(),
+} as unknown as ContextsManager;
 
 class TestablePortForwardConnectionService extends PortForwardConnectionService {
   public override async performForward(forwardSetup: ForwardingSetup): Promise<IDisposable> {
     return super.performForward(forwardSetup);
-  }
-
-  public override async getPod(name: string, namespace: string): Promise<V1Pod> {
-    return super.getPod(name, namespace);
-  }
-
-  public override async getDeployment(name: string, namespace: string): Promise<V1Deployment> {
-    return super.getDeployment(name, namespace);
-  }
-
-  public override async getService(name: string, namespace: string): Promise<V1Service> {
-    return super.getService(name, namespace);
   }
 
   public override async getWorkloadResource(
@@ -152,7 +154,6 @@ describe('PortForwardConnectionService', () => {
   let service: TestablePortForwardConnectionService;
 
   beforeEach(() => {
-    const contextsManager = {} as ContextsManager;
     service = new TestablePortForwardConnectionService(contextsManager, mockKubeConfig);
     global.fetch = vi.fn();
     vi.mocked(mockKubeConfig.makeApiClient).mockImplementation(api => {
@@ -247,29 +248,6 @@ describe('PortForwardConnectionService', () => {
     expect(server.listen).toHaveBeenCalledWith(forwardSetup.forward.localPort, 'localhost', expect.any(Function));
   });
 
-  test('should retrieve a pod resource', async () => {
-    mockCoreV1Api.readNamespacedPod.mockResolvedValue({ metadata: { name: 'test-pod', namespace: 'default' } });
-
-    const pod = await service.getPod('test-pod', 'default');
-    expect(pod.metadata?.name).toBe('test-pod');
-  });
-
-  test('should retrieve a deployment resource', async () => {
-    mockAppsV1Api.readNamespacedDeployment.mockResolvedValue({
-      metadata: { name: 'test-deployment', namespace: 'default' },
-    });
-
-    const deployment = await service.getDeployment('test-deployment', 'default');
-    expect(deployment.metadata?.name).toBe('test-deployment');
-  });
-
-  test('should retrieve a service resource', async () => {
-    mockCoreV1Api.readNamespacedService.mockResolvedValue({ metadata: { name: 'test-service', namespace: 'default' } });
-
-    const serviceResource = await service.getService('test-service', 'default');
-    expect(serviceResource.metadata?.name).toBe('test-service');
-  });
-
   test('should throw an error for unsupported workload kind', async () => {
     await expect(service.getWorkloadResource('UNSUPPORTED_KIND' as never, 'test', 'default')).rejects.toThrow(
       `Workload kind 'UNSUPPORTED_KIND' currently not supported.`,
@@ -287,8 +265,8 @@ describe('PortForwardConnectionService', () => {
   });
 
   test('should get forwarding setup from deployment', async () => {
-    const podList = { items: [{ metadata: { name: 'test-pod' } }] };
-    mockCoreV1Api.listNamespacedPod.mockResolvedValue(podList);
+    const podList = [{ metadata: { name: 'test-pod' } }];
+    vi.spyOn(contextsManager, 'searchBySelector').mockResolvedValue(podList);
 
     const deployment: V1Deployment = {
       apiVersion: 'apps/v1',
@@ -328,12 +306,10 @@ describe('PortForwardConnectionService', () => {
   });
 
   test('should get forwarding setup from service', async () => {
-    const podList = {
-      items: [
-        { metadata: { name: 'test-pod' }, spec: { containers: [{ ports: [{ name: 'http', containerPort: 80 }] }] } },
-      ],
-    };
-    mockCoreV1Api.listNamespacedPod.mockResolvedValue(podList);
+    const podList = [
+      { metadata: { name: 'test-pod' }, spec: { containers: [{ ports: [{ name: 'http', containerPort: 80 }] }] } },
+    ];
+    vi.spyOn(contextsManager, 'searchBySelector').mockResolvedValue(podList);
 
     const _service: V1Service = {
       apiVersion: 'v1',
@@ -419,9 +395,7 @@ describe('PortForwardConnectionService', () => {
 
     const forward = { localPort: 3000, remotePort: 80 };
 
-    mockCoreV1Api.listNamespacedPod.mockResolvedValueOnce({
-      items: [pod],
-    });
+    vi.spyOn(contextsManager, 'searchBySelector').mockResolvedValue([pod]);
 
     const targetPort = service.getTargetPort(serviceResource, pod, forward.remotePort);
 
@@ -473,7 +447,9 @@ describe('PortForwardConnectionService', () => {
   describe('getWorkloadResource', () => {
     test('should retrieve a Pod resource', async () => {
       const pod = { metadata: { name: 'test-pod', namespace: 'default' } };
-      mockCoreV1Api.readNamespacedPod.mockResolvedValue(pod);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
+        { details: pod, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
+      ]);
 
       const resource = await service.getWorkloadResource(WorkloadKind.POD, 'test-pod', 'default');
       expect(resource).toEqual(pod);
@@ -481,7 +457,9 @@ describe('PortForwardConnectionService', () => {
 
     test('should retrieve a Deployment resource', async () => {
       const deployment = { metadata: { name: 'test-deployment', namespace: 'default' } };
-      mockAppsV1Api.readNamespacedDeployment.mockResolvedValue(deployment);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
+        { details: deployment, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
+      ]);
 
       const resource = await service.getWorkloadResource(WorkloadKind.DEPLOYMENT, 'test-deployment', 'default');
       expect(resource).toEqual(deployment);
@@ -489,7 +467,9 @@ describe('PortForwardConnectionService', () => {
 
     test('should retrieve a Service resource', async () => {
       const _service = { metadata: { name: 'test-service', namespace: 'default' } };
-      mockCoreV1Api.readNamespacedService.mockResolvedValue(_service);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
+        { details: _service, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
+      ]);
 
       const resource = await service.getWorkloadResource(WorkloadKind.SERVICE, 'test-service', 'default');
       expect(resource).toEqual(_service);
@@ -544,8 +524,8 @@ describe('PortForwardConnectionService', () => {
         },
       };
 
-      const podList = { items: [{ metadata: { name: 'test-pod' } }] };
-      mockCoreV1Api.listNamespacedPod.mockResolvedValue(podList);
+      const podList = [{ metadata: { name: 'test-pod' } }];
+      vi.spyOn(contextsManager, 'searchBySelector').mockResolvedValue(podList);
 
       const forward = { localPort: 3000, remotePort: 80 };
 
@@ -576,12 +556,10 @@ describe('PortForwardConnectionService', () => {
         },
       };
 
-      const podList = {
-        items: [
-          { metadata: { name: 'test-pod' }, spec: { containers: [{ ports: [{ name: 'http', containerPort: 80 }] }] } },
-        ],
-      };
-      mockCoreV1Api.listNamespacedPod.mockResolvedValue(podList);
+      const podList = [
+        { metadata: { name: 'test-pod' }, spec: { containers: [{ ports: [{ name: 'http', containerPort: 80 }] }] } },
+      ];
+      vi.spyOn(contextsManager, 'searchBySelector').mockResolvedValue(podList);
 
       const forward = { localPort: 3000, remotePort: 80 };
 
@@ -622,7 +600,9 @@ describe('PortForwardConnectionService', () => {
         metadata: { name: 'test-pod', namespace: 'default' },
       };
 
-      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
+        { details: pod, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
+      ]);
 
       const disposable1 = new MockDisposable();
 
@@ -654,7 +634,9 @@ describe('PortForwardConnectionService', () => {
         metadata: { name: 'test-pod', namespace: 'default' },
       };
 
-      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
+        { details: pod, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
+      ]);
 
       const disposable1 = new MockDisposable();
 
@@ -681,7 +663,9 @@ describe('PortForwardConnectionService', () => {
         metadata: { name: 'test-pod', namespace: 'default' },
       };
 
-      mockCoreV1Api.readNamespacedPod.mockResolvedValueOnce(pod);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
+        { details: pod, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
+      ]);
 
       vi.spyOn(service, 'performForward').mockRejectedValueOnce(new Error('Failed to forward port'));
 
