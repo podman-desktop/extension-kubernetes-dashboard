@@ -75,5 +75,7 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
       title="CronJobs"
       selected={meta.url === navigator.kubernetesResourcesURL('CronJob')}
       href={navigator.kubernetesResourcesURL('CronJob')} />
+
+    <SettingsNavItem title="Port Forwarding" selected={meta.url === '/portForward'} href="/portForward" />
   </div>
 </nav>
