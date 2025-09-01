@@ -20,7 +20,7 @@ import type { KubernetesObject, V1Pod, V1PodList, V1Status } from '@kubernetes/c
 import { CoreV1Api } from '@kubernetes/client-node';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
-import type { ResourceFactory } from './resource-factory.js';
+import type { ResourceFactory, SelectorOptions } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
 
@@ -49,6 +49,7 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
       createInformer: this.createInformer,
     });
     this.setDeleteObject(this.deletePod);
+    this.setSearchBySelector(this.searchPodsBySelector);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Pod> {
@@ -66,5 +67,16 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
   ): Promise<V1Status | KubernetesObject> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     return apiClient.deleteNamespacedPod({ name, namespace });
+  }
+
+  async searchPodsBySelector(
+    kubeconfig: KubeConfigSingleContext,
+    options: SelectorOptions,
+    namespace: string,
+  ): Promise<V1Pod[]> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    const list = await apiClient.listNamespacedPod({ namespace, ...options });
+    console.log('list', list);
+    return list.items;
   }
 }

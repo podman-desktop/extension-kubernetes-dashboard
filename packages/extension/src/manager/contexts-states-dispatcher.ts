@@ -28,6 +28,7 @@ import {
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
+  PORT_FORWARDS,
   RESOURCE_DETAILS,
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
@@ -37,11 +38,15 @@ import { inject, injectable, multiInject } from 'inversify';
 import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
 import { SubscribeApi } from '/@common/interface/subscribe-api.js';
 import { ChannelSubscriber } from '/@/types/channel-subscriber.js';
+import { PortForwardServiceProvider } from '/@/port-forward/port-forward-service.js';
 
 @injectable()
 export class ContextsStatesDispatcher extends ChannelSubscriber implements SubscribeApi {
   @inject(ContextsManager)
   private manager: ContextsManager;
+
+  @inject(PortForwardServiceProvider)
+  private portForwardServiceProvider: PortForwardServiceProvider;
 
   #dispatchers: Map<string, DispatcherObject<unknown>> = new Map();
 
@@ -81,7 +86,9 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
       await this.dispatch(CURRENT_CONTEXT);
       await this.dispatch(UPDATE_RESOURCE);
     });
-
+    this.portForwardServiceProvider.onForwardsChange(async () => {
+      await this.dispatch(PORT_FORWARDS);
+    });
     this.onSubscribe(channelName => this.dispatchByChannelName(channelName));
   }
 

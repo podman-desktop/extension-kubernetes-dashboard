@@ -25,6 +25,7 @@ import { ExtensionContextSymbol, TelemetryLoggerSymbol } from '/@/inject/symbol'
 import { RpcExtension } from '/@common/rpc/rpc';
 import { managersModule } from '/@/manager/_manager-module';
 import { dispatchersModule } from '/@/dispatcher/_dispatcher-module';
+import { portForwardModule } from '/@/port-forward/_port-forward-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -54,6 +55,7 @@ export class InversifyBinding {
 
     await this.#container.load(managersModule);
     await this.#container.load(dispatchersModule);
+    await this.#container.load(portForwardModule);
 
     return this.#container;
   }

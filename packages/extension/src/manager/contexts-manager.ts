@@ -49,7 +49,7 @@ import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context
 import { NodesResourceFactory } from '/@/resources/nodes-resource-factory.js';
 import { PodsResourceFactory } from '/@/resources/pods-resource-factory.js';
 import { PVCsResourceFactory } from '/@/resources/pvcs-resource-factory.js';
-import type { ResourceFactory } from '/@/resources/resource-factory.js';
+import type { ResourceFactory, SelectorOptions } from '/@/resources/resource-factory.js';
 import { ResourceFactoryHandler } from './resource-factory-handler.js';
 import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from '/@/types/resource-informer.js';
 import { RoutesResourceFactory } from '/@/resources/routes-resource-factory.js';
@@ -481,6 +481,21 @@ export class ContextsManager {
     } catch (error: unknown) {
       this.handleApiException(error);
     }
+  }
+
+  async searchBySelector(kind: string, options: SelectorOptions, namespace?: string): Promise<KubernetesObject[]> {
+    if (!this.currentContext) {
+      console.warn('search by selector: no current context');
+      return [];
+    }
+
+    const handler = this.#resourceFactoryHandler.getResourceFactoryByKind(kind);
+    if (!handler?.searchBySelector) {
+      console.error(`search by selector: no handler for kind ${kind}`);
+      return [];
+    }
+    const ns = namespace ?? this.currentContext.getNamespace();
+    return handler.searchBySelector(this.currentContext, options, ns);
   }
 
   private handleResult(result: KubernetesObject | V1Status): void {

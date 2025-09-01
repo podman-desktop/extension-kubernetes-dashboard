@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { V1Deployment, V1Pod, V1Service } from '@kubernetes/client-node';
+
 /**
  * Enumeration representing the kind of Kubernetes workload.
  */
@@ -24,6 +26,8 @@ export enum WorkloadKind {
   DEPLOYMENT = 'deployment',
   SERVICE = 'service',
 }
+
+export type PortForwardableResource = V1Pod | V1Deployment | V1Service;
 
 /**
  * Interface representing a port mapping configuration.

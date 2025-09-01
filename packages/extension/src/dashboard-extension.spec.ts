@@ -56,6 +56,7 @@ beforeEach(() => {
   // Create a mock for the contextsManager
   contextsManagerMock = {
     update: vi.fn(),
+    onCurrentContextChange: vi.fn(),
   } as unknown as ContextsManager;
   vi.mocked(ContextsManager).mockReturnValue(contextsManagerMock);
 

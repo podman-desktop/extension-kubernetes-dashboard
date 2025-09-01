@@ -16,21 +16,37 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { PortForwardApi } from '/@common/interface/port-forward-api';
 import { ForwardConfig, ForwardOptions } from '/@common/model/port-forward';
+import { PortForwardService, PortForwardServiceProvider } from '/@/port-forward/port-forward-service';
 
 @injectable()
 export class PortForwardApiImpl implements PortForwardApi {
+  @inject(PortForwardServiceProvider)
+  private portForwardServiceProvider: PortForwardServiceProvider;
+
   // PortForwardAPi interface implementation
-  createPortForward(_config: ForwardOptions): Promise<void> {
-    throw new Error('Method not implemented.');
+  async createPortForward(config: ForwardOptions): Promise<void> {
+    const service = this.ensurePortForwardService();
+    const newConfig = await service.createForward(config);
+    try {
+      await service.startForward(newConfig);
+    } catch (err: unknown) {
+      await service.deleteForward(newConfig);
+      throw err;
+    }
   }
-  deletePortForward(_config: ForwardConfig): Promise<void> {
-    throw new Error('Method not implemented.');
+
+  async deletePortForward(config: ForwardConfig): Promise<void> {
+    return this.ensurePortForwardService().deleteForward(config);
   }
 
   getPortForwards(): ForwardConfig[] {
-    return [];
+    return this.ensurePortForwardService().listForwards();
+  }
+
+  protected ensurePortForwardService(): PortForwardService {
+    return this.portForwardServiceProvider.getService();
   }
 }

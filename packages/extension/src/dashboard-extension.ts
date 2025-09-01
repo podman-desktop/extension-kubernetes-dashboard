@@ -31,6 +31,7 @@ import type { Container } from 'inversify';
 import { API_CONTEXTS, API_PORT_FORWARD, API_SUBSCRIBE, API_SYSTEM } from '/@common/channels';
 import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
+import { PortForwardServiceProvider } from './port-forward/port-forward-service';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -42,6 +43,7 @@ export class DashboardExtension {
   #contextsStatesDispatcher: ContextsStatesDispatcher;
   #systemApiImpl: SystemApiImpl;
   #portForwardApiImpl: PortForwardApiImpl;
+  #portForwardServiceProvider: PortForwardServiceProvider;
 
   constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
@@ -65,6 +67,7 @@ export class DashboardExtension {
     this.#contextsStatesDispatcher = await this.#container.getAsync(ContextsStatesDispatcher);
     this.#systemApiImpl = await this.#container.getAsync(SystemApiImpl);
     this.#portForwardApiImpl = await this.#container.getAsync(PortForwardApiImpl);
+    this.#portForwardServiceProvider = await this.#container.getAsync(PortForwardServiceProvider);
 
     const afterFirst = performance.now();
 
@@ -77,6 +80,7 @@ export class DashboardExtension {
 
     await this.listenMonitoring();
     await this.startMonitoring();
+    await this.startPortForwarding();
   }
 
   async deactivate(): Promise<void> {
@@ -129,6 +133,10 @@ export class DashboardExtension {
 
   private async listenMonitoring(): Promise<void> {
     this.#contextsStatesDispatcher.init();
+  }
+
+  private async startPortForwarding(): Promise<void> {
+    this.#portForwardServiceProvider.init();
   }
 
   private async startMonitoring(): Promise<void> {

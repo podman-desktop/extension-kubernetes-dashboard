@@ -40,6 +40,7 @@ const onOfflineMock = vi.fn<Event<OfflineEvent>>();
 const startMock = vi.fn();
 const informerDisposeMock = vi.fn();
 const resource4DeleteObjectMock = vi.fn();
+const resource4SearchBySelectorMock = vi.fn();
 
 class TestContextsManager extends ContextsManager {
   override getResourceFactories(): ResourceFactory[] {
@@ -111,6 +112,19 @@ class TestContextsManager extends ContextsManager {
         ],
       }),
       new ResourceFactoryBase({
+        kind: 'NonSearchable',
+        resource: 'nonSearchable',
+      }).setPermissions({
+        isNamespaced: true,
+        permissionsRequests: [
+          {
+            group: '*',
+            resource: '*',
+            verb: 'watch',
+          },
+        ],
+      }),
+      new ResourceFactoryBase({
         kind: 'Resource4',
         resource: 'resource4',
       })
@@ -124,7 +138,8 @@ class TestContextsManager extends ContextsManager {
             },
           ],
         })
-        .setDeleteObject(resource4DeleteObjectMock),
+        .setDeleteObject(resource4DeleteObjectMock)
+        .setSearchBySelector(resource4SearchBySelectorMock),
     ];
   }
 
@@ -1417,6 +1432,98 @@ test('deleteObject handler throws a non-ApiException', async () => {
   expect(window.showInformationMessage).toHaveBeenCalled();
   expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
   expect(manager.handleStatus).not.toHaveBeenCalled();
+});
+
+test('searchBySelector when no current context', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithNoCurrentContext);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.searchBySelector('Resource4', {}, 'ns1');
+  expect(console.warn).toHaveBeenCalledWith('search by selector: no current context');
+});
+
+test('searchBySelector with unhandled resource', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.searchBySelector('Unknown', {}, 'ns1');
+  expect(console.error).toHaveBeenCalledWith('search by selector: no handler for kind Unknown');
+});
+
+test('searchBySelector with non searchable resource', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.searchBySelector('NonSearchable', {}, 'ns1');
+  expect(console.error).toHaveBeenCalledWith('search by selector: no handler for kind NonSearchable');
+});
+
+test('searchBySelector on context namespace', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.searchBySelector(
+    'Resource4',
+    { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' },
+    'ns1',
+  );
+  expect(resource4SearchBySelectorMock).toHaveBeenCalledWith(
+    expect.anything(),
+    { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' },
+    'ns1',
+  );
+});
+
+test('searchBySelector on other namespace', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.searchBySelector(
+    'Resource4',
+    { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' },
+    'other-ns',
+  );
+  expect(resource4SearchBySelectorMock).toHaveBeenCalledWith(
+    expect.anything(),
+    { labelSelector: 'name=test', fieldSelector: 'status.phase=Active' },
+    'other-ns',
+  );
+});
+
+test('searchBySelector handler returns KubernetesObject', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(manager, 'handleStatus');
+  await manager.update(kc);
+  const resource = {
+    apiVersion: 'v1',
+    kind: 'Resource4',
+    metadata: { name: 'resource-name' },
+  };
+  resource4SearchBySelectorMock.mockImplementation((): KubernetesObject[] => {
+    return [resource];
+  });
+  const result = await manager.searchBySelector('Resource4', {}, 'other-ns');
+  expect(resource4SearchBySelectorMock).toHaveBeenCalledWith(expect.anything(), {}, 'other-ns');
+  expect(result).toEqual([resource]);
 });
 
 describe.each([
