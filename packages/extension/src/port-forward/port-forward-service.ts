@@ -25,6 +25,9 @@ import type { ForwardConfig, ForwardOptions } from '/@common/model/port-forward'
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { inject, injectable } from 'inversify';
 import { Emitter, Event } from '/@/types/emitter';
+import { SystemApiImpl } from '../manager/system-api';
+import { DeletePortForwardOptions } from '/@common/interface/port-forward-api';
+import { window } from '@podman-desktop/api';
 
 /**
  * Service provider for Kubernetes port forwarding.
@@ -35,6 +38,9 @@ import { Emitter, Event } from '/@/types/emitter';
 export class PortForwardServiceProvider {
   @inject(ContextsManager)
   private contextsManager: ContextsManager;
+
+  @inject(SystemApiImpl)
+  private systemApi: SystemApiImpl;
 
   #service: PortForwardService | undefined;
   #disposables: IDisposable[] = [];
@@ -62,10 +68,11 @@ export class PortForwardServiceProvider {
       throw new Error('No current context found');
     }
     const kubeConfig = currentContext.getKubeConfig();
-    // TODO: implement this / inject differently (with inversify)
-    const isFreePort = async (): Promise<boolean> => {
-      return true;
+
+    const isFreePort = async (port: number): Promise<boolean> => {
+      return (await this.systemApi.getFreePort(port)) === port;
     };
+
     const forwardingConnectionService = new PortForwardConnectionService(
       this.contextsManager,
       kubeConfig,
@@ -139,7 +146,18 @@ export class PortForwardService implements IDisposable {
    * @returns Void if the operation successful.
    * @see ForwardConfig
    */
-  async deleteForward(config: ForwardConfig): Promise<void> {
+  async deleteForward(config: ForwardConfig, options?: DeletePortForwardOptions): Promise<void> {
+    if (options?.askConfirmation) {
+      const result = await window.showInformationMessage(
+        `Are you sure you want to delete the port forwarding ${config.name}?`,
+        'Yes',
+        'Cancel',
+      );
+      if (result !== 'Yes') {
+        return;
+      }
+    }
+
     const forward = this.#forwards.get(config.id);
     forward?.dispose();
     this.#forwards.delete(config.id);

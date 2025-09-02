@@ -44,6 +44,8 @@ describe('KubernetesPortForwardService', () => {
     forward: { localPort: 8080, remotePort: 80 },
   };
 
+  const onForwardsChange = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockConfigManagementService = {
@@ -58,6 +60,7 @@ describe('KubernetesPortForwardService', () => {
     } as unknown as PortForwardConnectionService;
 
     service = new PortForwardService(mockConfigManagementService, mockForwardingConnectionService);
+    service.onForwardsChange(onForwardsChange);
     vi.mocked(randomUUID).mockReturnValue('fake-id' as UUID);
   });
 
@@ -74,13 +77,13 @@ describe('KubernetesPortForwardService', () => {
     });
     expect(result).toEqual(sampleForwardConfig);
     expect(mockConfigManagementService.createForward).toHaveBeenCalledWith(sampleForwardConfig);
-    // TODO test event is sent
+    expect(onForwardsChange).toHaveBeenCalled();
   });
 
   test('should delete a forward configuration', async () => {
     await service.deleteForward(sampleForwardConfig);
     expect(mockConfigManagementService.deleteForward).toHaveBeenCalledWith(sampleForwardConfig);
-    // TODO test event is sent
+    expect(onForwardsChange).toHaveBeenCalled();
   });
 
   test('should list all forward configurations', async () => {
