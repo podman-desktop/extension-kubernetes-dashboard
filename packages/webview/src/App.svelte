@@ -24,6 +24,7 @@ import PVCDetails from './component/pvcs/PVCDetails.svelte';
 import JobDetails from './component/jobs/JobDetails.svelte';
 import CronJobDetails from './component/cronjobs/CronJobDetails.svelte';
 import PodDetails from './component/pods/PodDetails.svelte';
+import PortForwardingList from './component/port-forward/PortForwardingList.svelte';
 
 let isMounted = false;
 </script>
@@ -124,6 +125,10 @@ let isMounted = false;
 
         <Route path="/cronjobs/:name/:namespace/*" let:meta>
           <CronJobDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+        </Route>
+
+        <Route path="/portForward">
+          <PortForwardingList />
         </Route>
       </div>
     </div>
