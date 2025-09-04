@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { inject, injectable } from 'inversify';
-import { PortForwardApi } from '/@common/interface/port-forward-api';
+import { DeletePortForwardOptions, PortForwardApi } from '/@common/interface/port-forward-api';
 import { ForwardConfig, ForwardOptions } from '/@common/model/port-forward';
 import { PortForwardService, PortForwardServiceProvider } from '/@/port-forward/port-forward-service';
 
@@ -38,8 +38,8 @@ export class PortForwardApiImpl implements PortForwardApi {
     }
   }
 
-  async deletePortForward(config: ForwardConfig): Promise<void> {
-    return this.ensurePortForwardService().deleteForward(config);
+  async deletePortForward(config: ForwardConfig, options?: DeletePortForwardOptions): Promise<void> {
+    return this.ensurePortForwardService().deleteForward(config, options);
   }
 
   getPortForwards(): ForwardConfig[] {

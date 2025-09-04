@@ -32,7 +32,7 @@ let userConfigForward: ForwardConfig | undefined = $derived(
 
 async function deletePortForward(): Promise<void> {
   if (!userConfigForward) return;
-  await portForwardApi.deletePortForward($state.snapshot(userConfigForward));
+  await portForwardApi.deletePortForward($state.snapshot(userConfigForward), { askConfirmation: true });
 }
 
 async function openExternal(): Promise<void> {
