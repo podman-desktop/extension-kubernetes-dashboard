@@ -44,6 +44,12 @@ RUN mkdir /opt/app-root/extension && \
 COPY LICENSE /opt/app-root/extension/
 COPY README.md /opt/app-root/extension/
 
+RUN echo "node-linker=hoisted" >> /opt/app-root/extension/.npmrc
+RUN eval 'dep_version() { pnpm list -P $1 --json --depth 0 |jq -r ".[0].dependencies.\"$1\".version"; };' && \
+        ISOMORPHIC_WS_VERSION=$(dep_version "isomorphic-ws") && \
+        echo adding isomorphic-ws version ${ISOMORPHIC_WS_VERSION} && \
+        pnpm --dir /opt/app-root/extension add isomorphic-ws@${ISOMORPHIC_WS_VERSION} --prod
+
 # Copy the extension to a new image
 FROM scratch
 
