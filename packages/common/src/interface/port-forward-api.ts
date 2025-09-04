@@ -20,7 +20,11 @@ import type { ForwardConfig, ForwardOptions } from '../model/port-forward';
 
 export const PortForwardApi = Symbol.for('PortForwardApi');
 
+export type DeletePortForwardOptions = {
+  askConfirmation: boolean;
+};
+
 export interface PortForwardApi {
   createPortForward(config: ForwardOptions): Promise<void>;
-  deletePortForward(config: ForwardConfig): Promise<void>;
+  deletePortForward(config: ForwardConfig, options?: DeletePortForwardOptions): Promise<void>;
 }
