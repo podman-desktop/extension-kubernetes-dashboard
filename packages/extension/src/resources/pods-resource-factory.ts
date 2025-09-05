@@ -23,9 +23,11 @@ import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context
 import type { ResourceFactory, SelectorOptions } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
+import { MetadataExplorer } from './objects/metadata-explorer.js';
+import type { ContextsManager } from '/@/manager/contexts-manager.js';
 
 export class PodsResourceFactory extends ResourceFactoryBase implements ResourceFactory {
-  constructor() {
+  constructor(protected contextsManager: ContextsManager) {
     super({
       resource: 'pods',
       kind: 'Pod',
@@ -50,6 +52,8 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
     });
     this.setDeleteObject(this.deletePod);
     this.setSearchBySelector(this.searchPodsBySelector);
+    this.setReadObject(this.readPod);
+    this.setRestartObject(this.restartPod);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Pod> {
@@ -76,7 +80,52 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
   ): Promise<V1Pod[]> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     const list = await apiClient.listNamespacedPod({ namespace, ...options });
-    console.log('list', list);
     return list.items;
+  }
+
+  async readPod(kubeconfig: KubeConfigSingleContext, name: string, namespace: string): Promise<V1Pod> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    return apiClient.readNamespacedPod({ name, namespace });
+  }
+
+  async restartPod(kubeconfig: KubeConfigSingleContext, name: string, namespace: string): Promise<void> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
+    const pod = await apiClient.readNamespacedPod({ name, namespace });
+    if (!pod.metadata?.name || !pod.metadata?.namespace) {
+      throw new Error('metadata of pod not found');
+    }
+
+    const metadataExplorer = new MetadataExplorer(pod.metadata);
+    const controller = metadataExplorer.getController();
+    if (!controller) {
+      const newPod = {
+        apiVersion: pod.apiVersion,
+        kind: pod.kind,
+        metadata: metadataExplorer.getUserOnlyMetadata(),
+        spec: pod.spec,
+      };
+      await this.restartStandalonePod(apiClient, pod.metadata.name, pod.metadata.namespace, newPod);
+    } else if (controller.kind === 'Job') {
+      await this.contextsManager.restartObject(controller.kind, controller.name, namespace);
+    } else {
+      // We just delete the pod, we expect the controller to create a new one
+      await apiClient.deleteNamespacedPod({ name, namespace });
+    }
+  }
+
+  protected async restartStandalonePod(
+    apiClient: CoreV1Api,
+    name: string,
+    namespace: string,
+    newPod: V1Pod,
+  ): Promise<void> {
+    await apiClient.deleteNamespacedPod({ name, namespace });
+
+    const isDeleted = await this.contextsManager.waitForObjectDeletion('pods', name, namespace);
+    if (!isDeleted) {
+      throw new Error(`pod "${name}" in namespace "${namespace}" was not deleted within the expected timeframe`);
+    }
+
+    await apiClient.createNamespacedPod({ namespace, body: newPod });
   }
 }

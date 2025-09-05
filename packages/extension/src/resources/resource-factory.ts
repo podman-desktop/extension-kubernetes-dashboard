@@ -55,6 +55,18 @@ type SearchBySelectorNonNamespacedObject = (
   options: SelectorOptions,
 ) => Promise<KubernetesObject[]>;
 
+type ReadNamespacedObject = (
+  kubeconfig: KubeConfigSingleContext,
+  name: string,
+  namespace: string,
+) => Promise<KubernetesObject>;
+
+type ReadNonNamespacedObject = (kubeconfig: KubeConfigSingleContext, name: string) => Promise<KubernetesObject>;
+
+type RestartNamespacedObject = (kubeconfig: KubeConfigSingleContext, name: string, namespace: string) => Promise<void>;
+
+type RestartNonNamespacedObject = (kubeconfig: KubeConfigSingleContext, name: string) => Promise<void>;
+
 export class ResourceFactoryBase {
   #resource: string;
   #kind: string;
@@ -63,6 +75,8 @@ export class ResourceFactoryBase {
   #isActive: undefined | ((resource: KubernetesObject) => boolean);
   #deleteObject: DeleteNamespacedObject | DeleteNonNamespacedObject;
   #searchBySelector: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject;
+  #readObject: ReadNamespacedObject | ReadNonNamespacedObject;
+  #restartObject: RestartNamespacedObject | RestartNonNamespacedObject;
 
   constructor(options: { resource: string; kind: string }) {
     this.#resource = options.resource;
@@ -103,6 +117,16 @@ export class ResourceFactoryBase {
     return this;
   }
 
+  setReadObject(readObject: ReadNamespacedObject | ReadNonNamespacedObject): ResourceFactoryBase {
+    this.#readObject = readObject;
+    return this;
+  }
+
+  setRestartObject(restartObject: RestartNamespacedObject | RestartNonNamespacedObject): ResourceFactoryBase {
+    this.#restartObject = restartObject;
+    return this;
+  }
+
   get resource(): string {
     return this.#resource;
   }
@@ -131,6 +155,14 @@ export class ResourceFactoryBase {
     return this.#searchBySelector;
   }
 
+  get readObject(): ReadNamespacedObject | ReadNonNamespacedObject {
+    return this.#readObject;
+  }
+
+  get restartObject(): RestartNamespacedObject | RestartNonNamespacedObject {
+    return this.#restartObject;
+  }
+
   copyWithSlicedPermissions(): ResourceFactory {
     if (!this.#permissions) {
       throw new Error('permission must be defined before calling copyWithSlicedPermissions');
@@ -143,7 +175,8 @@ export class ResourceFactoryBase {
         permissionsRequests: this.#permissions.permissionsRequests.slice(1),
         isNamespaced: this.#permissions.isNamespaced,
       })
-      .setSearchBySelector(this.#searchBySelector);
+      .setSearchBySelector(this.#searchBySelector)
+      .setRestartObject(this.#restartObject);
   }
 }
 
@@ -157,6 +190,9 @@ export interface ResourceFactory {
   copyWithSlicedPermissions(): ResourceFactory;
   deleteObject?: DeleteNamespacedObject | DeleteNonNamespacedObject;
   searchBySelector?: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject;
+  scaleObject?: (kubeconfig: KubeConfigSingleContext, name: string, namespace: string) => Promise<void>;
+  readObject?: ReadNamespacedObject | ReadNonNamespacedObject;
+  restartObject?: RestartNamespacedObject | RestartNonNamespacedObject;
 }
 
 export function isResourceFactoryWithPermissions(object: ResourceFactory): object is ResourceFactoryWithPermissions {

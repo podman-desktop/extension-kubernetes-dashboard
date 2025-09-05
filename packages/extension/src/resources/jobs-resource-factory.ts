@@ -23,9 +23,10 @@ import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
+import { type ContextsManager } from '/@/manager/contexts-manager.js';
 
 export class JobsResourceFactory extends ResourceFactoryBase implements ResourceFactory {
-  constructor() {
+  constructor(protected contextsManager: ContextsManager) {
     super({
       resource: 'jobs',
       kind: 'Job',
@@ -50,6 +51,8 @@ export class JobsResourceFactory extends ResourceFactoryBase implements Resource
       createInformer: this.createInformer,
     });
     this.setDeleteObject(this.deleteJob);
+    this.setReadObject(this.readJob);
+    this.setRestartObject(this.restartJob);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Job> {
@@ -67,5 +70,48 @@ export class JobsResourceFactory extends ResourceFactoryBase implements Resource
   ): Promise<V1Status | KubernetesObject> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(BatchV1Api);
     return apiClient.deleteNamespacedJob({ name, namespace });
+  }
+
+  async readJob(kubeconfig: KubeConfigSingleContext, name: string, namespace: string): Promise<V1Job> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(BatchV1Api);
+    return apiClient.readNamespacedJob({ name, namespace });
+  }
+
+  async restartJob(kubeconfig: KubeConfigSingleContext, name: string, namespace: string): Promise<void> {
+    const batchApi = kubeconfig.getKubeConfig().makeApiClient(BatchV1Api);
+
+    const existingJob = await batchApi.readNamespacedJob({ name, namespace });
+    await batchApi.deleteNamespacedJob({
+      name,
+      namespace,
+      propagationPolicy: 'Foreground',
+    });
+
+    const isJobDeleted = await this.contextsManager.waitForObjectDeletion('jobs', name, namespace);
+    if (!isJobDeleted) {
+      throw new Error(`job "${name}" in namespace "${namespace}" was not deleted within the expected timeframe`);
+    }
+
+    delete existingJob.metadata!.creationTimestamp;
+    delete existingJob.metadata!.resourceVersion;
+    delete existingJob.metadata!.selfLink;
+    delete existingJob.metadata!.uid;
+    delete existingJob.metadata!.ownerReferences;
+    delete existingJob.status;
+    delete existingJob.spec!.selector;
+    if (existingJob.spec!.template.metadata!.labels) {
+      delete existingJob.spec!.template.metadata!.labels['controller-uid'];
+      delete existingJob.spec!.template.metadata!.labels['batch.kubernetes.io/controller-uid'];
+      delete existingJob.spec!.template.metadata!.labels['batch.kubernetes.io/job-name'];
+      delete existingJob.spec!.template.metadata!.labels['job-name'];
+    }
+    if (existingJob.metadata?.labels) {
+      delete existingJob.metadata.labels['controller-uid'];
+      delete existingJob.metadata.labels['batch.kubernetes.io/controller-uid'];
+      delete existingJob.metadata.labels['batch.kubernetes.io/job-name'];
+      delete existingJob.metadata.labels['job-name'];
+    }
+
+    await batchApi.createNamespacedJob({ namespace, body: existingJob });
   }
 }

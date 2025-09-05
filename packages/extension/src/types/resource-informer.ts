@@ -39,6 +39,11 @@ export interface CacheUpdatedEvent extends BaseEvent {
   countChanged: boolean;
 }
 
+export interface ObjectDeletedEvent extends BaseEvent {
+  name: string;
+  namespace: string;
+}
+
 export interface OfflineEvent extends BaseEvent {
   offline: boolean;
   reason?: string;
@@ -70,6 +75,9 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
 
   #onOffline = new Emitter<OfflineEvent>();
   onOffline: Event<OfflineEvent> = this.#onOffline.event;
+
+  #onObjectDeleted = new Emitter<ObjectDeletedEvent>();
+  onObjectDeleted: Event<ObjectDeletedEvent> = this.#onObjectDeleted.event;
 
   constructor(options: ResourceInformerOptions<T>) {
     this.#kubeConfig = options.kubeconfig;
@@ -112,11 +120,17 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
         countChanged: true,
       });
     });
-    this.#informer.on(DELETE, (_obj: T) => {
+    this.#informer.on(DELETE, (obj: T) => {
       this.#onCacheUpdated.fire({
         kubeconfig: this.#kubeConfig,
         resourceName: this.#pluralName,
         countChanged: true,
+      });
+      this.#onObjectDeleted.fire({
+        kubeconfig: this.#kubeConfig,
+        resourceName: this.#pluralName,
+        name: obj.metadata?.name ?? '',
+        namespace: obj.metadata?.namespace ?? '',
       });
     });
     // This is issued when there is an error

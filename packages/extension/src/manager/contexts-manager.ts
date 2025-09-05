@@ -50,16 +50,22 @@ import { NodesResourceFactory } from '/@/resources/nodes-resource-factory.js';
 import { PodsResourceFactory } from '/@/resources/pods-resource-factory.js';
 import { PVCsResourceFactory } from '/@/resources/pvcs-resource-factory.js';
 import type { ResourceFactory, SelectorOptions } from '/@/resources/resource-factory.js';
-import { ResourceFactoryHandler } from './resource-factory-handler.js';
-import type { CacheUpdatedEvent, OfflineEvent, ResourceInformer } from '/@/types/resource-informer.js';
+import { ResourceFactoryHandler } from '/@/manager/resource-factory-handler.js';
+import type {
+  CacheUpdatedEvent,
+  ObjectDeletedEvent,
+  OfflineEvent,
+  ResourceInformer,
+} from '/@/types/resource-informer.js';
 import { RoutesResourceFactory } from '/@/resources/routes-resource-factory.js';
 import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js';
 import { ServicesResourceFactory } from '/@/resources/services-resource-factory.js';
 import { injectable } from 'inversify';
 import { ContextResourceItems } from '/@common/model/context-resources-items.js';
-import { NamespacesResourceFactory } from '../resources/namespaces-resource-factory.js';
+import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-factory.js';
 import { ContextResourceDetails } from '/@common/model/context-resources-details.js';
 import { ContextResourceEvents } from '/@common/model/context-resource-events.js';
+import { IDisposable } from '/@common/types/disposable.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
@@ -103,6 +109,10 @@ export class ContextsManager {
   #onCurrentContextChange = new Emitter<void>();
   onCurrentContextChange: Event<void> = this.#onCurrentContextChange.event;
 
+  #onObjectDeleted = new Emitter<{ contextName: string; resourceName: string; name: string; namespace: string }>();
+  onObjectDeleted: Event<{ contextName: string; resourceName: string; name: string; namespace: string }> =
+    this.#onObjectDeleted.event;
+
   constructor() {
     this.#currentKubeConfig = new KubeConfig();
     this.#resourceFactoryHandler = new ResourceFactoryHandler();
@@ -129,13 +139,13 @@ export class ContextsManager {
     return [
       new ConfigmapsResourceFactory(),
       new CronjobsResourceFactory(),
-      new JobsResourceFactory(),
+      new JobsResourceFactory(this),
       new DeploymentsResourceFactory(),
       new EventsResourceFactory(),
       new IngressesResourceFactory(),
       new NamespacesResourceFactory(),
       new NodesResourceFactory(),
-      new PodsResourceFactory(),
+      new PodsResourceFactory(this),
       new PVCsResourceFactory(),
       new RoutesResourceFactory(),
       new SecretsResourceFactory(),
@@ -413,6 +423,14 @@ export class ContextsManager {
               this.#onOfflineChange.fire();
               this.#objectCaches.removeForContext(e.kubeconfig.getKubeConfig().currentContext);
             });
+            informer.onObjectDeleted((e: ObjectDeletedEvent) => {
+              this.#onObjectDeleted.fire({
+                contextName: e.kubeconfig.getKubeConfig().currentContext,
+                resourceName: e.resourceName,
+                name: e.name,
+                namespace: e.namespace,
+              });
+            });
             const cache = informer.start();
             this.#objectCaches.set(contextName, resource, cache);
           }
@@ -499,6 +517,21 @@ export class ContextsManager {
     }
     const ns = namespace ?? this.currentContext.getNamespace();
     return handler.searchBySelector(this.currentContext, options, ns);
+  }
+
+  async restartObject(kind: string, name: string, namespace: string): Promise<void> {
+    if (!this.currentContext) {
+      console.warn('restart object: no current context');
+      return;
+    }
+
+    const handler = this.#resourceFactoryHandler.getResourceFactoryByKind(kind);
+    if (!handler?.restartObject) {
+      console.error(`restart object: no handler for kind ${kind}`);
+      return;
+    }
+    const ns = namespace ?? this.currentContext.getNamespace();
+    return handler.restartObject(this.currentContext, name, ns);
   }
 
   private handleResult(result: KubernetesObject | V1Status): void {
@@ -606,5 +639,67 @@ export class ContextsManager {
       currentContext: this.#currentKubeConfig.currentContext,
     });
     await this.update(newConfig);
+  }
+
+  async waitForObjectDeletion(
+    resourceName: string,
+    name: string,
+    namespace: string,
+    timeout: number = 60000,
+  ): Promise<boolean> {
+    if (!this.currentContext) {
+      console.warn('wait deletion: no current context');
+      return false;
+    }
+
+    let disposable: IDisposable | undefined = undefined;
+    let timeoutId: NodeJS.Timeout | undefined = undefined;
+
+    const dispose = (): void => {
+      disposable?.dispose();
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+
+    const handler = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName);
+    if (!handler?.readObject) {
+      console.error(`wait deletion: no handler for resource ${resourceName}`);
+      return false;
+    }
+    const reader = handler.readObject;
+
+    return new Promise((resolve, reject) => {
+      if (!this.currentContext) {
+        console.warn('wait deletion: no current context');
+        dispose();
+        resolve(false);
+        return;
+      }
+
+      // return false after Timeout
+      timeoutId = setTimeout(() => {
+        dispose();
+        resolve(false);
+      }, timeout);
+      // return true when the object is deleted
+      disposable = this.onObjectDeleted(event => {
+        if (event.resourceName === resourceName && event.name === name && event.namespace === namespace) {
+          dispose();
+          resolve(true);
+        }
+      });
+      // return true if the object already does not exist
+      reader(this.currentContext, name, namespace).catch((e: unknown) => {
+        const error = e ?? {};
+        if (error instanceof ApiException && error.code === 404) {
+          dispose();
+          resolve(true);
+          return;
+        }
+        dispose();
+        reject(e);
+      });
+    });
   }
 }

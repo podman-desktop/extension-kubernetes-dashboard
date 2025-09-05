@@ -88,3 +88,39 @@ test('ResourceFactoryBase set informer', () => {
   expect(factory.informer?.createInformer).toEqual(createInformer);
   expect(isResourceFactoryWithPermissions(factory)).toBeFalsy();
 });
+
+test('ResourceFactoryBase set readObject with namespaced object', () => {
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
+  const readObject = (_kubeconfig: KubeConfigSingleContext, _name: string, _namespace: string): Promise<V1Pod> => {
+    return Promise.resolve({} as V1Pod);
+  };
+  factory.setReadObject(readObject);
+  expect(factory.readObject).toEqual(readObject);
+});
+
+test('ResourceFactoryBase set readObject with non-namespaced object', () => {
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
+  const readObject = (_kubeconfig: KubeConfigSingleContext, _name: string): Promise<V1Pod> => {
+    return Promise.resolve({} as V1Pod);
+  };
+  factory.setReadObject(readObject);
+  expect(factory.readObject).toEqual(readObject);
+});
+
+test('ResourceFactoryBase set restartObject with namespaced object', () => {
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
+  const restartObject = (_kubeconfig: KubeConfigSingleContext, _name: string, _namespace: string): Promise<void> => {
+    return Promise.resolve();
+  };
+  factory.setRestartObject(restartObject);
+  expect(factory.restartObject).toEqual(restartObject);
+});
+
+test('ResourceFactoryBase set restartObject with non-namespaced object', () => {
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
+  const restartObject = (_kubeconfig: KubeConfigSingleContext, _name: string): Promise<void> => {
+    return Promise.resolve();
+  };
+  factory.setRestartObject(restartObject);
+  expect(factory.restartObject).toEqual(restartObject);
+});

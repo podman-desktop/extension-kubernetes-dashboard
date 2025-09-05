@@ -27,10 +27,6 @@ onDestroy(() => {
   portForwardsUnsubscriber?.();
 });
 
-$effect(() => {
-  console.log('port forwards', portForwards.data?.portForwards);
-});
-
 let forwardConfigs: Map<number, ForwardConfig> = $derived(
   new Map(
     portForwards.data?.portForwards

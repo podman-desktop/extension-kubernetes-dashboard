@@ -350,3 +350,43 @@ test('informer is stopped when disposed', async () => {
   informer.dispose();
   expect(stopMock).toHaveBeenCalled();
 });
+
+test('ResourceInformer should fire onObjectDeleted event when a resource is deleted', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const listFn = vi.fn();
+  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
+  const items = [
+    { metadata: { name: 'res1', namespace: 'ns1' } },
+    { metadata: { name: 'res2', namespace: 'ns1' } },
+  ] as MyResource[];
+  listFn.mockResolvedValue({ items: items });
+  const informer = new TestResourceInformer<MyResource>({
+    kubeconfig,
+    path: '/a/path',
+    listFn,
+    kind: 'MyResource',
+    plural: 'myresources',
+  });
+  const getListWatchOnMock = vi.fn();
+  vi.spyOn(informer, 'getListWatch').mockReturnValue({
+    on: getListWatchOnMock,
+    start: vi.fn().mockResolvedValue({}),
+  } as unknown as ListWatch<MyResource>);
+  getListWatchOnMock.mockImplementation((event: string, f: (obj: MyResource) => void) => {
+    if (event === DELETE) {
+      f(items[0]!);
+    }
+  });
+  const onCacheUpdatedCB = vi.fn();
+  informer.onObjectDeleted(onCacheUpdatedCB);
+  informer.start();
+  await vi.waitFor(() => {
+    expect(onCacheUpdatedCB).toHaveBeenCalledWith({
+      kubeconfig,
+      resourceName: 'myresources',
+      name: 'res1',
+      namespace: 'ns1',
+    });
+  });
+});
