@@ -3,14 +3,15 @@ import { TableColumn, TableDurationColumn, TableRow } from '@podman-desktop/ui-s
 import moment from 'moment';
 import NameColumn from '/@/component/objects/columns/Name.svelte';
 import StatusColumn from '/@/component/objects/columns/Status.svelte';
-import KubernetesObjectsList from '../objects/KubernetesObjectsList.svelte';
+import KubernetesObjectsList from '/@/component/objects/KubernetesObjectsList.svelte';
 import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
-import KubernetesEmptyScreen from '../objects/KubernetesEmptyScreen.svelte';
+import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
 import { PodHelper } from './pod-helper';
 import type { PodUI } from './PodUI';
-import PodIcon from '../icons/PodIcon.svelte';
+import PodIcon from '/@/component/icons/PodIcon.svelte';
 import ActionsColumn from './columns/Actions.svelte';
+import ContainersColumn from './columns/Containers.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const podHelper = dependencyAccessor.get<PodHelper>(PodHelper);
@@ -28,6 +29,13 @@ let nameColumn = new TableColumn<PodUI>('Name', {
   comparator: (a, b): number => a.name.localeCompare(b.name),
 });
 
+let containersColumn = new TableColumn<PodUI>('Containers', {
+  renderer: ContainersColumn,
+  comparator: (a, b): number => a.containers.length - b.containers.length,
+  initialOrder: 'descending',
+  overflow: true,
+});
+
 let ageColumn = new TableColumn<PodUI, Date | undefined>('Age', {
   renderMapping: (pod): Date | undefined => pod.created,
   renderer: TableDurationColumn,
@@ -37,6 +45,7 @@ let ageColumn = new TableColumn<PodUI, Date | undefined>('Age', {
 const columns = [
   statusColumn,
   nameColumn,
+  containersColumn,
   ageColumn,
   new TableColumn<PodUI>('Actions', { align: 'right', width: '150px', renderer: ActionsColumn, overflow: true }),
 ];
