@@ -23,4 +23,5 @@ export interface ContextsApi {
   deleteObject(kind: string, name: string, namespace?: string): Promise<void>;
   deleteObjects(objects: { kind: string; name: string; namespace?: string }[]): Promise<void>;
   setCurrentNamespace(namespace: string): Promise<void>;
+  restartObject(kind: string, name: string, namespace: string): Promise<void>;
 }

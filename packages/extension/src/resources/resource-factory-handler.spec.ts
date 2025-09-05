@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024 - 2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
 import { PodsResourceFactory } from './pods-resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceFactoryHandler } from '/@/manager/resource-factory-handler.js';
+import type { ContextsManager } from '/@/manager/contexts-manager.js';
 
+const contextsManager: ContextsManager = {} as ContextsManager;
 test('with 1 level and same request', () => {
   const factoryHandler = new ResourceFactoryHandler();
 
@@ -445,7 +447,7 @@ test('with 1 level and same request, both namespaced ant not namespaced', () => 
 test('real pods and deployments', () => {
   const factoryHandler = new ResourceFactoryHandler();
 
-  factoryHandler.add(new PodsResourceFactory());
+  factoryHandler.add(new PodsResourceFactory(contextsManager));
   factoryHandler.add(new DeploymentsResourceFactory());
   const requests = factoryHandler.getPermissionsRequests('ns');
   expect(requests).toEqual([
