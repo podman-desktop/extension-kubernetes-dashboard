@@ -874,6 +874,68 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       // Caches for context1 are removed
       expect(resourcesAfter2).toEqual([]);
     });
+
+    test('getResourceDetails with existing resource', async () => {
+      vi.mocked(ContextPermissionsChecker).mockImplementation(
+        () =>
+          ({
+            start: permissionsStartMock,
+            onPermissionResult: onPermissionResultMock,
+            contextName: 'ctx1',
+          }) as unknown as ContextPermissionsChecker,
+      );
+      const listMock = vi.fn();
+      const getMock = vi.fn();
+      startMock.mockReturnValue({
+        list: listMock,
+        get: getMock,
+      } as ObjectCache<KubernetesObject>);
+      listMock.mockReturnValue([{ metadata: { name: 'obj1', namespace: 'ns1' } }]);
+      getMock.mockReturnValue({ metadata: { name: 'obj1', namespace: 'ns1' } });
+      await manager.update(kc);
+
+      const result = manager.getResourceDetails('context1', 'resource1', 'obj1', 'ns1');
+      expect(result).toEqual([
+        {
+          resourceName: 'resource1',
+          contextName: 'context1',
+          name: 'obj1',
+          namespace: 'ns1',
+          details: { kind: 'Resource1', metadata: { name: 'obj1', namespace: 'ns1' } },
+        },
+      ]);
+    });
+
+    test('getResourceDetails with non-existing resource', async () => {
+      vi.mocked(ContextPermissionsChecker).mockImplementation(
+        () =>
+          ({
+            start: permissionsStartMock,
+            onPermissionResult: onPermissionResultMock,
+            contextName: 'ctx1',
+          }) as unknown as ContextPermissionsChecker,
+      );
+      const listMock = vi.fn();
+      const getMock = vi.fn();
+      startMock.mockReturnValue({
+        list: listMock,
+        get: getMock,
+      } as ObjectCache<KubernetesObject>);
+      listMock.mockReturnValue([{ metadata: { name: 'obj1', namespace: 'ns1' } }]);
+      getMock.mockReturnValue(undefined);
+      await manager.update(kc);
+
+      const result = manager.getResourceDetails('context1', 'resource1', 'obj1', 'ns1');
+      expect(result).toEqual([
+        {
+          resourceName: 'resource1',
+          contextName: 'context1',
+          name: 'obj1',
+          namespace: 'ns1',
+          details: undefined,
+        },
+      ]);
+    });
   });
 });
 

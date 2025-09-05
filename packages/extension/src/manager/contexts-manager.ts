@@ -253,8 +253,11 @@ export class ContextsManager {
     namespace?: string,
   ): ContextResourceDetails[] {
     return this.#objectCaches.getForContextsAndResource([contextName], resourceName).map(({ contextName, value }) => {
-      const kind = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName)?.kind;
-      const details = { ...value.get(name, namespace), kind };
+      let details = value.get(name, namespace);
+      if (details) {
+        const kind = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName)?.kind;
+        details = { ...details, kind };
+      }
       return {
         resourceName,
         contextName,
