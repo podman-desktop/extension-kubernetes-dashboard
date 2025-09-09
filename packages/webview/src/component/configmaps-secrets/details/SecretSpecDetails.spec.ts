@@ -28,16 +28,16 @@ const fakeSecret: V1Secret = {
   immutable: true,
   type: 'Opaque',
   data: {
-    'key1': 'value1',
-    'key2': 'value2',
-  }
+    key1: 'value1',
+    key2: 'value2',
+  },
 };
 
 test('Secret details renders with correct values', async () => {
   render(SecretSpecDetails, { object: fakeSecret });
 
   expect(screen.getByText('Details')).toBeInTheDocument();
-  
+
   expect(screen.getByText('Secret type')).toBeInTheDocument();
   expect(screen.getByText('Opaque')).toBeInTheDocument();
 

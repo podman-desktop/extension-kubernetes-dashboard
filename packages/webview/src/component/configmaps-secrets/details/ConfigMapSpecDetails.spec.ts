@@ -27,20 +27,20 @@ import ConfigMapSpecDetails from './ConfigMapSpecDetails.svelte';
 const fakeConfigMap: V1ConfigMap = {
   immutable: false,
   binaryData: {
-    'bd1': 'some value',
-    'bd2': 'some data',
+    bd1: 'some value',
+    bd2: 'some data',
   },
   data: {
-    'key1': 'value1',
-    'key2': 'value2',
-  }
+    key1: 'value1',
+    key2: 'value2',
+  },
 };
 
 test('ConfigMap details renders with correct values', async () => {
   render(ConfigMapSpecDetails, { object: fakeConfigMap });
 
   expect(screen.getByText('Details')).toBeInTheDocument();
-  
+
   expect(screen.getByText('Type')).toBeInTheDocument();
   expect(screen.getByText('ConfigMap')).toBeInTheDocument();
 
