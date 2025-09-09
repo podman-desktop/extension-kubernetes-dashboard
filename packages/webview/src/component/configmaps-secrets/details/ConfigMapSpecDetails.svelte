@@ -14,6 +14,10 @@ let { object: object }: Props = $props();
   <Title>Details</Title>
 </tr>
 <tr>
+  <Cell>Type</Cell>
+  <Cell>ConfigMap</Cell>
+</tr>
+<tr>
   <Cell>Immutable</Cell>
   <Cell>{object.immutable ? 'Yes' : 'No'}</Cell>
 </tr>

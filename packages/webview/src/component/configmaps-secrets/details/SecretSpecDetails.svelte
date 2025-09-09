@@ -14,7 +14,7 @@ let { object }: Props = $props();
   <Title>Details</Title>
 </tr>
 <tr>
-  <Cell>Type</Cell>
+  <Cell>Secret type</Cell>
   <Cell>{object.type}</Cell>
 </tr>
 <tr>
