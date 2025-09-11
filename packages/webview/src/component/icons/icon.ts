@@ -27,6 +27,7 @@ import NodeIcon from './NodeIcon.svelte';
 import PodIcon from './PodIcon.svelte';
 import PvcIcon from './PVCIcon.svelte';
 import ServiceIcon from './ServiceIcon.svelte';
+import NamespaceIcon from './NamespaceIcon.svelte';
 
 export const icon: Record<string, Component> = {
   ConfigMap: ConfigMapSecretIcon,
@@ -40,4 +41,5 @@ export const icon: Record<string, Component> = {
   Pod: PodIcon,
   PersistentVolumeClaim: PvcIcon,
   Service: ServiceIcon,
+  Namespace: NamespaceIcon,
 };

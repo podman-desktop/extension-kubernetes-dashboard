@@ -9,7 +9,7 @@ import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import type { NamespaceUI } from './NamespaceUI';
 import { NamespaceHelper } from './namespace-helper';
-import KubernetesIcon from '../icons/KubernetesIcon.svelte';
+import NamespaceIcon from '../icons/NamespaceIcon.svelte';
 import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
 import ActionsColumn from '/@/component/namespaces/columns/Actions.svelte';
 
@@ -54,10 +54,10 @@ const row = new TableRow<NamespaceUI>({ selectable: (): boolean => true });
   singular="namespace"
   plural="namespaces"
   isNamespaced={false}
-  icon={KubernetesIcon}
+  icon={NamespaceIcon}
   columns={columns}
   row={row}>
   {#snippet emptySnippet()}
-    <KubernetesEmptyScreen icon={KubernetesIcon} resources={['namespaces']} />
+    <KubernetesEmptyScreen icon={NamespaceIcon} resources={['namespaces']} />
   {/snippet}
 </KubernetesObjectsList>
