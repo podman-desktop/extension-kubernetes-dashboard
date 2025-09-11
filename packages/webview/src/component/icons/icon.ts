@@ -18,7 +18,6 @@
 
 import type { Component } from 'svelte';
 
-import ConfigMapSecretIcon from './ConfigMapSecretIcon.svelte';
 import CronJobIcon from './CronJobIcon.svelte';
 import DeploymentIcon from './DeploymentIcon.svelte';
 import IngressRouteIcon from './IngressRouteIcon.svelte';
@@ -28,10 +27,14 @@ import PodIcon from './PodIcon.svelte';
 import PvcIcon from './PVCIcon.svelte';
 import ServiceIcon from './ServiceIcon.svelte';
 import NamespaceIcon from './NamespaceIcon.svelte';
+import ConfigMapIcon from './ConfigMapIcon.svelte';
+import SecretIcon from './SecretIcon.svelte';
+import ConfigMapSecretIcon from './ConfigMapSecretIcon.svelte';
 
 export const icon: Record<string, Component> = {
-  ConfigMap: ConfigMapSecretIcon,
-  Secret: ConfigMapSecretIcon,
+  ConfigMap: ConfigMapIcon,
+  Secret: SecretIcon,
+  ConfigMapSecret: ConfigMapSecretIcon,
   CronJob: CronJobIcon,
   Deployment: DeploymentIcon,
   Ingress: IngressRouteIcon,

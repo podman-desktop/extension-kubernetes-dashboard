@@ -19,7 +19,11 @@ import DashboardResourceCard from './DashboardResourceCard.svelte';
     type="Persistent Volume Claims"
     resources={['persistentvolumeclaims']}
     kind="PersistentVolumeClaim" />
-  <DashboardResourceCard type="ConfigMaps & Secrets" resources={['configmaps', 'secrets']} kind="ConfigMap" />
+  <DashboardResourceCard
+    type="ConfigMaps & Secrets"
+    resources={['configmaps', 'secrets']}
+    kind="ConfigMap"
+    iconName="ConfigMapSecret" />
   <DashboardResourceCard type="Jobs" resources={['jobs']} kind="Job" />
   <DashboardResourceCard type="CronJobs" resources={['cronjobs']} kind="CronJob" />
 </div>

@@ -14,9 +14,10 @@ interface Props {
   type: string;
   resources: string[];
   kind: string;
+  iconName?: string;
 }
 
-let { type, resources, kind }: Props = $props();
+let { type, resources, kind, iconName = kind }: Props = $props();
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const navigator = dependencyAccessor.get<Navigator>(Navigator);
@@ -103,7 +104,9 @@ async function openLink(): Promise<void> {
     {/if}
   </div>
   <div class="grid {activeCount !== undefined ? 'grid-cols-3' : 'grid-cols-2'} gap-4 w-full grow items-end">
-    <div class="justify-self-center text-[var(--pd-button-primary-bg)]"><KubernetesIcon kind={kind} size="40" /></div>
+    <div class="justify-self-center text-[var(--pd-button-primary-bg)]">
+      <KubernetesIcon kind={iconName} size="40" />
+    </div>
     {#if activeCount !== undefined}
       <div class="flex flex-col">
         <span class="text-[var(--pd-invert-content-card-text)]">Active</span>
