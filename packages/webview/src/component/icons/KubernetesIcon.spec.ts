@@ -32,6 +32,7 @@ describe.each([
   'Route',
   'ConfigMap',
   'Secret',
+  'ConfigMapSecret',
   'PersistentVolumeClaim',
   'CronJob',
   'Job',
