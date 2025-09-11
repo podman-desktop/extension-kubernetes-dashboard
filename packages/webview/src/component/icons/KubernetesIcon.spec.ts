@@ -35,6 +35,7 @@ describe.each([
   'PersistentVolumeClaim',
   'CronJob',
   'Job',
+  'Namespace',
 ])('Check Kubernetes icon is correct', kind => {
   test(kind, async () => {
     render(KubernetesIcon, { kind: `${kind}` });

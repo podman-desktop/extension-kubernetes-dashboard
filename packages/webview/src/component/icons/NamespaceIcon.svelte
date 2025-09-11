@@ -9,7 +9,13 @@ let { size = '40', solid = false }: Props = $props();
 let fill = solid ? 'currentColor' : 'none';
 </script>
 
-<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} fill={fill} viewBox="0 0 36 32">
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  fill={fill}
+  viewBox="0 0 36 32"
+  aria-label="Namespace">
   <g>
     <rect
       width="34"
