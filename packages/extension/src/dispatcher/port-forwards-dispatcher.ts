@@ -29,10 +29,10 @@ export class PortForwardsDispatcher
   extends AbsDispatcherObjectImpl<void, PortForwardsInfo>
   implements DispatcherObject<void>
 {
-  @inject(PortForwardApiImpl)
-  private portForwardManager: PortForwardApiImpl;
-
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
+  constructor(
+    @inject(RpcExtension) rpcExtension: RpcExtension,
+    @inject(PortForwardApiImpl) private portForwardManager: PortForwardApiImpl,
+  ) {
     super(rpcExtension, PORT_FORWARDS);
   }
 

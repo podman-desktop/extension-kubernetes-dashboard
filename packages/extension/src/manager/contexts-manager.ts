@@ -61,10 +61,7 @@ import { RoutesResourceFactory } from '/@/resources/routes-resource-factory.js';
 import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js';
 import { ServicesResourceFactory } from '/@/resources/services-resource-factory.js';
 import { injectable } from 'inversify';
-import { ContextResourceItems } from '/@common/model/context-resources-items.js';
 import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-factory.js';
-import { ContextResourceDetails } from '/@common/model/context-resources-details.js';
-import { ContextResourceEvents } from '/@common/model/context-resource-events.js';
 import { IDisposable } from '/@common/types/disposable.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
@@ -237,23 +234,18 @@ export class ContextsManager {
 
   // getResources returns the resources for the given contexts and resource name
   // if no context names are provided, the current context is used
-  getResources(contextNames: string[], resourceName: string): ContextResourceItems[] {
-    let useCurrentContext = false;
-    if (contextNames.length === 0) {
+  getResources(resourceName: string, contextName?: string): readonly KubernetesObject[] {
+    let requestContextName = contextName;
+    if (!requestContextName) {
       const currentContextName = this.currentContext?.getKubeConfig().currentContext;
       if (!currentContextName) {
         return [];
       }
-      contextNames = [currentContextName];
-      useCurrentContext = true;
+      requestContextName = currentContextName;
     }
-    return this.#objectCaches.getForContextsAndResource(contextNames, resourceName).map(({ contextName, value }) => {
-      return {
-        resourceName,
-        contextName: useCurrentContext ? undefined : contextName,
-        items: value.list(),
-      };
-    });
+
+    const cache = this.#objectCaches.get(requestContextName, resourceName);
+    return cache?.list() ?? [];
   }
 
   getResourceDetails(
@@ -261,34 +253,24 @@ export class ContextsManager {
     resourceName: string,
     name: string,
     namespace?: string,
-  ): ContextResourceDetails[] {
-    return this.#objectCaches.getForContextsAndResource([contextName], resourceName).map(({ contextName, value }) => {
-      let details = value.get(name, namespace);
-      if (details) {
-        const kind = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName)?.kind;
-        details = { ...details, kind };
-      }
-      return {
-        resourceName,
-        contextName,
-        name,
-        namespace,
-        details,
-      };
-    });
+  ): KubernetesObject | undefined {
+    const value = this.#objectCaches.get(contextName, resourceName);
+    let details = value?.get(name, namespace);
+    if (details) {
+      const kind = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName)?.kind;
+      details = { ...details, kind };
+    }
+    return details;
   }
 
-  getResourceEvents(contextNames: string[], uid: string): ContextResourceEvents[] {
-    return this.#objectCaches.getForContextsAndResource(contextNames, 'events').map(({ contextName, value }) => {
-      return {
-        contextName,
-        uid,
-        events: value
-          .list()
-          .filter(o => this.isCoreV1Event(o))
-          .filter(event => event.involvedObject.uid === uid),
-      };
-    });
+  getResourceEvents(contextName: string, uid: string): CoreV1Event[] {
+    return (
+      this.#objectCaches
+        .get(contextName, 'events')
+        ?.list()
+        .filter(o => this.isCoreV1Event(o))
+        .filter(event => event.involvedObject.uid === uid) ?? []
+    );
   }
 
   isCoreV1Event(resource: KubernetesObject): resource is CoreV1Event {

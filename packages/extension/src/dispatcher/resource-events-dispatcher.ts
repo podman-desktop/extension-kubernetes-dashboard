@@ -30,16 +30,20 @@ export class ResourceEventsDispatcher
   extends AbsDispatcherObjectImpl<ResourceEventsOptions[], ResourceEventsInfo>
   implements DispatcherObject<ResourceEventsOptions[]>
 {
-  @inject(ContextsManager)
-  private manager: ContextsManager;
-
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
+  constructor(
+    @inject(RpcExtension) rpcExtension: RpcExtension,
+    @inject(ContextsManager) private manager: ContextsManager,
+  ) {
     super(rpcExtension, RESOURCE_EVENTS);
   }
 
   getData(options: ResourceEventsOptions[]): ResourceEventsInfo {
     return {
-      events: options.flatMap(option => this.manager.getResourceEvents([option.contextName], option.uid)),
+      events: options.map(option => ({
+        events: this.manager.getResourceEvents(option.contextName, option.uid),
+        contextName: option.contextName,
+        uid: option.uid,
+      })),
     };
   }
 }
