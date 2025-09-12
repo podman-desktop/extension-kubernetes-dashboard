@@ -803,7 +803,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       ]);
     });
 
-    test('getResources', async () => {
+    test('getResources with explicit context name', async () => {
       vi.mocked(ContextPermissionsChecker).mockImplementation(
         () =>
           ({
@@ -820,13 +820,16 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj1' } }]);
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
       await manager.update(kc);
-      const resources = manager.getResources(['context1', 'context2'], 'resource1');
-      expect(resources).toEqual([
+      const resources1 = manager.getResources('resource1', 'context1');
+      expect(resources1).toEqual([
         {
           contextName: 'context1',
           resourceName: 'resource1',
           items: [{ metadata: { name: 'obj1' } }],
         },
+      ]);
+      const resources2 = manager.getResources('resource1', 'context2');
+      expect(resources2).toEqual([
         {
           contextName: 'context2',
           resourceName: 'resource1',
@@ -853,7 +856,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
       vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue(kcSingle1);
       await manager.update(kc);
-      const resources = manager.getResources([], 'resource1');
+      const resources = manager.getResources('resource1');
       expect(resources).toEqual([
         {
           contextName: undefined,
@@ -880,18 +883,13 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj1' } }]);
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
       await manager.update(kc);
-      const resources = manager.getResources(['context1', 'context2'], 'resource1');
+      const resources = manager.getResources('resource1', 'context1');
       // At this point, resources are in caches for both contexts
       expect(resources).toEqual([
         {
           contextName: 'context1',
           resourceName: 'resource1',
           items: [{ metadata: { name: 'obj1' } }],
-        },
-        {
-          contextName: 'context2',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
         },
       ]);
 
@@ -908,16 +906,10 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       });
 
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
-      const resourcesAfter = manager.getResources(['context1', 'context2'], 'resource1');
+      const resourcesAfter = manager.getResources('resource1', 'context1');
 
       // Caches for context1 are removed
-      expect(resourcesAfter).toEqual([
-        {
-          contextName: 'context2',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
-        },
-      ]);
+      expect(resourcesAfter).toEqual([]);
 
       // Let's declare informer for resource1 in context2 offline
       onOfflineCB({
@@ -927,7 +919,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
         reason: 'because',
       });
 
-      const resourcesAfter2 = manager.getResources(['context1', 'context2'], 'resource1');
+      const resourcesAfter2 = manager.getResources('resource1', 'context1');
 
       // Caches for context1 are removed
       expect(resourcesAfter2).toEqual([]);

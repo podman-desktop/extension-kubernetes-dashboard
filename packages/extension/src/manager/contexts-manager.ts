@@ -237,17 +237,17 @@ export class ContextsManager {
 
   // getResources returns the resources for the given contexts and resource name
   // if no context names are provided, the current context is used
-  getResources(contextNames: string[], resourceName: string): ContextResourceItems[] {
+  getResources(resourceName: string, contextName?: string): ContextResourceItems[] {
     let useCurrentContext = false;
-    if (contextNames.length === 0) {
+    if (!contextName) {
       const currentContextName = this.currentContext?.getKubeConfig().currentContext;
       if (!currentContextName) {
         return [];
       }
-      contextNames = [currentContextName];
+      contextName = currentContextName;
       useCurrentContext = true;
     }
-    return this.#objectCaches.getForContextsAndResource(contextNames, resourceName).map(({ contextName, value }) => {
+    return this.#objectCaches.getForContextsAndResource([contextName], resourceName).map(({ contextName, value }) => {
       return {
         resourceName,
         contextName: useCurrentContext ? undefined : contextName,

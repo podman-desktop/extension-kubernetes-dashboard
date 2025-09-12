@@ -40,17 +40,14 @@ test('getData with explicit context names', () => {
     { resourceName: 'resource2', contextName: 'context2' },
   ]);
   expect(contextsManager.getResources).toHaveBeenCalledTimes(2);
-  expect(contextsManager.getResources).toHaveBeenCalledWith(['context1'], 'resource1');
-  expect(contextsManager.getResources).toHaveBeenCalledWith(['context2'], 'resource2');
+  expect(contextsManager.getResources).toHaveBeenCalledWith('resource1', 'context1');
+  expect(contextsManager.getResources).toHaveBeenCalledWith('resource2', 'context2');
 });
 
 test('getData with implicit context name', () => {
   const dispatcher = new UpdateResourceDispatcher(rpcExtension, contextsManager);
-  dispatcher.getData([
-    { resourceName: 'resource1' },
-    { resourceName: 'resource2' },
-  ]);
+  dispatcher.getData([{ resourceName: 'resource1' }, { resourceName: 'resource2' }]);
   expect(contextsManager.getResources).toHaveBeenCalledTimes(2);
-  expect(contextsManager.getResources).toHaveBeenCalledWith([], 'resource1');
-  expect(contextsManager.getResources).toHaveBeenCalledWith([], 'resource2');
+  expect(contextsManager.getResources).toHaveBeenCalledWith('resource1', undefined);
+  expect(contextsManager.getResources).toHaveBeenCalledWith('resource2', undefined);
 });
