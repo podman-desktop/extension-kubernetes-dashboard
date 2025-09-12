@@ -119,3 +119,20 @@ test('searchIngressesByTargetRef returns the correct ingresses', async () => {
   });
   expect(ingresses).toEqual([ingress1, ingress3]);
 });
+
+test('searchIngressesByTargetRef returns no ingress', async () => {
+  const apiClientMock = {
+    listNamespacedIngress: vi.fn(),
+  } as unknown as NetworkingV1Api;
+  makeApiClientMock.mockReturnValue(apiClientMock);
+  vi.mocked(apiClientMock.listNamespacedIngress).mockResolvedValue({
+    items: [ingress2],
+  } as unknown as V1EndpointSliceList);
+  const factory = new IngressesResourceFactory();
+  const ingresses = await factory.searchIngressesByTargetRef(kubeconfig, {
+    kind: 'Service',
+    name: 'svc1',
+    namespace: 'ns1',
+  });
+  expect(ingresses).toEqual([]);
+});
