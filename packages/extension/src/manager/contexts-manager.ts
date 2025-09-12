@@ -62,7 +62,6 @@ import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js
 import { ServicesResourceFactory } from '/@/resources/services-resource-factory.js';
 import { injectable } from 'inversify';
 import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-factory.js';
-import { ContextResourceEvents } from '/@common/model/context-resource-events.js';
 import { IDisposable } from '/@common/types/disposable.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
@@ -264,17 +263,14 @@ export class ContextsManager {
     return details;
   }
 
-  getResourceEvents(contextNames: string[], uid: string): ContextResourceEvents[] {
-    return this.#objectCaches.getForContextsAndResource(contextNames, 'events').map(({ contextName, value }) => {
-      return {
-        contextName,
-        uid,
-        events: value
-          .list()
-          .filter(o => this.isCoreV1Event(o))
-          .filter(event => event.involvedObject.uid === uid),
-      };
-    });
+  getResourceEvents(contextName: string, uid: string): CoreV1Event[] {
+    return (
+      this.#objectCaches
+        .get(contextName, 'events')
+        ?.list()
+        .filter(o => this.isCoreV1Event(o))
+        .filter(event => event.involvedObject.uid === uid) ?? []
+    );
   }
 
   isCoreV1Event(resource: KubernetesObject): resource is CoreV1Event {
