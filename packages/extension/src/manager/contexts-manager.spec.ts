@@ -921,15 +921,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       await manager.update(kc);
 
       const result = manager.getResourceDetails('context1', 'resource1', 'obj1', 'ns1');
-      expect(result).toEqual([
-        {
-          resourceName: 'resource1',
-          contextName: 'context1',
-          name: 'obj1',
-          namespace: 'ns1',
-          details: { kind: 'Resource1', metadata: { name: 'obj1', namespace: 'ns1' } },
-        },
-      ]);
+      expect(result).toEqual({ kind: 'Resource1', metadata: { name: 'obj1', namespace: 'ns1' } });
     });
 
     test('getResourceDetails with non-existing resource', async () => {
@@ -952,15 +944,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       await manager.update(kc);
 
       const result = manager.getResourceDetails('context1', 'resource1', 'obj1', 'ns1');
-      expect(result).toEqual([
-        {
-          resourceName: 'resource1',
-          contextName: 'context1',
-          name: 'obj1',
-          namespace: 'ns1',
-          details: undefined,
-        },
-      ]);
+      expect(result).toEqual(undefined);
     });
 
     test('object deleted', async () => {

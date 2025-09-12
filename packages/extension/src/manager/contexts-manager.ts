@@ -62,7 +62,6 @@ import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js
 import { ServicesResourceFactory } from '/@/resources/services-resource-factory.js';
 import { injectable } from 'inversify';
 import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-factory.js';
-import { ContextResourceDetails } from '/@common/model/context-resources-details.js';
 import { ContextResourceEvents } from '/@common/model/context-resource-events.js';
 import { IDisposable } from '/@common/types/disposable.js';
 
@@ -255,21 +254,14 @@ export class ContextsManager {
     resourceName: string,
     name: string,
     namespace?: string,
-  ): ContextResourceDetails[] {
-    return this.#objectCaches.getForContextsAndResource([contextName], resourceName).map(({ contextName, value }) => {
-      let details = value.get(name, namespace);
-      if (details) {
-        const kind = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName)?.kind;
-        details = { ...details, kind };
-      }
-      return {
-        resourceName,
-        contextName,
-        name,
-        namespace,
-        details,
-      };
-    });
+  ): KubernetesObject | undefined {
+    const value = this.#objectCaches.get(contextName, resourceName);
+    let details = value?.get(name, namespace);
+    if (details) {
+      const kind = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName)?.kind;
+      details = { ...details, kind };
+    }
+    return details;
   }
 
   getResourceEvents(contextNames: string[], uid: string): ContextResourceEvents[] {
