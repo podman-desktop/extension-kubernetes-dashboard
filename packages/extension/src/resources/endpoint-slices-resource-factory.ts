@@ -55,7 +55,7 @@ export class EndpointSlicesResourceFactory extends ResourceFactoryBase implement
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(DiscoveryV1Api);
     const list = await apiClient.listNamespacedEndpointSlice({ namespace: targetRef.namespace });
     return list.items.filter(item =>
-      item.endpoints.some(
+      item.endpoints?.some(
         endpoint =>
           endpoint.targetRef?.name === targetRef.name &&
           endpoint.targetRef?.namespace === targetRef.namespace &&
