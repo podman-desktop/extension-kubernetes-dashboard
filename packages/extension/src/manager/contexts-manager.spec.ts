@@ -821,21 +821,9 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
       await manager.update(kc);
       const resources1 = manager.getResources('resource1', 'context1');
-      expect(resources1).toEqual([
-        {
-          contextName: 'context1',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj1' } }],
-        },
-      ]);
+      expect(resources1).toEqual([{ metadata: { name: 'obj1' } }]);
       const resources2 = manager.getResources('resource1', 'context2');
-      expect(resources2).toEqual([
-        {
-          contextName: 'context2',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
-        },
-      ]);
+      expect(resources2).toEqual([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
     });
 
     test('getResources without context names', async () => {
@@ -857,13 +845,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue(kcSingle1);
       await manager.update(kc);
       const resources = manager.getResources('resource1');
-      expect(resources).toEqual([
-        {
-          contextName: undefined,
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj1' } }],
-        },
-      ]);
+      expect(resources).toEqual([{ metadata: { name: 'obj1' } }]);
     });
 
     test('one offline informer clears all caches', async () => {
@@ -885,13 +867,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       await manager.update(kc);
       const resources = manager.getResources('resource1', 'context1');
       // At this point, resources are in caches for both contexts
-      expect(resources).toEqual([
-        {
-          contextName: 'context1',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj1' } }],
-        },
-      ]);
+      expect(resources).toEqual([{ metadata: { name: 'obj1' } }]);
 
       expect(onOfflineMock).toHaveBeenCalledTimes(2);
       const onOfflineCB = onOfflineMock.mock.calls[0]?.[0];

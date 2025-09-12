@@ -61,7 +61,6 @@ import { RoutesResourceFactory } from '/@/resources/routes-resource-factory.js';
 import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js';
 import { ServicesResourceFactory } from '/@/resources/services-resource-factory.js';
 import { injectable } from 'inversify';
-import { ContextResourceItems } from '/@common/model/context-resources-items.js';
 import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-factory.js';
 import { ContextResourceDetails } from '/@common/model/context-resources-details.js';
 import { ContextResourceEvents } from '/@common/model/context-resource-events.js';
@@ -237,23 +236,18 @@ export class ContextsManager {
 
   // getResources returns the resources for the given contexts and resource name
   // if no context names are provided, the current context is used
-  getResources(resourceName: string, contextName?: string): ContextResourceItems[] {
-    let useCurrentContext = false;
-    if (!contextName) {
+  getResources(resourceName: string, contextName?: string): readonly KubernetesObject[] {
+    let requestContextName = contextName;
+    if (!requestContextName) {
       const currentContextName = this.currentContext?.getKubeConfig().currentContext;
       if (!currentContextName) {
         return [];
       }
-      contextName = currentContextName;
-      useCurrentContext = true;
+      requestContextName = currentContextName;
     }
-    return this.#objectCaches.getForContextsAndResource([contextName], resourceName).map(({ contextName, value }) => {
-      return {
-        resourceName,
-        contextName: useCurrentContext ? undefined : contextName,
-        items: value.list(),
-      };
-    });
+
+    const cache = this.#objectCaches.get(requestContextName, resourceName);
+    return cache?.list() ?? [];
   }
 
   getResourceDetails(
