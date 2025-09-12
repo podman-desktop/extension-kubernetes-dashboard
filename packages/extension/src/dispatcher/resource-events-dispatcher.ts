@@ -30,10 +30,10 @@ export class ResourceEventsDispatcher
   extends AbsDispatcherObjectImpl<ResourceEventsOptions[], ResourceEventsInfo>
   implements DispatcherObject<ResourceEventsOptions[]>
 {
-  @inject(ContextsManager)
-  private manager: ContextsManager;
-
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
+  constructor(
+    @inject(RpcExtension) rpcExtension: RpcExtension,
+    @inject(ContextsManager) private manager: ContextsManager,
+  ) {
     super(rpcExtension, RESOURCE_EVENTS);
   }
 

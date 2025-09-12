@@ -30,10 +30,10 @@ export class UpdateResourceDispatcher
   extends AbsDispatcherObjectImpl<UpdateResourceOptions[], UpdateResourceInfo>
   implements DispatcherObject<UpdateResourceOptions[]>
 {
-  @inject(ContextsManager)
-  private manager: ContextsManager;
-
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
+  constructor(
+    @inject(RpcExtension) rpcExtension: RpcExtension,
+    @inject(ContextsManager) private manager: ContextsManager,
+  ) {
     super(rpcExtension, UPDATE_RESOURCE);
   }
 
