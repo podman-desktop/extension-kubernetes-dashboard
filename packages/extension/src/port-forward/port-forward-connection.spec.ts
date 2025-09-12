@@ -447,9 +447,7 @@ describe('PortForwardConnectionService', () => {
   describe('getWorkloadResource', () => {
     test('should retrieve a Pod resource', async () => {
       const pod = { metadata: { name: 'test-pod', namespace: 'default' } };
-      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
-        { details: pod, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
-      ]);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue(pod);
 
       const resource = await service.getWorkloadResource(WorkloadKind.POD, 'test-pod', 'default');
       expect(resource).toEqual(pod);
@@ -457,9 +455,7 @@ describe('PortForwardConnectionService', () => {
 
     test('should retrieve a Deployment resource', async () => {
       const deployment = { metadata: { name: 'test-deployment', namespace: 'default' } };
-      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
-        { details: deployment, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
-      ]);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue(deployment);
 
       const resource = await service.getWorkloadResource(WorkloadKind.DEPLOYMENT, 'test-deployment', 'default');
       expect(resource).toEqual(deployment);
@@ -467,9 +463,7 @@ describe('PortForwardConnectionService', () => {
 
     test('should retrieve a Service resource', async () => {
       const _service = { metadata: { name: 'test-service', namespace: 'default' } };
-      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
-        { details: _service, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
-      ]);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue(_service);
 
       const resource = await service.getWorkloadResource(WorkloadKind.SERVICE, 'test-service', 'default');
       expect(resource).toEqual(_service);
@@ -600,9 +594,7 @@ describe('PortForwardConnectionService', () => {
         metadata: { name: 'test-pod', namespace: 'default' },
       };
 
-      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
-        { details: pod, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
-      ]);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue(pod);
 
       const disposable1 = new MockDisposable();
 
@@ -634,9 +626,7 @@ describe('PortForwardConnectionService', () => {
         metadata: { name: 'test-pod', namespace: 'default' },
       };
 
-      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
-        { details: pod, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
-      ]);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue(pod);
 
       const disposable1 = new MockDisposable();
 
@@ -663,9 +653,7 @@ describe('PortForwardConnectionService', () => {
         metadata: { name: 'test-pod', namespace: 'default' },
       };
 
-      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue([
-        { details: pod, contextName: 'default', resourceName: 'pods', name: 'test-pod' },
-      ]);
+      vi.spyOn(contextsManager, 'getResourceDetails').mockReturnValue(pod);
 
       vi.spyOn(service, 'performForward').mockRejectedValueOnce(new Error('Failed to forward port'));
 

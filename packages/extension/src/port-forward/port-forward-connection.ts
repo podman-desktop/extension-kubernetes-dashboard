@@ -166,8 +166,7 @@ export class PortForwardConnectionService {
    * @throws If the pod cannot be retrieved.
    */
   protected async getPod(name: string, namespace: string): Promise<V1Pod> {
-    const details = this.contextsManager.getResourceDetails(this.kubeConfig.currentContext, 'pods', name, namespace);
-    return details[0].details as V1Pod;
+    return this.contextsManager.getResourceDetails(this.kubeConfig.currentContext, 'pods', name, namespace) as V1Pod;
   }
 
   /**
@@ -178,13 +177,12 @@ export class PortForwardConnectionService {
    * @throws If the deployment cannot be retrieved.
    */
   protected async getDeployment(name: string, namespace: string): Promise<V1Deployment> {
-    const details = this.contextsManager.getResourceDetails(
+    return this.contextsManager.getResourceDetails(
       this.kubeConfig.currentContext,
       'deployments',
       name,
       namespace,
-    );
-    return details[0].details as V1Deployment;
+    ) as V1Deployment;
   }
 
   /**
@@ -195,13 +193,12 @@ export class PortForwardConnectionService {
    * @throws If the service cannot be retrieved.
    */
   protected async getService(name: string, namespace: string): Promise<V1Service> {
-    const details = this.contextsManager.getResourceDetails(
+    return this.contextsManager.getResourceDetails(
       this.kubeConfig.currentContext,
       'services',
       name,
       namespace,
-    );
-    return details[0].details as V1Service;
+    ) as V1Service;
   }
 
   /**
