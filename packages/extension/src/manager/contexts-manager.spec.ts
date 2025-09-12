@@ -410,6 +410,10 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
     manager = new TestContextsManager();
   });
 
+  afterEach(() => {
+    vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockRestore();
+  });
+
   test('permissions are correctly dispatched', async () => {
     const kcSingle1 = new KubeConfigSingleContext(kc, context1);
     let permissionCall = 0;
@@ -827,6 +831,34 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
           contextName: 'context2',
           resourceName: 'resource1',
           items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
+        },
+      ]);
+    });
+
+    test('getResources without context names', async () => {
+      vi.mocked(ContextPermissionsChecker).mockImplementation(
+        () =>
+          ({
+            start: permissionsStartMock,
+            onPermissionResult: onPermissionResultMock,
+            contextName: 'ctx1',
+          }) as unknown as ContextPermissionsChecker,
+      );
+      const listMock = vi.fn();
+      startMock.mockReturnValue({
+        list: listMock,
+        get: vi.fn(),
+      } as ObjectCache<KubernetesObject>);
+      listMock.mockReturnValueOnce([{ metadata: { name: 'obj1' } }]);
+      listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
+      vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue(kcSingle1);
+      await manager.update(kc);
+      const resources = manager.getResources([], 'resource1');
+      expect(resources).toEqual([
+        {
+          contextName: undefined,
+          resourceName: 'resource1',
+          items: [{ metadata: { name: 'obj1' } }],
         },
       ]);
     });
