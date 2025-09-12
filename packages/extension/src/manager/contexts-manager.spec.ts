@@ -175,26 +175,28 @@ class TestContextsManager extends ContextsManager {
       new ResourceFactoryBase({
         kind: 'Event',
         resource: 'events',
-      }).setPermissions({
-        isNamespaced: true,
-        permissionsRequests: [
-          {
-            group: '*',
-            resource: '*',
-            verb: 'watch',
+      })
+        .setPermissions({
+          isNamespaced: true,
+          permissionsRequests: [
+            {
+              group: '*',
+              resource: '*',
+              verb: 'watch',
+            },
+          ],
+        })
+        .setInformer({
+          createInformer: (_kubeconfig: KubeConfigSingleContext): ResourceInformer<CoreV1Event> => {
+            return {
+              onCacheUpdated: onCacheUpdatedEventMock,
+              onOffline: onOfflineEventMock,
+              onObjectDeleted: onObjectDeletedEventMock,
+              start: startEventMock,
+              dispose: informerDisposeEventMock,
+            } as unknown as ResourceInformer<CoreV1Event>;
           },
-        ],
-      }).setInformer({
-        createInformer: (_kubeconfig: KubeConfigSingleContext): ResourceInformer<CoreV1Event> => {
-          return {
-            onCacheUpdated: onCacheUpdatedEventMock,
-            onOffline: onOfflineEventMock,
-            onObjectDeleted: onObjectDeletedEventMock,
-            start: startEventMock,
-            dispose: informerDisposeEventMock,
-          } as unknown as ResourceInformer<CoreV1Event>;
-        },
-      }),
+        }),
     ];
   }
 
@@ -1007,14 +1009,8 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
 
       await manager.update(kc);
 
-      const result = manager.getResourceEvents(['context1'], 'uid1');
-      expect(result).toEqual([
-        {
-          contextName: 'context1',
-          uid: 'uid1',
-          events: [event1],
-        },
-      ]);
+      const result = manager.getResourceEvents('context1', 'uid1');
+      expect(result).toEqual([event1]);
     });
 
     test('object deleted', async () => {

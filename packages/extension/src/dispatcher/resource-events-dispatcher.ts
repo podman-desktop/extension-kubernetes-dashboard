@@ -39,7 +39,11 @@ export class ResourceEventsDispatcher
 
   getData(options: ResourceEventsOptions[]): ResourceEventsInfo {
     return {
-      events: options.flatMap(option => this.manager.getResourceEvents([option.contextName], option.uid)),
+      events: options.map(option => ({
+        events: this.manager.getResourceEvents(option.contextName, option.uid),
+        contextName: option.contextName,
+        uid: option.uid,
+      })),
     };
   }
 }

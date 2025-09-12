@@ -47,20 +47,6 @@ export class ContextResourceRegistry<T> {
     });
   }
 
-  getForContextsAndResource(contextNames: string[], resourceName: string): Details<T>[] {
-    const result: Details<T>[] = [];
-    for (const [contextName, contextResources] of this.#registry.entries()) {
-      if (!contextNames.includes(contextName)) {
-        continue;
-      }
-      const value = contextResources.get(resourceName);
-      if (value) {
-        result.push({ contextName, value, resourceName });
-      }
-    }
-    return result;
-  }
-
   getForContext(contextName: string): T[] {
     const forContext = this.#registry.get(contextName);
     if (!forContext) {
