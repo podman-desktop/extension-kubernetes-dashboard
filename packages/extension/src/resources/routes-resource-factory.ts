@@ -25,6 +25,7 @@ import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
+import type { TargetRef } from '/@common/model/target-ref.js';
 
 export class RoutesResourceFactory extends ResourceFactoryBase implements ResourceFactory {
   constructor() {
@@ -52,6 +53,7 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
       createInformer: this.createInformer,
     });
     this.setDeleteObject(this.deleteRoute);
+    this.setSearchByTargetRef(this.searchRoutesByTargetRef);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Route> {
@@ -81,5 +83,18 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
       name,
       namespace,
     });
+  }
+
+  async searchRoutesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): Promise<V1Route[]> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CustomObjectsApi);
+    const list = await apiClient.listNamespacedCustomObject({
+      group: 'route.openshift.io',
+      version: 'v1',
+      plural: 'routes',
+      namespace: targetRef.namespace,
+    });
+    return list.items.filter(
+      (item: V1Route) => item.spec?.to?.name === targetRef.name && item.spec?.to?.kind === targetRef.kind,
+    );
   }
 }

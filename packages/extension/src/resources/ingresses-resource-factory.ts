@@ -23,6 +23,7 @@ import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
+import type { TargetRef } from '/@common/model/target-ref.js';
 
 export class IngressesResourceFactory extends ResourceFactoryBase implements ResourceFactory {
   constructor() {
@@ -50,6 +51,7 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
       createInformer: this.createInformer,
     });
     this.setDeleteObject(this.deleteIngress);
+    this.setSearchByTargetRef(this.searchIngressesByTargetRef);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Ingress> {
@@ -67,5 +69,25 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
   ): Promise<V1Status | KubernetesObject> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(NetworkingV1Api);
     return apiClient.deleteNamespacedIngress({ name, namespace });
+  }
+
+  async searchIngressesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): Promise<V1Ingress[]> {
+    // We only support targetting services, either by default backend or by rules
+    // TODO handle other kinds of targets (through the spec.rules.http.paths.backend.resource)
+    if (targetRef.kind !== 'Service') {
+      return [];
+    }
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(NetworkingV1Api);
+    const list = await apiClient.listNamespacedIngress({ namespace: targetRef.namespace });
+    const matchinDefaultBackend = list.items.filter(
+      item => item.spec?.defaultBackend?.service?.name === targetRef.name,
+    );
+    const matchinRules = list.items.filter(item =>
+      item.spec?.rules?.some(rule => rule.http?.paths?.some(path => path.backend?.service?.name === targetRef.name)),
+    );
+    const nonUnique = [...matchinDefaultBackend, ...matchinRules];
+    return nonUnique.filter(
+      (item, index, self) => self.findIndex(t => t.metadata?.name === item.metadata?.name) === index,
+    );
   }
 }
