@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Cluster, KubernetesObject, ObjectCache, V1Status } from '@kubernetes/client-node';
+import type { Cluster, CoreV1Event, KubernetesObject, ObjectCache, V1Status } from '@kubernetes/client-node';
 import { ApiException, KubeConfig } from '@kubernetes/client-node';
 import type { Event } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -50,6 +50,12 @@ const resource4SearchBySelectorMock = vi.fn();
 const resource4RestartObjectMock = vi.fn();
 
 const resource5ReadObjectMock = vi.fn();
+
+const onCacheUpdatedEventMock = vi.fn<Event<CacheUpdatedEvent>>();
+const onOfflineEventMock = vi.fn<Event<OfflineEvent>>();
+const onObjectDeletedEventMock = vi.fn<Event<ObjectDeletedEvent>>();
+const startEventMock = vi.fn();
+const informerDisposeEventMock = vi.fn();
 
 class TestContextsManager extends ContextsManager {
   override getResourceFactories(): ResourceFactory[] {
@@ -166,6 +172,29 @@ class TestContextsManager extends ContextsManager {
           ],
         })
         .setReadObject(resource5ReadObjectMock),
+      new ResourceFactoryBase({
+        kind: 'Event',
+        resource: 'events',
+      }).setPermissions({
+        isNamespaced: true,
+        permissionsRequests: [
+          {
+            group: '*',
+            resource: '*',
+            verb: 'watch',
+          },
+        ],
+      }).setInformer({
+        createInformer: (_kubeconfig: KubeConfigSingleContext): ResourceInformer<CoreV1Event> => {
+          return {
+            onCacheUpdated: onCacheUpdatedEventMock,
+            onOffline: onOfflineEventMock,
+            onObjectDeleted: onObjectDeletedEventMock,
+            start: startEventMock,
+            dispose: informerDisposeEventMock,
+          } as unknown as ResourceInformer<CoreV1Event>;
+        },
+      }),
     ];
   }
 
@@ -642,7 +671,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
           case 2:
             f({
               kubeConfig: kcSingle1,
-              resources: ['resource1', 'resource2'],
+              resources: ['resource1', 'resource2', 'events'],
               permitted: true,
             });
             break;
@@ -748,6 +777,11 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
         list: listMock,
         get: vi.fn(),
       } as ObjectCache<KubernetesObject>);
+      const listEventMock = vi.fn().mockReturnValue([{}]);
+      startEventMock.mockReturnValue({
+        list: listEventMock,
+        get: vi.fn(),
+      } as ObjectCache<CoreV1Event>);
       listMock.mockReturnValue([{}, {}]);
       await manager.update(kc);
       const counts = manager.getResourcesCount();
@@ -756,6 +790,11 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
           contextName: 'context1',
           resourceName: 'resource1',
           count: 2,
+        },
+        {
+          contextName: 'context1',
+          resourceName: 'events',
+          count: 1,
         },
         {
           contextName: 'context2',
@@ -945,6 +984,37 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
 
       const result = manager.getResourceDetails('context1', 'resource1', 'obj1', 'ns1');
       expect(result).toEqual(undefined);
+    });
+
+    test('getResourceEvents', async () => {
+      vi.mocked(ContextPermissionsChecker).mockImplementation(
+        () =>
+          ({
+            start: permissionsStartMock,
+            onPermissionResult: onPermissionResultMock,
+            contextName: 'ctx1',
+          }) as unknown as ContextPermissionsChecker,
+      );
+      const listMock = vi.fn();
+      const getMock = vi.fn();
+      startEventMock.mockReturnValue({
+        list: listMock,
+        get: getMock,
+      } as ObjectCache<KubernetesObject>);
+      const event1: CoreV1Event = { metadata: {}, involvedObject: { uid: 'uid1' } };
+      listMock.mockReturnValue([event1]);
+      getMock.mockReturnValue(event1);
+
+      await manager.update(kc);
+
+      const result = manager.getResourceEvents(['context1'], 'uid1');
+      expect(result).toEqual([
+        {
+          contextName: 'context1',
+          uid: 'uid1',
+          events: [event1],
+        },
+      ]);
     });
 
     test('object deleted', async () => {
