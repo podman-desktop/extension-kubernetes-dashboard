@@ -29,10 +29,10 @@ export class ResourcesCountDispatcher
   extends AbsDispatcherObjectImpl<void, ResourcesCountInfo>
   implements DispatcherObject<void>
 {
-  @inject(ContextsManager)
-  private manager: ContextsManager;
-
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
+  constructor(
+    @inject(RpcExtension) rpcExtension: RpcExtension,
+    @inject(ContextsManager) private manager: ContextsManager,
+  ) {
     super(rpcExtension, RESOURCES_COUNT);
   }
 
