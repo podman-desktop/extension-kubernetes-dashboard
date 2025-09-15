@@ -30,18 +30,20 @@ export class UpdateResourceDispatcher
   extends AbsDispatcherObjectImpl<UpdateResourceOptions[], UpdateResourceInfo>
   implements DispatcherObject<UpdateResourceOptions[]>
 {
-  @inject(ContextsManager)
-  private manager: ContextsManager;
-
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
+  constructor(
+    @inject(RpcExtension) rpcExtension: RpcExtension,
+    @inject(ContextsManager) private manager: ContextsManager,
+  ) {
     super(rpcExtension, UPDATE_RESOURCE);
   }
 
   getData(options: UpdateResourceOptions[]): UpdateResourceInfo {
     return {
-      resources: options.flatMap(option =>
-        this.manager.getResources(option.contextName ? [option.contextName] : [], option.resourceName),
-      ),
+      resources: options.map(option => ({
+        items: this.manager.getResources(option.resourceName, option.contextName),
+        resourceName: option.resourceName,
+        contextName: option.contextName,
+      })),
     };
   }
 }

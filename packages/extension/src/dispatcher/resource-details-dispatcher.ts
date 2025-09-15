@@ -30,18 +30,27 @@ export class ResourceDetailsDispatcher
   extends AbsDispatcherObjectImpl<ResourceDetailsOptions[], ResourceDetailsInfo>
   implements DispatcherObject<ResourceDetailsOptions[]>
 {
-  @inject(ContextsManager)
-  private manager: ContextsManager;
-
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
+  constructor(
+    @inject(RpcExtension) rpcExtension: RpcExtension,
+    @inject(ContextsManager) private manager: ContextsManager,
+  ) {
     super(rpcExtension, RESOURCE_DETAILS);
   }
 
   getData(options: ResourceDetailsOptions[]): ResourceDetailsInfo {
     return {
-      resources: options.flatMap(option =>
-        this.manager.getResourceDetails(option.contextName, option.resourceName, option.name, option.namespace),
-      ),
+      resources: options.map(option => ({
+        details: this.manager.getResourceDetails(
+          option.contextName,
+          option.resourceName,
+          option.name,
+          option.namespace,
+        ),
+        resourceName: option.resourceName,
+        contextName: option.contextName,
+        name: option.name,
+        namespace: option.namespace,
+      })),
     };
   }
 }

@@ -30,10 +30,10 @@ export class ContextsHealthsDispatcher
   extends AbsDispatcherObjectImpl<void, ContextsHealthsInfo>
   implements DispatcherObject<void>
 {
-  @inject(ContextsManager)
-  private manager: ContextsManager;
-
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
+  constructor(
+    @inject(RpcExtension) rpcExtension: RpcExtension,
+    @inject(ContextsManager) private manager: ContextsManager,
+  ) {
     super(rpcExtension, CONTEXTS_HEALTHS);
   }
 

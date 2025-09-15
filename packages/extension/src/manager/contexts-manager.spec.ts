@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Cluster, KubernetesObject, ObjectCache, V1Status } from '@kubernetes/client-node';
+import type { Cluster, CoreV1Event, KubernetesObject, ObjectCache, V1Status } from '@kubernetes/client-node';
 import { ApiException, KubeConfig } from '@kubernetes/client-node';
 import type { Event } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -50,6 +50,12 @@ const resource4SearchBySelectorMock = vi.fn();
 const resource4RestartObjectMock = vi.fn();
 
 const resource5ReadObjectMock = vi.fn();
+
+const onCacheUpdatedEventMock = vi.fn<Event<CacheUpdatedEvent>>();
+const onOfflineEventMock = vi.fn<Event<OfflineEvent>>();
+const onObjectDeletedEventMock = vi.fn<Event<ObjectDeletedEvent>>();
+const startEventMock = vi.fn();
+const informerDisposeEventMock = vi.fn();
 
 class TestContextsManager extends ContextsManager {
   override getResourceFactories(): ResourceFactory[] {
@@ -166,6 +172,31 @@ class TestContextsManager extends ContextsManager {
           ],
         })
         .setReadObject(resource5ReadObjectMock),
+      new ResourceFactoryBase({
+        kind: 'Event',
+        resource: 'events',
+      })
+        .setPermissions({
+          isNamespaced: true,
+          permissionsRequests: [
+            {
+              group: '*',
+              resource: '*',
+              verb: 'watch',
+            },
+          ],
+        })
+        .setInformer({
+          createInformer: (_kubeconfig: KubeConfigSingleContext): ResourceInformer<CoreV1Event> => {
+            return {
+              onCacheUpdated: onCacheUpdatedEventMock,
+              onOffline: onOfflineEventMock,
+              onObjectDeleted: onObjectDeletedEventMock,
+              start: startEventMock,
+              dispose: informerDisposeEventMock,
+            } as unknown as ResourceInformer<CoreV1Event>;
+          },
+        }),
     ];
   }
 
@@ -410,6 +441,10 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
     manager = new TestContextsManager();
   });
 
+  afterEach(() => {
+    vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockRestore();
+  });
+
   test('permissions are correctly dispatched', async () => {
     const kcSingle1 = new KubeConfigSingleContext(kc, context1);
     let permissionCall = 0;
@@ -638,7 +673,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
           case 2:
             f({
               kubeConfig: kcSingle1,
-              resources: ['resource1', 'resource2'],
+              resources: ['resource1', 'resource2', 'events'],
               permitted: true,
             });
             break;
@@ -744,6 +779,11 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
         list: listMock,
         get: vi.fn(),
       } as ObjectCache<KubernetesObject>);
+      const listEventMock = vi.fn().mockReturnValue([{}]);
+      startEventMock.mockReturnValue({
+        list: listEventMock,
+        get: vi.fn(),
+      } as ObjectCache<CoreV1Event>);
       listMock.mockReturnValue([{}, {}]);
       await manager.update(kc);
       const counts = manager.getResourcesCount();
@@ -752,6 +792,11 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
           contextName: 'context1',
           resourceName: 'resource1',
           count: 2,
+        },
+        {
+          contextName: 'context1',
+          resourceName: 'events',
+          count: 1,
         },
         {
           contextName: 'context2',
@@ -799,7 +844,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       ]);
     });
 
-    test('getResources', async () => {
+    test('getResources with explicit context name', async () => {
       vi.mocked(ContextPermissionsChecker).mockImplementation(
         () =>
           ({
@@ -816,19 +861,32 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj1' } }]);
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
       await manager.update(kc);
-      const resources = manager.getResources(['context1', 'context2'], 'resource1');
-      expect(resources).toEqual([
-        {
-          contextName: 'context1',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj1' } }],
-        },
-        {
-          contextName: 'context2',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
-        },
-      ]);
+      const resources1 = manager.getResources('resource1', 'context1');
+      expect(resources1).toEqual([{ metadata: { name: 'obj1' } }]);
+      const resources2 = manager.getResources('resource1', 'context2');
+      expect(resources2).toEqual([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
+    });
+
+    test('getResources without context names', async () => {
+      vi.mocked(ContextPermissionsChecker).mockImplementation(
+        () =>
+          ({
+            start: permissionsStartMock,
+            onPermissionResult: onPermissionResultMock,
+            contextName: 'ctx1',
+          }) as unknown as ContextPermissionsChecker,
+      );
+      const listMock = vi.fn();
+      startMock.mockReturnValue({
+        list: listMock,
+        get: vi.fn(),
+      } as ObjectCache<KubernetesObject>);
+      listMock.mockReturnValueOnce([{ metadata: { name: 'obj1' } }]);
+      listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
+      vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue(kcSingle1);
+      await manager.update(kc);
+      const resources = manager.getResources('resource1');
+      expect(resources).toEqual([{ metadata: { name: 'obj1' } }]);
     });
 
     test('one offline informer clears all caches', async () => {
@@ -848,20 +906,9 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj1' } }]);
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
       await manager.update(kc);
-      const resources = manager.getResources(['context1', 'context2'], 'resource1');
+      const resources = manager.getResources('resource1', 'context1');
       // At this point, resources are in caches for both contexts
-      expect(resources).toEqual([
-        {
-          contextName: 'context1',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj1' } }],
-        },
-        {
-          contextName: 'context2',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
-        },
-      ]);
+      expect(resources).toEqual([{ metadata: { name: 'obj1' } }]);
 
       expect(onOfflineMock).toHaveBeenCalledTimes(2);
       const onOfflineCB = onOfflineMock.mock.calls[0]?.[0];
@@ -876,16 +923,10 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       });
 
       listMock.mockReturnValueOnce([{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }]);
-      const resourcesAfter = manager.getResources(['context1', 'context2'], 'resource1');
+      const resourcesAfter = manager.getResources('resource1', 'context1');
 
       // Caches for context1 are removed
-      expect(resourcesAfter).toEqual([
-        {
-          contextName: 'context2',
-          resourceName: 'resource1',
-          items: [{ metadata: { name: 'obj2' } }, { metadata: { name: 'obj3' } }],
-        },
-      ]);
+      expect(resourcesAfter).toEqual([]);
 
       // Let's declare informer for resource1 in context2 offline
       onOfflineCB({
@@ -895,7 +936,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
         reason: 'because',
       });
 
-      const resourcesAfter2 = manager.getResources(['context1', 'context2'], 'resource1');
+      const resourcesAfter2 = manager.getResources('resource1', 'context1');
 
       // Caches for context1 are removed
       expect(resourcesAfter2).toEqual([]);
@@ -921,15 +962,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       await manager.update(kc);
 
       const result = manager.getResourceDetails('context1', 'resource1', 'obj1', 'ns1');
-      expect(result).toEqual([
-        {
-          resourceName: 'resource1',
-          contextName: 'context1',
-          name: 'obj1',
-          namespace: 'ns1',
-          details: { kind: 'Resource1', metadata: { name: 'obj1', namespace: 'ns1' } },
-        },
-      ]);
+      expect(result).toEqual({ kind: 'Resource1', metadata: { name: 'obj1', namespace: 'ns1' } });
     });
 
     test('getResourceDetails with non-existing resource', async () => {
@@ -952,15 +985,32 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       await manager.update(kc);
 
       const result = manager.getResourceDetails('context1', 'resource1', 'obj1', 'ns1');
-      expect(result).toEqual([
-        {
-          resourceName: 'resource1',
-          contextName: 'context1',
-          name: 'obj1',
-          namespace: 'ns1',
-          details: undefined,
-        },
-      ]);
+      expect(result).toEqual(undefined);
+    });
+
+    test('getResourceEvents', async () => {
+      vi.mocked(ContextPermissionsChecker).mockImplementation(
+        () =>
+          ({
+            start: permissionsStartMock,
+            onPermissionResult: onPermissionResultMock,
+            contextName: 'ctx1',
+          }) as unknown as ContextPermissionsChecker,
+      );
+      const listMock = vi.fn();
+      const getMock = vi.fn();
+      startEventMock.mockReturnValue({
+        list: listMock,
+        get: getMock,
+      } as ObjectCache<KubernetesObject>);
+      const event1: CoreV1Event = { metadata: {}, involvedObject: { uid: 'uid1' } };
+      listMock.mockReturnValue([event1]);
+      getMock.mockReturnValue(event1);
+
+      await manager.update(kc);
+
+      const result = manager.getResourceEvents('context1', 'uid1');
+      expect(result).toEqual([event1]);
     });
 
     test('object deleted', async () => {
