@@ -23,9 +23,11 @@ import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
+import type { TargetRef } from '/@common/model/target-ref.js';
+import type { ContextsManager } from '/@/manager/contexts-manager.js';
 
 export class IngressesResourceFactory extends ResourceFactoryBase implements ResourceFactory {
-  constructor() {
+  constructor(protected contextsManager: ContextsManager) {
     super({
       resource: 'ingresses',
       kind: 'Ingress',
@@ -50,6 +52,7 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
       createInformer: this.createInformer,
     });
     this.setDeleteObject(this.deleteIngress);
+    this.setSearchByTargetRef(this.searchIngressesByTargetRef);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Ingress> {
@@ -67,5 +70,26 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
   ): Promise<V1Status | KubernetesObject> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(NetworkingV1Api);
     return apiClient.deleteNamespacedIngress({ name, namespace });
+  }
+
+  async searchIngressesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): Promise<V1Ingress[]> {
+    // We only support targetting services, either by default backend or by rules
+    // TODO handle other kinds of targets (through the spec.rules.http.paths.backend.resource)
+    if (targetRef.kind !== 'Service') {
+      return [];
+    }
+
+    const list = this.contextsManager.getResources(this.resource, kubeconfig.getKubeConfig().currentContext);
+
+    const matchinDefaultBackend = list.filter(
+      (item: V1Ingress) => item.spec?.defaultBackend?.service?.name === targetRef.name,
+    );
+    const matchinRules = list.filter((item: V1Ingress) =>
+      item.spec?.rules?.some(rule => rule.http?.paths?.some(path => path.backend?.service?.name === targetRef.name)),
+    );
+    const nonUnique = [...matchinDefaultBackend, ...matchinRules];
+    return nonUnique.filter(
+      (item, index, self) => self.findIndex(t => t.metadata?.name === item.metadata?.name) === index,
+    );
   }
 }

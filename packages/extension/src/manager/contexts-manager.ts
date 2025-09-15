@@ -62,7 +62,9 @@ import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js
 import { ServicesResourceFactory } from '/@/resources/services-resource-factory.js';
 import { injectable } from 'inversify';
 import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-factory.js';
+import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-resource-factory.js';
 import { IDisposable } from '/@common/types/disposable.js';
+import { TargetRef } from '/@common/model/target-ref.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
@@ -138,13 +140,14 @@ export class ContextsManager {
       new CronjobsResourceFactory(),
       new JobsResourceFactory(this),
       new DeploymentsResourceFactory(),
+      new EndpointSlicesResourceFactory(this),
       new EventsResourceFactory(),
-      new IngressesResourceFactory(),
+      new IngressesResourceFactory(this),
       new NamespacesResourceFactory(),
       new NodesResourceFactory(),
       new PodsResourceFactory(this),
       new PVCsResourceFactory(),
-      new RoutesResourceFactory(),
+      new RoutesResourceFactory(this),
       new SecretsResourceFactory(),
       new ServicesResourceFactory(),
     ];
@@ -683,5 +686,20 @@ export class ContextsManager {
         reject(e);
       });
     });
+  }
+
+  async searchByTargetRef(kind: string, targetRef: TargetRef): Promise<KubernetesObject[]> {
+    if (!this.currentContext) {
+      console.warn('search by target ref: no current context');
+      return [];
+    }
+
+    const handler = this.#resourceFactoryHandler.getResourceFactoryByKind(kind);
+    if (!handler?.searchByTargetRef) {
+      console.error(`search by target ref: no handler for kind ${kind}`);
+      return [];
+    }
+
+    return await handler.searchByTargetRef(this.currentContext, targetRef);
   }
 }

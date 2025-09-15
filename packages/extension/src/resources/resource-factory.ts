@@ -19,6 +19,7 @@ import type { KubernetesObject, V1ResourceAttributes, V1Status } from '@kubernet
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceInformer } from '/@/types/resource-informer.js';
+import type { TargetRef } from '/@common/model/target-ref';
 
 export interface ResourcePermissionsFactory {
   get permissionsRequests(): V1ResourceAttributes[];
@@ -67,6 +68,11 @@ type RestartNamespacedObject = (kubeconfig: KubeConfigSingleContext, name: strin
 
 type RestartNonNamespacedObject = (kubeconfig: KubeConfigSingleContext, name: string) => Promise<void>;
 
+type SearchByTargetRefNamespacedObject = (
+  kubeconfig: KubeConfigSingleContext,
+  targetRef: TargetRef,
+) => Promise<KubernetesObject[]>;
+
 export class ResourceFactoryBase {
   #resource: string;
   #kind: string;
@@ -75,6 +81,7 @@ export class ResourceFactoryBase {
   #isActive: undefined | ((resource: KubernetesObject) => boolean);
   #deleteObject: DeleteNamespacedObject | DeleteNonNamespacedObject;
   #searchBySelector: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject;
+  #searchByTargetRef: SearchByTargetRefNamespacedObject;
   #readObject: ReadNamespacedObject | ReadNonNamespacedObject;
   #restartObject: RestartNamespacedObject | RestartNonNamespacedObject;
 
@@ -117,6 +124,11 @@ export class ResourceFactoryBase {
     return this;
   }
 
+  setSearchByTargetRef(searchByTargetRef: SearchByTargetRefNamespacedObject): ResourceFactoryBase {
+    this.#searchByTargetRef = searchByTargetRef;
+    return this;
+  }
+
   setReadObject(readObject: ReadNamespacedObject | ReadNonNamespacedObject): ResourceFactoryBase {
     this.#readObject = readObject;
     return this;
@@ -155,6 +167,10 @@ export class ResourceFactoryBase {
     return this.#searchBySelector;
   }
 
+  get searchByTargetRef(): SearchByTargetRefNamespacedObject {
+    return this.#searchByTargetRef;
+  }
+
   get readObject(): ReadNamespacedObject | ReadNonNamespacedObject {
     return this.#readObject;
   }
@@ -176,7 +192,8 @@ export class ResourceFactoryBase {
         isNamespaced: this.#permissions.isNamespaced,
       })
       .setSearchBySelector(this.#searchBySelector)
-      .setRestartObject(this.#restartObject);
+      .setRestartObject(this.#restartObject)
+      .setSearchByTargetRef(this.#searchByTargetRef);
   }
 }
 
@@ -190,6 +207,7 @@ export interface ResourceFactory {
   copyWithSlicedPermissions(): ResourceFactory;
   deleteObject?: DeleteNamespacedObject | DeleteNonNamespacedObject;
   searchBySelector?: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject;
+  searchByTargetRef?: SearchByTargetRefNamespacedObject;
   scaleObject?: (kubeconfig: KubeConfigSingleContext, name: string, namespace: string) => Promise<void>;
   readObject?: ReadNamespacedObject | ReadNonNamespacedObject;
   restartObject?: RestartNamespacedObject | RestartNonNamespacedObject;

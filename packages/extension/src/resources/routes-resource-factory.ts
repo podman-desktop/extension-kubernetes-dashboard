@@ -25,9 +25,11 @@ import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
+import type { TargetRef } from '/@common/model/target-ref.js';
+import type { ContextsManager } from '/@/manager/contexts-manager.js';
 
 export class RoutesResourceFactory extends ResourceFactoryBase implements ResourceFactory {
-  constructor() {
+  constructor(protected contextsManager: ContextsManager) {
     super({
       resource: 'routes',
       kind: 'Route',
@@ -52,6 +54,7 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
       createInformer: this.createInformer,
     });
     this.setDeleteObject(this.deleteRoute);
+    this.setSearchByTargetRef(this.searchRoutesByTargetRef);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Route> {
@@ -81,5 +84,12 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
       name,
       namespace,
     });
+  }
+
+  async searchRoutesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): Promise<V1Route[]> {
+    const list = this.contextsManager.getResources(this.resource, kubeconfig.getKubeConfig().currentContext);
+    return list.filter(
+      (item: V1Route) => item.spec?.to?.name === targetRef.name && item.spec?.to?.kind === targetRef.kind,
+    );
   }
 }
