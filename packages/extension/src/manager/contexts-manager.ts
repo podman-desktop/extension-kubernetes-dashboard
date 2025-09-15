@@ -140,7 +140,7 @@ export class ContextsManager {
       new CronjobsResourceFactory(),
       new JobsResourceFactory(this),
       new DeploymentsResourceFactory(),
-      new EndpointSlicesResourceFactory(),
+      new EndpointSlicesResourceFactory(this),
       new EventsResourceFactory(),
       new IngressesResourceFactory(this),
       new NamespacesResourceFactory(),

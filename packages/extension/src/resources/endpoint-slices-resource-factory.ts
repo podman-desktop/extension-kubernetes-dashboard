@@ -16,14 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { DiscoveryV1Api, type V1EndpointSlice } from '@kubernetes/client-node';
+import { DiscoveryV1Api, type V1EndpointSliceList, type V1EndpointSlice, type KubernetesObject } from '@kubernetes/client-node';
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { TargetRef } from '/@common/model/target-ref.js';
+import { ResourceInformer } from '/@/types/resource-informer.js';
+import type { ContextsManager } from '/@/manager/contexts-manager.js';
 
 export class EndpointSlicesResourceFactory extends ResourceFactoryBase implements ResourceFactory {
-  constructor() {
+  constructor(protected contextsManager: ContextsManager) {
     super({
       resource: 'endpointslices',
       kind: 'EndpointSlice',
@@ -44,17 +46,27 @@ export class EndpointSlicesResourceFactory extends ResourceFactoryBase implement
         },
       ],
     });
+    this.setInformer({
+      createInformer: this.createInformer,
+    });
 
     this.setSearchByTargetRef(this.searchEndpointSlicesByTargetRef);
+  }
+
+  createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1EndpointSlice> {
+    const namespace = kubeconfig.getNamespace();
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(DiscoveryV1Api);
+    const listFn = (): Promise<V1EndpointSliceList> => apiClient.listNamespacedEndpointSlice({ namespace });
+    const path = `/apis/discovery.k8s.io/v1/namespaces/${namespace}/endpointslices`;
+    return new ResourceInformer<V1EndpointSlice>({ kubeconfig, path, listFn, kind: this.kind, plural: 'endpointslices' });
   }
 
   async searchEndpointSlicesByTargetRef(
     kubeconfig: KubeConfigSingleContext,
     targetRef: TargetRef,
   ): Promise<V1EndpointSlice[]> {
-    const apiClient = kubeconfig.getKubeConfig().makeApiClient(DiscoveryV1Api);
-    const list = await apiClient.listNamespacedEndpointSlice({ namespace: targetRef.namespace });
-    return list.items.filter(item =>
+    const list = this.contextsManager.getResources(this.resource, kubeconfig.getKubeConfig().currentContext);
+    return list.filter(this.isV1EndpointSlice).filter(item =>
       item.endpoints?.some(
         endpoint =>
           endpoint.targetRef?.name === targetRef.name &&
@@ -62,5 +74,9 @@ export class EndpointSlicesResourceFactory extends ResourceFactoryBase implement
           endpoint.targetRef?.kind === targetRef.kind,
       ),
     );
+  }
+  
+  protected isV1EndpointSlice(object: KubernetesObject): object is V1EndpointSlice {
+    return 'endpoints' in object;
   }
 }
