@@ -26,9 +26,10 @@ import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
 import type { TargetRef } from '/@common/model/target-ref.js';
+import type { ContextsManager } from '/@/manager/contexts-manager.js';
 
 export class RoutesResourceFactory extends ResourceFactoryBase implements ResourceFactory {
-  constructor() {
+  constructor(protected contextsManager: ContextsManager) {
     super({
       resource: 'routes',
       kind: 'Route',
@@ -86,14 +87,8 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
   }
 
   async searchRoutesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): Promise<V1Route[]> {
-    const apiClient = kubeconfig.getKubeConfig().makeApiClient(CustomObjectsApi);
-    const list = await apiClient.listNamespacedCustomObject({
-      group: 'route.openshift.io',
-      version: 'v1',
-      plural: 'routes',
-      namespace: targetRef.namespace,
-    });
-    return list.items.filter(
+    const list = this.contextsManager.getResources(this.resource, kubeconfig.getKubeConfig().currentContext);
+    return list.filter(
       (item: V1Route) => item.spec?.to?.name === targetRef.name && item.spec?.to?.kind === targetRef.kind,
     );
   }

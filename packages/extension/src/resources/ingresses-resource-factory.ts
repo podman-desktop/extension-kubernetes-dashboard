@@ -24,9 +24,10 @@ import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
 import type { TargetRef } from '/@common/model/target-ref.js';
+import type { ContextsManager } from '/@/manager/contexts-manager.js';
 
 export class IngressesResourceFactory extends ResourceFactoryBase implements ResourceFactory {
-  constructor() {
+  constructor(protected contextsManager: ContextsManager) {
     super({
       resource: 'ingresses',
       kind: 'Ingress',
@@ -77,12 +78,13 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
     if (targetRef.kind !== 'Service') {
       return [];
     }
-    const apiClient = kubeconfig.getKubeConfig().makeApiClient(NetworkingV1Api);
-    const list = await apiClient.listNamespacedIngress({ namespace: targetRef.namespace });
-    const matchinDefaultBackend = list.items.filter(
-      item => item.spec?.defaultBackend?.service?.name === targetRef.name,
+
+    const list = this.contextsManager.getResources(this.resource, kubeconfig.getKubeConfig().currentContext);
+
+    const matchinDefaultBackend = list.filter(
+      (item: V1Ingress) => item.spec?.defaultBackend?.service?.name === targetRef.name,
     );
-    const matchinRules = list.items.filter(item =>
+    const matchinRules = list.filter((item: V1Ingress) =>
       item.spec?.rules?.some(rule => rule.http?.paths?.some(path => path.backend?.service?.name === targetRef.name)),
     );
     const nonUnique = [...matchinDefaultBackend, ...matchinRules];
