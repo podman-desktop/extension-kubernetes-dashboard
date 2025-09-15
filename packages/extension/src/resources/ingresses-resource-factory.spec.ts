@@ -16,20 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { MockedFunction } from 'vitest';
 import { expect, test, vi } from 'vitest';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
-import type { KubeConfig, NetworkingV1Api, V1EndpointSliceList, V1Ingress } from '@kubernetes/client-node';
+import type { KubeConfig, V1Ingress } from '@kubernetes/client-node';
 import { IngressesResourceFactory } from './ingresses-resource-factory';
-
-const makeApiClientMock = vi.fn() as MockedFunction<KubeConfig['makeApiClient']>;
+import type { ContextsManager } from '../manager/contexts-manager';
 
 const kubeconfig: KubeConfigSingleContext = {
   getKubeConfig: () =>
     ({
-      makeApiClient: makeApiClientMock,
+      currentContext: 'ctx1',
     }) as unknown as KubeConfig,
 } as unknown as KubeConfigSingleContext;
+
+const contextsManager: ContextsManager = {
+  getResources: vi.fn(),
+} as unknown as ContextsManager;
 
 const ingress1 = {
   metadata: {
@@ -104,14 +106,8 @@ const ingress3 = {
 } as unknown as V1Ingress;
 
 test('searchIngressesByTargetRef returns the correct ingresses', async () => {
-  const apiClientMock = {
-    listNamespacedIngress: vi.fn(),
-  } as unknown as NetworkingV1Api;
-  makeApiClientMock.mockReturnValue(apiClientMock);
-  vi.mocked(apiClientMock.listNamespacedIngress).mockResolvedValue({
-    items: [ingress1, ingress2, ingress3],
-  } as unknown as V1EndpointSliceList);
-  const factory = new IngressesResourceFactory();
+  vi.mocked(contextsManager.getResources).mockReturnValue([ingress1, ingress2, ingress3]);
+  const factory = new IngressesResourceFactory(contextsManager);
   const ingresses = await factory.searchIngressesByTargetRef(kubeconfig, {
     kind: 'Service',
     name: 'svc1',
@@ -121,14 +117,8 @@ test('searchIngressesByTargetRef returns the correct ingresses', async () => {
 });
 
 test('searchIngressesByTargetRef returns no ingress', async () => {
-  const apiClientMock = {
-    listNamespacedIngress: vi.fn(),
-  } as unknown as NetworkingV1Api;
-  makeApiClientMock.mockReturnValue(apiClientMock);
-  vi.mocked(apiClientMock.listNamespacedIngress).mockResolvedValue({
-    items: [ingress2],
-  } as unknown as V1EndpointSliceList);
-  const factory = new IngressesResourceFactory();
+  vi.mocked(contextsManager.getResources).mockReturnValue([ingress2]);
+  const factory = new IngressesResourceFactory(contextsManager);
   const ingresses = await factory.searchIngressesByTargetRef(kubeconfig, {
     kind: 'Service',
     name: 'svc1',

@@ -16,7 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { DiscoveryV1Api, type V1EndpointSliceList, type V1EndpointSlice, type KubernetesObject } from '@kubernetes/client-node';
+import {
+  DiscoveryV1Api,
+  type V1EndpointSliceList,
+  type V1EndpointSlice,
+  type KubernetesObject,
+} from '@kubernetes/client-node';
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -58,7 +63,13 @@ export class EndpointSlicesResourceFactory extends ResourceFactoryBase implement
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(DiscoveryV1Api);
     const listFn = (): Promise<V1EndpointSliceList> => apiClient.listNamespacedEndpointSlice({ namespace });
     const path = `/apis/discovery.k8s.io/v1/namespaces/${namespace}/endpointslices`;
-    return new ResourceInformer<V1EndpointSlice>({ kubeconfig, path, listFn, kind: this.kind, plural: 'endpointslices' });
+    return new ResourceInformer<V1EndpointSlice>({
+      kubeconfig,
+      path,
+      listFn,
+      kind: this.kind,
+      plural: 'endpointslices',
+    });
   }
 
   async searchEndpointSlicesByTargetRef(
@@ -66,16 +77,18 @@ export class EndpointSlicesResourceFactory extends ResourceFactoryBase implement
     targetRef: TargetRef,
   ): Promise<V1EndpointSlice[]> {
     const list = this.contextsManager.getResources(this.resource, kubeconfig.getKubeConfig().currentContext);
-    return list.filter(this.isV1EndpointSlice).filter(item =>
-      item.endpoints?.some(
-        endpoint =>
-          endpoint.targetRef?.name === targetRef.name &&
-          endpoint.targetRef?.namespace === targetRef.namespace &&
-          endpoint.targetRef?.kind === targetRef.kind,
-      ),
-    );
+    return list
+      .filter(this.isV1EndpointSlice)
+      .filter(item =>
+        item.endpoints?.some(
+          endpoint =>
+            endpoint.targetRef?.name === targetRef.name &&
+            endpoint.targetRef?.namespace === targetRef.namespace &&
+            endpoint.targetRef?.kind === targetRef.kind,
+        ),
+      );
   }
-  
+
   protected isV1EndpointSlice(object: KubernetesObject): object is V1EndpointSlice {
     return 'endpoints' in object;
   }

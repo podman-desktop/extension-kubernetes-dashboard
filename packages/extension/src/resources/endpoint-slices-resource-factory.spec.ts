@@ -16,18 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { MockedFunction } from 'vitest';
 import { expect, test, vi } from 'vitest';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
 import { EndpointSlicesResourceFactory } from './endpoint-slices-resource-factory';
-import type { DiscoveryV1Api, KubeConfig, V1EndpointSlice, V1EndpointSliceList } from '@kubernetes/client-node';
+import type { KubeConfig, V1EndpointSlice } from '@kubernetes/client-node';
+import type { ContextsManager } from '../manager/contexts-manager';
 
-const makeApiClientMock = vi.fn() as MockedFunction<KubeConfig['makeApiClient']>;
+const contextsManager: ContextsManager = {
+  getResources: vi.fn(),
+} as unknown as ContextsManager;
 
 const kubeconfig: KubeConfigSingleContext = {
   getKubeConfig: () =>
     ({
-      makeApiClient: makeApiClientMock,
+      currentContext: 'ctx1',
     }) as unknown as KubeConfig,
 } as unknown as KubeConfigSingleContext;
 
@@ -72,14 +74,8 @@ const endpointSlice3 = {
 } as unknown as V1EndpointSlice;
 
 test('searchEndpointSlicesByTargetRef returns the correct endpoint slices', async () => {
-  const apiClientMock = {
-    listNamespacedEndpointSlice: vi.fn(),
-  } as unknown as DiscoveryV1Api;
-  makeApiClientMock.mockReturnValue(apiClientMock);
-  vi.mocked(apiClientMock.listNamespacedEndpointSlice).mockResolvedValue({
-    items: [endpointSlice1, endpointSlice2, endpointSlice3],
-  } as unknown as V1EndpointSliceList);
-  const factory = new EndpointSlicesResourceFactory();
+  vi.mocked(contextsManager.getResources).mockReturnValue([endpointSlice1, endpointSlice2, endpointSlice3]);
+  const factory = new EndpointSlicesResourceFactory(contextsManager);
   const endpointSlices = await factory.searchEndpointSlicesByTargetRef(kubeconfig, {
     kind: 'Pod',
     name: 'pod1',

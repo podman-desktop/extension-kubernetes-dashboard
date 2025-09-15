@@ -16,21 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { MockedFunction } from 'vitest';
 import { expect, test, vi } from 'vitest';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
-import type { CustomObjectsApi, KubeConfig, KubernetesListObject } from '@kubernetes/client-node';
+import type { KubeConfig } from '@kubernetes/client-node';
 import type { V1Route } from '/@common/model/openshift-types';
 import { RoutesResourceFactory } from './routes-resource-factory';
-
-const makeApiClientMock = vi.fn() as MockedFunction<KubeConfig['makeApiClient']>;
+import type { ContextsManager } from '/@/manager/contexts-manager';
 
 const kubeconfig: KubeConfigSingleContext = {
   getKubeConfig: () =>
     ({
-      makeApiClient: makeApiClientMock,
+      currentContext: 'ctx1',
     }) as unknown as KubeConfig,
 } as unknown as KubeConfigSingleContext;
+
+const contextsManager: ContextsManager = {
+  getResources: vi.fn(),
+} as unknown as ContextsManager;
 
 const route1 = {
   metadata: {
@@ -59,14 +61,8 @@ const route2 = {
 } as unknown as V1Route;
 
 test('searchRoutesByTargetRef returns the correct routes', async () => {
-  const apiClientMock = {
-    listNamespacedCustomObject: vi.fn(),
-  } as unknown as CustomObjectsApi;
-  makeApiClientMock.mockReturnValue(apiClientMock);
-  vi.mocked(apiClientMock.listNamespacedCustomObject).mockResolvedValue({
-    items: [route1, route2],
-  } as unknown as KubernetesListObject<V1Route>);
-  const factory = new RoutesResourceFactory();
+  vi.mocked(contextsManager.getResources).mockReturnValue([route1, route2]);
+  const factory = new RoutesResourceFactory(contextsManager);
   const ingresses = await factory.searchRoutesByTargetRef(kubeconfig, {
     kind: 'Service',
     name: 'svc1',
