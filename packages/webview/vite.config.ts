@@ -42,6 +42,7 @@ export default defineConfig({
     },
   },
   build: {
+    modulePreload: false,
     sourcemap: true,
     //FIXME: remove before publishing
     minify: false,

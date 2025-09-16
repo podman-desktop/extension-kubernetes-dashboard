@@ -21,11 +21,13 @@
      * of JS in `.svelte` files.
      */
     "allowJs": true,
-    "checkJs": true
+    "checkJs": true,
+    "types": ["vite/client"]
   },
   "include": [
     "src/**/*.d.ts",
     "src/**/*.ts",
+    "../../node_modules/**/*.d.ts",
     "src/**/*.js",
     "src/**/*.svelte",
     "types/*.d.ts",
