@@ -63,7 +63,7 @@ const route2 = {
 test('searchRoutesByTargetRef returns the correct routes', async () => {
   vi.mocked(contextsManager.getResources).mockReturnValue([route1, route2]);
   const factory = new RoutesResourceFactory(contextsManager);
-  const ingresses = await factory.searchRoutesByTargetRef(kubeconfig, {
+  const ingresses = factory.searchRoutesByTargetRef(kubeconfig, {
     kind: 'Service',
     name: 'svc1',
     namespace: 'ns1',

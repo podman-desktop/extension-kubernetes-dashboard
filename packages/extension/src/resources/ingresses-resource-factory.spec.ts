@@ -108,7 +108,7 @@ const ingress3 = {
 test('searchIngressesByTargetRef returns the correct ingresses', async () => {
   vi.mocked(contextsManager.getResources).mockReturnValue([ingress1, ingress2, ingress3]);
   const factory = new IngressesResourceFactory(contextsManager);
-  const ingresses = await factory.searchIngressesByTargetRef(kubeconfig, {
+  const ingresses = factory.searchIngressesByTargetRef(kubeconfig, {
     kind: 'Service',
     name: 'svc1',
     namespace: 'ns1',
@@ -119,7 +119,7 @@ test('searchIngressesByTargetRef returns the correct ingresses', async () => {
 test('searchIngressesByTargetRef returns no ingress', async () => {
   vi.mocked(contextsManager.getResources).mockReturnValue([ingress2]);
   const factory = new IngressesResourceFactory(contextsManager);
-  const ingresses = await factory.searchIngressesByTargetRef(kubeconfig, {
+  const ingresses = factory.searchIngressesByTargetRef(kubeconfig, {
     kind: 'Service',
     name: 'svc1',
     namespace: 'ns1',

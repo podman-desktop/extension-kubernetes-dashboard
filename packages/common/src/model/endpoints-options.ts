@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { PodUI } from '../PodUI';
-
-export interface Props {
-  object: PodUI;
-  details?: boolean;
+export interface EndpointsOptions {
+  contextName: string;
+  targetKind: 'Pod';
+  targetName: string;
+  targetNamespace: string;
 }

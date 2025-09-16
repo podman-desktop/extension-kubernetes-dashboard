@@ -28,6 +28,7 @@ import {
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
+  ENDPOINTS,
   PORT_FORWARDS,
   RESOURCE_DETAILS,
   RESOURCE_EVENTS,
@@ -88,6 +89,9 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
     });
     this.portForwardServiceProvider.onForwardsChange(async () => {
       await this.dispatch(PORT_FORWARDS);
+    });
+    this.manager.onEndpointsChange(async () => {
+      await this.dispatch(ENDPOINTS);
     });
     this.onSubscribe(channelName => this.dispatchByChannelName(channelName));
   }

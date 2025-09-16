@@ -76,7 +76,7 @@ const endpointSlice3 = {
 test('searchEndpointSlicesByTargetRef returns the correct endpoint slices', async () => {
   vi.mocked(contextsManager.getResources).mockReturnValue([endpointSlice1, endpointSlice2, endpointSlice3]);
   const factory = new EndpointSlicesResourceFactory(contextsManager);
-  const endpointSlices = await factory.searchEndpointSlicesByTargetRef(kubeconfig, {
+  const endpointSlices = factory.searchEndpointSlicesByTargetRef(kubeconfig, {
     kind: 'Pod',
     name: 'pod1',
     namespace: 'ns1',

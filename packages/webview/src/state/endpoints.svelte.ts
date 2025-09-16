@@ -16,9 +16,26 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { PodUI } from '../PodUI';
+import { inject, injectable } from 'inversify';
 
-export interface Props {
-  object: PodUI;
-  details?: boolean;
+import { ENDPOINTS } from '/@common/channels';
+import { RpcBrowser } from '/@common/rpc/rpc';
+
+import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
+import type { EndpointsInfo } from '/@common/model/endpoints-info';
+import type { EndpointsOptions } from '/@common/model/endpoints-options';
+
+// Define a state for the EndpointsInfo
+@injectable()
+export class StateEndpointsInfo
+  extends AbsStateObjectImpl<EndpointsInfo, EndpointsOptions>
+  implements StateObject<EndpointsInfo, EndpointsOptions>
+{
+  constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
+    super(rpcBrowser);
+  }
+
+  async init(): Promise<void> {
+    await this.initChannel(ENDPOINTS);
+  }
 }

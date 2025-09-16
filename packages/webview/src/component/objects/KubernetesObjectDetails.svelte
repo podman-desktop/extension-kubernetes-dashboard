@@ -28,7 +28,7 @@ interface Props<T extends KubernetesObject, U extends KubernetesObjectUI> {
   namespace?: string;
   transformer: (o: T) => U;
   SummaryComponent: Component<{ object: T; events: readonly EventUI[] }>;
-  ActionsComponent?: Component<{ object: U }>;
+  ActionsComponent?: Component<{ object: U; details?: boolean }>;
 }
 let {
   kind,
@@ -153,7 +153,7 @@ function navigateToList(): void {
       {#if object}<StatusIcon icon={icon[kind] ?? KubernetesIcon} size={24} status={objectUI.status} />{/if}
     {/snippet}
     {#snippet actionsSnippet()}
-      {#if ActionsComponent && objectUI}<ActionsComponent object={objectUI} />{/if}
+      {#if ActionsComponent && objectUI}<ActionsComponent details={true} object={objectUI} />{/if}
     {/snippet}
     {#snippet detailSnippet()}
       {#if objectUI}

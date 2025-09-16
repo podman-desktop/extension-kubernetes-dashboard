@@ -72,10 +72,7 @@ export class EndpointSlicesResourceFactory extends ResourceFactoryBase implement
     });
   }
 
-  async searchEndpointSlicesByTargetRef(
-    kubeconfig: KubeConfigSingleContext,
-    targetRef: TargetRef,
-  ): Promise<V1EndpointSlice[]> {
+  searchEndpointSlicesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): V1EndpointSlice[] {
     const list = this.contextsManager.getResources(this.resource, kubeconfig.getKubeConfig().currentContext);
     return list
       .filter(this.isV1EndpointSlice)

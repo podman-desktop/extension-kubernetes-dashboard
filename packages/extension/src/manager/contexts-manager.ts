@@ -20,6 +20,7 @@ import {
   ApiException,
   CoreV1Event,
   KubeConfig,
+  V1Ingress,
   V1Status,
   type KubernetesObject,
   type ObjectCache,
@@ -65,6 +66,8 @@ import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-fact
 import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-resource-factory.js';
 import { IDisposable } from '/@common/types/disposable.js';
 import { TargetRef } from '/@common/model/target-ref.js';
+import { Endpoint } from '/@common/model/endpoint.js';
+import { V1Route } from '/@common/model/openshift-types.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
@@ -111,6 +114,9 @@ export class ContextsManager {
   #onObjectDeleted = new Emitter<{ contextName: string; resourceName: string; name: string; namespace: string }>();
   onObjectDeleted: Event<{ contextName: string; resourceName: string; name: string; namespace: string }> =
     this.#onObjectDeleted.event;
+
+  #onEndpointsChange = new Emitter<void>();
+  onEndpointsChange: Event<void> = this.#onEndpointsChange.event;
 
   constructor() {
     this.#currentKubeConfig = new KubeConfig();
@@ -403,6 +409,9 @@ export class ContextsManager {
                   resourceName: e.resourceName,
                 });
               }
+              if (['endpointslices', 'routes', 'ingresses', 'pods'].includes(e.resourceName)) {
+                this.#onEndpointsChange.fire();
+              }
             });
             informer.onOffline((e: OfflineEvent) => {
               this.#onOfflineChange.fire();
@@ -688,7 +697,7 @@ export class ContextsManager {
     });
   }
 
-  async searchByTargetRef(kind: string, targetRef: TargetRef): Promise<KubernetesObject[]> {
+  searchByTargetRef(kind: string, targetRef: TargetRef): KubernetesObject[] {
     if (!this.currentContext) {
       console.warn('search by target ref: no current context');
       return [];
@@ -700,6 +709,72 @@ export class ContextsManager {
       return [];
     }
 
-    return await handler.searchByTargetRef(this.currentContext, targetRef);
+    return handler.searchByTargetRef(this.currentContext, targetRef);
+  }
+
+  getEndpoints(contextName: string, targetKind: 'Pod', targetName: string, targetNamespace: string): Endpoint[] {
+    const results: Endpoint[] = [];
+    const endpoints = this.searchByTargetRef('EndpointSlice', {
+      kind: targetKind,
+      name: targetName,
+      namespace: targetNamespace,
+    });
+    const services = endpoints
+      .map(endpoint => endpoint.metadata?.ownerReferences?.find(owner => owner.controller && owner.kind === 'Service'))
+      .filter(service => service !== undefined);
+    for (const service of services) {
+      const routes = this.searchByTargetRef('Route', {
+        kind: 'Service',
+        name: service.name,
+        namespace: targetNamespace,
+      });
+      results.push(
+        ...routes.map((route: V1Route) => ({
+          contextName,
+          targetKind,
+          targetName,
+          targetNamespace,
+          inputKind: 'Route' as const,
+          inputName: route.metadata?.name ?? '',
+          url: route.spec?.tls ? `https://${route.spec?.host}` : `http://${route.spec?.host}`,
+        })),
+      );
+      const ingresses = this.searchByTargetRef('Ingress', {
+        kind: 'Service',
+        name: service.name,
+        namespace: targetNamespace,
+      });
+      results.push(
+        ...ingresses
+          .map((ingress: V1Ingress) => ({
+            contextName,
+            targetKind,
+            targetName,
+            targetNamespace,
+            inputKind: 'Ingress' as const,
+            inputName: ingress.metadata?.name ?? '',
+            url: this.findIngressUrlForService(ingress, service.name),
+          }))
+          .filter(result => result.url !== ''),
+      );
+    }
+    return results;
+  }
+
+  // find the url for a service in an ingress
+  // should be computed in ingress resource factory instead?
+  findIngressUrlForService(ingress: V1Ingress, serviceName: string): string {
+    const rule = ingress.spec?.rules?.find(rule =>
+      rule.http?.paths?.some(path => path.backend?.service?.name === serviceName),
+    );
+    if (rule) {
+      const host = rule.host ?? '';
+      const path = rule.http?.paths?.find(path => path.backend?.service?.name === serviceName)?.path ?? '';
+      const protocol = ingress.spec?.tls ? 'https' : 'http';
+      return `${protocol}://${host}${path}`;
+    }
+    // default backend: not exposed
+    // TODO what do we want to return in this case?
+    return '';
   }
 }

@@ -24,6 +24,7 @@ import type { ActiveResourcesCountInfo } from './model/active-resources-count-in
 import type { ContextsHealthsInfo } from './model/contexts-healths-info';
 import type { ContextsPermissionsInfo } from './model/contexts-permissions-info';
 import type { CurrentContextInfo } from './model/current-context-info';
+import type { EndpointsInfo } from './model/endpoints-info';
 import type { PortForwardsInfo } from './model/port-forward-info';
 import type { ResourceDetailsInfo } from './model/resource-details-info';
 import type { ResourceEventsInfo } from './model/resource-events-info';
@@ -48,3 +49,4 @@ export const CURRENT_CONTEXT = createRpcChannel<CurrentContextInfo>('CurrentCont
 export const RESOURCE_DETAILS = createRpcChannel<ResourceDetailsInfo>('ResourceDetailsInfo');
 export const RESOURCE_EVENTS = createRpcChannel<ResourceEventsInfo>('ResourceEvents');
 export const PORT_FORWARDS = createRpcChannel<PortForwardsInfo>('PortForwards');
+export const ENDPOINTS = createRpcChannel<EndpointsInfo>('Endpoints');

@@ -27,6 +27,7 @@ import { UpdateResourceDispatcher } from './update-resource-dispatcher';
 import { ResourceDetailsDispatcher } from './resource-details-dispatcher';
 import { ResourceEventsDispatcher } from './resource-events-dispatcher';
 import { PortForwardsDispatcher } from './port-forwards-dispatcher';
+import { EndpointsDispatcher } from './endpoints-dispatcher';
 
 const dispatchersModule = new ContainerModule(options => {
   options.bind<ActiveResourcesCountDispatcher>(ActiveResourcesCountDispatcher).toSelf().inSingletonScope();
@@ -55,6 +56,9 @@ const dispatchersModule = new ContainerModule(options => {
 
   options.bind<PortForwardsDispatcher>(PortForwardsDispatcher).toSelf().inSingletonScope();
   options.bind(DispatcherObject).toService(PortForwardsDispatcher);
+
+  options.bind<EndpointsDispatcher>(EndpointsDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(EndpointsDispatcher);
 });
 
 export { dispatchersModule };
