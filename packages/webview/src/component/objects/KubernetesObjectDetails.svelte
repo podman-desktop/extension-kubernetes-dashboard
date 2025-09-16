@@ -17,6 +17,7 @@ import { icon } from '/@/component/icons/icon';
 import type { EventUI } from '/@/component/objects/EventUI';
 import StateChange from '/@/component/objects/StateChange.svelte';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
+import MonacoEditor from '/@/component/editor/MonacoEditor.svelte';
 
 interface Props<T extends KubernetesObject, U extends KubernetesObjectUI> {
   typed: T;
@@ -58,6 +59,8 @@ let unsubscribers: Unsubscriber[] = [];
 let initialCurrentContextName: string | undefined = $state(undefined);
 
 const object = $derived(filterResources(resourceDetails.data?.resources ?? []));
+const simplifiedObject = $derived({ ...object, metadata: { ...object?.metadata, managedFields: undefined } });
+
 const objectUI = $derived(object ? transformer(object as T) : undefined);
 const events = $derived(
   object?.metadata?.uid && resourceEvents?.data?.events
@@ -181,7 +184,7 @@ function navigateToList(): void {
         <SummaryComponent object={object as T} events={events ?? []} />
       </Route>
       <Route path="/inspect">
-        <!--MonacoEditor content={JSON.stringify(object, undefined, 2)} language="json" /-->
+        <MonacoEditor content={JSON.stringify(simplifiedObject, undefined, 2)} language="json" />
       </Route>
       <Route path="/kube">
         <!--KubeEditYAML content={stringify(object)} /-->

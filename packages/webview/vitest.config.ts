@@ -39,6 +39,10 @@ export default defineProject({
     environment: 'jsdom',
     alias: [
       { find: '@testing-library/svelte', replacement: '@testing-library/svelte/svelte5' },
+      {
+        find: /^monaco-editor$/,
+        replacement: `${PACKAGE_ROOT}/../../node_modules/monaco-editor/esm/vs/editor/editor.api`,
+      }
     ],
     setupFiles: ['./vite.tests.setup.ts'],
   },

@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from './KubernetesObjectUI';
+import type { KubernetesObject } from '@kubernetes/client-node';
 
 export class KubernetesObjectUIHelper {
   public isNamespaced(object: KubernetesObjectUI): object is KubernetesNamespacedObjectUI {
@@ -54,5 +55,14 @@ export class KubernetesObjectUIHelper {
   // Capitalize the first letter of a string
   public capitalize(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
+  public simplify(object?: KubernetesObject): KubernetesObject | undefined {
+    if (!object) {
+      return undefined;
+    }
+    const simplifiedObject = structuredClone(object);
+    delete simplifiedObject.metadata?.managedFields;
+    return simplifiedObject;
   }
 }
