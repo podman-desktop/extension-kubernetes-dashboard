@@ -16,9 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { PodUI } from '../PodUI';
+// Endpoint represents an a URL opened by an Ingress or a Route
+// and giving access to a target (Pod only for the moment)
+export interface Endpoint {
+  contextName: string;
+  targetKind: 'Pod';
+  targetName: string;
+  targetNamespace: string;
 
-export interface Props {
-  object: PodUI;
-  details?: boolean;
+  inputKind: 'Ingress' | 'Route';
+  inputName: string;
+  url: string;
 }

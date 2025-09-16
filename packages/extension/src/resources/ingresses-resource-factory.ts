@@ -72,7 +72,7 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
     return apiClient.deleteNamespacedIngress({ name, namespace });
   }
 
-  async searchIngressesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): Promise<V1Ingress[]> {
+  searchIngressesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): V1Ingress[] {
     // We only support targetting services, either by default backend or by rules
     // TODO handle other kinds of targets (through the spec.rules.http.paths.backend.resource)
     if (targetRef.kind !== 'Service') {

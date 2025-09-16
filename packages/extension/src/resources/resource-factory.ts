@@ -71,7 +71,7 @@ type RestartNonNamespacedObject = (kubeconfig: KubeConfigSingleContext, name: st
 type SearchByTargetRefNamespacedObject = (
   kubeconfig: KubeConfigSingleContext,
   targetRef: TargetRef,
-) => Promise<KubernetesObject[]>;
+) => KubernetesObject[];
 
 export class ResourceFactoryBase {
   #resource: string;

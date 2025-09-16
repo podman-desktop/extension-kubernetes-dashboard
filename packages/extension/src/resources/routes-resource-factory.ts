@@ -86,7 +86,7 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
     });
   }
 
-  async searchRoutesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): Promise<V1Route[]> {
+  searchRoutesByTargetRef(kubeconfig: KubeConfigSingleContext, targetRef: TargetRef): V1Route[] {
     const list = this.contextsManager.getResources(this.resource, kubeconfig.getKubeConfig().currentContext);
     return list.filter(
       (item: V1Route) => item.spec?.to?.name === targetRef.name && item.spec?.to?.kind === targetRef.kind,
