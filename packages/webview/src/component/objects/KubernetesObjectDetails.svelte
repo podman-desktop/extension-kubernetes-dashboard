@@ -18,6 +18,8 @@ import type { EventUI } from '/@/component/objects/EventUI';
 import StateChange from '/@/component/objects/StateChange.svelte';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import MonacoEditor from '/@/component/editor/MonacoEditor.svelte';
+import { stringify } from 'yaml';
+import EditYAML from '/@/component/editor/EditYAML.svelte';
 
 interface Props<T extends KubernetesObject, U extends KubernetesObjectUI> {
   typed: T;
@@ -59,7 +61,22 @@ let unsubscribers: Unsubscriber[] = [];
 let initialCurrentContextName: string | undefined = $state(undefined);
 
 const object = $derived(filterResources(resourceDetails.data?.resources ?? []));
+
+// we remove the managedFields which are very verbose, and not very useful as is
 const simplifiedObject = $derived({ ...object, metadata: { ...object?.metadata, managedFields: undefined } });
+
+// we keep only user-editable fields in editableObject
+const editableObject = $derived({
+  ...object,
+  metadata: {
+    name: object?.metadata?.name,
+    generateName: object?.metadata?.generateName,
+    namespace: object?.metadata?.namespace,
+    labels: object?.metadata?.labels,
+    annotations: object?.metadata?.annotations,
+  },
+  status: undefined,
+});
 
 const objectUI = $derived(object ? transformer(object as T) : undefined);
 const events = $derived(
@@ -175,9 +192,9 @@ function navigateToList(): void {
         selected={navigator.isTabSelected($router.path, 'inspect')}
         url={navigator.getTabUrl($router.path, 'inspect')} />
       <Tab
-        title="Kube"
-        selected={navigator.isTabSelected($router.path, 'kube')}
-        url={navigator.getTabUrl($router.path, 'kube')} />
+        title="Patch"
+        selected={navigator.isTabSelected($router.path, 'patch')}
+        url={navigator.getTabUrl($router.path, 'patch')} />
     {/snippet}
     {#snippet contentSnippet()}
       <Route path="/summary">
@@ -186,8 +203,8 @@ function navigateToList(): void {
       <Route path="/inspect">
         <MonacoEditor content={JSON.stringify(simplifiedObject, undefined, 2)} language="json" />
       </Route>
-      <Route path="/kube">
-        <!--KubeEditYAML content={stringify(object)} /-->
+      <Route path="/patch">
+        <EditYAML content={stringify(editableObject)} />
       </Route>
     {/snippet}
   </DetailsPage>
