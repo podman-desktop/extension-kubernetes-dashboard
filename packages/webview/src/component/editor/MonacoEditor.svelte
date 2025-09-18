@@ -52,6 +52,7 @@ onDestroy(() => {
 });
 
 $effect(() => {
+  if (!readOnly) return;
   content;
   editorInstance?.getModel()?.setValue(content);
 });

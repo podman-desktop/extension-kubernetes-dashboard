@@ -24,4 +24,5 @@ export interface ContextsApi {
   deleteObjects(objects: { kind: string; name: string; namespace?: string }[]): Promise<void>;
   setCurrentNamespace(namespace: string): Promise<void>;
   restartObject(kind: string, name: string, namespace: string): Promise<void>;
+  applyResources(yamlDocuments: string): Promise<void>;
 }

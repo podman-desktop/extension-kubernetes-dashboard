@@ -20,6 +20,9 @@ import {
   ApiException,
   CoreV1Event,
   KubeConfig,
+  KubernetesObjectApi,
+  loadAllYaml,
+  PatchStrategy,
   V1Ingress,
   V1Status,
   type KubernetesObject,
@@ -68,8 +71,11 @@ import { IDisposable } from '/@common/types/disposable.js';
 import { TargetRef } from '/@common/model/target-ref.js';
 import { Endpoint } from '/@common/model/endpoint.js';
 import { V1Route } from '/@common/model/openshift-types.js';
+import { parseAllDocuments, stringify, type Tags } from 'yaml';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
+const DEFAULT_NAMESPACE = 'default';
+const FIELD_MANAGER = 'kubernetes-dashboard';
 
 /**
  * ContextsManager receives new KubeConfig updates
@@ -564,7 +570,8 @@ export class ContextsManager {
     );
   }
 
-  protected handleStatus(_status: V1Status): void {
+  protected handleStatus(status: V1Status): void {
+    console.error('status', status);
     // TODO: https://github.com/podman-desktop/extension-kubernetes-dashboard/issues/103
   }
 
@@ -776,5 +783,52 @@ export class ContextsManager {
     // default backend: not exposed
     // TODO what do we want to return in this case?
     return '';
+  }
+
+  async applyResources(yamlDocuments: string): Promise<void> {
+    const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
+    if (!client) {
+      throw new Error('apply resources: unable to get client for current context');
+    }
+    const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
+    for (const manifest of manifests) {
+      manifest.metadata ??= {};
+      manifest.metadata.annotations ??= {};
+      manifest.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(manifest);
+      manifest.metadata.namespace ??= this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
+      try {
+        const result = await client.patch(
+          manifest,
+          undefined, // pretty
+          undefined, // dryRun
+          FIELD_MANAGER,
+          undefined, // force
+          PatchStrategy.StrategicMergePatch,
+        );
+        this.handleResult(result);
+      } catch (error: unknown) {
+        this.handleApiException(error);
+      }
+    }
+  }
+
+  convertYamlFrom11to12(yamlDocuments: string): string {
+    const parsedManifests = parseAllDocuments(yamlDocuments, { customTags: this.getTags });
+    return parsedManifests.map(parsedManifest => stringify(parsedManifest)).join('\n');
+  }
+
+  getTags(tags: Tags): Tags {
+    for (const tag of tags) {
+      if (typeof tag === 'object' && 'tag' in tag) {
+        if (tag.tag === 'tag:yaml.org,2002:int') {
+          const newTag = { ...tag };
+          newTag.test = /^(0[0-7][0-7][0-7])$/;
+          newTag.resolve = (str: string): number => parseInt(str, 8);
+          tags.unshift(newTag);
+          break;
+        }
+      }
+    }
+    return tags;
   }
 }
