@@ -7,6 +7,7 @@ import Actions from './columns/Actions.svelte';
 import type { PodUI } from './PodUI';
 import { PodHelper } from './pod-helper';
 import PodDetailsSummary from './PodDetailsSummary.svelte';
+import PodLogs from './PodLogs.svelte';
 
 interface Props {
   name: string;
@@ -27,5 +28,14 @@ const podHelper = dependencyAccessor.get<PodHelper>(PodHelper);
   name={name}
   namespace={namespace}
   transformer={podHelper.getPodUI.bind(podHelper)}
+  tabs={[
+    {
+      title: 'Logs',
+      url: 'logs',
+      component: PodLogs,
+    }
+  ]}
   ActionsComponent={Actions}
-  SummaryComponent={PodDetailsSummary} />
+  SummaryComponent={PodDetailsSummary}
+
+   />

@@ -21,6 +21,12 @@ import MonacoEditor from '/@/component/editor/MonacoEditor.svelte';
 import { stringify } from 'yaml';
 import EditYAML from '/@/component/editor/EditYAML.svelte';
 
+interface TabInfo<T extends KubernetesObject> {
+  title: string;
+  url: string;
+  component: Component<{ object: T }>;
+}
+
 interface Props<T extends KubernetesObject, U extends KubernetesObjectUI> {
   typed: T;
   typedUI: U;
@@ -30,6 +36,7 @@ interface Props<T extends KubernetesObject, U extends KubernetesObjectUI> {
   name: string;
   namespace?: string;
   transformer: (o: T) => U;
+  tabs?: TabInfo<T>[];
   SummaryComponent: Component<{ object: T; events: readonly EventUI[] }>;
   ActionsComponent?: Component<{ object: U; details?: boolean }>;
 }
@@ -40,6 +47,7 @@ let {
   namespace,
   listName,
   transformer,
+  tabs = [],
   SummaryComponent,
   ActionsComponent,
   typed: _typed,
@@ -195,6 +203,12 @@ function navigateToList(): void {
         title="Patch"
         selected={navigator.isTabSelected($router.path, 'patch')}
         url={navigator.getTabUrl($router.path, 'patch')} />
+      {#each tabs as tab}
+        <Tab
+          title={tab.title}
+          selected={navigator.isTabSelected($router.path, tab.url)}
+          url={navigator.getTabUrl($router.path, tab.url)} />
+      {/each}
     {/snippet}
     {#snippet contentSnippet()}
       <Route path="/summary">
@@ -206,6 +220,11 @@ function navigateToList(): void {
       <Route path="/patch">
         <EditYAML content={stringify(editableObject)} />
       </Route>
+      {#each tabs as tab}
+        <Route path={"/"+tab.url}>
+          <tab.component object={object as T} />
+        </Route>
+      {/each}
     {/snippet}
   </DetailsPage>
 {/if}
