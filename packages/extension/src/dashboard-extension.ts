@@ -33,6 +33,7 @@ import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 import { PortForwardServiceProvider } from './port-forward/port-forward-service';
 import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
+import { IDisposable } from '/@common/types/disposable';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -81,10 +82,20 @@ export class DashboardExtension {
     rpcExtension.registerInstance(API_SYSTEM, this.#systemApiImpl);
     rpcExtension.registerInstance(API_PORT_FORWARD, this.#portForwardApiImpl);
     rpcExtension.registerInstance(API_POD_LOGS, this.#podLogsApiImpl);
-    
+
     await this.listenMonitoring();
     await this.startMonitoring();
     await this.startPortForwarding();
+
+    const disposables = await this.#container.getAllAsync<IDisposable>(IDisposable);
+
+    panel.onDidChangeViewState(event => {
+      if (!event.webviewPanel.active) {
+        for (const disposable of disposables) {
+          disposable.dispose();
+        }
+      }
+    });
   }
 
   async deactivate(): Promise<void> {

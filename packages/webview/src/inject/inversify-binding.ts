@@ -37,6 +37,7 @@ import { pvcsModule } from '../component/pvcs/_pvcs-module';
 import { jobsModule } from '../component/jobs/_jobs-module';
 import { cronjobsModule } from '../component/cronjobs/_cronjobs-module';
 import { podsModule } from '../component/pods/_pods-module';
+import { streamsModule } from '/@/stream/stream-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -56,6 +57,7 @@ export class InversifyBinding {
     this.#container.bind('WebviewApi').toConstantValue(this.#webviewApi);
 
     await this.#container.load(statesModule);
+    await this.#container.load(streamsModule);
     await this.#container.load(objectsModule);
     await this.#container.load(navigationModule);
     await this.#container.load(nodesModule);

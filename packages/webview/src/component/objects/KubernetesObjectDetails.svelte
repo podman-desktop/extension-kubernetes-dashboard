@@ -203,7 +203,7 @@ function navigateToList(): void {
         title="Patch"
         selected={navigator.isTabSelected($router.path, 'patch')}
         url={navigator.getTabUrl($router.path, 'patch')} />
-      {#each tabs as tab}
+      {#each tabs as tab (tab.url)}
         <Tab
           title={tab.title}
           selected={navigator.isTabSelected($router.path, tab.url)}
@@ -220,8 +220,8 @@ function navigateToList(): void {
       <Route path="/patch">
         <EditYAML content={stringify(editableObject)} />
       </Route>
-      {#each tabs as tab}
-        <Route path={"/"+tab.url}>
+      {#each tabs as tab (tab.url)}
+        <Route path={'/' + tab.url}>
           <tab.component object={object as T} />
         </Route>
       {/each}

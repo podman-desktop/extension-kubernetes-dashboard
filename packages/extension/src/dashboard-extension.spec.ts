@@ -46,6 +46,7 @@ beforeEach(() => {
       html: '',
       onDidReceiveMessage: vi.fn(),
     },
+    onDidChangeViewState: vi.fn(),
   } as unknown as WebviewPanel);
   vi.mocked(Uri.joinPath).mockReturnValue({ fsPath: '/path/to/extension/index.html' } as unknown as Uri);
   // Create a mock for the ExtensionContext
