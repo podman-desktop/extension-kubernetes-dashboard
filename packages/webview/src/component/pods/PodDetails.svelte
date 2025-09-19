@@ -33,9 +33,7 @@ const podHelper = dependencyAccessor.get<PodHelper>(PodHelper);
       title: 'Logs',
       url: 'logs',
       component: PodLogs,
-    }
+    },
   ]}
   ActionsComponent={Actions}
-  SummaryComponent={PodDetailsSummary}
-
-   />
+  SummaryComponent={PodDetailsSummary} />

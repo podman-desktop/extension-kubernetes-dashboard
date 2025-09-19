@@ -25,12 +25,15 @@ import { StateObject } from '/@/state/util/state-object.svelte';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { Remote } from '/@/remote/remote';
+import { Streams } from './stream/streams';
 
 export interface MainContext {
   states: States;
+  streams: Streams;
   webviewApi: WebviewApi;
   remote: Remote;
   dependencyAccessor: DependencyAccessor;
+  rpcBrowser: RpcBrowser;
 }
 
 export class Main implements IDisposable {
@@ -58,9 +61,11 @@ export class Main implements IDisposable {
 
     const mainContext: MainContext = {
       states: await container.getAsync<States>(States),
+      streams: await container.getAsync<Streams>(Streams),
       webviewApi,
       remote: container.get<Remote>(Remote),
       dependencyAccessor: new DependencyAccessor(container),
+      rpcBrowser,
     };
 
     return mainContext;
