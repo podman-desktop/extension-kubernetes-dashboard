@@ -22,12 +22,14 @@ import { ContextsManager } from './contexts-manager';
 import { ContextsStatesDispatcher } from './contexts-states-dispatcher';
 import { SystemApiImpl } from './system-api';
 import { PortForwardApiImpl } from './port-forward-api-impl';
+import { PodLogsApiImpl } from './pod-logs-api-impl';
 
 const managersModule = new ContainerModule(options => {
   options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
   options.bind<ContextsStatesDispatcher>(ContextsStatesDispatcher).toSelf().inSingletonScope();
   options.bind<SystemApiImpl>(SystemApiImpl).toSelf().inSingletonScope();
   options.bind<PortForwardApiImpl>(PortForwardApiImpl).toSelf().inSingletonScope();
+  options.bind<PodLogsApiImpl>(PodLogsApiImpl).toSelf().inSingletonScope();
 });
 
 export { managersModule };

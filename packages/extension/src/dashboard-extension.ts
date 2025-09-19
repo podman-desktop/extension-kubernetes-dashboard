@@ -28,10 +28,11 @@ import { KubeConfig } from '@kubernetes/client-node';
 import { ContextsStatesDispatcher } from '/@/manager/contexts-states-dispatcher';
 import { InversifyBinding } from '/@/inject/inversify-binding';
 import type { Container } from 'inversify';
-import { API_CONTEXTS, API_PORT_FORWARD, API_SUBSCRIBE, API_SYSTEM } from '/@common/channels';
+import { API_CONTEXTS, API_POD_LOGS, API_PORT_FORWARD, API_SUBSCRIBE, API_SYSTEM } from '/@common/channels';
 import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 import { PortForwardServiceProvider } from './port-forward/port-forward-service';
+import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -44,6 +45,7 @@ export class DashboardExtension {
   #systemApiImpl: SystemApiImpl;
   #portForwardApiImpl: PortForwardApiImpl;
   #portForwardServiceProvider: PortForwardServiceProvider;
+  #podLogsApiImpl: PodLogsApiImpl;
 
   constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
@@ -68,6 +70,7 @@ export class DashboardExtension {
     this.#systemApiImpl = await this.#container.getAsync(SystemApiImpl);
     this.#portForwardApiImpl = await this.#container.getAsync(PortForwardApiImpl);
     this.#portForwardServiceProvider = await this.#container.getAsync(PortForwardServiceProvider);
+    this.#podLogsApiImpl = await this.#container.getAsync(PodLogsApiImpl);
 
     const afterFirst = performance.now();
 
@@ -77,7 +80,8 @@ export class DashboardExtension {
     rpcExtension.registerInstance(API_CONTEXTS, this.#contextsManager);
     rpcExtension.registerInstance(API_SYSTEM, this.#systemApiImpl);
     rpcExtension.registerInstance(API_PORT_FORWARD, this.#portForwardApiImpl);
-
+    rpcExtension.registerInstance(API_POD_LOGS, this.#podLogsApiImpl);
+    
     await this.listenMonitoring();
     await this.startMonitoring();
     await this.startPortForwarding();
