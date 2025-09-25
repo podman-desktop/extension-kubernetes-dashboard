@@ -29,11 +29,18 @@ export interface DispatcherObject<T> {
 export abstract class AbsDispatcherObjectImpl<T, U> implements DispatcherObject<T> {
   #channel: RpcChannel<U>;
 
+  #debounceTimeout: number;
+  #throttleTimeout: number;
+  #debounceTimer: NodeJS.Timeout | undefined;
+  #throttleTimer: NodeJS.Timeout | undefined;
+
   constructor(
     private rpcExtension: RpcExtension,
     channel: RpcChannel<U>,
   ) {
     this.#channel = channel;
+    this.#debounceTimeout = 100;
+    this.#throttleTimeout = 200;
   }
 
   get channelName(): string {
@@ -41,7 +48,37 @@ export abstract class AbsDispatcherObjectImpl<T, U> implements DispatcherObject<
   }
 
   async dispatch(options?: T): Promise<void> {
-    await this.rpcExtension.fire(this.#channel, this.getData(options));
+    const doDispatch = (): Promise<boolean> => {
+      return this.rpcExtension.fire(this.#channel, this.getData(options));
+    };
+
+    if (this.#debounceTimer) {
+      clearTimeout(this.#debounceTimer);
+      this.#debounceTimer = undefined;
+    }
+    this.#debounceTimer = setTimeout(() => {
+      if (this.#throttleTimer) {
+        clearTimeout(this.#throttleTimer);
+        this.#throttleTimer = undefined;
+      }
+      doDispatch()
+        .catch(console.error)
+        .finally(() => {
+          clearTimeout(this.#debounceTimer);
+          this.#debounceTimer = undefined;
+        });
+    }, this.#debounceTimeout);
+
+    if (!this.#throttleTimer && this.#throttleTimeout > 0) {
+      this.#throttleTimer = setTimeout(() => {
+        doDispatch()
+          .catch(console.error)
+          .finally(() => {
+            clearTimeout(this.#throttleTimer);
+            this.#throttleTimer = undefined;
+          });
+      }, this.#throttleTimeout);
+    }
   }
 
   abstract getData(options?: T): U;

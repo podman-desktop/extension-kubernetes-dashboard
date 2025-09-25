@@ -85,7 +85,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-test('empty screen because of no resource', () => {
+test('empty screen because of no resource', async () => {
   currentContextMock.setData({
     contextName: 'ctx1',
   });
@@ -121,8 +121,10 @@ test('empty screen because of no resource', () => {
     resourceName: 'seals',
   });
 
-  // emptySnippet is displayed
-  screen.getByText('No Seals');
+  // emptySnippet is displayed after throttle delay
+  await vi.waitFor(() => {
+    screen.getByText('No Seals');
+  });
 
   expect(uiSvelte.FilteredEmptyScreen).not.toHaveBeenCalled();
 });

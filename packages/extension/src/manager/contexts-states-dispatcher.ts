@@ -111,7 +111,6 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
     }
     const subscriptions = this.getSubscriptions(channelName);
 
-    console.debug('dispatch data for', channelName);
     const dispatcher = this.#dispatchers.get(channelName);
     if (!dispatcher) {
       console.error(`dispatcher not found for channel ${channelName}`);

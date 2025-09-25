@@ -102,6 +102,10 @@ async function deleteSelectedObjects(): Promise<void> {
 
   await contextsApi.deleteObjects(selectedObjects);
 }
+
+function waitThrottleDelay(): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, 500));
+}
 </script>
 
 <NavPage bind:searchTerm={searchTerm} title={plural}>
@@ -136,7 +140,9 @@ async function deleteSelectedObjects(): Promise<void> {
             searchTerm={searchTerm}
             on:resetFilter={(): string => (searchTerm = '')} />
         {:else}
-          {@render emptySnippet()}
+          {#await waitThrottleDelay() then _}
+            {@render emptySnippet()}
+          {/await}
         {/if}
       {/if}
     </div>
