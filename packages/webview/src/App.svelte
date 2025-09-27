@@ -36,7 +36,7 @@ let isMounted = false;
     <div class="flex flex-row w-full h-full overflow-hidden">
       <Navigation meta={meta} />
 
-      <div class="flex flex-col w-full h-full">
+      <div class="flex flex-col w-full h-full overflow-hidden">
         <Route path="/">
           <Dashboard />
         </Route>
