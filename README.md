@@ -36,11 +36,11 @@ Install the custom extension `ghcr.io/podman-desktop/podman-desktop-extension-ku
 
 # Contributing
 
-First clone the current directory on your disk, then run `pnpm i` in the root directory of the sources, then awtch the changes in the `packages/webview` directory:
+First clone this repository on your disk, then run `pnpm i` in the root directory of the sources, then watch the changes in the `packages/webview` directory:
 
 ```
-$ git clone git@github.com:podman-desktop/podman-desktop.git
-$ cd podman-desktop
+$ git clone git@github.com:podman-desktop/extension-kubernetes-dashboard.git
+$ cd extension-kubernetes-dashboard
 $ pnpm i
 [...]
 $ cd packages/webview
@@ -53,7 +53,7 @@ $ pnpm watch
 - In Settings > Preferences, in the Extensions section, enable the Development mode
 - In Extensions > Local Extensions, select `Add a local folder extension...` and select the sub-directory `packages/extension` of the sources you cloned previously.
 
-You can now make changes to the sources. The project is composed of two parts, which are built separately: the extension code, and the webview code. The extension code is rebuilt after each change by Podman Desktop itself, and the webview part is rebuilt by the `pnppm watch` command you started previously.
+You can now make changes to the sources. The project is composed of two parts, which are built separately: the extension code, and the webview code. The extension code is rebuilt after each change by Podman Desktop itself, and the webview part is rebuilt by the `pnpm watch` command you started previously.
 
 > Note that when you only change code in the webview part, the webview is built, and the result is included in the extension, which triggers the rebuild of the extension.
 
