@@ -18,6 +18,7 @@
 
 import type { ContextsApi } from './interface/contexts-api';
 import type { PodLogsApi } from './interface/pod-logs-api';
+import type { PodTerminalsApi } from './interface/pod-terminals-api';
 import type { PortForwardApi } from './interface/port-forward-api';
 import type { SubscribeApi } from './interface/subscribe-api';
 import type { SystemApi } from './interface/system-api';
@@ -27,6 +28,7 @@ import type { ContextsPermissionsInfo } from './model/contexts-permissions-info'
 import type { CurrentContextInfo } from './model/current-context-info';
 import type { EndpointsInfo } from './model/endpoints-info';
 import type { PodLogsChunk } from './model/pod-logs-chunk';
+import type { PodTerminalChunk } from './model/pod-terminal-chunk';
 import type { PortForwardsInfo } from './model/port-forward-info';
 import type { ResourceDetailsInfo } from './model/resource-details-info';
 import type { ResourceEventsInfo } from './model/resource-events-info';
@@ -56,3 +58,6 @@ export const ENDPOINTS = createRpcChannel<EndpointsInfo>('Endpoints');
 // Channels fot streams
 export const API_POD_LOGS = createRpcChannel<PodLogsApi>('PodLogsApi');
 export const POD_LOGS = createRpcChannel<PodLogsChunk>('PodLogs');
+
+export const API_POD_TERMINALS = createRpcChannel<PodTerminalsApi>('PodTerminalsApi');
+export const POD_TERMINAL_DATA = createRpcChannel<PodTerminalChunk>('PodTerminalData');

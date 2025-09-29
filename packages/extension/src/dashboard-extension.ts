@@ -28,12 +28,20 @@ import { KubeConfig } from '@kubernetes/client-node';
 import { ContextsStatesDispatcher } from '/@/manager/contexts-states-dispatcher';
 import { InversifyBinding } from '/@/inject/inversify-binding';
 import type { Container } from 'inversify';
-import { API_CONTEXTS, API_POD_LOGS, API_PORT_FORWARD, API_SUBSCRIBE, API_SYSTEM } from '/@common/channels';
+import {
+  API_CONTEXTS,
+  API_POD_LOGS,
+  API_POD_TERMINALS,
+  API_PORT_FORWARD,
+  API_SUBSCRIBE,
+  API_SYSTEM,
+} from '/@common/channels';
 import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 import { PortForwardServiceProvider } from './port-forward/port-forward-service';
 import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
 import { IDisposable } from '/@common/types/disposable';
+import { PodTerminalsApiImpl } from './manager/pod-terminals-api-impl';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -47,6 +55,7 @@ export class DashboardExtension {
   #portForwardApiImpl: PortForwardApiImpl;
   #portForwardServiceProvider: PortForwardServiceProvider;
   #podLogsApiImpl: PodLogsApiImpl;
+  #podTerminalsApiImpl: PodTerminalsApiImpl;
 
   constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
@@ -72,6 +81,7 @@ export class DashboardExtension {
     this.#portForwardApiImpl = await this.#container.getAsync(PortForwardApiImpl);
     this.#portForwardServiceProvider = await this.#container.getAsync(PortForwardServiceProvider);
     this.#podLogsApiImpl = await this.#container.getAsync(PodLogsApiImpl);
+    this.#podTerminalsApiImpl = await this.#container.getAsync(PodTerminalsApiImpl);
 
     const afterFirst = performance.now();
 
@@ -82,6 +92,7 @@ export class DashboardExtension {
     rpcExtension.registerInstance(API_SYSTEM, this.#systemApiImpl);
     rpcExtension.registerInstance(API_PORT_FORWARD, this.#portForwardApiImpl);
     rpcExtension.registerInstance(API_POD_LOGS, this.#podLogsApiImpl);
+    rpcExtension.registerInstance(API_POD_TERMINALS, this.#podTerminalsApiImpl);
 
     await this.listenMonitoring();
     await this.startMonitoring();
