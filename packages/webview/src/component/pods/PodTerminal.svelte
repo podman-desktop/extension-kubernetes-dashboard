@@ -58,7 +58,7 @@ async function initializeNewTerminal(
   });
 
   disposables.push(
-    await streams.streamPodTerminals.subscribe(podName, namespace, containerName, async (chunk) => {
+    await streams.streamPodTerminals.subscribe(podName, namespace, containerName, async chunk => {
       if (chunk.podName !== podName || chunk.namespace !== namespace || chunk.containerName !== containerName) {
         return;
       }
