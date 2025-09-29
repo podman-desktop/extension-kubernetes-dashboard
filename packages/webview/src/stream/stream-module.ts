@@ -20,11 +20,13 @@ import { ContainerModule } from 'inversify';
 
 import { Streams } from './streams';
 import { StreamPodLogs } from './pod-logs';
+import { StreamPodTerminals } from './pod-terminals';
 
 const streamsModule = new ContainerModule(options => {
   options.bind(Streams).toSelf().inSingletonScope();
 
   options.bind(StreamPodLogs).toSelf().inSingletonScope();
+  options.bind(StreamPodTerminals).toSelf().inSingletonScope();
 });
 
 export { streamsModule };

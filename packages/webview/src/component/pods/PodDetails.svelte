@@ -8,6 +8,7 @@ import type { PodUI } from './PodUI';
 import { PodHelper } from './pod-helper';
 import PodDetailsSummary from './PodDetailsSummary.svelte';
 import PodLogs from './PodLogs.svelte';
+import PodTerminal from './PodTerminal.svelte';
 
 interface Props {
   name: string;
@@ -33,6 +34,11 @@ const podHelper = dependencyAccessor.get<PodHelper>(PodHelper);
       title: 'Logs',
       url: 'logs',
       component: PodLogs,
+    },
+    {
+      title: 'Terminal',
+      url: 'terminal',
+      component: PodTerminal,
     },
   ]}
   ActionsComponent={Actions}
