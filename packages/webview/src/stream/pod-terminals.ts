@@ -39,8 +39,11 @@ export class StreamPodTerminals {
     containerName: string,
     callback: (data: PodTerminalChunk) => void,
   ): Promise<IDisposable> {
-    const disposable = this.rpcBrowser.on(POD_TERMINAL_DATA, data => {
-      callback(data);
+    const disposable = this.rpcBrowser.on(POD_TERMINAL_DATA, chunk => {
+      if (chunk.podName !== podName || chunk.namespace !== namespace || chunk.containerName !== containerName) {
+        return;
+      }
+      callback(chunk);
     });
     await this.#podTerminalsApi.startTerminal(podName, namespace, containerName);
     return Disposable.create(() => {
