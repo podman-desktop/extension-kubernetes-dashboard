@@ -25,6 +25,7 @@ onMount(() => {
       <div class="flex p-2 h-[40px] w-full">
         <div class="w-full">
           <Dropdown
+            ariaLabel="Select container"
             class="w-48"
             name="container"
             bind:value={selectedContainerName}
