@@ -13,8 +13,9 @@ import { Disposable } from '/@common/types/disposable';
 
 interface Props {
   object: V1Pod;
+  containerName: string;
 }
-let { object }: Props = $props();
+let { object, containerName }: Props = $props();
 
 const streams = getContext<Streams>(Streams);
 const remote = getContext<Remote>(Remote);
@@ -30,7 +31,6 @@ let fitAddon: FitAddon;
 onMount(async () => {
   const podName = object.metadata?.name ?? '';
   const namespace = object.metadata?.namespace ?? '';
-  const containerName = object.spec?.containers?.[0]?.name ?? '';
   const savedState = await podTerminalsApi.getState(podName, namespace, containerName);
 
   disposables.push(await initializeNewTerminal(terminalXtermDiv, podName, namespace, containerName));
@@ -106,4 +106,4 @@ onDestroy(() => {
 });
 </script>
 
-<div class="h-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]" bind:this={terminalXtermDiv}></div>
+<div class="h-full w-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]" bind:this={terminalXtermDiv}></div>

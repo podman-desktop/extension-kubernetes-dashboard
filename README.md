@@ -20,7 +20,8 @@ From this list, you have access to the details for a specifc resource, including
 - a utility to patch the resource definition, using [strategic merge patch](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-object-kubectl-patch/).
 
 For Pods, you also have access to:
-- the logs of the containers running in the pod.
+- the logs of the containers running in the pod,
+- a terminal on each container running in the pod. 
 
 You can switch the namespace you want to explore from the Dashboard page or from any list of namespaced resources. The extension will disconnect from the previous namespace and connect to the new one.
 
