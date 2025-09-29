@@ -18,6 +18,7 @@
 
 import { inject, injectable } from 'inversify';
 import { StreamPodLogs } from './pod-logs';
+import { StreamPodTerminals } from './pod-terminals';
 
 @injectable()
 export class Streams {
@@ -26,5 +27,12 @@ export class Streams {
 
   get streamPodLogs(): StreamPodLogs {
     return this._streamPodLogs;
+  }
+
+  @inject(StreamPodTerminals)
+  private _streamPodTerminals: StreamPodTerminals;
+
+  get streamPodTerminals(): StreamPodTerminals {
+    return this._streamPodTerminals;
   }
 }

@@ -58,4 +58,4 @@ $effect(() => {
 });
 </script>
 
-<div class="h-full w-full {className}" {...restProps} bind:this={editorContainer}></div>
+<div class="h-full {className}" {...restProps} bind:this={editorContainer}></div>
