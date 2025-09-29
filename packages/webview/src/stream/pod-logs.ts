@@ -39,8 +39,11 @@ export class StreamPodLogs {
     containerName: string,
     callback: (data: PodLogsChunk) => void,
   ): Promise<IDisposable> {
-    const disposable = this.rpcBrowser.on(POD_LOGS, data => {
-      callback(data);
+    const disposable = this.rpcBrowser.on(POD_LOGS, chunk => {
+      if (chunk.podName !== podName || chunk.namespace !== namespace || chunk.containerName !== containerName) {
+        return;
+      }
+      callback(chunk);
     });
     await this.#podLogsApi.streamPodLogs(podName, namespace, containerName);
     return Disposable.create(() => {

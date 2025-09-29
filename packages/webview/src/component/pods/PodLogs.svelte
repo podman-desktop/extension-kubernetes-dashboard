@@ -70,9 +70,6 @@ onMount(async () => {
         object.metadata?.namespace ?? '',
         containerName,
         chunk => {
-          if (chunk.containerName !== containerName) {
-            return;
-          }
           multiContainers(containerName, chunk.data, data => {
             if (noLogs) {
               noLogs = false;

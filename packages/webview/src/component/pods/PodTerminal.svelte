@@ -59,9 +59,6 @@ async function initializeNewTerminal(
 
   disposables.push(
     await streams.streamPodTerminals.subscribe(podName, namespace, containerName, chunk => {
-      if (chunk.podName !== podName || chunk.namespace !== namespace || chunk.containerName !== containerName) {
-        return;
-      }
       shellTerminal.write(chunk.data);
       // save state to have an up to date backup of the terminal
       // in case the user leaves the webview of the extension
