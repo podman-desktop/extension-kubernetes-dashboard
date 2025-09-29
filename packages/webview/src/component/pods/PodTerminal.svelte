@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { V1Pod } from '@kubernetes/client-node';
-import { getContext, onDestroy, onMount, tick } from 'svelte';
+import { getContext, onDestroy, onMount } from 'svelte';
 import { Streams } from '/@/stream/streams';
 import type { IDisposable } from 'monaco-editor';
 import { Terminal } from '@xterm/xterm';
@@ -58,14 +58,14 @@ async function initializeNewTerminal(
   });
 
   disposables.push(
-    await streams.streamPodTerminals.subscribe(podName, namespace, containerName, async chunk => {
+    await streams.streamPodTerminals.subscribe(podName, namespace, containerName, chunk => {
       if (chunk.podName !== podName || chunk.namespace !== namespace || chunk.containerName !== containerName) {
         return;
       }
       shellTerminal.write(chunk.data);
       // save state to have an up to date backup of the terminal
       // in case the user leaves the webview of the extension
-      await podTerminalsApi.saveState(podName, namespace, containerName, serializeAddon.serialize());
+      podTerminalsApi.saveState(podName, namespace, containerName, serializeAddon.serialize()).catch(console.error);
     }),
   );
 
@@ -76,7 +76,7 @@ async function initializeNewTerminal(
   shellTerminal.open(container);
   disposables.push(
     shellTerminal.onData(data => {
-      podTerminalsApi.sendData(podName, namespace, containerName, data);
+      podTerminalsApi.sendData(podName, namespace, containerName, data).catch(console.error);
     }),
   );
 
@@ -84,7 +84,7 @@ async function initializeNewTerminal(
     fitAddon.fit();
     await podTerminalsApi.resizeTerminal(podName, namespace, containerName, shellTerminal.cols, shellTerminal.rows);
   };
-  const onResize = () => {
+  const onResize = (): void => {
     resize().catch(console.error);
   };
   window.addEventListener('resize', onResize);
@@ -92,7 +92,7 @@ async function initializeNewTerminal(
 
   return Disposable.create(() => {
     const terminalContent = serializeAddon.serialize();
-    podTerminalsApi.saveState(podName, namespace, containerName, terminalContent);
+    podTerminalsApi.saveState(podName, namespace, containerName, terminalContent).catch(console.error);
     window.removeEventListener('resize', onResize);
     shellTerminal.dispose();
     fitAddon.dispose();
