@@ -33,6 +33,9 @@ export class ExecStreamWriter extends Writable {
   constructor(transmitter: Writable, options?: WritableOptions) {
     super(options);
     this.transmitter = transmitter;
+    this.transmitter.on('resize', () => {
+      this.emit('resize');
+    });
   }
 
   get delegate(): Writable {
@@ -46,11 +49,19 @@ export class ExecStreamWriter extends Writable {
   override _write(chunk: unknown, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     this.transmitter._write(chunk, encoding, callback);
   }
+
+  get columns(): number {
+    return (this.transmitter as ResizableTerminalWriter)._columns;
+  }
+
+  get rows(): number {
+    return (this.transmitter as ResizableTerminalWriter)._rows;
+  }
 }
 
 export class ResizableTerminalWriter extends ExecStreamWriter {
-  protected columns: number;
-  protected rows: number;
+  public _columns: number = DEFAULT_COLUMNS;
+  public _rows: number = DEFAULT_ROWS;
 
   constructor(
     transmitter: Writable,
@@ -58,8 +69,8 @@ export class ResizableTerminalWriter extends ExecStreamWriter {
     options?: WritableOptions,
   ) {
     super(transmitter, options);
-    this.columns = terminalSize.width;
-    this.rows = terminalSize.height;
+    this._columns = terminalSize.width;
+    this._rows = terminalSize.height;
   }
 
   override _write(chunk: unknown, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
@@ -67,16 +78,16 @@ export class ResizableTerminalWriter extends ExecStreamWriter {
   }
 
   resize(terminalSize: TerminalSize): void {
-    this.columns = terminalSize.width;
-    this.rows = terminalSize.height;
+    this._columns = terminalSize.width;
+    this._rows = terminalSize.height;
 
     this.emit('resize');
   }
 
   getDimension(): TerminalSize {
     return {
-      width: this.columns,
-      height: this.rows,
+      width: this._columns,
+      height: this._rows,
     } as TerminalSize;
   }
 }

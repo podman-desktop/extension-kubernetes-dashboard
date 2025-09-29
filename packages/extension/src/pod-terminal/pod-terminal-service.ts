@@ -96,7 +96,6 @@ export class PodTerminalService {
 
   async resizeTerminal(cols: number, rows: number): Promise<void> {
     this.#stdoutResizableTerminalWriter.resize({ width: cols, height: rows });
-    this.#stderrResizableTerminalWriter.resize({ width: cols, height: rows });
   }
 
   async saveState(state: string): Promise<void> {
