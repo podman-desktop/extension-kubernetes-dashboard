@@ -26,7 +26,7 @@ import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_PORT_FORWARD, API_SYSTEM } from '/@common/channels';
 import type { PortForwardApi } from '/@common/interface/port-forward-api';
 import type { SystemApi } from '/@common/interface/system-api';
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import type { PortForwardsInfo } from '/@common/model/port-forward-info';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 

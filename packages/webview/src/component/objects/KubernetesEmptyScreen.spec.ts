@@ -21,7 +21,7 @@ import { render } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import KubernetesEmptyScreen from './KubernetesEmptyScreen.svelte';
 import CheckConnection from '/@/component/connection/CheckConnection.svelte';
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';
