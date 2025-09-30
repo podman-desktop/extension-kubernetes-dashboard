@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { assert, beforeEach, expect, test, vi } from 'vitest';
 
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';

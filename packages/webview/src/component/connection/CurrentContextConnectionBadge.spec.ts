@@ -22,7 +22,7 @@ import { render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import CurrentContextConnectionBadge from './CurrentContextConnectionBadge.svelte';

@@ -23,7 +23,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import PortForwardList from './PortForwardingList.svelte';
 import { WorkloadKind, type ForwardConfig } from '/@common/model/port-forward';
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { PortForwardsInfo } from '/@common/model/port-forward-info';
 import { DependencyMocks } from '/@/tests/dependency-mocks';

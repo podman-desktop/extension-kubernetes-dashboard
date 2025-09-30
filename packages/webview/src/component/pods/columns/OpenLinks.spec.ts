@@ -18,7 +18,7 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import type { EndpointsInfo } from '/@common/model/endpoints-info';
 import type { EndpointsOptions } from '/@common/model/endpoints-options';

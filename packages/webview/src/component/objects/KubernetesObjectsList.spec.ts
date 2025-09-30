@@ -25,7 +25,7 @@ import type { UpdateResourceOptions } from '/@common/model/update-resource-optio
 import type { UpdateResourceInfo } from '/@common/model/update-resource-info';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import * as uiSvelte from '@podman-desktop/ui-svelte';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { RemoteMocks } from '/@/tests/remote-mocks';

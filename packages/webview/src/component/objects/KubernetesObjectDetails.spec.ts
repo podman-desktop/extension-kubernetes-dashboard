@@ -21,7 +21,7 @@ import { DependencyMocks } from '../../tests/dependency-mocks';
 import { render } from '@testing-library/svelte';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import type { ResourceDetailsOptions } from '/@common/model/resource-details-options';
 import type { ResourceDetailsInfo } from '/@common/model/resource-details-info';
 import type { ResourceEventsInfo } from '/@common/model/resource-events-info';

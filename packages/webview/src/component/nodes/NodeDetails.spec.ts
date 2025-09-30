@@ -20,7 +20,7 @@ import { render } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 import NodeDetails from './NodeDetails.svelte';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { ResourceDetailsInfo } from '/@common/model/resource-details-info';
 import type { ResourceDetailsOptions } from '/@common/model/resource-details-options';

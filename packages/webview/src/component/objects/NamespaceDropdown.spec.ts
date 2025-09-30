@@ -22,7 +22,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import NamespaceDropdown from './NamespaceDropdown.svelte';
-import { StatesMocks } from '/@/tests/context-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';
