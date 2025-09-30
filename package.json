@@ -2,7 +2,7 @@
   "name": "kubernetes-dashboard-monorepo",
   "displayName": "Mono repository for Kubernetes Dashboard extension for Podman Desktop",
   "description": "Root repository",
-  "version": "0.1.0-next",
+  "version": "0.2.0-next",
   "publisher": "redhat",
   "private": true,
   "engines": {
