@@ -115,9 +115,6 @@ jobs:
           echo "🔅 Mark the PR as being ok to be merged automatically"
           gh pr merge "${pullRequestUrl}" --auto --rebase
           git checkout ${{ steps.TAG_UTIL.outputs.githubTag }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
-
 
   builder-image:
     needs: tag
