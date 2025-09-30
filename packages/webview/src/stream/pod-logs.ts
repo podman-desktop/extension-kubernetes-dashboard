@@ -23,8 +23,9 @@ import type { PodLogsApi } from '/@common/interface/pod-logs-api';
 import type { PodLogsChunk } from '/@common/model/pod-logs-chunk';
 import { RpcBrowser } from '/@common/rpc/rpc';
 import { Disposable, type IDisposable } from '/@common/types/disposable';
+import type { StreamObject } from './util/stream-object';
 
-export class StreamPodLogs {
+export class StreamPodLogs implements StreamObject<PodLogsChunk> {
   #podLogsApi: PodLogsApi;
 
   constructor(

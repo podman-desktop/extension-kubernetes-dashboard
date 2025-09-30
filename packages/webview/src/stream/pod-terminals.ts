@@ -23,8 +23,9 @@ import { RpcBrowser } from '/@common/rpc/rpc';
 import { Disposable, type IDisposable } from '/@common/types/disposable';
 import type { PodTerminalsApi } from '/@common/interface/pod-terminals-api';
 import type { PodTerminalChunk } from '/@common/model/pod-terminal-chunk';
+import type { StreamObject } from './util/stream-object';
 
-export class StreamPodTerminals {
+export class StreamPodTerminals implements StreamObject<PodTerminalChunk> {
   #podTerminalsApi: PodTerminalsApi;
 
   constructor(
