@@ -29,23 +29,8 @@ import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { FitAddon } from '@xterm/addon-fit';
 
-vi.mock('@xterm/addon-serialize', () => {
-  const SerializeAddon = vi.fn();
-  SerializeAddon.prototype = {
-    serialize: vi.fn(),
-    dispose: vi.fn(),
-  };
-  return { SerializeAddon };
-});
-
-vi.mock('@xterm/addon-fit', () => {
-  const FitAddon = vi.fn();
-  FitAddon.prototype = {
-    fit: vi.fn(),
-    dispose: vi.fn(),
-  };
-  return { FitAddon };
-});
+vi.mock(import('@xterm/addon-serialize'));
+vi.mock(import('@xterm/addon-fit'));
 
 let terminalCols = 132;
 let terminalRows = 30;
