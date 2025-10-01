@@ -36,7 +36,7 @@
     "eslint-plugin-sonarjs": "^3.0.2",
     "memfs": "^4.47.0",
     "prettier": "^3.6.1",
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     "vite": "^7.1",
     "vitest": "^3.1",
     "isomorphic-ws": "^5.0.0",
