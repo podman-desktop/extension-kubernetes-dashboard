@@ -498,9 +498,9 @@ export class ContextsManager {
     const ns = namespace ?? this.currentContext.getNamespace();
     try {
       const result = await handler.deleteObject(this.currentContext, name, ns);
-      this.handleResult(result);
+      this.handleResult(result, `deletion of ${kind} ${name}`);
     } catch (error: unknown) {
-      this.handleApiException(error);
+      this.handleApiException(error, `deletion of ${kind} ${name}`);
     }
   }
 
@@ -534,14 +534,14 @@ export class ContextsManager {
     return handler.restartObject(this.currentContext, name, ns);
   }
 
-  private handleResult(result: KubernetesObject | V1Status): void {
+  private handleResult(result: KubernetesObject | V1Status, actionMsg: string): void {
     if (this.isV1Status(result)) {
-      this.handleStatus(result);
+      this.handleStatus(result, actionMsg);
     }
     // Ignore if result is a KubernetesObject
   }
 
-  private handleApiException(error: unknown): void {
+  private handleApiException(error: unknown, actionMsg: string): void {
     if (error instanceof ApiException) {
       const statusError = error as ApiException<string>;
       let status: unknown;
@@ -551,7 +551,7 @@ export class ContextsManager {
         throw error;
       }
       if (this.isV1Status(status)) {
-        this.handleStatus(status);
+        this.handleStatus(status, actionMsg);
       } else {
         throw error;
       }
@@ -570,9 +570,13 @@ export class ContextsManager {
     );
   }
 
-  protected handleStatus(status: V1Status): void {
-    console.error('status', status);
-    // TODO: https://github.com/podman-desktop/extension-kubernetes-dashboard/issues/103
+  protected handleStatus(status: V1Status, actionMsg: string): void {
+    window.showNotification({
+      title: actionMsg,
+      body: status.message,
+      type: 'error',
+      highlight: true,
+    });
   }
 
   async deleteObjects(objects: { kind: string; name: string; namespace?: string }[]): Promise<void> {
@@ -805,9 +809,9 @@ export class ContextsManager {
           undefined, // force
           PatchStrategy.StrategicMergePatch,
         );
-        this.handleResult(result);
+        this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
       } catch (error: unknown) {
-        this.handleApiException(error);
+        this.handleApiException(error, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
       }
     }
   }

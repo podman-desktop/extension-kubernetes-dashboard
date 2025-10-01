@@ -208,8 +208,8 @@ class TestContextsManager extends ContextsManager {
     return super.stopMonitoring(contextName);
   }
 
-  public override handleStatus(status: V1Status): void {
-    return super.handleStatus(status);
+  public override handleStatus(status: V1Status, actionMsg: string): void {
+    return super.handleStatus(status, actionMsg);
   }
 
   public override getTextualObjectsList(objects: { kind: string; name: string; namespace?: string }[]): string {
@@ -1534,7 +1534,7 @@ test('deleteObject handler returns Status', async () => {
   await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
   expect(window.showInformationMessage).toHaveBeenCalled();
   expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
-  expect(manager.handleStatus).toHaveBeenCalledWith(status);
+  expect(manager.handleStatus).toHaveBeenCalledWith(status, 'deletion of Resource4 resource-name');
 });
 
 test('deleteObject handler throws status embedded in ApiException', async () => {
@@ -1553,7 +1553,7 @@ test('deleteObject handler throws status embedded in ApiException', async () => 
   await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
   expect(window.showInformationMessage).toHaveBeenCalled();
   expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
-  expect(manager.handleStatus).toHaveBeenCalledWith(status);
+  expect(manager.handleStatus).toHaveBeenCalledWith(status, 'deletion of Resource4 resource-name');
 });
 
 test('deleteObject handler throws a non-Status in ApiException', async () => {
