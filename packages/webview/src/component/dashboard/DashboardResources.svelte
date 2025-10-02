@@ -14,13 +14,13 @@ import DashboardResourceCard from './DashboardResourceCard.svelte';
   <DashboardResourceCard type="Deployments" resources={['deployments']} kind="Deployment" />
   <DashboardResourceCard type="Pods" resources={['pods']} kind="Pod" />
   <DashboardResourceCard type="Services" resources={['services']} kind="Service" />
-  <DashboardResourceCard type="Ingresses & Routes" resources={['ingresses', 'routes']} kind="Ingress" />
+  <DashboardResourceCard type="Ingresses &amp; Routes" resources={['ingresses', 'routes']} kind="Ingress" />
   <DashboardResourceCard
     type="Persistent Volume Claims"
     resources={['persistentvolumeclaims']}
     kind="PersistentVolumeClaim" />
   <DashboardResourceCard
-    type="ConfigMaps & Secrets"
+    type="ConfigMaps &amp; Secrets"
     resources={['configmaps', 'secrets']}
     kind="ConfigMap"
     iconName="ConfigMapSecret" />
