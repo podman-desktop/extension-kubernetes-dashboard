@@ -111,6 +111,9 @@ importers:
       inversify:
         specifier: ^7.9.1
         version: 7.10.2(reflect-metadata@0.2.2)
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2

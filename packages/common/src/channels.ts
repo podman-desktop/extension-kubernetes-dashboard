@@ -23,6 +23,7 @@ import type { PortForwardApi } from './interface/port-forward-api';
 import type { SubscribeApi } from './interface/subscribe-api';
 import type { SystemApi } from './interface/system-api';
 import type { ActiveResourcesCountInfo } from './model/active-resources-count-info';
+import type { AvailableContextsInfo } from './model/available-contexts-info';
 import type { ContextsHealthsInfo } from './model/contexts-healths-info';
 import type { ContextsPermissionsInfo } from './model/contexts-permissions-info';
 import type { CurrentContextInfo } from './model/current-context-info';
@@ -50,6 +51,7 @@ export const CONTEXTS_HEALTHS = createRpcChannel<ContextsHealthsInfo>('ContextsH
 export const CONTEXTS_PERMISSIONS = createRpcChannel<ContextsPermissionsInfo>('ContextsPermissions');
 export const UPDATE_RESOURCE = createRpcChannel<UpdateResourceInfo>('UpdateResource');
 export const CURRENT_CONTEXT = createRpcChannel<CurrentContextInfo>('CurrentContext');
+export const AVAILABLE_CONTEXTS = createRpcChannel<AvailableContextsInfo>('AvailableContexts');
 export const RESOURCE_DETAILS = createRpcChannel<ResourceDetailsInfo>('ResourceDetailsInfo');
 export const RESOURCE_EVENTS = createRpcChannel<ResourceEventsInfo>('ResourceEvents');
 export const PORT_FORWARDS = createRpcChannel<PortForwardsInfo>('PortForwards');

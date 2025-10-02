@@ -16,14 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const ContextsApi = Symbol.for('ContextsApi');
-
-export interface ContextsApi {
-  setCurrentContext(contextName: string): Promise<void>;
-  refreshContextState(contextName: string): Promise<void>;
-  deleteObject(kind: string, name: string, namespace?: string): Promise<void>;
-  deleteObjects(objects: { kind: string; name: string; namespace?: string }[]): Promise<void>;
-  setCurrentNamespace(namespace: string): Promise<void>;
-  restartObject(kind: string, name: string, namespace: string): Promise<void>;
-  applyResources(yamlDocuments: string): Promise<void>;
+export interface AvailableContextsInfo {
+  contextNames: string[];
 }

@@ -25,6 +25,7 @@ import { ContextsManager } from './contexts-manager.js';
 import { RpcChannel } from '/@common/rpc/rpc.js';
 import {
   ACTIVE_RESOURCES_COUNT,
+  AVAILABLE_CONTEXTS,
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
@@ -73,6 +74,10 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
     this.manager.onContextDelete(async (_state: DispatcherEvent) => {
       await this.dispatch(CONTEXTS_HEALTHS);
       await this.dispatch(CONTEXTS_PERMISSIONS);
+      await this.dispatch(AVAILABLE_CONTEXTS);
+    });
+    this.manager.onContextAdd(async (_state: DispatcherEvent) => {
+      await this.dispatch(AVAILABLE_CONTEXTS);
     });
     this.manager.onResourceCountUpdated(async () => {
       await this.dispatch(RESOURCES_COUNT);
