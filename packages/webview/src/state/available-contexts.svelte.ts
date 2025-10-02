@@ -16,14 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const ContextsApi = Symbol.for('ContextsApi');
+import { inject, injectable } from 'inversify';
 
-export interface ContextsApi {
-  setCurrentContext(contextName: string): Promise<void>;
-  refreshContextState(contextName: string): Promise<void>;
-  deleteObject(kind: string, name: string, namespace?: string): Promise<void>;
-  deleteObjects(objects: { kind: string; name: string; namespace?: string }[]): Promise<void>;
-  setCurrentNamespace(namespace: string): Promise<void>;
-  restartObject(kind: string, name: string, namespace: string): Promise<void>;
-  applyResources(yamlDocuments: string): Promise<void>;
+import { AVAILABLE_CONTEXTS } from '/@common/channels';
+import { RpcBrowser } from '/@common/rpc/rpc';
+
+import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
+import type { AvailableContextsInfo } from '/@common/model/available-contexts-info';
+
+// Define a state for the AvailableContextsInfo
+@injectable()
+export class StateAvailableContextsInfo
+  extends AbsStateObjectImpl<AvailableContextsInfo, void>
+  implements StateObject<AvailableContextsInfo, void>
+{
+  constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
+    super(rpcBrowser);
+  }
+
+  async init(): Promise<void> {
+    await this.initChannel(AVAILABLE_CONTEXTS);
+  }
 }

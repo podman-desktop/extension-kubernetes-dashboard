@@ -35,6 +35,7 @@ import { ContextsHealthsDispatcher } from '/@/dispatcher/contexts-healths-dispat
 import { ContextsPermissionsDispatcher } from '/@/dispatcher/contexts-permissions-dispatcher.js';
 import {
   ACTIVE_RESOURCES_COUNT,
+  AVAILABLE_CONTEXTS,
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
@@ -51,6 +52,7 @@ const contextsManagerMock: ContextsManager = {
   onOfflineChange: vi.fn(),
   onContextPermissionResult: vi.fn(),
   onContextDelete: vi.fn(),
+  onContextAdd: vi.fn(),
   getHealthCheckersStates: vi.fn(),
   getPermissions: vi.fn(),
   onResourceCountUpdated: vi.fn(),
@@ -143,10 +145,24 @@ test('ContextsStatesDispatcher should call updateHealthStates and updatePermissi
   vi.mocked(contextsManagerMock.onContextDelete).mockImplementation(f => f({} as DispatcherEvent) as IDisposable);
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(dispatcherSpy).toHaveBeenCalledTimes(2);
+    expect(dispatcherSpy).toHaveBeenCalledTimes(3);
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_HEALTHS);
   expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_PERMISSIONS);
+  expect(dispatcherSpy).toHaveBeenCalledWith(AVAILABLE_CONTEXTS);
+});
+
+test('ContextsStatesDispatcher should dispatchavailable contexts when onContextAdd event is fired', async () => {
+  const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
+  dispatcher.init();
+  expect(dispatcherSpy).not.toHaveBeenCalled();
+
+  vi.mocked(contextsManagerMock.onContextAdd).mockImplementation(f => f({} as DispatcherEvent) as IDisposable);
+  dispatcher.init();
+  await vi.waitFor(() => {
+    expect(dispatcherSpy).toHaveBeenCalledTimes(1);
+  });
+  expect(dispatcherSpy).toHaveBeenCalledWith(AVAILABLE_CONTEXTS);
 });
 
 test('ContextsStatesDispatcher should call updateResource and updateActiveResourcesCount when onResourceUpdated event is fired', async () => {

@@ -32,7 +32,8 @@ import {
 import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
 import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js';
 import type { KubernetesTroubleshootingInformation } from '/@common/model/kubernetes-troubleshooting.js';
-import { window } from '@podman-desktop/api';
+import { kubernetes, window } from '@podman-desktop/api';
+import * as jsYaml from 'js-yaml';
 
 import type { Event } from '/@/types/emitter.js';
 import { Emitter } from '/@/types/emitter.js';
@@ -72,6 +73,7 @@ import { TargetRef } from '/@common/model/target-ref.js';
 import { Endpoint } from '/@common/model/endpoint.js';
 import { V1Route } from '/@common/model/openshift-types.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
+import { writeFile } from 'node:fs/promises';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 const DEFAULT_NAMESPACE = 'default';
@@ -108,6 +110,9 @@ export class ContextsManager {
   #onContextDelete = new Emitter<DispatcherEvent>();
   onContextDelete: Event<DispatcherEvent> = this.#onContextDelete.event;
 
+  #onContextAdd = new Emitter<DispatcherEvent>();
+  onContextAdd: Event<DispatcherEvent> = this.#onContextAdd.event;
+
   #onResourceUpdated = new Emitter<{ contextName: string; resourceName: string }>();
   onResourceUpdated: Event<{ contextName: string; resourceName: string }> = this.#onResourceUpdated.event;
 
@@ -139,6 +144,7 @@ export class ContextsManager {
     this.#dispatcher.onUpdate(this.onUpdate.bind(this));
     this.#dispatcher.onDelete(this.onDelete.bind(this));
     this.#dispatcher.onDelete((state: DispatcherEvent) => this.#onContextDelete.fire(state));
+    this.#dispatcher.onAdd((state: DispatcherEvent) => this.#onContextAdd.fire(state));
     this.#dispatcher.onCurrentChange(this.onCurrentChange.bind(this));
   }
 
@@ -834,5 +840,17 @@ export class ContextsManager {
       }
     }
     return tags;
+  }
+
+  getContextsNames(): string[] {
+    return this.#currentKubeConfig.contexts.map(ctx => ctx.name);
+  }
+
+  async setCurrentContext(contextName: string): Promise<void> {
+    this.#currentKubeConfig.currentContext = contextName;
+    const jsonString = this.#currentKubeConfig.exportConfig();
+    const yamlString = jsYaml.dump(JSON.parse(jsonString));
+    const kubeconfigUri = kubernetes.getKubeconfig();
+    await writeFile(kubeconfigUri.path, yamlString);
   }
 }

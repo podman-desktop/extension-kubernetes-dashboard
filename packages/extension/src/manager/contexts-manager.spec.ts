@@ -18,9 +18,9 @@
 
 import type { Cluster, CoreV1Event, KubernetesObject, ObjectCache, V1Status } from '@kubernetes/client-node';
 import { ApiException, KubeConfig } from '@kubernetes/client-node';
-import type { Event } from '@podman-desktop/api';
+import type { Event, Uri } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
-import { window } from '@podman-desktop/api';
+import { kubernetes, window } from '@podman-desktop/api';
 
 import type { ContextHealthState } from './context-health-checker.js';
 import { ContextHealthChecker } from './context-health-checker.js';
@@ -39,6 +39,7 @@ import type {
   OfflineEvent,
   ResourceInformer,
 } from '/@/types/resource-informer.js';
+import { vol } from 'memfs';
 
 const onCacheUpdatedMock = vi.fn<Event<CacheUpdatedEvent>>();
 const onOfflineMock = vi.fn<Event<OfflineEvent>>();
@@ -278,6 +279,8 @@ const kcWithNoCurrentContext = {
   ],
 };
 
+vi.mock('node:fs/promises');
+vi.mock('node:fs');
 vi.mock('./context-health-checker.js');
 vi.mock('./context-permissions-checker.js');
 
@@ -287,6 +290,7 @@ const originalConsoleWarn = console.warn;
 const originalConsoleError = console.error;
 
 beforeEach(() => {
+  vol.reset();
   vi.clearAllMocks();
   kcWith2contexts = {
     contexts: [
@@ -404,6 +408,12 @@ describe('HealthChecker is built and start is called for each context the first 
     expect(ContextPermissionsChecker).toHaveBeenCalledWith(kcSingle1, 'context1', expect.anything());
 
     expect(permissionsStartMock).toHaveBeenCalledTimes(2);
+  });
+
+  test('getContextsNames returns the correct contexts names', async () => {
+    await manager.update(kc);
+    const contextsNames = manager.getContextsNames();
+    expect(contextsNames).toEqual(['context1', 'context2']);
   });
 });
 
@@ -1396,6 +1406,28 @@ test('get currentContext', async () => {
   await manager.update(kc);
   const currentContext = manager.currentContext;
   expect(currentContext?.getKubeConfig().currentContext).toEqual('context1');
+});
+
+test('setCurrentContext sets the current context', async () => {
+  vol.fromJSON({
+    '/path/to/config': JSON.stringify(kcWith2contexts),
+  });
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  const currentContext = manager.currentContext;
+  expect(currentContext?.getKubeConfig().currentContext).toEqual('context1');
+
+  vi.mocked(kubernetes.getKubeconfig).mockReturnValue({
+    path: '/path/to/config',
+  } as Uri);
+
+  await manager.setCurrentContext('context2');
+  const content = vol.readFileSync('/path/to/config', 'utf-8');
+  expect(content).toContain('current-context: context2');
 });
 
 test('onCurrentContextChange is fired', async () => {
