@@ -8,6 +8,7 @@ import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
 import ActionsColumn from '/@/component/cronjobs/columns/Actions.svelte';
+import ScheduleColumn from '/@/component/cronjobs/columns/Schedule.svelte';
 import { CronJobHelper } from './cronjob-helper';
 import type { CronJobUI } from './CronJobUI';
 import CronJobIcon from '../icons/CronJobIcon.svelte';
@@ -38,7 +39,7 @@ let ageColumn = new TableColumn<CronJobUI, Date | undefined>('Age', {
 
 let scheduleColumn = new TableColumn<CronJobUI, string>('Schedule', {
   renderMapping: (cronjob): string => cronjob.schedule,
-  renderer: TableSimpleColumn,
+  renderer: ScheduleColumn,
   comparator: (a, b): number => a.schedule.localeCompare(b.schedule),
 });
 
