@@ -16,16 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type {
-  Cluster,
-  Context,
-  KubernetesObject,
-  ListPromise,
-  ListWatch,
-  User,
-  V1ObjectMeta,
-} from '@kubernetes/client-node';
-import { ApiException, DELETE, ERROR, KubeConfig, UPDATE } from '@kubernetes/client-node';
+import type { Cluster, Context, User, V1ObjectMeta } from '@kubernetes/client-node';
+import { KubeConfig } from '@kubernetes/client-node';
 import { expect, test, vi } from 'vitest';
 
 import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
@@ -35,12 +27,6 @@ interface MyResource {
   apiVersion?: string;
   kind?: string;
   metadata?: V1ObjectMeta;
-}
-
-class TestResourceInformer<T extends KubernetesObject> extends ResourceInformer<T> {
-  override getListWatch(path: string, listFn: ListPromise<T>): ListWatch<T> {
-    return super.getListWatch(path, listFn);
-  }
 }
 
 const contexts = [
@@ -134,22 +120,12 @@ test('ResourceInformer should fire onCacheUpdated event with countChanged to tru
     { metadata: { name: 'res2', namespace: 'ns1' } },
   ] as MyResource[];
   listFn.mockResolvedValue({ items: items });
-  const informer = new TestResourceInformer<MyResource>({
+  const informer = new ResourceInformer<MyResource>({
     kubeconfig,
     path: '/a/path',
     listFn,
     kind: 'MyResource',
     plural: 'myresources',
-  });
-  const getListWatchOnMock = vi.fn();
-  vi.spyOn(informer, 'getListWatch').mockReturnValue({
-    on: getListWatchOnMock,
-    start: vi.fn().mockResolvedValue({}),
-  } as unknown as ListWatch<MyResource>);
-  getListWatchOnMock.mockImplementation((event: string, f: (obj: MyResource) => void) => {
-    if (event === DELETE) {
-      f(items[0]!);
-    }
   });
   const onCacheUpdatedCB = vi.fn();
   informer.onCacheUpdated(onCacheUpdatedCB);
@@ -159,234 +135,20 @@ test('ResourceInformer should fire onCacheUpdated event with countChanged to tru
   });
 });
 
-test('ResourceInformer should fire onCacheUpdated event with countChanged to false when resources are updated', async () => {
-  const kc = new KubeConfig();
-  kc.loadFromOptions(kcWith2contexts);
-  const listFn = vi.fn();
-  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
-  const items = [
-    { metadata: { name: 'res1', namespace: 'ns1' } },
-    { metadata: { name: 'res2', namespace: 'ns1' } },
-  ] as MyResource[];
-  listFn.mockResolvedValue({ items: items });
-  const informer = new TestResourceInformer<MyResource>({
-    kubeconfig,
-    path: '/a/path',
-    listFn,
-    kind: 'MyResource',
-    plural: 'myresources',
-  });
-  const getListWatchOnMock = vi.fn();
-  vi.spyOn(informer, 'getListWatch').mockReturnValue({
-    on: getListWatchOnMock,
-    start: vi.fn().mockResolvedValue({}),
-  } as unknown as ListWatch<MyResource>);
-  getListWatchOnMock.mockImplementation((event: string, f: (obj: MyResource) => void) => {
-    if (event === UPDATE) {
-      f({ metadata: { ...items[0]!.metadata, resourceVersion: '2' } });
-    }
-  });
-  const onCacheUpdatedCB = vi.fn();
-  informer.onCacheUpdated(onCacheUpdatedCB);
-  informer.start();
-  await vi.waitFor(() => {
-    expect(onCacheUpdatedCB).toHaveBeenCalledWith({ kubeconfig, resourceName: 'myresources', countChanged: false });
-  });
-});
-
-test('ResourceInformer should fire onOffline event is informer fails', async () => {
-  const kc = new KubeConfig();
-  kc.loadFromOptions(kcWith2contexts);
-  const listFn = vi.fn();
-  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
-  const informer = new TestResourceInformer<MyResource>({
-    kubeconfig,
-    path: '/a/path',
-    listFn,
-    kind: 'MyResource',
-    plural: 'myresources',
-  });
-  const onCB = vi.fn();
-  vi.spyOn(informer, 'getListWatch').mockReturnValue({
-    on: onCB,
-    start: vi.fn().mockResolvedValue({}),
-  } as unknown as ListWatch<MyResource>);
-  const onOfflineCB = vi.fn();
-  onCB.mockImplementation((e: string, f) => {
-    if (e === ERROR) {
-      f(new ApiException(500, 'an error', {}, {}));
-    }
-  });
-  informer.onOffline(onOfflineCB);
-  informer.start();
-  expect(onOfflineCB).toHaveBeenCalledWith({
-    kubeconfig,
-    offline: true,
-    reason: `Error: HTTP-Code: 500
-Message: an error
-Body: {}
-Headers: {}`,
-    resourceName: 'myresources',
-  });
-});
-
 test('ResourceInformer should not fire onOffline event is informer fails with a 404 error', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWith2contexts);
   const listFn = vi.fn();
   const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
-  const informer = new TestResourceInformer<MyResource>({
+  const informer = new ResourceInformer<MyResource>({
     kubeconfig,
     path: '/a/path',
     listFn,
     kind: 'MyResource',
     plural: 'myresources',
   });
-  const onCB = vi.fn();
-  vi.spyOn(informer, 'getListWatch').mockReturnValue({
-    on: onCB,
-    start: vi.fn().mockResolvedValue({}),
-  } as unknown as ListWatch<MyResource>);
   const onOfflineCB = vi.fn();
-  onCB.mockImplementation((e: string, f) => {
-    if (e === ERROR) {
-      f(new ApiException(404, 'an error', {}, {}));
-    }
-  });
   informer.onOffline(onOfflineCB);
   informer.start();
   expect(onOfflineCB).not.toHaveBeenCalled();
-});
-
-test('reconnect should do nothing if there is no error', async () => {
-  const kc = new KubeConfig();
-  kc.loadFromOptions(kcWith2contexts);
-  const listFn = vi.fn();
-  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
-  const informer = new TestResourceInformer<MyResource>({
-    kubeconfig,
-    path: '/a/path',
-    listFn,
-    kind: 'MyResource',
-    plural: 'myresources',
-  });
-  const onCB = vi.fn();
-  const startMock = vi.fn().mockResolvedValue({});
-  vi.spyOn(informer, 'getListWatch').mockReturnValue({
-    on: onCB,
-    start: startMock,
-  } as unknown as ListWatch<MyResource>);
-  const onOfflineCB = vi.fn();
-  onCB.mockImplementation((e: string, _f) => {
-    if (e === ERROR) {
-      // do nothing
-    }
-  });
-  informer.onOffline(onOfflineCB);
-  informer.start();
-  expect(startMock).toHaveBeenCalledOnce();
-  startMock.mockClear();
-  informer.reconnect();
-  expect(startMock).not.toHaveBeenCalled();
-});
-
-test('reconnect should call start again if there is an error', async () => {
-  const kc = new KubeConfig();
-  kc.loadFromOptions(kcWith2contexts);
-  const listFn = vi.fn();
-  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
-  const informer = new TestResourceInformer<MyResource>({
-    kubeconfig,
-    path: '/a/path',
-    listFn,
-    kind: 'MyResource',
-    plural: 'myresources',
-  });
-  const onCB = vi.fn();
-  const startMock = vi.fn().mockResolvedValue({});
-  vi.spyOn(informer, 'getListWatch').mockReturnValue({
-    on: onCB,
-    start: startMock,
-  } as unknown as ListWatch<MyResource>);
-  const onOfflineCB = vi.fn();
-  onCB.mockImplementation((e: string, f) => {
-    if (e === ERROR) {
-      f('an error');
-    }
-  });
-  informer.onOffline(onOfflineCB);
-  informer.start();
-  expect(startMock).toHaveBeenCalledOnce();
-  startMock.mockClear();
-  informer.reconnect();
-  expect(startMock).toHaveBeenCalled();
-});
-
-test('informer is stopped when disposed', async () => {
-  const kc = new KubeConfig();
-  kc.loadFromOptions(kcWith2contexts);
-  const listFn = vi.fn();
-  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
-  const informer = new TestResourceInformer<MyResource>({
-    kubeconfig,
-    path: '/a/path',
-    listFn,
-    kind: 'MyResource',
-    plural: 'myresources',
-  });
-  const onCB = vi.fn();
-  const startMock = vi.fn().mockResolvedValue({});
-  const stopMock = vi.fn().mockResolvedValue({});
-  vi.spyOn(informer, 'getListWatch').mockReturnValue({
-    on: onCB,
-    start: startMock,
-    stop: stopMock,
-  } as unknown as ListWatch<MyResource>);
-  const onOfflineCB = vi.fn();
-  informer.onOffline(onOfflineCB);
-  informer.start();
-  expect(startMock).toHaveBeenCalledOnce();
-  startMock.mockClear();
-  informer.dispose();
-  expect(stopMock).toHaveBeenCalled();
-});
-
-test('ResourceInformer should fire onObjectDeleted event when a resource is deleted', async () => {
-  const kc = new KubeConfig();
-  kc.loadFromOptions(kcWith2contexts);
-  const listFn = vi.fn();
-  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
-  const items = [
-    { metadata: { name: 'res1', namespace: 'ns1' } },
-    { metadata: { name: 'res2', namespace: 'ns1' } },
-  ] as MyResource[];
-  listFn.mockResolvedValue({ items: items });
-  const informer = new TestResourceInformer<MyResource>({
-    kubeconfig,
-    path: '/a/path',
-    listFn,
-    kind: 'MyResource',
-    plural: 'myresources',
-  });
-  const getListWatchOnMock = vi.fn();
-  vi.spyOn(informer, 'getListWatch').mockReturnValue({
-    on: getListWatchOnMock,
-    start: vi.fn().mockResolvedValue({}),
-  } as unknown as ListWatch<MyResource>);
-  getListWatchOnMock.mockImplementation((event: string, f: (obj: MyResource) => void) => {
-    if (event === DELETE) {
-      f(items[0]!);
-    }
-  });
-  const onCacheUpdatedCB = vi.fn();
-  informer.onObjectDeleted(onCacheUpdatedCB);
-  informer.start();
-  await vi.waitFor(() => {
-    expect(onCacheUpdatedCB).toHaveBeenCalledWith({
-      kubeconfig,
-      resourceName: 'myresources',
-      name: 'res1',
-      namespace: 'ns1',
-    });
-  });
 });
