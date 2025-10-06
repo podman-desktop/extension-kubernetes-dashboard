@@ -11,6 +11,8 @@ function getScheduleReadableText(schedule: string): string {
   try {
     return cronstrue.toString(schedule);
   } catch (error) {
+    // If cronstrue cannot parse the schedule, return the original cron expression
+    console.warn(`Failed to parse cron expression: ${schedule}`, error);
     return schedule;
   }
 }
