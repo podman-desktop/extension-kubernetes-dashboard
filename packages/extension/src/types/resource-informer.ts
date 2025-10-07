@@ -23,7 +23,7 @@ import type {
   ListPromise,
   ObjectCache,
 } from '@kubernetes/client-node';
-import { ADD, ApiException, DELETE, ERROR, ListWatch, UPDATE, Watch } from '@kubernetes/client-node';
+import { ADD, ApiException, DELETE, ERROR, makeInformer, UPDATE } from '@kubernetes/client-node';
 import type { Disposable } from '@podman-desktop/api';
 
 import type { Event } from './emitter.js';
@@ -103,7 +103,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
         })),
       };
     };
-    const internalInformer = this.getListWatch(this.#path, typedList);
+    const internalInformer = makeInformer(this.#kubeConfig.getKubeConfig(), this.#path, typedList);
     this.#informer = internalInformer;
 
     this.#informer.on(UPDATE, (_obj: T) => {
@@ -172,11 +172,6 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
         );
       });
     }
-  }
-
-  protected getListWatch(path: string, listFn: ListPromise<T>): ListWatch<T> {
-    const watch = new Watch(this.#kubeConfig.getKubeConfig());
-    return new ListWatch<T>(path, watch, listFn, false);
   }
 
   dispose(): void {
