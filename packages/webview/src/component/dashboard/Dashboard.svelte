@@ -14,6 +14,7 @@ import workingWithKubernetesImage from './images/WorkingWithKubernetes.png';
 import NoContextPage from './NoContextPage.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import NoSelectedContextPage from './NoSelectedContextPage.svelte';
+import CheckConnection from '/@/component/connection/CheckConnection.svelte';
 
 const states = getContext<States>(States);
 const currentContext = states.stateCurrentContextInfoUI;
@@ -77,7 +78,8 @@ onDestroy(() => {
             {#if currentContextName}
               <!-- Metrics - non-collapsible -->
               <div class="flex flex-row">
-                <div class="text-xl pt-2 grow">Metrics</div>
+                <div class="text-xl grow">Metrics</div>
+                <div><CheckConnection /></div>
               </div>
               <DashboardResources />
             {/if}
