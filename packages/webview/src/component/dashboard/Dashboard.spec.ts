@@ -35,6 +35,7 @@ vi.mock(import('./NoSelectedContextPage.svelte'));
 vi.mock(import('/@/component/connection/CurrentContextConnectionBadge.svelte'));
 vi.mock(import('./DashboardResources.svelte'));
 vi.mock(import('./DashboardGuideCard.svelte'));
+vi.mock(import('/@/component/connection/CheckConnection.svelte'));
 
 const statesMocks = new StatesMocks();
 const remoteMocks = new RemoteMocks();
