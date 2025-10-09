@@ -177,6 +177,17 @@ export default [
       'vitest/valid-title': 'off',
       'vitest/no-alias-methods': 'error',
       'vitest/no-conditional-expect': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          'patterns': [
+            {
+              'group': ['../'],
+              'message': 'Relative imports are not allowed.'
+            }
+          ]
+        }
+      ]
     },
   },
 

@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { DeploymentUI } from '../DeploymentUI';
+import type { DeploymentUI } from '/@/component/deployments/DeploymentUI';
 
 export interface Props {
   object: DeploymentUI;

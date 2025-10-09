@@ -18,9 +18,9 @@
 
 import { expect, test, vi } from 'vitest';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
-import { EndpointSlicesResourceFactory } from './endpoint-slices-resource-factory';
+import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-resource-factory';
 import type { KubeConfig, V1EndpointSlice } from '@kubernetes/client-node';
-import type { ContextsManager } from '../manager/contexts-manager';
+import type { ContextsManager } from '/@/manager/contexts-manager';
 
 const contextsManager: ContextsManager = {
   getResources: vi.fn(),

@@ -28,15 +28,15 @@ import { Remote } from '/@/remote/remote';
 import { objectsModule } from '/@/component/objects/_objects-module';
 import { navigationModule } from '/@/navigation/_navigation-module';
 import { nodesModule } from '/@/component/nodes/_nodes-module';
-import { namespacesModule } from '../component/namespaces/_namespaces-module';
+import { namespacesModule } from '/@/component/namespaces/_namespaces-module';
 import { configmapsSecretsModule } from '/@/component/configmaps-secrets/_configmaps-secrets-module';
-import { deploymentsModule } from '../component/deployments/deployments-module';
-import { servicesModule } from '../component/services/_services-module';
-import { ingressesRoutesModule } from '../component/ingresses-routes/_ingresses-routes-module';
-import { pvcsModule } from '../component/pvcs/_pvcs-module';
-import { jobsModule } from '../component/jobs/_jobs-module';
-import { cronjobsModule } from '../component/cronjobs/_cronjobs-module';
-import { podsModule } from '../component/pods/_pods-module';
+import { deploymentsModule } from '/@/component/deployments/deployments-module';
+import { servicesModule } from '/@/component/services/_services-module';
+import { ingressesRoutesModule } from '/@/component/ingresses-routes/_ingresses-routes-module';
+import { pvcsModule } from '/@/component/pvcs/_pvcs-module';
+import { jobsModule } from '/@/component/jobs/_jobs-module';
+import { cronjobsModule } from '/@/component/cronjobs/_cronjobs-module';
+import { podsModule } from '/@/component/pods/_pods-module';
 import { streamsModule } from '/@/stream/stream-module';
 
 export class InversifyBinding {

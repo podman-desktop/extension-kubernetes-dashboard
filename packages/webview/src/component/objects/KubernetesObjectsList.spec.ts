@@ -18,7 +18,7 @@
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
-import { DependencyMocks } from '../../tests/dependency-mocks';
+import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { render, screen } from '@testing-library/svelte';
 import KubernetesObjectsListSpec from './KubernetesObjectsListSpec.svelte';
 import type {

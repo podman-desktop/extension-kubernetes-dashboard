@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { NamespaceUI } from '../NamespaceUI';
+import type { NamespaceUI } from '/@/component/namespaces/NamespaceUI';
 
 export interface Props {
   object: NamespaceUI;

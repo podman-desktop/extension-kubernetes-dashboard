@@ -30,7 +30,7 @@ import {
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { inject, injectable } from 'inversify';
 import { Emitter, Event } from '/@/types/emitter';
-import { SystemApiImpl } from '../manager/system-api';
+import { SystemApiImpl } from '/@/manager/system-api';
 import { window } from '@podman-desktop/api';
 
 /**

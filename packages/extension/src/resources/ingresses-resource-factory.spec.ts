@@ -19,8 +19,8 @@
 import { expect, test, vi } from 'vitest';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
 import type { KubeConfig, V1Ingress } from '@kubernetes/client-node';
-import { IngressesResourceFactory } from './ingresses-resource-factory';
-import type { ContextsManager } from '../manager/contexts-manager';
+import { IngressesResourceFactory } from '/@/resources/ingresses-resource-factory';
+import type { ContextsManager } from '/@/manager/contexts-manager';
 
 const kubeconfig: KubeConfigSingleContext = {
   getKubeConfig: () =>

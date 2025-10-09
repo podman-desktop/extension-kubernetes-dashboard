@@ -36,7 +36,7 @@ import { tick } from 'svelte';
 import type { NodeUI } from './NodeUI';
 import * as svelte from 'svelte';
 import NodeDetailsSummary from '/@/component/nodes/NodeDetailsSummary.svelte';
-import { KubernetesObjectUIHelper } from '../objects/kubernetes-object-ui-helper';
+import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 
 vi.mock(import('./NodeDetailsSummary.svelte'));
 const dependencyMocks = new DependencyMocks();

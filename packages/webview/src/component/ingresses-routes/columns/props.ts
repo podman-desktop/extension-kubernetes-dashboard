@@ -16,8 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IngressUI } from '../IngressUI';
-import type { RouteUI } from '../RouteUI';
+import type { IngressUI } from '/@/component/ingresses-routes/IngressUI';
+import type { RouteUI } from '/@/component/ingresses-routes/RouteUI';
 
 export interface Props {
   object: IngressUI | RouteUI;
