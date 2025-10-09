@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,44 +17,53 @@
  ***********************************************************************/
 
 import { render } from '@testing-library/svelte';
-import Dashboard from './Dashboard.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { AvailableContextsInfo } from '/@common/model/available-contexts-info';
 import type { CurrentContextInfo } from '/@common/model/current-context-info';
-import { RemoteMocks } from '/@/tests/remote-mocks';
-import type { SystemApi } from '/@common/interface/system-api';
-import { API_SYSTEM } from '/@common/channels';
-import NoContextPage from './NoContextPage.svelte';
-import NoSelectedContextPage from './NoSelectedContextPage.svelte';
-import DashboardResources from './DashboardResources.svelte';
-import DashboardGuideCard from './DashboardGuideCard.svelte';
+import App from './App.svelte';
+import NoContextPage from './component/dashboard/NoContextPage.svelte';
+import NoSelectedContextPage from './component/dashboard/NoSelectedContextPage.svelte';
+import * as svelte from 'svelte';
+import type { WebviewApi } from '@podman-desktop/webview-api';
+import AppWithContext from '/@/AppWithContext.svelte';
 
-vi.mock(import('./NoContextPage.svelte'));
-vi.mock(import('./NoSelectedContextPage.svelte'));
+vi.mock(import('/@/component/dashboard/NoContextPage.svelte'));
+vi.mock(import('/@/component/dashboard/NoSelectedContextPage.svelte'));
+vi.mock(import('/@/AppWithContext.svelte'));
 vi.mock(import('/@/component/connection/CurrentContextConnectionBadge.svelte'));
-vi.mock(import('./DashboardResources.svelte'));
-vi.mock(import('./DashboardGuideCard.svelte'));
 vi.mock(import('/@/component/connection/CheckConnection.svelte'));
 
 const statesMocks = new StatesMocks();
-const remoteMocks = new RemoteMocks();
 
 let currentContextMock: FakeStateObject<CurrentContextInfo, void>;
 let availableContextsMock: FakeStateObject<AvailableContextsInfo, void>;
 
+const webviewApiMock = {
+  getState: vi.fn(),
+  postMessage: vi.fn(),
+  setState: vi.fn(),
+} as unknown as WebviewApi;
+
 beforeEach(() => {
+  vi.useFakeTimers();
   vi.resetAllMocks();
-  remoteMocks.reset();
-  remoteMocks.mock(API_SYSTEM, {
-    openExternal: vi.fn(),
-  } as unknown as SystemApi);
+
+  vi.spyOn(svelte, 'getContext').mockImplementation(key => {
+    if (key === 'WebviewApi') {
+      return webviewApiMock;
+    }
+  });
 
   statesMocks.reset();
   currentContextMock = new FakeStateObject();
   availableContextsMock = new FakeStateObject();
   statesMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
   statesMocks.mock<AvailableContextsInfo, void>('stateAvailableContextsInfoUI', availableContextsMock);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 test('dashboard with no context', async () => {
@@ -64,11 +73,11 @@ test('dashboard with no context', async () => {
   availableContextsMock.setData({
     contextNames: [],
   });
-  render(Dashboard);
+  render(App);
+  await vi.advanceTimersByTimeAsync(600);
   expect(NoContextPage).toHaveBeenCalled();
   expect(NoSelectedContextPage).not.toHaveBeenCalled();
-  expect(DashboardResources).not.toHaveBeenCalled();
-  expect(DashboardGuideCard).not.toHaveBeenCalled();
+  expect(AppWithContext).not.toHaveBeenCalled();
 });
 
 test('dashboard with two contexts, no current context', async () => {
@@ -78,11 +87,11 @@ test('dashboard with two contexts, no current context', async () => {
   availableContextsMock.setData({
     contextNames: ['context1', 'context2'],
   });
-  render(Dashboard);
+  render(App);
+  await vi.advanceTimersByTimeAsync(600);
   expect(NoContextPage).not.toHaveBeenCalled();
   expect(NoSelectedContextPage).toHaveBeenCalled();
-  expect(DashboardResources).not.toHaveBeenCalled();
-  expect(DashboardGuideCard).not.toHaveBeenCalled();
+  expect(AppWithContext).not.toHaveBeenCalled();
 });
 
 test('dashboard with two contexts, one current context', async () => {
@@ -92,9 +101,9 @@ test('dashboard with two contexts, one current context', async () => {
   availableContextsMock.setData({
     contextNames: ['context1', 'context2'],
   });
-  render(Dashboard);
+  render(App);
+  await vi.advanceTimersByTimeAsync(600);
   expect(NoContextPage).not.toHaveBeenCalled();
   expect(NoSelectedContextPage).not.toHaveBeenCalled();
-  expect(DashboardResources).toHaveBeenCalled();
-  expect(DashboardGuideCard).toHaveBeenCalled();
+  expect(AppWithContext).toHaveBeenCalled();
 });
