@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { V1Pod } from '@kubernetes/client-node';
 import { Dropdown, EmptyScreen } from '@podman-desktop/ui-svelte';
-import NoLogIcon from '../icons/NoLogIcon.svelte';
+import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import PodTerminal from './PodTerminal.svelte';
 import { onMount } from 'svelte';
 

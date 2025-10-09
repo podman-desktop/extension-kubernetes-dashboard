@@ -5,13 +5,13 @@ import type { ConfigMapSecretUI } from './ConfigMapSecretUI';
 import NameColumn from '/@/component/objects/columns/Name.svelte';
 import StatusColumn from '/@/component/objects/columns/Status.svelte';
 import TypeColumn from '/@/component/configmaps-secrets/columns/Type.svelte';
-import KubernetesObjectsList from '../objects/KubernetesObjectsList.svelte';
 import { ConfigMapSecretHelper } from './configmap-secret-helper';
 import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
-import ConfigMapSecretIcon from '../icons/ConfigMapSecretIcon.svelte';
-import KubernetesEmptyScreen from '../objects/KubernetesEmptyScreen.svelte';
 import ActionsColumn from '/@/component/configmaps-secrets/columns/Actions.svelte';
+import KubernetesObjectsList from '/@/component/objects/KubernetesObjectsList.svelte';
+import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
+import ConfigMapSecretIcon from '/@/component/icons/ConfigMapSecretIcon.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const configmapSecretHelper = dependencyAccessor.get<ConfigMapSecretHelper>(ConfigMapSecretHelper);

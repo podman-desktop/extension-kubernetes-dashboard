@@ -4,7 +4,7 @@ import { getContext, onDestroy, onMount } from 'svelte';
 import { Streams } from '/@/stream/streams';
 import type { IDisposable } from 'monaco-editor';
 import { Terminal } from '@xterm/xterm';
-import { getTerminalTheme } from '../terminal/terminal-theme';
+import { getTerminalTheme } from '/@/component/terminal/terminal-theme';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { Remote } from '/@/remote/remote';
