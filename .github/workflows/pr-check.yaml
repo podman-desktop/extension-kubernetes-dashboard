@@ -71,3 +71,32 @@ jobs:
       - name: Run build
         run: pnpm build
         timeout-minutes: 40
+
+  ## the builder image is not built as part of this workflow
+  ## but is built in the release workflow
+  ## Changes to the builder image must be merged before to use these changes in the extension image
+  extension-image:
+    name: Build extension OCI image
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: build extension image
+        id: extension-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: podman-desktop-extension-kubernetes-dashboard
+          tags: next ${{ github.sha }}
+          archs: amd64, arm64
+          containerfiles: |
+            build/Containerfile
+          context: .
+          oci: true

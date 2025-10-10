@@ -107,11 +107,10 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.7.0)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(yaml@2.8.1)
 
   packages/common:
-    dependencies:
+    devDependencies:
       '@kubernetes-dashboard/rpc':
         specifier: workspace:*
         version: link:../rpc
-    devDependencies:
       vite-plugin-dts:
         specifier: ^4.5.4
         version: 4.5.4(@types/node@24.7.0)(rollup@4.52.3)(typescript@5.9.3)(vite@7.1.9(@types/node@24.7.0)(jiti@2.6.1)(lightningcss@1.30.1)(yaml@2.8.1))
@@ -121,9 +120,6 @@ importers:
       '@kubernetes/client-node':
         specifier: ^1.4.0
         version: 1.4.0(encoding@0.1.13)
-      '@kubernetes-dashboard/rpc':
-        specifier: workspace:*
-        version: link:../rpc
       inversify:
         specifier: ^7.9.1
         version: 7.10.2(reflect-metadata@0.2.2)
@@ -137,6 +133,9 @@ importers:
         specifier: ^2.8.1
         version: 2.8.1
     devDependencies:
+      '@kubernetes-dashboard/rpc':
+        specifier: workspace:*
+        version: link:../rpc
       '@podman-desktop/api':
         specifier: 1.22.0
         version: 1.22.0
@@ -206,9 +205,6 @@ importers:
 
   packages/webview:
     dependencies:
-      '@kubernetes-dashboard/rpc':
-        specifier: workspace:*
-        version: link:../rpc
       cronstrue:
         specifier: ^3.3.0
         version: 3.3.0
@@ -240,6 +236,9 @@ importers:
       '@fortawesome/free-solid-svg-icons':
         specifier: ^7.0.0
         version: 7.1.0
+      '@kubernetes-dashboard/rpc':
+        specifier: workspace:*
+        version: link:../rpc
       '@podman-desktop/ui-svelte':
         specifier: 1.22.0
         version: 1.22.0(svelte-fa@4.0.4(svelte@5.39.11))(svelte@5.39.11)
