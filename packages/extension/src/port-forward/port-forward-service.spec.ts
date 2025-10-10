@@ -25,10 +25,10 @@ import type { ConfigManagementService } from './port-forward-storage';
 import type { PortForwardConnectionService } from './port-forward-connection';
 import { type ForwardConfig, WorkloadKind, type IDisposable } from '@kubernetes-dashboard/channels';
 
-vi.mock('./port-forward-connection.js');
-vi.mock('./port-forward-storage.js');
-vi.mock('./port-forward-validation.js');
-vi.mock('node:crypto');
+vi.mock(import('./port-forward-connection.js'));
+vi.mock(import('./port-forward-storage.js'));
+vi.mock(import('./port-forward-validation.js'));
+vi.mock(import('node:crypto'));
 
 describe('KubernetesPortForwardService', () => {
   let mockConfigManagementService: ConfigManagementService;

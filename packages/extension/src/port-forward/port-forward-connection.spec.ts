@@ -18,14 +18,7 @@
 
 import net from 'node:net';
 
-import {
-  AppsV1Api,
-  CoreV1Api,
-  type KubeConfig,
-  type V1Deployment,
-  type V1Pod,
-  type V1Service,
-} from '@kubernetes/client-node';
+import * as kubernetesClient from '@kubernetes/client-node';
 import { afterEach, beforeEach, describe, expect, type MockedFunction, test, vi } from 'vitest';
 import { type ForwardingSetup, PortForwardConnectionService } from './port-forward-connection';
 import {
@@ -39,7 +32,7 @@ import type { ContextsManager } from '/@/manager/contexts-manager';
 
 const mockKubeConfig = {
   makeApiClient: vi.fn(),
-} as unknown as KubeConfig;
+} as unknown as kubernetesClient.KubeConfig;
 
 const mockCoreV1Api = {
   readNamespacedPod: vi.fn(),
@@ -55,9 +48,8 @@ const mockPortForward = {
   portForward: vi.fn().mockResolvedValue(undefined),
 };
 
-vi.mock('node:net', async () => {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const { Server } = await vi.importActual<typeof import('node:net')>('node:net');
+vi.mock(import('node:net'), async () => {
+  const { Server } = await vi.importActual<typeof net>('node:net');
   return {
     Server,
     default: {
@@ -67,16 +59,15 @@ vi.mock('node:net', async () => {
         close: vi.fn(),
       })),
     },
-  };
+  } as unknown as typeof net;
 });
 
-vi.mock('@kubernetes/client-node', async () => {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const actual = await vi.importActual<typeof import('@kubernetes/client-node')>('@kubernetes/client-node');
+vi.mock(import('@kubernetes/client-node'), async () => {
+  const actual = await vi.importActual<typeof kubernetesClient>('@kubernetes/client-node');
   return {
     ...actual,
     PortForward: vi.fn(() => mockPortForward),
-  };
+  } as unknown as typeof kubernetesClient;
 });
 
 const originalFetchFn = global.fetch;
@@ -99,18 +90,21 @@ class TestablePortForwardConnectionService extends PortForwardConnectionService 
     return super.getWorkloadResource(kind, name, namespace);
   }
 
-  public override getForwardSetupFromPod(pod: V1Pod, forward: PortMapping): ForwardingSetup {
+  public override getForwardSetupFromPod(pod: kubernetesClient.V1Pod, forward: PortMapping): ForwardingSetup {
     return super.getForwardSetupFromPod(pod, forward);
   }
 
   public override async getForwardSetupFromDeployment(
-    deployment: V1Deployment,
+    deployment: kubernetesClient.V1Deployment,
     forward: PortMapping,
   ): Promise<ForwardingSetup> {
     return super.getForwardSetupFromDeployment(deployment, forward);
   }
 
-  public override async getForwardSetupFromService(service: V1Service, forward: PortMapping): Promise<ForwardingSetup> {
+  public override async getForwardSetupFromService(
+    service: kubernetesClient.V1Service,
+    forward: PortMapping,
+  ): Promise<ForwardingSetup> {
     return super.getForwardSetupFromService(service, forward);
   }
 
@@ -145,7 +139,11 @@ class TestablePortForwardConnectionService extends PortForwardConnectionService 
     return super.createServer(forwardSetup);
   }
 
-  public override getTargetPort(service: V1Service, pod: V1Pod, port: number): number {
+  public override getTargetPort(
+    service: kubernetesClient.V1Service,
+    pod: kubernetesClient.V1Pod,
+    port: number,
+  ): number {
     return super.getTargetPort(service, pod, port);
   }
 }
@@ -157,10 +155,10 @@ describe('PortForwardConnectionService', () => {
     service = new TestablePortForwardConnectionService(contextsManager, mockKubeConfig);
     global.fetch = vi.fn();
     vi.mocked(mockKubeConfig.makeApiClient).mockImplementation(api => {
-      if (api === CoreV1Api) {
+      if (api === kubernetesClient.CoreV1Api) {
         return mockCoreV1Api;
       }
-      if (api === AppsV1Api) {
+      if (api === kubernetesClient.AppsV1Api) {
         return mockAppsV1Api;
       }
       return undefined as never;
@@ -268,7 +266,7 @@ describe('PortForwardConnectionService', () => {
     const podList = [{ metadata: { name: 'test-pod' } }];
     vi.spyOn(contextsManager, 'searchBySelector').mockResolvedValue(podList);
 
-    const deployment: V1Deployment = {
+    const deployment: kubernetesClient.V1Deployment = {
       apiVersion: 'apps/v1',
       kind: 'Deployment',
       metadata: {
@@ -311,7 +309,7 @@ describe('PortForwardConnectionService', () => {
     ];
     vi.spyOn(contextsManager, 'searchBySelector').mockResolvedValue(podList);
 
-    const _service: V1Service = {
+    const _service: kubernetesClient.V1Service = {
       apiVersion: 'v1',
       kind: 'Service',
       metadata: {
@@ -365,7 +363,7 @@ describe('PortForwardConnectionService', () => {
   });
 
   test('should return target port when it is a number (isolated getTargetPort testing)', async () => {
-    const serviceResource: V1Service = {
+    const serviceResource: kubernetesClient.V1Service = {
       apiVersion: 'v1',
       kind: 'Service',
       metadata: { name: 'test-service', namespace: 'default' },
@@ -379,7 +377,7 @@ describe('PortForwardConnectionService', () => {
       },
     };
 
-    const pod: V1Pod = {
+    const pod: kubernetesClient.V1Pod = {
       apiVersion: 'v1',
       kind: 'Pod',
       metadata: { name: 'test-pod', namespace: 'default' },
@@ -488,7 +486,7 @@ describe('PortForwardConnectionService', () => {
     });
 
     test('should get forwarding setup for Deployment resource', async () => {
-      const deployment: V1Deployment = {
+      const deployment: kubernetesClient.V1Deployment = {
         apiVersion: 'apps/v1',
         kind: 'Deployment',
         metadata: {
@@ -530,7 +528,7 @@ describe('PortForwardConnectionService', () => {
     });
 
     test('should get forwarding setup for Service resource', async () => {
-      const _service: V1Service = {
+      const _service: kubernetesClient.V1Service = {
         apiVersion: 'v1',
         kind: 'Service',
         metadata: {
@@ -588,7 +586,7 @@ describe('PortForwardConnectionService', () => {
         forward: { localPort: 3000, remotePort: 80 },
       };
 
-      const pod: V1Pod = {
+      const pod: kubernetesClient.V1Pod = {
         apiVersion: 'v1',
         kind: 'Pod',
         metadata: { name: 'test-pod', namespace: 'default' },
@@ -620,7 +618,7 @@ describe('PortForwardConnectionService', () => {
         forward: mapping,
       };
 
-      const pod: V1Pod = {
+      const pod: kubernetesClient.V1Pod = {
         apiVersion: 'v1',
         kind: 'Pod',
         metadata: { name: 'test-pod', namespace: 'default' },
@@ -647,7 +645,7 @@ describe('PortForwardConnectionService', () => {
         forward: { localPort: 3000, remotePort: 80 },
       };
 
-      const pod: V1Pod = {
+      const pod: kubernetesClient.V1Pod = {
         apiVersion: 'v1',
         kind: 'Pod',
         metadata: { name: 'test-pod', namespace: 'default' },
