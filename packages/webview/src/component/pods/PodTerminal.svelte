@@ -8,7 +8,7 @@ import { getTerminalTheme } from '../terminal/terminal-theme';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { Remote } from '/@/remote/remote';
-import { API_POD_TERMINALS } from '/@common/channels';
+import { API_POD_TERMINALS } from '/@common/index';
 import { Disposable } from '/@common/types/disposable';
 
 interface Props {

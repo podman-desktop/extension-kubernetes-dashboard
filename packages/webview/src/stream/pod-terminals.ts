@@ -18,8 +18,8 @@
 
 import { inject } from 'inversify';
 import { Remote } from '/@/remote/remote';
-import { API_POD_TERMINALS, POD_TERMINAL_DATA } from '/@common/channels';
-import { RpcBrowser } from '/@common/rpc/rpc';
+import { API_POD_TERMINALS, POD_TERMINAL_DATA } from '/@common/index';
+import { RpcBrowser } from '@podman-desktop/rpc';
 import { Disposable, type IDisposable } from '/@common/types/disposable';
 import type { PodTerminalsApi } from '/@common/interface/pod-terminals-api';
 import type { PodTerminalChunk } from '/@common/model/pod-terminal-chunk';

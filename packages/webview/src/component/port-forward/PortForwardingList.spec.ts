@@ -29,7 +29,7 @@ import type { PortForwardsInfo } from '/@common/model/port-forward-info';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { Navigator } from '/@/navigation/navigator';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_PORT_FORWARD, API_SYSTEM } from '/@common/channels';
+import { API_PORT_FORWARD, API_SYSTEM } from '/@common/index';
 import type { SystemApi } from '/@common/interface/system-api';
 import type { PortForwardApi } from '/@common/interface/port-forward-api';
 

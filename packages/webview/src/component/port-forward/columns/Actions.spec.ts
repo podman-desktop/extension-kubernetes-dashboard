@@ -23,7 +23,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { WorkloadKind, type ForwardConfig } from '/@common/model/port-forward';
 import Actions from './Actions.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_PORT_FORWARD, API_SYSTEM } from '/@common/channels';
+import { API_PORT_FORWARD, API_SYSTEM } from '/@common/index';
 import type { PortForwardApi } from '/@common/interface/port-forward-api';
 import type { SystemApi } from '/@common/interface/system-api';
 import { StatesMocks } from '/@/tests/state-mocks';

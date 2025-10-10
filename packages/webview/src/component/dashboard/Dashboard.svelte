@@ -4,7 +4,7 @@ import DashboardResources from './DashboardResources.svelte';
 import CurrentContextConnectionBadge from '/@/component/connection/CurrentContextConnectionBadge.svelte';
 import { Remote } from '/@/remote/remote';
 import { getContext, onDestroy, onMount } from 'svelte';
-import { API_SYSTEM } from '/@common/channels';
+import { API_SYSTEM } from '/@common/index';
 import { States } from '/@/state/states';
 import DashboardGuideCard from './DashboardGuideCard.svelte';
 

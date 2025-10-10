@@ -21,7 +21,7 @@ import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import type { KubernetesNamespacedObjectUI, KubernetesObjectUI } from './KubernetesObjectUI';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import { InversifyBinding } from '/@/inject/inversify-binding';
-import type { RpcBrowser } from '/@common/rpc/rpc';
+import type { RpcBrowser } from '@podman-desktop/rpc';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import type { Container } from 'inversify';
 

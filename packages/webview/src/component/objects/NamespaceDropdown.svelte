@@ -4,7 +4,7 @@ import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '/@common/channels';
+import { API_CONTEXTS } from '/@common/index';
 
 const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);

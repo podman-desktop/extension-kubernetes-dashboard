@@ -4,7 +4,7 @@ import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 import MonacoEditor from './MonacoEditor.svelte';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '/@common/channels';
+import { API_CONTEXTS } from '/@common/index';
 
 // Make sure that when using the MonacoEditor, the content is "stringified" before
 // being passed into this component. ex. stringify(kubeDeploymentYAML)

@@ -13,7 +13,7 @@ import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import CurrentContextConnectionBadge from '/@/component/connection/CurrentContextConnectionBadge.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '/@common/channels';
+import { API_CONTEXTS } from '/@common/index';
 import NamespaceDropdown from './NamespaceDropdown.svelte';
 
 export interface Kind {

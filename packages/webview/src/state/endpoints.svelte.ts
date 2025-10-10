@@ -18,8 +18,8 @@
 
 import { inject, injectable } from 'inversify';
 
-import { ENDPOINTS } from '/@common/channels';
-import { RpcBrowser } from '/@common/rpc/rpc';
+import { ENDPOINTS } from '/@common/index';
+import { RpcBrowser } from '@podman-desktop/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { EndpointsInfo } from '/@common/model/endpoints-info';

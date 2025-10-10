@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { RpcBrowser } from '/@common/rpc/rpc';
+import { RpcBrowser } from '@podman-desktop/rpc';
 
 import { InversifyBinding } from '/@/inject/inversify-binding';
 import { IDisposable } from '/@common/types/disposable';

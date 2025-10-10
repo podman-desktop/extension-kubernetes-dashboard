@@ -22,7 +22,7 @@ import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsManager } from './contexts-manager.js';
-import { RpcChannel } from '/@common/rpc/rpc.js';
+import { RpcChannel } from '@podman-desktop/rpc';
 import {
   ACTIVE_RESOURCES_COUNT,
   AVAILABLE_CONTEXTS,
@@ -35,7 +35,7 @@ import {
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
-} from '/@common/channels.js';
+} from '../../../common/src/index.js';
 import { inject, injectable, multiInject } from 'inversify';
 import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
 import { SubscribeApi } from '/@common/interface/subscribe-api.js';

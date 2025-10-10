@@ -18,7 +18,7 @@
 
 import { render } from '@testing-library/svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_POD_LOGS } from '/@common/channels';
+import { API_POD_LOGS } from '/@common/index';
 import { StreamsMocks } from '/@/tests/stream-mocks';
 import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
 import type { PodLogsChunk } from '/@common/model/pod-logs-chunk';

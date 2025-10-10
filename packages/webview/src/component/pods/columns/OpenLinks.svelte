@@ -7,7 +7,7 @@ import IconButton from '/@/component/button/IconButton.svelte';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
 import type { Endpoint } from '/@common/model/endpoint';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '/@common/channels';
+import { API_SYSTEM } from '/@common/index';
 
 let { object }: Props = $props();
 

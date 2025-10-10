@@ -19,7 +19,7 @@
 import { render } from '@testing-library/svelte';
 import PodTerminal from './PodTerminal.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_POD_TERMINALS } from '/@common/channels';
+import { API_POD_TERMINALS } from '/@common/index';
 import type { PodTerminalsApi } from '/@common/interface/pod-terminals-api';
 import type { PodTerminalChunk } from '/@common/model/pod-terminal-chunk';
 import { StreamsMocks } from '/@/tests/stream-mocks';

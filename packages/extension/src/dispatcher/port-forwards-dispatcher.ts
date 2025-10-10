@@ -19,8 +19,8 @@
 import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { PORT_FORWARDS } from '/@common/channels';
-import { RpcExtension } from '/@common/rpc/rpc';
+import { PORT_FORWARDS } from '../../../common/src';
+import { RpcExtension } from '@podman-desktop/rpc';
 import { PortForwardsInfo } from '/@common/model/port-forward-info';
 import { PortForwardApiImpl } from '/@/manager/port-forward-api-impl';
 

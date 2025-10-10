@@ -18,8 +18,8 @@
 
 import { inject, injectable } from 'inversify';
 
-import { ACTIVE_RESOURCES_COUNT } from '/@common/channels';
-import { RpcBrowser } from '/@common/rpc/rpc';
+import { ACTIVE_RESOURCES_COUNT } from '/@common/index';
+import { RpcBrowser } from '@podman-desktop/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { ActiveResourcesCountInfo } from '/@common/model/active-resources-count-info';

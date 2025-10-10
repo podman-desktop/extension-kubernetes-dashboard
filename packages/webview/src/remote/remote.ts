@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { RpcChannel } from '/@common/rpc';
+import type { RpcChannel } from '@podman-desktop/rpc';
 
 export const Remote = Symbol.for('Remote');
 export interface Remote {

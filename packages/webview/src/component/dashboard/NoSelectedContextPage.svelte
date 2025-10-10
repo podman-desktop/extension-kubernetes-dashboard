@@ -3,7 +3,7 @@ import { Link } from '@podman-desktop/ui-svelte';
 import KubeIcon from '/@/component/icons/KubeIcon.svelte';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '/@common/channels';
+import { API_CONTEXTS } from '/@common/index';
 
 interface Props {
   availableContexts?: string[];

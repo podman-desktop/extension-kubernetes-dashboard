@@ -18,8 +18,8 @@
 
 import { inject, injectable } from 'inversify';
 
-import { AVAILABLE_CONTEXTS } from '/@common/channels';
-import { RpcBrowser } from '/@common/rpc/rpc';
+import { AVAILABLE_CONTEXTS } from '/@common/index';
+import { RpcBrowser } from '@podman-desktop/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { AvailableContextsInfo } from '/@common/model/available-contexts-info';

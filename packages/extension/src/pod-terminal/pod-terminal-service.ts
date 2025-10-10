@@ -18,9 +18,9 @@
 
 import { injectable } from 'inversify';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
-import { RpcExtension } from '/@common/rpc/rpc';
+import { RpcExtension } from '@podman-desktop/rpc';
 import { Exec, V1Status } from '@kubernetes/client-node';
-import { POD_TERMINAL_DATA } from '/@common/channels';
+import { POD_TERMINAL_DATA } from '../../../common/src';
 import { BufferedStreamWriter, ExecStreamWriter, ResizableTerminalWriter, StringLineReader } from './exec-transmitter';
 import WebSocket from 'isomorphic-ws';
 

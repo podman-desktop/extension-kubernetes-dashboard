@@ -19,8 +19,8 @@
 import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { CURRENT_CONTEXT } from '/@common/channels';
-import { RpcExtension } from '/@common/rpc/rpc';
+import { CURRENT_CONTEXT } from '../../../common/src';
+import { RpcExtension } from '@podman-desktop/rpc';
 import { CurrentContextInfo } from '/@common/model/current-context-info';
 import { ContextsManager } from '/@/manager/contexts-manager';
 

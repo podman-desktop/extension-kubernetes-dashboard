@@ -18,7 +18,7 @@
 
 import { beforeEach, expect, test, vi } from 'vitest';
 import { UpdateResourceDispatcher } from './update-resource-dispatcher';
-import type { RpcExtension } from '/@common/rpc/rpc';
+import type { RpcExtension } from '@podman-desktop/rpc';
 import type { ContextsManager } from '../manager/contexts-manager';
 
 const rpcExtension = {

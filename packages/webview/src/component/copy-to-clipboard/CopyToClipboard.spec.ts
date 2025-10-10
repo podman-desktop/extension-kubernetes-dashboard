@@ -23,7 +23,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import CopyToClipboard from './CopyToClipboard.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '/@common/channels';
+import { API_SYSTEM } from '/@common/index';
 import type { SystemApi } from '/@common/interface/system-api';
 
 const remoteMocks = new RemoteMocks();

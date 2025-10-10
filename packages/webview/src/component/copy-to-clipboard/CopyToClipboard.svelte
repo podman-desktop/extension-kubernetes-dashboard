@@ -4,7 +4,7 @@ import { Tooltip } from '@podman-desktop/ui-svelte';
 import { getContext } from 'svelte';
 import Fa from 'svelte-fa';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '/@common/channels';
+import { API_SYSTEM } from '/@common/index';
 
 export let clipboardData: string;
 export let title: string;
