@@ -20,9 +20,9 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { ACTIVE_RESOURCES_COUNT } from '/@common/channels';
-import { RpcExtension } from '/@common/rpc/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { ActiveResourcesCountInfo } from '/@common/model/active-resources-count-info';
+import { ACTIVE_RESOURCES_COUNT } from '/@common/index';
 
 @injectable()
 export class ActiveResourcesCountDispatcher

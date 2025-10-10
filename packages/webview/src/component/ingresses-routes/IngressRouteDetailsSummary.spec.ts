@@ -25,7 +25,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import IngressRouteDetailsSummary from './IngressRouteDetailsSummary.svelte';
 import type { V1Route } from '/@common/model/openshift-types';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '/@common/channels';
+import { API_SYSTEM } from '/@common/index';
 import type { SystemApi } from '/@common/interface/system-api';
 
 const ingress: V1Ingress = {

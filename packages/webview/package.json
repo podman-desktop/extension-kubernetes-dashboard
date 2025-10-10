@@ -16,6 +16,7 @@
     "watch": "vite --mode development build -w"
   },
   "dependencies": {
+    "@kubernetes-dashboard/rpc": "workspace:*",
     "cronstrue": "^3.3.0",
     "inversify": "^7.9.1",
     "moment": "^2.30.1",

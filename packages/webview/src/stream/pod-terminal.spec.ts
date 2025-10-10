@@ -20,8 +20,9 @@ import type { Remote } from '../remote/remote';
 import { StreamPodTerminals } from './pod-terminals';
 import type { PodTerminalsApi } from '/@common/interface/pod-terminals-api';
 import type { PodTerminalChunk } from '/@common/model/pod-terminal-chunk';
-import type { RpcBrowser } from '/@common/rpc/rpc';
+import type { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import type { IDisposable } from '/@common/types/disposable';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 const remoteMock = {
   getProxy: vi.fn(),

@@ -28,7 +28,7 @@ import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';
 import type { UpdateResourceInfo } from '/@common/model/update-resource-info';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_CONTEXTS } from '/@common/channels';
+import { API_CONTEXTS } from '/@common/index';
 import type { ContextsApi } from '/@common/interface/contexts-api';
 
 const firstNS = 'ns1';

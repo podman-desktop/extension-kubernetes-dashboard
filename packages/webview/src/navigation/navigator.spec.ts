@@ -21,7 +21,7 @@ import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import { Navigator } from '/@/navigation/navigator';
 import { InversifyBinding } from '/@/inject/inversify-binding';
-import type { RpcBrowser } from '/@common/rpc/rpc';
+import type { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import type { Container } from 'inversify';
 

@@ -6,7 +6,7 @@ import IconButton from '/@/component/button/IconButton.svelte';
 import type { ObjectProps } from './object-props';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '/@common/channels';
+import { API_CONTEXTS } from '/@common/index';
 import { type KubernetesNamespacedObjectUI } from '/@/component/objects/KubernetesObjectUI';
 
 let { object }: ObjectProps = $props();

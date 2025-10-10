@@ -29,7 +29,7 @@ import { StatesMocks } from '/@/tests/state-mocks';
 import * as uiSvelte from '@podman-desktop/ui-svelte';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_CONTEXTS } from '/@common/channels';
+import { API_CONTEXTS } from '/@common/index';
 import type { ContextsApi } from '/@common/interface/contexts-api';
 
 vi.mock(import('@podman-desktop/ui-svelte'), async () => {

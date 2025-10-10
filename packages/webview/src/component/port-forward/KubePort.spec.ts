@@ -24,7 +24,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import KubePort from './KubePort.svelte';
 import { WorkloadKind, type ForwardConfig } from '/@common/model/port-forward';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_PORT_FORWARD, API_SYSTEM } from '/@common/channels';
+import { API_PORT_FORWARD, API_SYSTEM } from '/@common/index';
 import type { PortForwardApi } from '/@common/interface/port-forward-api';
 import type { SystemApi } from '/@common/interface/system-api';
 

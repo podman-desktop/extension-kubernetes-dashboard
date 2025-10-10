@@ -23,7 +23,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import RouteSpecDetails from './RouteSpecDetails.svelte';
 import type { V1RouteSpec } from '/@common/model/openshift-types';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '/@common/channels';
+import { API_SYSTEM } from '/@common/index';
 import type { SystemApi } from '/@common/interface/system-api';
 
 const fakeRouteSpec: V1RouteSpec = {

@@ -6,7 +6,7 @@ import Title from '/@/component/details/Title.svelte';
 import type { V1RouteSpec } from '/@common/model/openshift-types';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '/@common/channels';
+import { API_SYSTEM } from '/@common/index';
 
 interface Props {
   spec: V1RouteSpec;

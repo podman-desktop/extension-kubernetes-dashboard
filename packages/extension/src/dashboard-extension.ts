@@ -19,7 +19,7 @@
 import type { WebviewPanel, ExtensionContext, KubeconfigUpdateEvent } from '@podman-desktop/api';
 import { env, kubernetes, Uri, window } from '@podman-desktop/api';
 
-import { RpcExtension } from '/@common/rpc/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc';
 
 import { readFile } from 'node:fs/promises';
 import { ContextsManager } from '/@/manager/contexts-manager';
@@ -35,7 +35,7 @@ import {
   API_PORT_FORWARD,
   API_SUBSCRIBE,
   API_SYSTEM,
-} from '/@common/channels';
+} from '/@common/index';
 import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 import { PortForwardServiceProvider } from './port-forward/port-forward-service';

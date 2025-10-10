@@ -27,7 +27,6 @@
   "include": [
     "src/**/*.d.ts",
     "src/**/*.ts",
-    "../../node_modules/**/*.d.ts",
     "src/**/*.js",
     "src/**/*.svelte",
     "types/*.d.ts",

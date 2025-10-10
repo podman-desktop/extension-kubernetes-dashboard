@@ -18,8 +18,8 @@
 
 import { inject, injectable } from 'inversify';
 
-import { CONTEXTS_HEALTHS } from '/@common/channels';
-import { RpcBrowser } from '/@common/rpc/rpc';
+import { CONTEXTS_HEALTHS } from '/@common/index';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from '/@/state/util/state-object.svelte';
 import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';

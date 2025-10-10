@@ -18,8 +18,8 @@
 
 import { inject, injectable } from 'inversify';
 
-import { UPDATE_RESOURCE } from '/@common/channels';
-import { RpcBrowser } from '/@common/rpc/rpc';
+import { UPDATE_RESOURCE } from '/@common/index';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { UpdateResourceInfo } from '/@common/model/update-resource-info';

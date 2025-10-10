@@ -51,6 +51,9 @@ jobs:
       - name: Execute pnpm
         run: pnpm install --frozen-lockfile
 
+      - name: Run build:rpc
+        run: pnpm build:rpc
+
       - name: Run typecheck
         run: pnpm typecheck
 

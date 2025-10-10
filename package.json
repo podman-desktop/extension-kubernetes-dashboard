@@ -10,7 +10,8 @@
     "npm": ">=11.0.0"
   },
   "scripts": {
-    "build": "concurrently \"cd packages/webview && pnpm run build\" \"cd packages/extension && pnpm run build\"",
+    "build": "pnpm run build:rpc && concurrently \"cd packages/webview && pnpm run build\" \"cd packages/extension && pnpm run build\"",
+    "build:rpc": "cd packages/rpc && pnpm run build",
     "watch": "concurrently \"cd packages/webview && pnpm run watch\" \"cd packages/extension && pnpm run watch\"",
     "format:check": "prettier --check \"**/src/**/*.{ts,svelte}\"",
     "format:fix": "prettier --write \"**/src/**/*.{ts,svelte}\"",

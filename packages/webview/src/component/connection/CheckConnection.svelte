@@ -3,7 +3,7 @@ import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@podman-desktop/ui-svelte';
 import { getContext, onDestroy, onMount } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '/@common/channels';
+import { API_CONTEXTS } from '/@common/index';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';
 

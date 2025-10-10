@@ -6,7 +6,7 @@ import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { IngressRouteHelper } from '../ingress-route-helper';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '/@common/channels';
+import { API_SYSTEM } from '/@common/index';
 
 let { object }: Props = $props();
 

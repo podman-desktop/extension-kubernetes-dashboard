@@ -27,7 +27,7 @@ import type { CurrentContextInfo } from '/@common/model/current-context-info';
 import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';
 import CheckConnection from './CheckConnection.svelte';
 import userEvent from '@testing-library/user-event';
-import { API_CONTEXTS } from '/@common/channels';
+import { API_CONTEXTS } from '/@common/index';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import type { ContextsApi } from '/@common/interface/contexts-api';
 

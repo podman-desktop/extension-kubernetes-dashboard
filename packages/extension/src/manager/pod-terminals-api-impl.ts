@@ -21,7 +21,7 @@ import { IDisposable } from '/@common/types/disposable';
 import { PodTerminalsApi } from '/@common/interface/pod-terminals-api';
 import { PodTerminalService } from '../pod-terminal/pod-terminal-service';
 import { ContextsManager } from './contexts-manager';
-import { RpcExtension } from '/@common/rpc/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc';
 
 type PodTerminalInstance = {
   service: PodTerminalService;

@@ -18,8 +18,8 @@
 
 import { inject, injectable } from 'inversify';
 
-import { PORT_FORWARDS } from '/@common/channels';
-import { RpcBrowser } from '/@common/rpc/rpc';
+import { PORT_FORWARDS } from '/@common/index';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { PortForwardsInfo } from '/@common/model/port-forward-info';

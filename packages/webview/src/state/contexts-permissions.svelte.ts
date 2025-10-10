@@ -18,8 +18,8 @@
 
 import { inject, injectable } from 'inversify';
 
-import { CONTEXTS_PERMISSIONS } from '/@common/channels';
-import { RpcBrowser } from '/@common/rpc/rpc';
+import { CONTEXTS_PERMISSIONS } from '/@common/index';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { ContextsPermissionsInfo } from '/@common/model/contexts-permissions-info';

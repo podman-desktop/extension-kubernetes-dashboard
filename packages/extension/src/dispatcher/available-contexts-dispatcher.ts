@@ -19,8 +19,8 @@
 import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { AVAILABLE_CONTEXTS } from '/@common/channels';
-import { RpcExtension } from '/@common/rpc/rpc';
+import { AVAILABLE_CONTEXTS } from '/@common/index';
+import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { AvailableContextsInfo } from '/@common/model/available-contexts-info';
 import { ContextsManager } from '/@/manager/contexts-manager';
 

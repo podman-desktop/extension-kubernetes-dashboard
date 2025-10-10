@@ -19,7 +19,7 @@
 import { render } from '@testing-library/svelte';
 import PodTerminal from './PodTerminal.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_POD_TERMINALS } from '/@common/channels';
+import { API_POD_TERMINALS } from '/@common/index';
 import type { PodTerminalsApi } from '/@common/interface/pod-terminals-api';
 import type { PodTerminalChunk } from '/@common/model/pod-terminal-chunk';
 import { StreamsMocks } from '/@/tests/stream-mocks';
@@ -28,6 +28,7 @@ import { Terminal } from '@xterm/xterm';
 import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { FitAddon } from '@xterm/addon-fit';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 vi.mock(import('@xterm/addon-serialize'));
 vi.mock(import('@xterm/addon-fit'));

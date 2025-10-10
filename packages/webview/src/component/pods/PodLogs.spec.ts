@@ -18,7 +18,7 @@
 
 import { render } from '@testing-library/svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_POD_LOGS } from '/@common/channels';
+import { API_POD_LOGS } from '/@common/index';
 import { StreamsMocks } from '/@/tests/stream-mocks';
 import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
 import type { PodLogsChunk } from '/@common/model/pod-logs-chunk';
@@ -28,6 +28,7 @@ import type { V1Pod } from '@kubernetes/client-node';
 import TerminalWindow from '../terminal/TerminalWindow.svelte';
 import type { Terminal } from '@xterm/xterm';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 vi.mock(import('../terminal/TerminalWindow.svelte'));
 vi.mock(import('@podman-desktop/ui-svelte'));

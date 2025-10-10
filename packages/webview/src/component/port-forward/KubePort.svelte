@@ -9,7 +9,7 @@ import type { ForwardConfig, PortMapping, WorkloadKind } from '/@common/model/po
 import type { KubePortInfo } from './kube-port';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_PORT_FORWARD, API_SYSTEM } from '/@common/channels';
+import { API_PORT_FORWARD, API_SYSTEM } from '/@common/index';
 
 interface Props {
   port: KubePortInfo;
