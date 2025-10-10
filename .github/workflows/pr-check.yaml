@@ -77,7 +77,6 @@ jobs:
   ## Changes to the builder image must be merged before to use these changes in the extension image
   extension-image:
     name: Build extension OCI image
-    if: always()
     runs-on: ubuntu-24.04
 
     steps:
@@ -101,25 +100,3 @@ jobs:
             build/Containerfile
           context: .
           oci: true
-
-      - name: Log in to ghcr.io
-        uses: redhat-actions/podman-login@v1
-        with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ghcr.io
-
-      - name: publish extension to ghcr.io
-        id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.extension-image.outputs.image }}
-          tags: ${{ steps.extension-image.outputs.tags }}
-          registry: ghcr.io/${{ github.repository_owner }}
-
-      - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
-        with:
-          subject-name: ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard
-          subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
-          push-to-registry: true
