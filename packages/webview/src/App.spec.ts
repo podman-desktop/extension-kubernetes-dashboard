@@ -27,6 +27,7 @@ import NoSelectedContextPage from './component/dashboard/NoSelectedContextPage.s
 import * as svelte from 'svelte';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import AppWithContext from '/@/AppWithContext.svelte';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 vi.mock(import('/@/component/dashboard/NoContextPage.svelte'));
 vi.mock(import('/@/component/dashboard/NoSelectedContextPage.svelte'));

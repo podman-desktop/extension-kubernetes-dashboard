@@ -28,6 +28,7 @@ import { Terminal } from '@xterm/xterm';
 import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { FitAddon } from '@xterm/addon-fit';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 vi.mock(import('@xterm/addon-serialize'));
 vi.mock(import('@xterm/addon-fit'));

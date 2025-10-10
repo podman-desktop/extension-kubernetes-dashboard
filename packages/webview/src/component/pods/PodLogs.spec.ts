@@ -28,6 +28,7 @@ import type { V1Pod } from '@kubernetes/client-node';
 import TerminalWindow from '../terminal/TerminalWindow.svelte';
 import type { Terminal } from '@xterm/xterm';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 vi.mock(import('../terminal/TerminalWindow.svelte'));
 vi.mock(import('@podman-desktop/ui-svelte'));

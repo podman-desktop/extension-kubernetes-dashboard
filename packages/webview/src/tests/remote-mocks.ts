@@ -19,7 +19,7 @@
 import { assert, vi } from 'vitest';
 import * as svelte from 'svelte';
 import { Remote } from '../remote/remote';
-import type { RpcChannel } from '/@common/rpc';
+import type { RpcChannel } from '@podman-desktop/rpc';
 
 /** Build mocks for Remote injected in context via inversify
  *

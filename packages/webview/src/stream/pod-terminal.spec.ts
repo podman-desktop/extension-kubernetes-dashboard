@@ -22,6 +22,7 @@ import type { PodTerminalsApi } from '/@common/interface/pod-terminals-api';
 import type { PodTerminalChunk } from '/@common/model/pod-terminal-chunk';
 import type { RpcBrowser } from '@podman-desktop/rpc';
 import type { IDisposable } from '/@common/types/disposable';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 const remoteMock = {
   getProxy: vi.fn(),

@@ -23,6 +23,7 @@ import PodTerminalBrowser from './PodTerminalBrowser.svelte';
 import type { V1Pod } from '@kubernetes/client-node';
 import PodTerminal from './PodTerminal.svelte';
 import userEvent from '@testing-library/user-event';
+import { expect, test, vi } from 'vitest';
 
 vi.mock(import('./PodTerminal.svelte'));
 
