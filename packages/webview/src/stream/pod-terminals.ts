@@ -20,7 +20,12 @@ import { inject } from 'inversify';
 import { Remote } from '/@/remote/remote';
 import { API_POD_TERMINALS, POD_TERMINAL_DATA } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
-import { Disposable, type IDisposable, type PodTerminalsApi, type PodTerminalChunk } from '@kubernetes-dashboard/channels';
+import {
+  Disposable,
+  type IDisposable,
+  type PodTerminalsApi,
+  type PodTerminalChunk,
+} from '@kubernetes-dashboard/channels';
 import type { StreamObject } from './util/stream-object';
 
 export class StreamPodTerminals implements StreamObject<PodTerminalChunk> {

@@ -29,7 +29,15 @@ import {
   type ObjectCache,
 } from '@kubernetes/client-node';
 
-import type { IDisposable, TargetRef, Endpoint, V1Route, ContextPermission , ResourceCount, KubernetesTroubleshootingInformation } from '@kubernetes-dashboard/channels';
+import type {
+  IDisposable,
+  TargetRef,
+  Endpoint,
+  V1Route,
+  ContextPermission,
+  ResourceCount,
+  KubernetesTroubleshootingInformation,
+} from '@kubernetes-dashboard/channels';
 import { kubernetes, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
 

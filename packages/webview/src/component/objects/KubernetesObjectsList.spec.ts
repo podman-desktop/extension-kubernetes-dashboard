@@ -21,7 +21,12 @@ import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import { DependencyMocks } from '../../tests/dependency-mocks';
 import { render, screen } from '@testing-library/svelte';
 import KubernetesObjectsListSpec from './KubernetesObjectsListSpec.svelte';
-import type { UpdateResourceOptions, UpdateResourceInfo, CurrentContextInfo, ContextsApi } from '@kubernetes-dashboard/channels';
+import type {
+  UpdateResourceOptions,
+  UpdateResourceInfo,
+  CurrentContextInfo,
+  ContextsApi,
+} from '@kubernetes-dashboard/channels';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import * as uiSvelte from '@podman-desktop/ui-svelte';

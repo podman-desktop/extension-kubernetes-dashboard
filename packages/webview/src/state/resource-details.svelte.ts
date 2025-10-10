@@ -18,7 +18,11 @@
 
 import { inject, injectable } from 'inversify';
 
-import { RESOURCE_DETAILS, type ResourceDetailsInfo, type ResourceDetailsOptions } from '@kubernetes-dashboard/channels';
+import {
+  RESOURCE_DETAILS,
+  type ResourceDetailsInfo,
+  type ResourceDetailsOptions,
+} from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';

@@ -18,7 +18,14 @@
 
 import { inject } from 'inversify';
 import { Remote } from '/@/remote/remote';
-import { API_POD_LOGS, POD_LOGS, type PodLogsApi, type PodLogsChunk, Disposable, type IDisposable } from '@kubernetes-dashboard/channels';
+import {
+  API_POD_LOGS,
+  POD_LOGS,
+  type PodLogsApi,
+  type PodLogsChunk,
+  Disposable,
+  type IDisposable,
+} from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import type { StreamObject } from './util/stream-object';
 

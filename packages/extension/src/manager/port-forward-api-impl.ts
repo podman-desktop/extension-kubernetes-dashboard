@@ -17,7 +17,12 @@
  ***********************************************************************/
 
 import { inject, injectable } from 'inversify';
-import { type DeletePortForwardOptions, type PortForwardApi, type ForwardConfig, type ForwardOptions } from '@kubernetes-dashboard/channels';
+import {
+  type DeletePortForwardOptions,
+  type PortForwardApi,
+  type ForwardConfig,
+  type ForwardOptions,
+} from '@kubernetes-dashboard/channels';
 import { PortForwardService, PortForwardServiceProvider } from '/@/port-forward/port-forward-service';
 
 @injectable()

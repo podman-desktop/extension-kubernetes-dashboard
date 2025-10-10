@@ -20,7 +20,13 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { WorkloadKind, type ForwardConfig, type PortForwardApi, type SystemApi, type PortForwardsInfo } from '@kubernetes-dashboard/channels';
+import {
+  WorkloadKind,
+  type ForwardConfig,
+  type PortForwardApi,
+  type SystemApi,
+  type PortForwardsInfo,
+} from '@kubernetes-dashboard/channels';
 import Actions from './Actions.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_PORT_FORWARD, API_SYSTEM } from '@kubernetes-dashboard/channels';

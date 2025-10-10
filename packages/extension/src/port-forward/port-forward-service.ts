@@ -20,7 +20,13 @@ import { randomUUID } from 'node:crypto';
 import { PortForwardConnectionService } from './port-forward-connection';
 import { ForwardConfigRequirements } from './port-forward-validation';
 import { ConfigManagementService, MemoryBasedStorage } from './port-forward-storage';
-import { Disposable, type IDisposable, type  ForwardConfig, type ForwardOptions, type DeletePortForwardOptions } from '@kubernetes-dashboard/channels';
+import {
+  Disposable,
+  type IDisposable,
+  type ForwardConfig,
+  type ForwardOptions,
+  type DeletePortForwardOptions,
+} from '@kubernetes-dashboard/channels';
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { inject, injectable } from 'inversify';
 import { Emitter, Event } from '/@/types/emitter';

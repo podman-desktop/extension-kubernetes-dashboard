@@ -30,7 +30,7 @@ import {
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
   SubscribeApi,
- } from '@kubernetes-dashboard/channels';
+} from '@kubernetes-dashboard/channels';
 
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';

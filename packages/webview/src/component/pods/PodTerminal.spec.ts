@@ -19,7 +19,12 @@
 import { render } from '@testing-library/svelte';
 import PodTerminal from './PodTerminal.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_POD_TERMINALS, type PodTerminalsApi, type PodTerminalChunk, Disposable } from '@kubernetes-dashboard/channels';
+import {
+  API_POD_TERMINALS,
+  type PodTerminalsApi,
+  type PodTerminalChunk,
+  Disposable,
+} from '@kubernetes-dashboard/channels';
 import { StreamsMocks } from '/@/tests/stream-mocks';
 import { Terminal } from '@xterm/xterm';
 import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';

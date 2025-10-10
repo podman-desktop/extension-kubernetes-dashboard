@@ -28,13 +28,13 @@ import {
 } from '@kubernetes/client-node';
 import { afterEach, beforeEach, describe, expect, type MockedFunction, test, vi } from 'vitest';
 import { type ForwardingSetup, PortForwardConnectionService } from './port-forward-connection';
-import { 
+import {
   type IDisposable,
   type ForwardConfig,
   type PortForwardableResource,
   type PortMapping,
   WorkloadKind,
- } from '@kubernetes-dashboard/channels';
+} from '@kubernetes-dashboard/channels';
 import type { ContextsManager } from '/@/manager/contexts-manager';
 
 const mockKubeConfig = {
