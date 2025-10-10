@@ -173,7 +173,6 @@ export default [
       'import/default': 'off',
       'import/no-named-as-default-member': 'off',
       'import/no-named-as-default': 'off',
-      ...vitest.configs.recommended.rules,
       'vitest/prefer-called-exactly-once-with': 'off',
       'vitest/valid-title': 'off',
     },
