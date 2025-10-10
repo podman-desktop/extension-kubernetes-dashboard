@@ -67,6 +67,7 @@ export default [
   ...typescriptLint.configs.recommended,
   sonarjs.configs.recommended,
   ...svelte.configs['flat/recommended'],
+  vitest.configs.recommended,
   ...fixupConfigRules(
     compat.extends('plugin:import/recommended', 'plugin:import/typescript', 'plugin:etc/recommended'),
   ),
@@ -172,7 +173,6 @@ export default [
       'import/default': 'off',
       'import/no-named-as-default-member': 'off',
       'import/no-named-as-default': 'off',
-      ...vitest.configs.recommended.rules,
       'vitest/prefer-called-exactly-once-with': 'off',
       'vitest/valid-title': 'off',
     },
