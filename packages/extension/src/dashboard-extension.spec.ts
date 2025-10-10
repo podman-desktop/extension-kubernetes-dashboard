@@ -94,7 +94,8 @@ describe('a kubeconfig file is not present', () => {
 
   test('should deactivate correctly', async () => {
     await dashboardExtension.activate();
-    await dashboardExtension.deactivate();
+    const p = await dashboardExtension.deactivate();
+    expect(p).toBeUndefined();
   });
 });
 
@@ -121,6 +122,7 @@ describe('a kubeconfig file is present', () => {
 
   test('should deactivate correctly', async () => {
     await dashboardExtension.activate();
-    await dashboardExtension.deactivate();
+    const p = await dashboardExtension.deactivate();
+    expect(p).toBeUndefined();
   });
 });

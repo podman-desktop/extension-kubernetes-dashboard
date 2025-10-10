@@ -74,7 +74,7 @@ describe('port forwarding', () => {
     expect(port80).toBeDefined();
   });
 
-  test('forward button should call ', async () => {
+  test('forward button should call', async () => {
     vi.mocked(remoteMocks.get(API_SYSTEM).getFreePort).mockResolvedValue(55_001);
 
     const { getByTitle } = render(KubePort, {

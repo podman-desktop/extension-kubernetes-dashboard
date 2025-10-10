@@ -27,7 +27,7 @@ import {
   StringLineReader,
 } from './exec-transmitter.js';
 
-test('Test should verify string line reader', () => {
+test('should verify string line reader', () => {
   const reader = new StringLineReader();
 
   reader.on('data', chunk => {
@@ -37,7 +37,7 @@ test('Test should verify string line reader', () => {
   reader.push('foo');
 });
 
-test('Test should verify buffered stream writer', () => {
+test('should verify buffered stream writer', () => {
   const writer = new BufferedStreamWriter((data: Buffer) => {
     expect(data.toString()).toEqual('foo');
   });
@@ -45,7 +45,7 @@ test('Test should verify buffered stream writer', () => {
   writer.write(Buffer.from('foo'));
 });
 
-test('Test should verify resizable terminal writer', () => {
+test('should verify resizable terminal writer', () => {
   const writer = new ResizableTerminalWriter(
     new BufferedStreamWriter((data: Buffer) => {
       expect(data.toString()).toEqual('foo');
