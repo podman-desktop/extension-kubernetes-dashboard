@@ -20,7 +20,7 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { UPDATE_RESOURCE } from '../../../common/src';
+import { UPDATE_RESOURCE } from '/@common/index';
 import { RpcExtension } from '@podman-desktop/rpc';
 import { UpdateResourceInfo } from '/@common/model/update-resource-info';
 import { UpdateResourceOptions } from '/@common/model/update-resource-options';

@@ -44,7 +44,7 @@ import {
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
-} from '../../../common/src/index.js';
+} from '/@common/index';
 
 let container: Container;
 const contextsManagerMock: ContextsManager = {

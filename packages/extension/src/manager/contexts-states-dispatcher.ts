@@ -35,7 +35,7 @@ import {
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
-} from '../../../common/src/index.js';
+} from '/@common/index';
 import { inject, injectable, multiInject } from 'inversify';
 import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
 import { SubscribeApi } from '/@common/interface/subscribe-api.js';

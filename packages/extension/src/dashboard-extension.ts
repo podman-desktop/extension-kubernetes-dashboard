@@ -35,7 +35,7 @@ import {
   API_PORT_FORWARD,
   API_SUBSCRIBE,
   API_SYSTEM,
-} from '../../common/src';
+} from '/@common/index';
 import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 import { PortForwardServiceProvider } from './port-forward/port-forward-service';

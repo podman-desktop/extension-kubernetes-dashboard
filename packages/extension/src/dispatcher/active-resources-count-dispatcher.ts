@@ -20,9 +20,9 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { ACTIVE_RESOURCES_COUNT } from '../../../common/src';
 import { RpcExtension } from '@podman-desktop/rpc';
 import { ActiveResourcesCountInfo } from '/@common/model/active-resources-count-info';
+import { ACTIVE_RESOURCES_COUNT } from '/@common/index';
 
 @injectable()
 export class ActiveResourcesCountDispatcher

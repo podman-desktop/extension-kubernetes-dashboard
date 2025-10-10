@@ -20,7 +20,7 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { CONTEXTS_PERMISSIONS } from '../../../common/src';
+import { CONTEXTS_PERMISSIONS } from '/@common/index';
 import { RpcExtension } from '@podman-desktop/rpc';
 import { ContextsPermissionsInfo } from '/@common/model/contexts-permissions-info';
 
