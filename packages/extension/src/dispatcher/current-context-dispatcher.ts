@@ -20,7 +20,7 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { CURRENT_CONTEXT } from '/@common/index';
-import { RpcExtension } from '@podman-desktop/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { CurrentContextInfo } from '/@common/model/current-context-info';
 import { ContextsManager } from '/@/manager/contexts-manager';
 

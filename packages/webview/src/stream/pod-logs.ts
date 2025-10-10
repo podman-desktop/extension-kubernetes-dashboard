@@ -21,7 +21,7 @@ import { Remote } from '/@/remote/remote';
 import { API_POD_LOGS, POD_LOGS } from '/@common/index';
 import type { PodLogsApi } from '/@common/interface/pod-logs-api';
 import type { PodLogsChunk } from '/@common/model/pod-logs-chunk';
-import { RpcBrowser } from '@podman-desktop/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import { Disposable, type IDisposable } from '/@common/types/disposable';
 import type { StreamObject } from './util/stream-object';
 

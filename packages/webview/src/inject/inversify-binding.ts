@@ -21,7 +21,7 @@ import 'reflect-metadata';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import { Container } from 'inversify';
 
-import { RpcBrowser } from '@podman-desktop/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { statesModule } from '/@/state/state-module';
 import { Remote } from '/@/remote/remote';

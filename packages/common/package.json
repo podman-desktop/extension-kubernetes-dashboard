@@ -27,6 +27,6 @@
     "vite-plugin-dts": "^4.5.4"
   },
   "dependencies": {
-    "@podman-desktop/rpc": "workspace:*"
+    "@kubernetes-dashboard/rpc": "workspace:*"
   }
 }

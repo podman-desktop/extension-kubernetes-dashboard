@@ -22,7 +22,7 @@ import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsManager } from './contexts-manager.js';
-import { RpcChannel } from '@podman-desktop/rpc';
+import { RpcChannel } from '@kubernetes-dashboard/rpc';
 import {
   ACTIVE_RESOURCES_COUNT,
   AVAILABLE_CONTEXTS,

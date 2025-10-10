@@ -22,7 +22,7 @@ import type { ExtensionContext as PodmanDesktopExtensionContext, TelemetryLogger
 import { Container } from 'inversify';
 
 import { ExtensionContextSymbol, TelemetryLoggerSymbol } from '/@/inject/symbol';
-import { RpcExtension } from '@podman-desktop/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { managersModule } from '/@/manager/_manager-module';
 import { dispatchersModule } from '/@/dispatcher/_dispatcher-module';
 import { portForwardModule } from '/@/port-forward/_port-forward-module';

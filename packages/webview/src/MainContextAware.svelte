@@ -6,7 +6,7 @@ import { States } from '/@/state/states';
 import App from '/@/App.svelte';
 import { Remote } from '/@/remote/remote';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
-import { RpcBrowser } from '@podman-desktop/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import { Streams } from './stream/streams';
 
 interface Props {

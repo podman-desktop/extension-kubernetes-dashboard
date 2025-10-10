@@ -19,7 +19,7 @@
 import type { Unsubscriber } from 'svelte/store';
 import { API_SUBSCRIBE } from '/@common/index';
 import type { SubscribeApi } from '/@common/interface/subscribe-api';
-import type { RpcBrowser, RpcChannel } from '@podman-desktop/rpc';
+import type { RpcBrowser, RpcChannel } from '@kubernetes-dashboard/rpc';
 import type { IDisposable } from '/@common/types/disposable';
 
 export const StateObject = Symbol.for('StateObject');

@@ -108,7 +108,7 @@ importers:
 
   packages/common:
     dependencies:
-      '@podman-desktop/rpc':
+      '@kubernetes-dashboard/rpc':
         specifier: workspace:*
         version: link:../rpc
     devDependencies:
@@ -121,7 +121,7 @@ importers:
       '@kubernetes/client-node':
         specifier: ^1.4.0
         version: 1.4.0(encoding@0.1.13)
-      '@podman-desktop/rpc':
+      '@kubernetes-dashboard/rpc':
         specifier: workspace:*
         version: link:../rpc
       inversify:
@@ -206,7 +206,7 @@ importers:
 
   packages/webview:
     dependencies:
-      '@podman-desktop/rpc':
+      '@kubernetes-dashboard/rpc':
         specifier: workspace:*
         version: link:../rpc
       cronstrue:

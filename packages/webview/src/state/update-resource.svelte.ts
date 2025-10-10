@@ -19,7 +19,7 @@
 import { inject, injectable } from 'inversify';
 
 import { UPDATE_RESOURCE } from '/@common/index';
-import { RpcBrowser } from '@podman-desktop/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { UpdateResourceInfo } from '/@common/model/update-resource-info';

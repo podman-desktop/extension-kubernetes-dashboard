@@ -20,7 +20,7 @@ import { inject, injectable } from 'inversify';
 import { PodLogsApi } from '/@common/interface/pod-logs-api';
 import { PodLogsService } from '../pod-logs/pod-logs-service';
 import { ContextsManager } from './contexts-manager';
-import { RpcExtension } from '@podman-desktop/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { IDisposable } from '/@common/types/disposable';
 
 type PodLogsInstance = {

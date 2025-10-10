@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { RpcChannel, RpcExtension } from '@podman-desktop/rpc';
+import type { RpcChannel, RpcExtension } from '@kubernetes-dashboard/rpc';
 
 export const DispatcherObject = Symbol.for('DispatcherObject');
 export interface DispatcherObject<T> {

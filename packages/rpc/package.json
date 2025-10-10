@@ -1,5 +1,5 @@
 {
-  "name": "@podman-desktop/rpc",
+  "name": "@kubernetes-dashboard/rpc",
   "version": "0.0.1",
   "type": "module",
   "main": "./dist/index.js",
