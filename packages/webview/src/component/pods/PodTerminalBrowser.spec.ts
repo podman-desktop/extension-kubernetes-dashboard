@@ -55,7 +55,7 @@ const fakePodNoContainerRunning: V1Pod = {
 
 test('renders with no container running', () => {
   render(PodTerminalBrowser, { object: fakePodNoContainerRunning });
-  screen.getByText('No container running');
+  expect(screen.getByText('No container running')).toBeDefined();
 });
 
 test('renders with 2 containers running', async () => {

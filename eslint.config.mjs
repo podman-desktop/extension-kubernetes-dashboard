@@ -74,6 +74,7 @@ export default [
     plugins: {
       // compliant v9 plug-ins
       unicorn,
+      vitest,
       // non-compliant v9 plug-ins
       etc: fixupPluginRules(etc),
       import: fixupPluginRules(importPlugin),
@@ -166,14 +167,14 @@ export default [
       'import/newline-after-import': 'error',
       'redundant-undefined/redundant-undefined': 'error',
       'import/no-extraneous-dependencies': 'error',
-      'vitest/consistent-test-filename': 'off',
-      'vitest/no-hooks': 'off',
-      'vitest/require-top-level-describe': 'off',
       'import/no-unresolved': 'off',
       'sonarjs/no-nested-functions': 'off',
       'import/default': 'off',
       'import/no-named-as-default-member': 'off',
-      'import/no-named-as-default': 'off'
+      'import/no-named-as-default': 'off',
+      ...vitest.configs.recommended.rules,
+      'vitest/prefer-called-exactly-once-with': 'off',
+      'vitest/valid-title': 'off',
     },
   },
 

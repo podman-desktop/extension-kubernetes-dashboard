@@ -146,7 +146,7 @@ describe('current context is not reachable', () => {
   test('tooltip', async () => {
     render(CurrentContextConnectionBadge);
 
-    screen.getByLabelText('tooltip');
+    expect(screen.getByLabelText('tooltip')).toBeDefined();
   });
 });
 

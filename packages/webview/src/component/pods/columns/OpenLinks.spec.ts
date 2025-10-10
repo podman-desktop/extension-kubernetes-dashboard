@@ -58,7 +58,7 @@ beforeEach(() => {
   } as unknown as SystemApi);
 });
 
-test('test', () => {
+test('OpenLinks component', () => {
   currentContextMock.setData({
     contextName: 'ctx1',
   });

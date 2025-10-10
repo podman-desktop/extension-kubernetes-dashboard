@@ -83,7 +83,7 @@ beforeEach(() => {
   dependencyMocks.mock(KubernetesObjectUIHelper);
 });
 
-test('test getStatusColor returns the correct colors', () => {
+test('getStatusColor returns the correct colors', () => {
   expect(getStatusColor('running')).toBe('bg-[var(--pd-status-running)]');
   expect(getStatusColor('terminated')).toBe('bg-[var(--pd-status-terminated)]');
   expect(getStatusColor('waiting')).toBe('bg-[var(--pd-status-waiting)]');
@@ -96,7 +96,7 @@ test('test getStatusColor returns the correct colors', () => {
   expect(getStatusColor('unknown')).toBe('bg-[var(--pd-status-unknown)]');
 });
 
-test('test organizeContainers returns a record of containers organized by status', () => {
+test('organizeContainers returns a record of containers organized by status', () => {
   const organizedContainers = organizeContainers(mockContainers);
   expect(organizedContainers.running.length).toBe(1);
   expect(organizedContainers.terminated.length).toBe(1);
