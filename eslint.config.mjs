@@ -67,6 +67,7 @@ export default [
   ...typescriptLint.configs.recommended,
   sonarjs.configs.recommended,
   ...svelte.configs['flat/recommended'],
+  vitest.configs.recommended,
   ...fixupConfigRules(
     compat.extends('plugin:import/recommended', 'plugin:import/typescript', 'plugin:etc/recommended'),
   ),
