@@ -17,10 +17,8 @@
  ***********************************************************************/
 
 import type { Unsubscriber } from 'svelte/store';
-import { API_SUBSCRIBE } from '/@common/index';
-import type { SubscribeApi } from '/@common/interface/subscribe-api';
+import { API_SUBSCRIBE, type SubscribeApi, type IDisposable } from '@kubernetes-dashboard/channels';
 import type { RpcBrowser, RpcChannel } from '@kubernetes-dashboard/rpc';
-import type { IDisposable } from '/@common/types/disposable';
 
 export const StateObject = Symbol.for('StateObject');
 export interface StateObject<T, U> extends IDisposable {

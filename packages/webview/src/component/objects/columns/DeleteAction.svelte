@@ -6,7 +6,7 @@ import IconButton from '/@/component/button/IconButton.svelte';
 import type { ObjectProps } from './object-props';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '/@common/index';
+import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
 import type { KubernetesObjectUI } from '../KubernetesObjectUI';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { KubernetesObjectUIHelper } from '../kubernetes-object-ui-helper';

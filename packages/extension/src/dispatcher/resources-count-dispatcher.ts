@@ -20,9 +20,8 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { RESOURCES_COUNT } from '/@common/index';
+import { RESOURCES_COUNT, type ResourcesCountInfo } from '@kubernetes-dashboard/channels';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { ResourcesCountInfo } from '/@common/model/resources-count-info';
 
 @injectable()
 export class ResourcesCountDispatcher

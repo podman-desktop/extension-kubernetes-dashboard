@@ -1,6 +1,6 @@
 <script lang="ts">
 import { getContext } from 'svelte';
-import { WorkloadKind, type ForwardConfig } from '/@common/model/port-forward';
+import { WorkloadKind, type ForwardConfig } from '@kubernetes-dashboard/channels';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { Navigator } from '/@/navigation/navigator';
 

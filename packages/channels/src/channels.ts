@@ -35,7 +35,6 @@ import type { ResourceDetailsInfo } from './model/resource-details-info';
 import type { ResourceEventsInfo } from './model/resource-events-info';
 import type { ResourcesCountInfo } from './model/resources-count-info';
 import type { UpdateResourceInfo } from './model/update-resource-info';
-
 import { createRpcChannel } from '@kubernetes-dashboard/rpc';
 
 // RPC channels (used by the webview to send requests to the extension)

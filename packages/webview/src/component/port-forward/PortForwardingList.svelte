@@ -3,7 +3,7 @@ import { faEthernet } from '@fortawesome/free-solid-svg-icons';
 import { EmptyScreen, NavPage, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 
 import PortForwardIcon from './columns/PortForwardIcon.svelte';
-import type { ForwardConfig, WorkloadKind } from '/@common/model/port-forward';
+import type { ForwardConfig, WorkloadKind } from '@kubernetes-dashboard/channels';
 import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';

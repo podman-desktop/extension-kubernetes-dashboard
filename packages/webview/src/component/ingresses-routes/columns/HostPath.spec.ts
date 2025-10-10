@@ -27,8 +27,8 @@ import HostPath from './HostPath.svelte';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { IngressRouteHelper } from '../ingress-route-helper';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '/@common/index';
-import type { SystemApi } from '/@common/interface/system-api';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
+import type { SystemApi } from '@kubernetes-dashboard/channels';
 
 const dependencyMocks = new DependencyMocks();
 const remoteMocks = new RemoteMocks();

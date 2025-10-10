@@ -25,7 +25,7 @@ import {
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
-import type { TargetRef } from '/@common/model/target-ref.js';
+import type { TargetRef } from '@kubernetes-dashboard/channels';
 import { ResourceInformer } from '/@/types/resource-informer.js';
 import type { ContextsManager } from '/@/manager/contexts-manager.js';
 

@@ -24,6 +24,7 @@
     "yaml": "^2.8.1"
   },
   "devDependencies": {
+    "@kubernetes-dashboard/channels": "workspace:*",
     "@kubernetes-dashboard/rpc": "workspace:*",
     "@fortawesome/fontawesome-free": "^7.0.0",
     "@fortawesome/free-brands-svg-icons": "^7.0.0",

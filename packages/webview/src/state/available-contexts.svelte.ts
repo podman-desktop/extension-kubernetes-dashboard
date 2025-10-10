@@ -18,11 +18,11 @@
 
 import { inject, injectable } from 'inversify';
 
-import { AVAILABLE_CONTEXTS } from '/@common/index';
+import { AVAILABLE_CONTEXTS } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { AvailableContextsInfo } from '/@common/model/available-contexts-info';
+import type { AvailableContextsInfo } from '@kubernetes-dashboard/channels';
 
 // Define a state for the AvailableContextsInfo
 @injectable()

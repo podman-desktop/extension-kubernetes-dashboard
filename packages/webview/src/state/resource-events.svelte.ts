@@ -18,12 +18,10 @@
 
 import { inject, injectable } from 'inversify';
 
-import { RESOURCE_EVENTS } from '/@common/index';
+import { RESOURCE_EVENTS, type ResourceEventsInfo, type ResourceEventsOptions } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { ResourceEventsInfo } from '/@common/model/resource-events-info';
-import type { ResourceEventsOptions } from '/@common/model/resource-events-options';
 
 // Define a state for the ResourceEventsInfo
 @injectable()

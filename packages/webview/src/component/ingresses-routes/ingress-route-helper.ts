@@ -19,7 +19,7 @@
 import type { V1Ingress } from '@kubernetes/client-node';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
-import type { V1Route } from '/@common/model/openshift-types';
+import type { V1Route } from '@kubernetes-dashboard/channels';
 
 export interface HostPathObject {
   label: string;

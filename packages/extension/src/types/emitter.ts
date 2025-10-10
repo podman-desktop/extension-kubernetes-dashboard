@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 
-import type { IDisposable } from '/@common/types/disposable.js';
+import type { IDisposable } from '@kubernetes-dashboard/channels';
 
 export type DisposableGroup = { push(disposable: IDisposable): void } | { add(disposable: IDisposable): void };
 

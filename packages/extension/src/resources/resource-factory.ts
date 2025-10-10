@@ -19,7 +19,7 @@ import type { KubernetesObject, V1ResourceAttributes, V1Status } from '@kubernet
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceInformer } from '/@/types/resource-informer.js';
-import type { TargetRef } from '/@common/model/target-ref';
+import type { TargetRef } from '@kubernetes-dashboard/channels';
 
 export interface ResourcePermissionsFactory {
   get permissionsRequests(): V1ResourceAttributes[];

@@ -23,7 +23,7 @@ import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
-import type { TargetRef } from '/@common/model/target-ref.js';
+import type { TargetRef } from '@kubernetes-dashboard/channels';
 import type { ContextsManager } from '/@/manager/contexts-manager.js';
 
 export class IngressesResourceFactory extends ResourceFactoryBase implements ResourceFactory {

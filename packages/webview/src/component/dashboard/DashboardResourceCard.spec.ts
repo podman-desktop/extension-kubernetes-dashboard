@@ -24,12 +24,9 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import KubernetesDashboardResourceCard from './DashboardResourceCard.svelte';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { CurrentContextInfo } from '/@common/model/current-context-info';
+import type { CurrentContextInfo, ActiveResourcesCountInfo, ResourcesCountInfo, ContextsPermissionsInfo } from '@kubernetes-dashboard/channels';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
-import type { ActiveResourcesCountInfo } from '/@common/model/active-resources-count-info';
-import type { ResourcesCountInfo } from '/@common/model/resources-count-info';
-import type { ContextsPermissionsInfo } from '/@common/model/contexts-permissions-info';
 import { Navigator } from '/@/navigation/navigator';
 
 const statesMocks = new StatesMocks();

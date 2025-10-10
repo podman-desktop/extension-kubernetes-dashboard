@@ -22,7 +22,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
 import { IngressRouteHelper } from './ingress-route-helper';
-import type { V1Route } from '/@common/model/openshift-types';
+import type { V1Route } from '@kubernetes-dashboard/channels';
 
 let ingressRouteHelper: IngressRouteHelper;
 

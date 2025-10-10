@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ForwardConfig } from '/@common/model/port-forward';
+import type { ForwardConfig } from '@kubernetes-dashboard/channels';
 
 /**
  * Type representing a function that checks the availability of a port.

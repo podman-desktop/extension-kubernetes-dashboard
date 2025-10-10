@@ -22,16 +22,12 @@ import { fireEvent, render, within } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import PortForwardList from './PortForwardingList.svelte';
-import { WorkloadKind, type ForwardConfig } from '/@common/model/port-forward';
+import { API_PORT_FORWARD, API_SYSTEM, WorkloadKind, type ForwardConfig, type SystemApi, type PortForwardApi, type PortForwardsInfo } from '@kubernetes-dashboard/channels';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { PortForwardsInfo } from '/@common/model/port-forward-info';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { Navigator } from '/@/navigation/navigator';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_PORT_FORWARD, API_SYSTEM } from '/@common/index';
-import type { SystemApi } from '/@common/interface/system-api';
-import type { PortForwardApi } from '/@common/interface/port-forward-api';
 
 const statesMocks = new StatesMocks();
 const dependencyMocks = new DependencyMocks();

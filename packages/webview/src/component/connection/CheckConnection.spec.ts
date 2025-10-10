@@ -23,13 +23,10 @@ import { assert, beforeEach, expect, test, vi } from 'vitest';
 
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { CurrentContextInfo } from '/@common/model/current-context-info';
-import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';
+import  { type CurrentContextInfo, type ContextsHealthsInfo, API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import CheckConnection from './CheckConnection.svelte';
 import userEvent from '@testing-library/user-event';
-import { API_CONTEXTS } from '/@common/index';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import type { ContextsApi } from '/@common/interface/contexts-api';
 
 const statesMocks = new StatesMocks();
 const remoteMocks = new RemoteMocks();

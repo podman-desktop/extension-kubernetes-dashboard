@@ -23,13 +23,10 @@
     ],
     "paths": {
       "/@/*": ["./src/*"],
-      "/@common/*": ["../common/src/*"]
     }
   },
   "include": [
     "src",
     "types/*.d.ts",
-    "../../types/*.d.ts",
-    "../common/*.ts",
-    "../common/**/*.ts" ],
+    "../../types/*.d.ts"],
 }

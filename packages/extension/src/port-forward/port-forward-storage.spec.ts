@@ -21,7 +21,7 @@ import * as path from 'node:path';
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { type ForwardConfig, WorkloadKind } from '/@common/model/port-forward';
+import { type ForwardConfig, WorkloadKind } from '@kubernetes-dashboard/channels';
 import type { FileBasedStorage, ForwardConfigStorage } from './port-forward-storage';
 import {
   FileBasedConfigStorage,

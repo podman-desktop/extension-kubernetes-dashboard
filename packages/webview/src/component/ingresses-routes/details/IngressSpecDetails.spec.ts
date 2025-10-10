@@ -24,8 +24,8 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import IngressSpecDetails from './IngressSpecDetails.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '/@common/index';
-import type { SystemApi } from '/@common/interface/system-api';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
+import type { SystemApi } from '@kubernetes-dashboard/channels';
 
 const fakeIngressSpec: V1IngressSpec = {
   rules: [

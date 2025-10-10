@@ -20,7 +20,7 @@ import { ContainerModule } from 'inversify';
 
 import { States } from './states';
 import { StateObject } from './util/state-object.svelte';
-import { IDisposable } from '/@common/types/disposable';
+import { IDisposable } from '@kubernetes-dashboard/channels';
 import { StateResourcesCountInfo } from './resources-count.svelte';
 import { StateActiveResourcesCountInfo } from './active-resources-count.svelte';
 import { StateCurrentContextInfo } from './current-context.svelte';

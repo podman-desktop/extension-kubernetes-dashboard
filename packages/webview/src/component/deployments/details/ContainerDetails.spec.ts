@@ -23,7 +23,7 @@ import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubeContainerArtifact from './ContainerDetails.svelte';
-import { WorkloadKind } from '/@common/model/port-forward';
+import { WorkloadKind } from '@kubernetes-dashboard/channels';
 
 const fakeContainer: V1Container = {
   name: 'fakeContainerName',

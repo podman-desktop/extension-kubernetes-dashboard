@@ -23,8 +23,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { PortForwardService } from './port-forward-service';
 import type { ConfigManagementService } from './port-forward-storage';
 import type { PortForwardConnectionService } from './port-forward-connection';
-import { type ForwardConfig, WorkloadKind } from '/@common/model/port-forward';
-import type { IDisposable } from '/@common/types/disposable';
+import { type ForwardConfig, WorkloadKind, type IDisposable } from '@kubernetes-dashboard/channels';
 
 vi.mock('./port-forward-connection.js');
 vi.mock('./port-forward-storage.js');

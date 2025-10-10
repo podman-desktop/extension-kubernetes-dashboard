@@ -39,9 +39,11 @@ RUN mkdir /opt/app-root/extension && \
       cp packages/extension/package.json /opt/app-root/extension/ && \
       cp packages/extension/*.png /opt/app-root/extension/ && \
       cp -r packages/extension/media /opt/app-root/extension/media && \
-      mkdir -p /opt/app-root/extension/packages/rpc/ && \
       cp pnpm-workspace.yaml /opt/app-root/extension/ && \
-      cp packages/rpc/package.json /opt/app-root/extension/packages/rpc/
+      mkdir -p /opt/app-root/extension/packages/rpc/ && \
+      cp packages/rpc/package.json /opt/app-root/extension/packages/rpc/ && \
+      mkdir -p /opt/app-root/extension/packages/channels/ && \
+      cp packages/channels/package.json /opt/app-root/extension/packages/channels/
 
 COPY LICENSE /opt/app-root/extension/
 COPY README.md /opt/app-root/extension/

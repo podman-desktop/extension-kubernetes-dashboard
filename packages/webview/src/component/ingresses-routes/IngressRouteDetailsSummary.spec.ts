@@ -23,10 +23,9 @@ import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import IngressRouteDetailsSummary from './IngressRouteDetailsSummary.svelte';
-import type { V1Route } from '/@common/model/openshift-types';
+import type { V1Route, SystemApi } from '@kubernetes-dashboard/channels';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '/@common/index';
-import type { SystemApi } from '/@common/interface/system-api';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 
 const ingress: V1Ingress = {
   metadata: {

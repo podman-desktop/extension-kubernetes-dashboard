@@ -2,7 +2,7 @@
 import type { V1Container } from '@kubernetes/client-node';
 
 import Cell from '/@/component/details/Cell.svelte';
-import type { WorkloadKind } from '/@common/model/port-forward';
+import type { WorkloadKind } from '@kubernetes-dashboard/channels';
 import KubePortsList from '/@/component/port-forward/KubePortsList.svelte';
 
 interface Props {

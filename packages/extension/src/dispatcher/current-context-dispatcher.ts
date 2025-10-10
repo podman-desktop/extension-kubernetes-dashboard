@@ -19,9 +19,8 @@
 import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { CURRENT_CONTEXT } from '/@common/index';
+import { CURRENT_CONTEXT, type CurrentContextInfo } from '@kubernetes-dashboard/channels';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { CurrentContextInfo } from '/@common/model/current-context-info';
 import { ContextsManager } from '/@/manager/contexts-manager';
 
 @injectable()

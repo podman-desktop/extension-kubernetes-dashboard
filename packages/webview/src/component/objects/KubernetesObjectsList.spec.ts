@@ -21,16 +21,13 @@ import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import { DependencyMocks } from '../../tests/dependency-mocks';
 import { render, screen } from '@testing-library/svelte';
 import KubernetesObjectsListSpec from './KubernetesObjectsListSpec.svelte';
-import type { UpdateResourceOptions } from '/@common/model/update-resource-options';
-import type { UpdateResourceInfo } from '/@common/model/update-resource-info';
-import type { CurrentContextInfo } from '/@common/model/current-context-info';
+import type { UpdateResourceOptions, UpdateResourceInfo, CurrentContextInfo, ContextsApi } from '@kubernetes-dashboard/channels';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import * as uiSvelte from '@podman-desktop/ui-svelte';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_CONTEXTS } from '/@common/index';
-import type { ContextsApi } from '/@common/interface/contexts-api';
+import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
 
 vi.mock(import('@podman-desktop/ui-svelte'), async () => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports

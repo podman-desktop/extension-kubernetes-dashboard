@@ -20,7 +20,7 @@ import { injectable } from 'inversify';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { Exec, V1Status } from '@kubernetes/client-node';
-import { POD_TERMINAL_DATA } from '/@common/index';
+import { POD_TERMINAL_DATA } from '@kubernetes-dashboard/channels';
 import { BufferedStreamWriter, ExecStreamWriter, ResizableTerminalWriter, StringLineReader } from './exec-transmitter';
 import WebSocket from 'isomorphic-ws';
 

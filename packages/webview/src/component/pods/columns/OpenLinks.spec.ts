@@ -19,15 +19,12 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
-import type { CurrentContextInfo } from '/@common/model/current-context-info';
-import type { EndpointsInfo } from '/@common/model/endpoints-info';
-import type { EndpointsOptions } from '/@common/model/endpoints-options';
+import type { CurrentContextInfo, EndpointsInfo, EndpointsOptions, SystemApi } from '@kubernetes-dashboard/channels';
 import * as svelte from 'svelte';
 import OpenLinks from './OpenLinks.svelte';
 import { render } from '@testing-library/svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '/@common/index';
-import type { SystemApi } from '/@common/interface/system-api';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 import IconButton from '/@/component/button/IconButton.svelte';
 
 vi.mock(import('/@/component/button/IconButton.svelte'), () => ({

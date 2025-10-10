@@ -3,10 +3,10 @@ import { Link } from '@podman-desktop/ui-svelte';
 
 import Cell from '/@/component/details/Cell.svelte';
 import Title from '/@/component/details/Title.svelte';
-import type { V1RouteSpec } from '/@common/model/openshift-types';
+import type { V1RouteSpec } from '@kubernetes-dashboard/channels';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '/@common/index';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 
 interface Props {
   spec: V1RouteSpec;

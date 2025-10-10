@@ -19,9 +19,8 @@
 import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { PORT_FORWARDS } from '/@common/index';
+import { PORT_FORWARDS, type PortForwardsInfo } from '@kubernetes-dashboard/channels';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { PortForwardsInfo } from '/@common/model/port-forward-info';
 import { PortForwardApiImpl } from '/@/manager/port-forward-api-impl';
 
 @injectable()

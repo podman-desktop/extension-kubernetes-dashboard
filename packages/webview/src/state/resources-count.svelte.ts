@@ -18,11 +18,11 @@
 
 import { inject, injectable } from 'inversify';
 
-import { RESOURCES_COUNT } from '/@common/index';
+import { RESOURCES_COUNT } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { ResourcesCountInfo } from '/@common/model/resources-count-info';
+import type { ResourcesCountInfo } from '@kubernetes-dashboard/channels';
 
 // Define a state for the ResourcesCountInfo
 @injectable()

@@ -18,11 +18,8 @@
 
 import { inject } from 'inversify';
 import { Remote } from '/@/remote/remote';
-import { API_POD_LOGS, POD_LOGS } from '/@common/index';
-import type { PodLogsApi } from '/@common/interface/pod-logs-api';
-import type { PodLogsChunk } from '/@common/model/pod-logs-chunk';
+import { API_POD_LOGS, POD_LOGS, type PodLogsApi, type PodLogsChunk, Disposable, type IDisposable } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
-import { Disposable, type IDisposable } from '/@common/types/disposable';
 import type { StreamObject } from './util/stream-object';
 
 export class StreamPodLogs implements StreamObject<PodLogsChunk> {

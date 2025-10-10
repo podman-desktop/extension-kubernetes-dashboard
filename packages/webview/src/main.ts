@@ -19,7 +19,7 @@
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { InversifyBinding } from '/@/inject/inversify-binding';
-import { IDisposable } from '/@common/types/disposable';
+import { IDisposable } from '@kubernetes-dashboard/channels';
 import { States } from '/@/state/states';
 import { StateObject } from '/@/state/util/state-object.svelte';
 import type { WebviewApi } from '@podman-desktop/webview-api';

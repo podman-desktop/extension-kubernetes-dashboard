@@ -12,7 +12,6 @@
     "baseUrl": ".",
     "paths": {
       "/@/*": ["./src/*"],
-      "/@common/*": ["../common/src/*"]
     },
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.
@@ -30,6 +29,9 @@
     "src/**/*.js",
     "src/**/*.svelte",
     "types/*.d.ts",
-    "../../types/*.d.ts",
-    "../common/**/*.ts"]
+    "../../types/*.d.ts"],
+  "exclude": [
+      "node_modules",
+      "dist"
+    ]
 }

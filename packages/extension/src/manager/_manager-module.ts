@@ -23,7 +23,7 @@ import { ContextsStatesDispatcher } from './contexts-states-dispatcher';
 import { SystemApiImpl } from './system-api';
 import { PortForwardApiImpl } from './port-forward-api-impl';
 import { PodLogsApiImpl } from './pod-logs-api-impl';
-import { IDisposable } from '/@common/types/disposable';
+import { IDisposable } from '@kubernetes-dashboard/channels';
 import { PodTerminalsApiImpl } from './pod-terminals-api-impl';
 
 const managersModule = new ContainerModule(options => {

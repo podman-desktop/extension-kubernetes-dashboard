@@ -8,8 +8,7 @@ import { getTerminalTheme } from '../terminal/terminal-theme';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { Remote } from '/@/remote/remote';
-import { API_POD_TERMINALS } from '/@common/index';
-import { Disposable } from '/@common/types/disposable';
+import { API_POD_TERMINALS, Disposable } from '@kubernetes-dashboard/channels';
 
 interface Props {
   object: V1Pod;
