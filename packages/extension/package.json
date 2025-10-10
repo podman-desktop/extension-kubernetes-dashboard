@@ -21,6 +21,7 @@
     "watch": "vite --mode development build -w"
   },
   "devDependencies": {
+    "@kubernetes-dashboard/rpc": "workspace:*",
     "@podman-desktop/api": "1.22.0",
     "@types/node": "^24",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
@@ -43,7 +44,6 @@
     "@types/ws": "^8.18.0"
   },
   "dependencies": {
-    "@kubernetes-dashboard/rpc": "workspace:*",
     "@kubernetes/client-node": "^1.4.0",
     "inversify": "^7.9.1",
     "reflect-metadata": "^0.2.2",
