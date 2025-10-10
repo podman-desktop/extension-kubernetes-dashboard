@@ -54,6 +54,9 @@ jobs:
       - name: Run build:rpc
         run: pnpm build:rpc
 
+      - name: Run build:channels
+        run: pnpm build:channels
+
       - name: Run typecheck
         run: pnpm typecheck
 
