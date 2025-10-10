@@ -5,9 +5,9 @@ import { getContext, onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import IconButton from '/@/component/button/IconButton.svelte';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
-import type { Endpoint } from '/@common/model/endpoint';
+import type { Endpoint } from '@kubernetes-dashboard/channels';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '/@common/index';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 
 let { object }: Props = $props();
 

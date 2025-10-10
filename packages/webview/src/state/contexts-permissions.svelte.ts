@@ -18,11 +18,11 @@
 
 import { inject, injectable } from 'inversify';
 
-import { CONTEXTS_PERMISSIONS } from '/@common/index';
+import { CONTEXTS_PERMISSIONS } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { ContextsPermissionsInfo } from '/@common/model/contexts-permissions-info';
+import type { ContextsPermissionsInfo } from '@kubernetes-dashboard/channels';
 
 // Define a state for the ContextsPermissionsInfo
 @injectable()

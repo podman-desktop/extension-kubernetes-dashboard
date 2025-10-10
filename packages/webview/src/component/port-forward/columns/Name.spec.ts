@@ -22,7 +22,7 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import NameColumn from './Name.svelte';
-import { WorkloadKind, type PortMapping } from '/@common/model/port-forward';
+import { WorkloadKind, type PortMapping } from '@kubernetes-dashboard/channels';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { Navigator } from '/@/navigation/navigator';
 

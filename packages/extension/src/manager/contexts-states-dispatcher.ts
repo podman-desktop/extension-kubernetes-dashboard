@@ -16,14 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { KubernetesTroubleshootingInformation } from '/@common/model/kubernetes-troubleshooting.js';
-
-import type { ContextHealthState } from './context-health-checker.js';
-import type { ContextPermissionResult } from './context-permissions-checker.js';
-import type { DispatcherEvent } from './contexts-dispatcher.js';
-import { ContextsManager } from './contexts-manager.js';
-import { RpcChannel } from '@kubernetes-dashboard/rpc';
 import {
+  KubernetesTroubleshootingInformation,
   ACTIVE_RESOURCES_COUNT,
   AVAILABLE_CONTEXTS,
   CONTEXTS_HEALTHS,
@@ -35,10 +29,16 @@ import {
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
-} from '/@common/index';
+  SubscribeApi,
+} from '@kubernetes-dashboard/channels';
+
+import type { ContextHealthState } from './context-health-checker.js';
+import type { ContextPermissionResult } from './context-permissions-checker.js';
+import type { DispatcherEvent } from './contexts-dispatcher.js';
+import { ContextsManager } from './contexts-manager.js';
+import { RpcChannel } from '@kubernetes-dashboard/rpc';
 import { inject, injectable, multiInject } from 'inversify';
 import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
-import { SubscribeApi } from '/@common/interface/subscribe-api.js';
 import { ChannelSubscriber } from '/@/types/channel-subscriber.js';
 import { PortForwardServiceProvider } from '/@/port-forward/port-forward-service.js';
 

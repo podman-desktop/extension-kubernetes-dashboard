@@ -20,10 +20,8 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { UPDATE_RESOURCE } from '/@common/index';
+import { UPDATE_RESOURCE, type UpdateResourceInfo, type UpdateResourceOptions } from '@kubernetes-dashboard/channels';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { UpdateResourceInfo } from '/@common/model/update-resource-info';
-import { UpdateResourceOptions } from '/@common/model/update-resource-options';
 
 @injectable()
 export class UpdateResourceDispatcher

@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { StreamObject } from './stream-object';
-import { Disposable, type IDisposable } from '/@common/types/disposable';
+import { Disposable, type IDisposable } from '@kubernetes-dashboard/channels';
 
 /**
  * Fake StreamObject for tests

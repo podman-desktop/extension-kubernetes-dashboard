@@ -21,10 +21,9 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 import RouteSpecDetails from './RouteSpecDetails.svelte';
-import type { V1RouteSpec } from '/@common/model/openshift-types';
+import type { V1RouteSpec, SystemApi } from '@kubernetes-dashboard/channels';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '/@common/index';
-import type { SystemApi } from '/@common/interface/system-api';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 
 const fakeRouteSpec: V1RouteSpec = {
   host: 'example.com',

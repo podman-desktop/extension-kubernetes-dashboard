@@ -4,7 +4,7 @@ import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '/@common/index';
+import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
 
 const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);

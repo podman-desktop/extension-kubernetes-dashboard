@@ -18,11 +18,11 @@
 
 import { inject, injectable } from 'inversify';
 
-import { PORT_FORWARDS } from '/@common/index';
+import { PORT_FORWARDS } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { PortForwardsInfo } from '/@common/model/port-forward-info';
+import type { PortForwardsInfo } from '@kubernetes-dashboard/channels';
 
 // Define a state for the PortForwardsInfo
 @injectable()

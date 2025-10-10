@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { injectable } from 'inversify';
-import type { SystemApi } from '/@common/interface/system-api';
+import type { SystemApi } from '@kubernetes-dashboard/channels';
 import * as podmanDesktopApi from '@podman-desktop/api';
 
 @injectable()

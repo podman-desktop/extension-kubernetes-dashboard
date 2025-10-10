@@ -2,7 +2,7 @@
 import { Button } from '@podman-desktop/ui-svelte';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '/@common/index';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 
 interface Props {
   title: string;

@@ -4,7 +4,7 @@ import type { V1ServiceSpec } from '@kubernetes/client-node';
 import Cell from '/@/component/details/Cell.svelte';
 import Title from '/@/component/details/Title.svelte';
 import KubePortsList from '/@/component/port-forward/KubePortsList.svelte';
-import { WorkloadKind } from '/@common/model/port-forward';
+import { WorkloadKind } from '@kubernetes-dashboard/channels';
 
 interface Props {
   spec: V1ServiceSpec;

@@ -17,11 +17,10 @@
  ***********************************************************************/
 
 import { inject, injectable } from 'inversify';
-import { PodLogsApi } from '/@common/interface/pod-logs-api';
+import { IDisposable, PodLogsApi } from '@kubernetes-dashboard/channels';
 import { PodLogsService } from '../pod-logs/pod-logs-service';
 import { ContextsManager } from './contexts-manager';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { IDisposable } from '/@common/types/disposable';
 
 type PodLogsInstance = {
   counter: number;

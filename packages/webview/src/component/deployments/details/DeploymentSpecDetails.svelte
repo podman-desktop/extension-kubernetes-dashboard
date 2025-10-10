@@ -5,7 +5,7 @@ import Title from '/@/component/details/Title.svelte';
 import Cell from '/@/component/details/Cell.svelte';
 import Subtitle from '/@/component/details/Subtitle.svelte';
 import ContainerDetails from './ContainerDetails.svelte';
-import { WorkloadKind } from '/@common/model/port-forward';
+import { WorkloadKind } from '@kubernetes-dashboard/channels';
 
 interface Props {
   spec: V1DeploymentSpec;

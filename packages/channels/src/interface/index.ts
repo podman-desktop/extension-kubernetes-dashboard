@@ -16,14 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IDisposable } from '@kubernetes-dashboard/channels';
+import { type ContextsApi } from './contexts-api';
+import { type PodLogsApi } from './pod-logs-api';
+import { type PodTerminalsApi } from './pod-terminals-api';
+import { type DeletePortForwardOptions, type PortForwardApi } from './port-forward-api';
+import { type SubscribeApi } from './subscribe-api';
+import { type SystemApi } from './system-api';
 
-export const StateObject = Symbol.for('StreamObject');
-export interface StreamObject<T> {
-  subscribe(
-    podName: string,
-    namespace: string,
-    containerName: string,
-    callback: (data: T) => void,
-  ): Promise<IDisposable>;
-}
+export type {
+  ContextsApi,
+  PodLogsApi,
+  PodTerminalsApi,
+  PortForwardApi,
+  SubscribeApi,
+  SystemApi,
+  DeletePortForwardOptions,
+};

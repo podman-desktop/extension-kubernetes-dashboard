@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { describe, expect, test, vi } from 'vitest';
-import { type ForwardConfig, WorkloadKind } from '/@common/model/port-forward';
+import { type ForwardConfig, WorkloadKind } from '@kubernetes-dashboard/channels';
 import { ForwardConfigRequirements } from './port-forward-validation';
 
 describe('ForwardConfigRequirements', () => {

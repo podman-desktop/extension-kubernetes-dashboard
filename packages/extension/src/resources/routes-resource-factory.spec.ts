@@ -19,7 +19,7 @@
 import { expect, test, vi } from 'vitest';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
 import type { KubeConfig } from '@kubernetes/client-node';
-import type { V1Route } from '/@common/model/openshift-types';
+import type { V1Route } from '@kubernetes-dashboard/channels';
 import { RoutesResourceFactory } from './routes-resource-factory';
 import type { ContextsManager } from '/@/manager/contexts-manager';
 

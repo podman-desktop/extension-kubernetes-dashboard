@@ -23,8 +23,8 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, test, vi } from 'vitest';
 import DashboardGuideCard from './DashboardGuideCard.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '/@common/index';
-import type { SystemApi } from '/@common/interface/system-api';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
+import type { SystemApi } from '@kubernetes-dashboard/channels';
 
 const remoteMocks = new RemoteMocks();
 

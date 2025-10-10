@@ -10,8 +10,9 @@
     "npm": ">=11.0.0"
   },
   "scripts": {
-    "build": "pnpm run build:rpc && concurrently \"cd packages/webview && pnpm run build\" \"cd packages/extension && pnpm run build\"",
+    "build": "pnpm run build:rpc && pnpm run build:channels && concurrently \"cd packages/webview && pnpm run build\" \"cd packages/extension && pnpm run build\"",
     "build:rpc": "cd packages/rpc && pnpm run build",
+    "build:channels": "cd packages/channels && pnpm run build",
     "watch": "concurrently \"cd packages/webview && pnpm run watch\" \"cd packages/extension && pnpm run watch\"",
     "format:check": "prettier --check \"**/src/**/*.{ts,svelte}\"",
     "format:fix": "prettier --write \"**/src/**/*.{ts,svelte}\"",
@@ -20,12 +21,13 @@
     "svelte:check": "svelte-check",
     "test:extension": "vitest run --project extension",
     "test:webview": "vitest run --project webview --passWithNoTests",
-    "test:common": "vitest run --project common --passWithNoTests",
-    "test": "pnpm run test:extension && pnpm run test:webview && pnpm run test:common",
-    "typecheck:common": "tsc --noEmit --project packages/common",
+    "test:channels": "vitest run --project channels --passWithNoTests",
+    "test": "pnpm run test:extension && pnpm run test:webview && pnpm run test:channels",
+    "typecheck:rpc": "tsc --noEmit --project packages/rpc",
+    "typecheck:channels": "tsc --noEmit --project packages/channels",
     "typecheck:webview": "tsc --noEmit --project packages/webview",
     "typecheck:extension": "tsc --noEmit --project packages/extension",
-    "typecheck": "pnpm run typecheck:common && pnpm run typecheck:webview && pnpm run typecheck:extension"
+    "typecheck": "pnpm run typecheck:rpc && pnpm run typecheck:channels && pnpm run typecheck:webview && pnpm run typecheck:extension"
   },
   "devDependencies": {
     "@eslint/compat": "^1.3.2",

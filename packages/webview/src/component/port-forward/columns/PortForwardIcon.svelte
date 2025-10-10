@@ -2,7 +2,7 @@
 import { StatusIcon } from '@podman-desktop/ui-svelte';
 
 import EthernetIcon from './EthernetIcon.svelte';
-import type { ForwardConfig } from '/@common/model/port-forward';
+import type { ForwardConfig } from '@kubernetes-dashboard/channels';
 
 interface Props {
   object: ForwardConfig;

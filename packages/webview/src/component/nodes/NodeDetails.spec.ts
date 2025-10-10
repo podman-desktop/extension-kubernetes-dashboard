@@ -22,11 +22,13 @@ import NodeDetails from './NodeDetails.svelte';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { ResourceDetailsInfo } from '/@common/model/resource-details-info';
-import type { ResourceDetailsOptions } from '/@common/model/resource-details-options';
-import type { ResourceEventsOptions } from '/@common/model/resource-events-options';
-import type { ResourceEventsInfo } from '/@common/model/resource-events-info';
-import type { CurrentContextInfo } from '/@common/model/current-context-info';
+import type {
+  ResourceDetailsInfo,
+  ResourceDetailsOptions,
+  ResourceEventsInfo,
+  ResourceEventsOptions,
+  CurrentContextInfo,
+} from '@kubernetes-dashboard/channels';
 import { NodeHelper } from './node-helper';
 import { Navigator } from '/@/navigation/navigator';
 import { router } from 'tinro';

@@ -21,7 +21,7 @@ import { injectable } from 'inversify';
 import { PassThrough } from 'node:stream';
 import { KubeConfigSingleContext } from '../types/kubeconfig-single-context';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { POD_LOGS } from '/@common/index';
+import { POD_LOGS } from '@kubernetes-dashboard/channels';
 
 @injectable()
 export class PodLogsService {

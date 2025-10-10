@@ -22,11 +22,9 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import KubePort from './KubePort.svelte';
-import { WorkloadKind, type ForwardConfig } from '/@common/model/port-forward';
+import { WorkloadKind, type ForwardConfig, type PortForwardApi, type SystemApi } from '@kubernetes-dashboard/channels';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_PORT_FORWARD, API_SYSTEM } from '/@common/index';
-import type { PortForwardApi } from '/@common/interface/port-forward-api';
-import type { SystemApi } from '/@common/interface/system-api';
+import { API_PORT_FORWARD, API_SYSTEM } from '@kubernetes-dashboard/channels';
 
 const remoteMocks = new RemoteMocks();
 

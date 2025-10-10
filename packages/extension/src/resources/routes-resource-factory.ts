@@ -19,13 +19,12 @@
 import type { KubernetesListObject, KubernetesObject, V1Status } from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
 
-import type { V1Route } from '/@common/model/openshift-types.js';
+import type { V1Route, TargetRef } from '@kubernetes-dashboard/channels';
 
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceFactory } from './resource-factory.js';
 import { ResourceFactoryBase } from './resource-factory.js';
 import { ResourceInformer } from '/@/types/resource-informer.js';
-import type { TargetRef } from '/@common/model/target-ref.js';
 import type { ContextsManager } from '/@/manager/contexts-manager.js';
 
 export class RoutesResourceFactory extends ResourceFactoryBase implements ResourceFactory {

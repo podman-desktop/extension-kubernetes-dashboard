@@ -4,12 +4,12 @@ import { Button, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import CopyToClipboard from '/@/component/copy-to-clipboard/CopyToClipboard.svelte';
-import type { ForwardConfig, PortMapping, WorkloadKind } from '/@common/model/port-forward';
+import type { ForwardConfig, PortMapping, WorkloadKind } from '@kubernetes-dashboard/channels';
 
 import type { KubePortInfo } from './kube-port';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_PORT_FORWARD, API_SYSTEM } from '/@common/index';
+import { API_PORT_FORWARD, API_SYSTEM } from '@kubernetes-dashboard/channels';
 
 interface Props {
   port: KubePortInfo;

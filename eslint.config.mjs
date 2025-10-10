@@ -216,7 +216,7 @@ export default [
   },
 
   {
-    files: ['packages/common/**'],
+    files: ['packages/channels/**'],
     languageOptions: {
       globals: {
         ...Object.fromEntries(Object.entries(globals.node).map(([key]) => [key, 'off'])),

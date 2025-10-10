@@ -1,5 +1,7 @@
 import {join} from 'path';
 import {builtinModules} from 'module';
+import {defineConfig} from 'vite';
+import dts from 'vite-plugin-dts';
 
 const PACKAGE_ROOT = __dirname;
 
@@ -7,14 +9,20 @@ const PACKAGE_ROOT = __dirname;
  * @type {import('vite').UserConfig}
  * @see https://vitejs.dev/config/
  */
-const config = {
+const config = defineConfig({
   mode: process.env.MODE,
   root: PACKAGE_ROOT,
   envDir: process.cwd(),
+  plugins: [
+    dts({
+      insertTypesEntry: true,
+    }),
+  ],
   resolve: {
     alias: {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
+    mainFields: ['module', 'jsnext:main', 'jsnext'],
   },
   build: {
     sourcemap: 'inline',
@@ -23,12 +31,11 @@ const config = {
     assetsDir: '.',
     minify: process.env.MODE === 'production' ? 'esbuild' : false,
     lib: {
-      entry: 'src/extension.ts',
-      formats: ['cjs'],
+      entry: 'src/index.ts',
+      formats: ['es'],
     },
     rollupOptions: {
       external: [
-        '@podman-desktop/api',
         ...builtinModules.flatMap(p => [p, `node:${p}`]),
       ],
       output: {
@@ -38,6 +45,6 @@ const config = {
     emptyOutDir: true,
     reportCompressedSize: false,
   },
-};
+});
 
 export default config;

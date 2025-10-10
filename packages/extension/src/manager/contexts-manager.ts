@@ -29,9 +29,15 @@ import {
   type ObjectCache,
 } from '@kubernetes/client-node';
 
-import type { ContextPermission } from '/@common/model/kubernetes-contexts-permissions.js';
-import type { ResourceCount } from '/@common/model/kubernetes-resource-count.js';
-import type { KubernetesTroubleshootingInformation } from '/@common/model/kubernetes-troubleshooting.js';
+import type {
+  IDisposable,
+  TargetRef,
+  Endpoint,
+  V1Route,
+  ContextPermission,
+  ResourceCount,
+  KubernetesTroubleshootingInformation,
+} from '@kubernetes-dashboard/channels';
 import { kubernetes, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
 
@@ -68,10 +74,6 @@ import { ServicesResourceFactory } from '/@/resources/services-resource-factory.
 import { injectable } from 'inversify';
 import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-factory.js';
 import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-resource-factory.js';
-import { IDisposable } from '/@common/types/disposable.js';
-import { TargetRef } from '/@common/model/target-ref.js';
-import { Endpoint } from '/@common/model/endpoint.js';
-import { V1Route } from '/@common/model/openshift-types.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 

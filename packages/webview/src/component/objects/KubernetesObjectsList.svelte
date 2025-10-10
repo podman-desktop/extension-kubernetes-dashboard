@@ -7,13 +7,13 @@ import { type Unsubscriber } from 'svelte/store';
 
 import type { KubernetesObjectUI } from './KubernetesObjectUI';
 import { States } from '/@/state/states';
-import type { ContextResourceItems } from '/@common/model/context-resources-items';
+import type { ContextResourceItems } from '@kubernetes-dashboard/channels';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import CurrentContextConnectionBadge from '/@/component/connection/CurrentContextConnectionBadge.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '/@common/index';
+import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
 import NamespaceDropdown from './NamespaceDropdown.svelte';
 
 export interface Kind {

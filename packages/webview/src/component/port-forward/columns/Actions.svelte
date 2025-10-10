@@ -3,8 +3,8 @@ import { faSquareUpRight, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_PORT_FORWARD, API_SYSTEM } from '/@common/index';
-import type { ForwardConfig } from '/@common/model/port-forward';
+import { API_PORT_FORWARD, API_SYSTEM } from '@kubernetes-dashboard/channels';
+import type { ForwardConfig } from '@kubernetes-dashboard/channels';
 import IconButton from '/@/component/button/IconButton.svelte';
 import { States } from '/@/state/states';
 

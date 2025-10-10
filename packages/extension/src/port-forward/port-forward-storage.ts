@@ -17,7 +17,7 @@
  ***********************************************************************/
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import type { ForwardConfig } from '/@common/model/port-forward';
+import type { ForwardConfig } from '@kubernetes-dashboard/channels';
 
 /**
  * Interface for forward configuration storage.

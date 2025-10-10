@@ -5,7 +5,7 @@ import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import Actions from './columns/Actions.svelte';
 import { IngressRouteHelper } from './ingress-route-helper';
 import IngressRouteDetailsSummary from './IngressRouteDetailsSummary.svelte';
-import type { V1Route } from '/@common/model/openshift-types';
+import type { V1Route } from '@kubernetes-dashboard/channels';
 import type { RouteUI } from './RouteUI';
 
 interface Props {

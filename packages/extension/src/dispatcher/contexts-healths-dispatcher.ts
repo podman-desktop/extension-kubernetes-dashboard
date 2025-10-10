@@ -20,10 +20,8 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { CONTEXTS_HEALTHS } from '/@common/index';
-import { ContextHealth } from '/@common/model/kubernetes-contexts-healths';
+import { CONTEXTS_HEALTHS, type ContextHealth, type ContextsHealthsInfo } from '@kubernetes-dashboard/channels';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';
 
 @injectable()
 export class ContextsHealthsDispatcher

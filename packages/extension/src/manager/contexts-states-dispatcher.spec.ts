@@ -18,7 +18,7 @@
 
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
-import type { IDisposable } from '/@common/types/disposable.js';
+import type { IDisposable } from '@kubernetes-dashboard/channels';
 
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
@@ -44,7 +44,7 @@ import {
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
-} from '/@common/index';
+} from '@kubernetes-dashboard/channels';
 
 let container: Container;
 const contextsManagerMock: ContextsManager = {

@@ -7,7 +7,7 @@ import Title from '/@/component/details/Title.svelte';
 
 import ContainerDetails from '/@/component/deployments/details/ContainerDetails.svelte';
 import VolumeDetails from './VolumeDetails.svelte';
-import { WorkloadKind } from '/@common/model/port-forward';
+import { WorkloadKind } from '@kubernetes-dashboard/channels';
 
 interface Props {
   spec: V1PodSpec;

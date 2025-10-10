@@ -21,8 +21,7 @@ import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { ActiveResourcesCountInfo } from '/@common/model/active-resources-count-info';
-import { ACTIVE_RESOURCES_COUNT } from '/@common/index';
+import { ACTIVE_RESOURCES_COUNT, type ActiveResourcesCountInfo } from '@kubernetes-dashboard/channels';
 
 @injectable()
 export class ActiveResourcesCountDispatcher

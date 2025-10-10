@@ -35,12 +35,12 @@ import {
   API_PORT_FORWARD,
   API_SUBSCRIBE,
   API_SYSTEM,
-} from '/@common/index';
+  IDisposable,
+} from '@kubernetes-dashboard/channels';
 import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 import { PortForwardServiceProvider } from './port-forward/port-forward-service';
 import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
-import { IDisposable } from '/@common/types/disposable';
 import { PodTerminalsApiImpl } from './manager/pod-terminals-api-impl';
 
 export class DashboardExtension {

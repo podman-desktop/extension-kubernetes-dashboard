@@ -2,7 +2,7 @@
 import type { V1Pod } from '@kubernetes/client-node';
 import { getContext, onDestroy, onMount, tick } from 'svelte';
 import { Streams } from '/@/stream/streams';
-import type { IDisposable } from '/@common/types/disposable';
+import type { IDisposable } from '@kubernetes-dashboard/channels';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import NoLogIcon from '../icons/NoLogIcon.svelte';
 import type { Terminal } from '@xterm/xterm';

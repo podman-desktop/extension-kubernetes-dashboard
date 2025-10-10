@@ -16,14 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IDisposable } from '@kubernetes-dashboard/channels';
+import { IDisposable, Disposable } from './types/disposable';
 
-export const StateObject = Symbol.for('StreamObject');
-export interface StreamObject<T> {
-  subscribe(
-    podName: string,
-    namespace: string,
-    containerName: string,
-    callback: (data: T) => void,
-  ): Promise<IDisposable>;
-}
+export { IDisposable, Disposable };
+export * from './interface';
+export * from './model';
+export * from './channels';

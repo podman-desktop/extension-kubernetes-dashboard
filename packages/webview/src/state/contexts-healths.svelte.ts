@@ -18,11 +18,11 @@
 
 import { inject, injectable } from 'inversify';
 
-import { CONTEXTS_HEALTHS } from '/@common/index';
+import { CONTEXTS_HEALTHS } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from '/@/state/util/state-object.svelte';
-import type { ContextsHealthsInfo } from '/@common/model/contexts-healths-info';
+import type { ContextsHealthsInfo } from '@kubernetes-dashboard/channels';
 
 // Define a state for the ContextsHealthsInfo
 @injectable()

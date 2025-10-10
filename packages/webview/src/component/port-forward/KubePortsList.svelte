@@ -1,6 +1,6 @@
 <script lang="ts">
 import Cell from '/@/component/details/Cell.svelte';
-import type { ForwardConfig, WorkloadKind } from '/@common/model/port-forward';
+import type { ForwardConfig, WorkloadKind } from '@kubernetes-dashboard/channels';
 import type { KubePortInfo } from './kube-port';
 import KubePort from './KubePort.svelte';
 import { getContext, onDestroy, onMount } from 'svelte';

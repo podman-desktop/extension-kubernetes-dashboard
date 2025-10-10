@@ -18,12 +18,10 @@
 
 import { inject, injectable } from 'inversify';
 
-import { ENDPOINTS } from '/@common/index';
+import { ENDPOINTS, type EndpointsInfo, type EndpointsOptions } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { EndpointsInfo } from '/@common/model/endpoints-info';
-import type { EndpointsOptions } from '/@common/model/endpoints-options';
 
 // Define a state for the EndpointsInfo
 @injectable()

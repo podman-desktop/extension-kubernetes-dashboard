@@ -24,10 +24,10 @@ import {
   type PortForwardableResource,
   type PortMapping,
   WorkloadKind,
-} from '/@common/model/port-forward';
+  type IDisposable,
+  Disposable,
+} from '@kubernetes-dashboard/channels';
 import type { ForwardConfigRequirements } from './port-forward-validation';
-import type { IDisposable } from '/@common/types/disposable';
-import { Disposable } from '/@common/types/disposable';
 import type { ContextsManager } from '/@/manager/contexts-manager';
 
 /**

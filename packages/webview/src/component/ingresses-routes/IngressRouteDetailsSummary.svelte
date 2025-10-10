@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { V1Ingress } from '@kubernetes/client-node';
-import type { V1Route } from '/@common/model/openshift-types';
+import type { V1Route } from '@kubernetes-dashboard/channels';
 import Table from '/@/component/details/Table.svelte';
 import ObjectMetaDetails from '/@/component/objects/details/ObjectMetaDetails.svelte';
 import IngressStatusDetails from './details/IngressStatusDetails.svelte';

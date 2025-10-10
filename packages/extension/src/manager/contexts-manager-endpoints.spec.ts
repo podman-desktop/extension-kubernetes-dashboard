@@ -23,8 +23,7 @@ import { RoutesResourceFactory } from '/@/resources/routes-resource-factory';
 import { ContextsManager } from './contexts-manager';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { V1EndpointSlice, V1Ingress } from '@kubernetes/client-node';
-import type { V1Route } from '/@common/model/openshift-types';
-import type { Endpoint } from '/@common/model/endpoint';
+import type { V1Route, Endpoint } from '@kubernetes-dashboard/channels';
 
 class TestContextsManager extends ContextsManager {
   override getResourceFactories(): ResourceFactory[] {

@@ -19,8 +19,7 @@
 import { render } from '@testing-library/svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { AvailableContextsInfo } from '/@common/model/available-contexts-info';
-import type { CurrentContextInfo } from '/@common/model/current-context-info';
+import type { AvailableContextsInfo, CurrentContextInfo } from '@kubernetes-dashboard/channels';
 import App from './App.svelte';
 import NoContextPage from './component/dashboard/NoContextPage.svelte';
 import NoSelectedContextPage from './component/dashboard/NoSelectedContextPage.svelte';
