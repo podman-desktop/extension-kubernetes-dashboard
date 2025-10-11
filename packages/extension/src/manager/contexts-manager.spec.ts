@@ -1607,7 +1607,7 @@ test('deleteObject handler throws a non-Status in ApiException', async () => {
       {},
     ),
   );
-  await expect(() => manager.deleteObject('Resource4', 'resource-name', 'other-ns')).rejects.toThrowError(
+  await expect(() => manager.deleteObject('Resource4', 'resource-name', 'other-ns')).rejects.toThrow(
     /Message: Bad Request/,
   );
   expect(window.showInformationMessage).toHaveBeenCalled();
@@ -1626,7 +1626,7 @@ test('deleteObject handler throws a non-ApiException', async () => {
   vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
   const error = new Error('an error');
   resource4DeleteObjectMock.mockRejectedValue(error);
-  await expect(() => manager.deleteObject('Resource4', 'resource-name', 'other-ns')).rejects.toThrowError(error);
+  await expect(() => manager.deleteObject('Resource4', 'resource-name', 'other-ns')).rejects.toThrow(error);
   expect(window.showInformationMessage).toHaveBeenCalled();
   expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
   expect(manager.handleStatus).not.toHaveBeenCalled();

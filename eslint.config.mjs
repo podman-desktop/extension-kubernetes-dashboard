@@ -175,6 +175,7 @@ export default [
       'import/no-named-as-default': 'off',
       'vitest/prefer-called-exactly-once-with': 'off',
       'vitest/valid-title': 'off',
+      'vitest/no-alias-methods': 'error',
     },
   },
 

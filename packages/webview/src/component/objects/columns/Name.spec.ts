@@ -91,7 +91,7 @@ test('Expect clicking works', async () => {
 
   await fireEvent.click(name);
 
-  expect(dependencyMocks.get(Navigator).navigateTo).toBeCalledWith({ kind: node.kind, name: node.name });
+  expect(dependencyMocks.get(Navigator).navigateTo).toHaveBeenCalledWith({ kind: node.kind, name: node.name });
 });
 
 test('Expect namespaced clicking works', async () => {
@@ -105,7 +105,7 @@ test('Expect namespaced clicking works', async () => {
 
   await fireEvent.click(name);
 
-  expect(dependencyMocks.get(Navigator).navigateTo).toBeCalledWith({
+  expect(dependencyMocks.get(Navigator).navigateTo).toHaveBeenCalledWith({
     kind: deployment.kind,
     name: deployment.name,
     namespace: deployment.namespace,

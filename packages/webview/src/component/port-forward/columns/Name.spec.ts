@@ -71,7 +71,7 @@ test('click on name should redirect to pod page', async () => {
 
   await fireEvent.click(openBtn);
 
-  expect(dependencyMocks.get(Navigator).navigateTo).toBeCalledWith({
+  expect(dependencyMocks.get(Navigator).navigateTo).toHaveBeenCalledWith({
     kind: 'Pod',
     name: 'dummy-pod-name',
     namespace: 'dummy-ns',
