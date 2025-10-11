@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ForwardConfig, ForwardOptions } from '/@common/model/port-forward';
+import { type ForwardConfig, type ForwardOptions } from '/@/model';
 
 export const PortForwardApi = Symbol.for('PortForwardApi');
 
