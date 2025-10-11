@@ -187,7 +187,8 @@ export default [
             }
           ]
         }
-      ]
+      ],
+      'vitest/prefer-import-in-mock': 'error',
     },
   },
 

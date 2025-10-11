@@ -23,7 +23,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ContextHealthChecker } from './context-health-checker.js';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 
-vi.mock('@kubernetes/client-node');
+vi.mock(import('@kubernetes/client-node'));
 
 const context1 = {
   name: 'context1',

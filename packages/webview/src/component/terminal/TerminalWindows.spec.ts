@@ -25,11 +25,11 @@ import { writable } from 'svelte/store';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import TerminalWindow from './TerminalWindow.svelte';
 
-vi.mock('@xterm/xterm');
+vi.mock(import('@xterm/xterm'));
 
-vi.mock('@xterm/addon-fit');
+vi.mock(import('@xterm/addon-fit'));
 
-vi.mock('@xterm/addon-search');
+vi.mock(import('@xterm/addon-search'));
 
 beforeEach(() => {
   vi.resetAllMocks();
