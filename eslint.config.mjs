@@ -176,6 +176,7 @@ export default [
       'vitest/prefer-called-exactly-once-with': 'off',
       'vitest/valid-title': 'off',
       'vitest/no-alias-methods': 'error',
+      'vitest/no-conditional-expect': 'error',
     },
   },
 

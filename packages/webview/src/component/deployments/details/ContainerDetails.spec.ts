@@ -18,14 +18,20 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import type { V1Container } from '@kubernetes/client-node';
+import type { V1Container, V1EnvVar, V1VolumeMount } from '@kubernetes/client-node';
 import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubeContainerArtifact from './ContainerDetails.svelte';
 import { WorkloadKind } from '@kubernetes-dashboard/channels';
+import KubePortsList from '/@/component/port-forward/KubePortsList.svelte';
 
-const fakeContainer: V1Container = {
+vi.mock(import('/@/component/port-forward/KubePortsList.svelte'));
+
+const fakeContainer: V1Container & {
+  env: V1EnvVar[];
+  volumeMounts: V1VolumeMount[];
+} = {
   name: 'fakeContainerName',
   image: 'fakeImageName',
   imagePullPolicy: 'IfNotPresent',
@@ -43,6 +49,10 @@ const fakeContainer: V1Container = {
   ],
 };
 
+const fakeContainerWithMinimalFields: V1Container = {
+  name: 'fakeContainerNameWithMinimalFields',
+};
+
 vi.mock(import('/@/component/port-forward/KubePortsList.svelte'));
 
 beforeEach(() => {
@@ -50,7 +60,12 @@ beforeEach(() => {
 });
 
 test('Container artifact renders with correct values', async () => {
-  render(KubeContainerArtifact, { kind: WorkloadKind.POD, container: fakeContainer });
+  render(KubeContainerArtifact, {
+    kind: WorkloadKind.POD,
+    container: fakeContainer,
+    namespace: 'ns',
+    resourceName: 'resource1',
+  });
 
   // Check if basic container info is displayed
   expect(screen.getByText('Name')).toBeInTheDocument();
@@ -63,17 +78,37 @@ test('Container artifact renders with correct values', async () => {
   expect(screen.getByText('IfNotPresent')).toBeInTheDocument();
 
   // Check if environment variables are displayed correctly
-  if (fakeContainer.env && fakeContainer.env.length > 0) {
-    expect(screen.getByText('Environment Variables')).toBeInTheDocument();
-    fakeContainer.env.forEach(envVar => {
-      expect(screen.getByText(`${envVar.name}: ${envVar.value}`)).toBeInTheDocument();
-    });
-  }
+  expect(screen.getByText('Environment Variables')).toBeInTheDocument();
+  fakeContainer.env.forEach(envVar => {
+    expect(screen.getByText(`${envVar.name}: ${envVar.value}`)).toBeInTheDocument();
+  });
 
   // Check if volume mounts are displayed correctly
-  if (fakeContainer.volumeMounts && fakeContainer.volumeMounts.length > 0) {
-    const mountsText = fakeContainer.volumeMounts.map(vm => vm.name).join(', ');
-    expect(screen.getByText('Volume Mounts')).toBeInTheDocument();
-    expect(screen.getByText(mountsText)).toBeInTheDocument();
-  }
+  const mountsText = fakeContainer.volumeMounts.map(vm => vm.name).join(', ');
+  expect(screen.getByText('Volume Mounts')).toBeInTheDocument();
+  expect(screen.getByText(mountsText)).toBeInTheDocument();
+
+  expect(KubePortsList).toHaveBeenCalledWith(expect.anything(), {
+    namespace: 'ns',
+    resourceName: 'resource1',
+    kind: WorkloadKind.POD,
+    ports: [
+      {
+        value: 8080,
+        protocol: 'TCP',
+        displayValue: '8080/TCP',
+      },
+      {
+        value: 8443,
+        protocol: 'TCP',
+        displayValue: '8443/TCP',
+      },
+    ],
+  });
+});
+
+test('Container artifact renders with minimal fields', async () => {
+  render(KubeContainerArtifact, { kind: WorkloadKind.POD, container: fakeContainerWithMinimalFields });
+  expect(screen.getByText('Name')).toBeInTheDocument();
+  expect(screen.getByText('fakeContainerNameWithMinimalFields')).toBeInTheDocument();
 });
