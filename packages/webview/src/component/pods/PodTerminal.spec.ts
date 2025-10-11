@@ -31,7 +31,6 @@ import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { FitAddon } from '@xterm/addon-fit';
 import { beforeEach, expect, test, vi } from 'vitest';
-import type * as xterm from '@xterm/xterm';
 
 vi.mock(import('@xterm/addon-serialize'));
 vi.mock(import('@xterm/addon-fit'));
@@ -39,33 +38,32 @@ vi.mock(import('@xterm/addon-fit'));
 let terminalCols = 132;
 let terminalRows = 30;
 
-vi.mock(import('@xterm/xterm'), () => {
-  const Terminal = vi.fn();
-  Terminal.prototype = {
-    write: vi.fn(),
-    focus: vi.fn(),
-    loadAddon: vi.fn(),
-    open: vi.fn(),
-    onData: vi.fn(),
-    dispose: vi.fn(),
-    get rows(): number {
-      return terminalRows;
-    },
-    get cols(): number {
-      return terminalCols;
-    },
-  };
-  return { Terminal } as unknown as typeof xterm;
-});
+vi.mock(import('@xterm/xterm'));
 
 const remoteMocks = new RemoteMocks();
 const streamMocks = new StreamsMocks();
 
 const streamPodTerminalsMock = new FakeStreamObject<PodTerminalChunk>();
 
+const terminalMock = {
+  write: vi.fn(),
+  focus: vi.fn(),
+  loadAddon: vi.fn(),
+  open: vi.fn(),
+  onData: vi.fn(),
+  dispose: vi.fn(),
+  get rows(): number {
+    return terminalRows;
+  },
+  get cols(): number {
+    return terminalCols;
+  },
+} as unknown as Terminal;
+
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.mocked(Terminal.prototype.onData).mockReturnValue(Disposable.create(() => {}));
+  vi.mocked(Terminal).mockReturnValue(terminalMock);
+  vi.mocked(terminalMock.onData).mockReturnValue(Disposable.create(() => {}));
   streamMocks.reset();
   streamMocks.mock<PodTerminalChunk>('streamPodTerminals', streamPodTerminalsMock);
 
@@ -104,7 +102,7 @@ test('PodTerminal writes data to ther terminal when it receives it from the stre
     data: Buffer.from('data1'),
   });
 
-  expect(Terminal.prototype.write).toHaveBeenCalledWith(Buffer.from('data1'));
+  expect(terminalMock.write).toHaveBeenCalledWith(Buffer.from('data1'));
   expect(remoteMocks.get(API_POD_TERMINALS).saveState).toHaveBeenCalledWith(
     'pod1',
     'ns1',
@@ -124,8 +122,8 @@ test('PodTerminal restores previous screen when it is loaded, and sets focus to 
   render(PodTerminal, { props: { object: pod, containerName: 'container1' } });
 
   await vi.waitFor(() => {
-    expect(Terminal.prototype.write).toHaveBeenCalledWith('previous data');
-    expect(Terminal.prototype.focus).toHaveBeenCalled();
+    expect(terminalMock.write).toHaveBeenCalledWith('previous data');
+    expect(terminalMock.focus).toHaveBeenCalled();
   });
 });
 
@@ -140,9 +138,9 @@ test('PodTerminal sends data to api when it receives data from the terminal', as
 
   render(PodTerminal, { props: { object: pod, containerName: 'container1' } });
   await vi.waitFor(() => {
-    expect(Terminal.prototype.onData).toHaveBeenCalled();
+    expect(terminalMock.onData).toHaveBeenCalled();
   });
-  const onDataCb = vi.mocked(Terminal.prototype.onData).mock.calls[0][0];
+  const onDataCb = vi.mocked(terminalMock.onData).mock.calls[0][0];
 
   expect(remoteMocks.get(API_POD_TERMINALS).sendData).not.toHaveBeenCalled();
   onDataCb('data2');

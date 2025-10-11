@@ -35,18 +35,6 @@ import * as svelte from 'svelte';
 import { router } from 'tinro';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 
-vi.mock(import('@podman-desktop/ui-svelte'), async () => {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const actual = await vi.importActual<typeof import('@podman-desktop/ui-svelte')>('@podman-desktop/ui-svelte');
-  return {
-    ...actual,
-    Table: vi.fn(),
-    TableColumn: vi.fn(),
-    TableRow: vi.fn(),
-    FilteredEmptyScreen: vi.fn(),
-    Page: vi.fn(),
-  };
-});
 vi.mock(import('/@/component/nodes/NodeDetailsSummary.svelte'));
 
 const dependencyMocks = new DependencyMocks();
