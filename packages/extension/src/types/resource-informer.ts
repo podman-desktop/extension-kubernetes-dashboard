@@ -18,6 +18,7 @@
 
 import type {
   Informer,
+  KubeConfig,
   KubernetesListObject,
   KubernetesObject,
   ListPromise,
@@ -103,7 +104,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
         })),
       };
     };
-    const internalInformer = makeInformer(this.#kubeConfig.getKubeConfig(), this.#path, typedList);
+    const internalInformer = this.makeInformer(this.#kubeConfig.getKubeConfig(), this.#path, typedList);
     this.#informer = internalInformer;
 
     this.#informer.on(UPDATE, (_obj: T) => {
@@ -186,5 +187,9 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
 
   isOffline(): boolean {
     return this.#offline;
+  }
+
+  makeInformer(kubeConfig: KubeConfig, path: string, listFn: ListPromise<T>): Informer<T> & ObjectCache<T> {
+    return makeInformer(kubeConfig, path, listFn);
   }
 }

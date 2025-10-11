@@ -18,19 +18,10 @@
 
 import type { Cluster, Context, ListWatch, User, V1ObjectMeta } from '@kubernetes/client-node';
 import { ApiException, DELETE, ERROR, KubeConfig, UPDATE } from '@kubernetes/client-node';
-import * as kubernetesClient from '@kubernetes/client-node';
 import { expect, test, vi } from 'vitest';
 
 import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 import { ResourceInformer } from './resource-informer.js';
-
-vi.mock(import('@kubernetes/client-node'), async () => {
-  const actual = await vi.importActual<typeof kubernetesClient>('@kubernetes/client-node');
-  return {
-    ...actual,
-    makeInformer: vi.fn(),
-  };
-});
 
 interface MyResource {
   apiVersion?: string;
@@ -94,7 +85,7 @@ test('ResourceInformer should fire onCacheUpdated event with countChanged to fal
     plural: 'myresources',
   });
   const onCB = vi.fn();
-  vi.mocked(kubernetesClient.makeInformer).mockReturnValue({
+  vi.spyOn(informer, 'makeInformer').mockReturnValue({
     on: onCB,
     start: vi.fn().mockResolvedValue({}),
   } as unknown as ListWatch<MyResource>);
@@ -124,7 +115,7 @@ test('ResourceInformer should fire onOffline event is informer fails', async () 
     plural: 'myresources',
   });
   const onCB = vi.fn();
-  vi.mocked(kubernetesClient.makeInformer).mockReturnValue({
+  vi.spyOn(informer, 'makeInformer').mockReturnValue({
     on: onCB,
     start: vi.fn().mockResolvedValue({}),
   } as unknown as ListWatch<MyResource>);
@@ -161,7 +152,7 @@ test('reconnect should do nothing if there is no error', async () => {
   });
   const onCB = vi.fn();
   const startMock = vi.fn().mockResolvedValue({});
-  vi.mocked(kubernetesClient.makeInformer).mockReturnValue({
+  vi.spyOn(informer, 'makeInformer').mockReturnValue({
     on: onCB,
     start: startMock,
   } as unknown as ListWatch<MyResource>);
@@ -193,7 +184,7 @@ test('reconnect should call start again if there is an error', async () => {
   });
   const onCB = vi.fn();
   const startMock = vi.fn().mockResolvedValue({});
-  vi.mocked(kubernetesClient.makeInformer).mockReturnValue({
+  vi.spyOn(informer, 'makeInformer').mockReturnValue({
     on: onCB,
     start: startMock,
   } as unknown as ListWatch<MyResource>);
@@ -226,7 +217,7 @@ test('informer is stopped when disposed', async () => {
   const onCB = vi.fn();
   const startMock = vi.fn().mockResolvedValue({});
   const stopMock = vi.fn().mockResolvedValue({});
-  vi.mocked(kubernetesClient.makeInformer).mockReturnValue({
+  vi.spyOn(informer, 'makeInformer').mockReturnValue({
     on: onCB,
     start: startMock,
     stop: stopMock,
@@ -258,7 +249,7 @@ test('ResourceInformer should fire onObjectDeleted event when a resource is dele
     plural: 'myresources',
   });
   const onCB = vi.fn();
-  vi.mocked(kubernetesClient.makeInformer).mockReturnValue({
+  vi.spyOn(informer, 'makeInformer').mockReturnValue({
     on: onCB,
     start: vi.fn().mockResolvedValue({}),
   } as unknown as ListWatch<MyResource>);
