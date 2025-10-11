@@ -27,9 +27,7 @@ import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 import IconButton from '/@/component/button/IconButton.svelte';
 
-vi.mock(import('/@/component/button/IconButton.svelte'), () => ({
-  default: vi.fn(),
-}));
+vi.mock(import('/@/component/button/IconButton.svelte'));
 
 const statesMocks = new StatesMocks();
 const remoteMocks = new RemoteMocks();

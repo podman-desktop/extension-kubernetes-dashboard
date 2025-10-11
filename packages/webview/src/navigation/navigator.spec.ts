@@ -25,14 +25,7 @@ import type { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import type { Container } from 'inversify';
 
-// mock the router
-vi.mock(import('tinro'), () => {
-  return {
-    router: {
-      goto: vi.fn(),
-    },
-  } as unknown as typeof router;
-});
+vi.mock(import('tinro'));
 
 let navigator: Navigator;
 let container: Container;

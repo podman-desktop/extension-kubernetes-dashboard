@@ -30,12 +30,7 @@ import {
   ConfigManagementService,
 } from './port-forward-storage';
 
-vi.mock(import('node:fs/promises'), () => ({
-  mkdir: vi.fn(),
-  access: vi.fn(),
-  writeFile: vi.fn(),
-  readFile: vi.fn(),
-}));
+vi.mock(import('node:fs/promises'));
 
 class TestFileBasedConfigStorage extends FileBasedConfigStorage {
   public override async ensureStorageInitialized(): Promise<void> {

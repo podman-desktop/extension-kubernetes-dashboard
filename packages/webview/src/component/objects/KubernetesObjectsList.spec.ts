@@ -34,18 +34,6 @@ import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
 
-vi.mock(import('@podman-desktop/ui-svelte'), async () => {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const actual = await vi.importActual<typeof import('@podman-desktop/ui-svelte')>('@podman-desktop/ui-svelte');
-  return {
-    ...actual,
-    Table: vi.fn(),
-    TableColumn: vi.fn(),
-    TableRow: vi.fn(),
-    FilteredEmptyScreen: vi.fn(),
-  };
-});
-
 vi.mock(import('/@/component/connection/CurrentContextConnectionBadge.svelte'));
 vi.mock(import('./NamespaceDropdown.svelte'));
 
@@ -81,6 +69,9 @@ beforeEach(() => {
   remoteMocks.mock(API_CONTEXTS, {
     deleteObjects: vi.fn(),
   } as unknown as ContextsApi);
+
+  vi.spyOn(uiSvelte, 'Table').mockImplementation(vi.fn());
+  vi.spyOn(uiSvelte, 'FilteredEmptyScreen').mockImplementation(vi.fn());
 });
 
 afterEach(() => {
