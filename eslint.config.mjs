@@ -98,6 +98,9 @@ export default [
           packages: ['packages/*'],
         },
       },
+      vitest: {
+        typecheck: true,
+      },
     },
   },
   {
@@ -107,6 +110,7 @@ export default [
     languageOptions: {
       globals: {
         ...globals.node,
+        ...vitest.environments.env.globals,
       },
       // parser: tsParser,
       sourceType: 'module',
@@ -189,9 +193,21 @@ export default [
           ]
         }
       ],
+      '@typescript-eslint/no-unsafe-call': 'error',
       'vitest/prefer-import-in-mock': 'error',
       'vitest/prefer-vi-mocked': 'error',
-      '@typescript-eslint/no-unsafe-call': 'error',
+      // use "test" everywhere (outisde and within describe blocks)
+      'vitest/consistent-test-it': ['error', { fn: 'test' }],
+      'vitest/consistent-test-filename': ['error', { pattern: '.*\\.spec\\.ts$' } ],
+      'vitest/consistent-vitest-vi': 'error',
+      'vitest/no-conditional-tests': 'error',
+      'vitest/no-disabled-tests': 'error',
+      'vitest/no-duplicate-hooks': 'error',
+      'vitest/no-focused-tests': 'error',
+      'vitest/no-restricted-matchers': 'error',
+      'vitest/prefer-expect-resolves': 'error',
+      'vitest/prefer-hooks-in-order': 'error',
+      'vitest/prefer-hooks-on-top': 'error',
     },
   },
 
