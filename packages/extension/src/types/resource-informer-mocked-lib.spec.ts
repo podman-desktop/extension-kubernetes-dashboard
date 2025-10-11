@@ -24,9 +24,8 @@ import { expect, test, vi } from 'vitest';
 import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 import { ResourceInformer } from './resource-informer.js';
 
-vi.mock('@kubernetes/client-node', async () => {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const actual = await vi.importActual<typeof import('@kubernetes/client-node')>('@kubernetes/client-node');
+vi.mock(import('@kubernetes/client-node'), async () => {
+  const actual = await vi.importActual<typeof kubernetesClient>('@kubernetes/client-node');
   return {
     ...actual,
     makeInformer: vi.fn(),

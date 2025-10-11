@@ -26,12 +26,12 @@ import type { WebviewApi } from '@podman-desktop/webview-api';
 import type { Container } from 'inversify';
 
 // mock the router
-vi.mock('tinro', () => {
+vi.mock(import('tinro'), () => {
   return {
     router: {
       goto: vi.fn(),
     },
-  };
+  } as unknown as typeof router;
 });
 
 let navigator: Navigator;

@@ -21,14 +21,14 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { IngressUI } from '../IngressUI';
-import type { RouteUI } from '../RouteUI';
 import HostPath from './HostPath.svelte';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
-import { IngressRouteHelper } from '../ingress-route-helper';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 import type { SystemApi } from '@kubernetes-dashboard/channels';
+import { IngressRouteHelper } from '/@/component/ingresses-routes/ingress-route-helper';
+import type { IngressUI } from '/@/component/ingresses-routes/IngressUI';
+import type { RouteUI } from '/@/component/ingresses-routes/RouteUI';
 
 const dependencyMocks = new DependencyMocks();
 const remoteMocks = new RemoteMocks();

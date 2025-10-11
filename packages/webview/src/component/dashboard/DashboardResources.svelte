@@ -1,6 +1,6 @@
 <script lang="ts">
-import NamespaceDropdown from '../objects/NamespaceDropdown.svelte';
 import DashboardResourceCard from './DashboardResourceCard.svelte';
+import NamespaceDropdown from '/@/component/objects/NamespaceDropdown.svelte';
 </script>
 
 <div class="grid grid-cols-4 gap-4 h-fit w-full">

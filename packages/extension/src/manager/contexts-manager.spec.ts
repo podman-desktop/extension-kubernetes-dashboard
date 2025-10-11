@@ -279,10 +279,10 @@ const kcWithNoCurrentContext = {
   ],
 };
 
-vi.mock('node:fs/promises');
-vi.mock('node:fs');
-vi.mock('./context-health-checker.js');
-vi.mock('./context-permissions-checker.js');
+vi.mock(import('node:fs/promises'));
+vi.mock(import('node:fs'));
+vi.mock(import('./context-health-checker.js'));
+vi.mock(import('./context-permissions-checker.js'));
 
 let kcWith2contexts: KubeConfig;
 

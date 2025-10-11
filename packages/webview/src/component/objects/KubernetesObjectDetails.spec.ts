@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { DependencyMocks } from '../../tests/dependency-mocks';
+import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { render } from '@testing-library/svelte';
 import type {
   CurrentContextInfo,

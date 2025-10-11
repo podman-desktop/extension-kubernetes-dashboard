@@ -9,7 +9,7 @@ import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import type { NamespaceUI } from './NamespaceUI';
 import { NamespaceHelper } from './namespace-helper';
-import NamespaceIcon from '../icons/NamespaceIcon.svelte';
+import NamespaceIcon from '/@/component/icons/NamespaceIcon.svelte';
 import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
 import ActionsColumn from '/@/component/namespaces/columns/Actions.svelte';
 

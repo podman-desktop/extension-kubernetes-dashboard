@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { PVCUI } from '../PVCUI';
+import type { PVCUI } from '/@/component/pvcs/PVCUI';
 
 export interface Props {
   object: PVCUI;

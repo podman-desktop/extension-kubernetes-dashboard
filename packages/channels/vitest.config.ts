@@ -12,7 +12,7 @@ export default defineProject({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts}'],
     alias: {
       '@podman-desktop/api': resolve(WORKSPACE_ROOT, '__mocks__/@podman-desktop/api.js'),
-      '/@/': join(PACKAGE_ROOT, 'src') + '/',
+      '/@common/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
 });

@@ -31,6 +31,7 @@ import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { FitAddon } from '@xterm/addon-fit';
 import { beforeEach, expect, test, vi } from 'vitest';
+import type * as xterm from '@xterm/xterm';
 
 vi.mock(import('@xterm/addon-serialize'));
 vi.mock(import('@xterm/addon-fit'));
@@ -38,7 +39,7 @@ vi.mock(import('@xterm/addon-fit'));
 let terminalCols = 132;
 let terminalRows = 30;
 
-vi.mock('@xterm/xterm', () => {
+vi.mock(import('@xterm/xterm'), () => {
   const Terminal = vi.fn();
   Terminal.prototype = {
     write: vi.fn(),
@@ -54,7 +55,7 @@ vi.mock('@xterm/xterm', () => {
       return terminalCols;
     },
   };
-  return { Terminal };
+  return { Terminal } as unknown as typeof xterm;
 });
 
 const remoteMocks = new RemoteMocks();

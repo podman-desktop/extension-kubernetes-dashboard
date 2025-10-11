@@ -178,6 +178,18 @@ export default [
       'vitest/no-alias-methods': 'error',
       'vitest/no-conditional-expect': 'error',
       'vitest/no-conditional-in-test': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          'patterns': [
+            {
+              'group': ['../'],
+              'message': 'Relative imports are not allowed.'
+            }
+          ]
+        }
+      ],
+      'vitest/prefer-import-in-mock': 'error',
     },
   },
 

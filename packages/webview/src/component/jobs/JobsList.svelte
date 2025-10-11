@@ -8,7 +8,7 @@ import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
 import ActionsColumn from '/@/component/jobs/columns/Actions.svelte';
-import JobIcon from '../icons/JobIcon.svelte';
+import JobIcon from '/@/component/icons/JobIcon.svelte';
 import type { JobUI } from './JobUI';
 import { JobHelper } from './job-helper';
 import ConditionsColumn from './columns/Conditions.svelte';

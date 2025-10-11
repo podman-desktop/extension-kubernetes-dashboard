@@ -1,6 +1,6 @@
 <script lang="ts">
 import { getContext } from 'svelte';
-import { IngressRouteHelper } from '../ingress-route-helper';
+import { IngressRouteHelper } from '/@/component/ingresses-routes/ingress-route-helper';
 import type { Props } from './props';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 

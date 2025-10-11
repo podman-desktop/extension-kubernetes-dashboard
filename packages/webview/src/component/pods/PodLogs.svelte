@@ -4,9 +4,9 @@ import { getContext, onDestroy, onMount, tick } from 'svelte';
 import { Streams } from '/@/stream/streams';
 import type { IDisposable } from '@kubernetes-dashboard/channels';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
-import NoLogIcon from '../icons/NoLogIcon.svelte';
+import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import type { Terminal } from '@xterm/xterm';
-import TerminalWindow from '../terminal/TerminalWindow.svelte';
+import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import { SvelteMap } from 'svelte/reactivity';
 import { ansi256Colours, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
 

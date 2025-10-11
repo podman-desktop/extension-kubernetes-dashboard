@@ -3,13 +3,13 @@ import { TableColumn, TableDurationColumn, TableRow } from '@podman-desktop/ui-s
 import moment from 'moment';
 import NameColumn from '/@/component/objects/columns/Name.svelte';
 import StatusColumn from '/@/component/objects/columns/Status.svelte';
-import KubernetesObjectsList from '../objects/KubernetesObjectsList.svelte';
+import KubernetesObjectsList from '/@/component/objects/KubernetesObjectsList.svelte';
 import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
-import KubernetesEmptyScreen from '../objects/KubernetesEmptyScreen.svelte';
+import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
 import type { DeploymentUI } from './DeploymentUI';
 import { DeploymentHelper } from './deployment-helper';
-import DeploymentIcon from '../icons/DeploymentIcon.svelte';
+import DeploymentIcon from '/@/component/icons/DeploymentIcon.svelte';
 import ConditionsColumn from './columns/Conditions.svelte';
 import PodsColumn from './columns/Pods.svelte';
 import ActionsColumn from './columns/Actions.svelte';
