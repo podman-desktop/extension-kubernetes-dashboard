@@ -23,7 +23,7 @@ import { StreamsMocks } from '/@/tests/stream-mocks';
 import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
 import PodLogs from './PodLogs.svelte';
 import type { V1Pod } from '@kubernetes/client-node';
-import TerminalWindow from '../terminal/TerminalWindow.svelte';
+import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import type { Terminal } from '@xterm/xterm';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';

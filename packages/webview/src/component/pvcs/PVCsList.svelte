@@ -11,7 +11,7 @@ import type { PVCUI } from './PVCUI';
 import { PVCHelper } from './pvc-helper';
 import ModeColumn from './columns/Mode.svelte';
 import ActionsColumn from './columns/Actions.svelte';
-import PvcIcon from '../icons/PVCIcon.svelte';
+import PvcIcon from '/@/component/icons/PVCIcon.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const pvcHelper = dependencyAccessor.get<PVCHelper>(PVCHelper);

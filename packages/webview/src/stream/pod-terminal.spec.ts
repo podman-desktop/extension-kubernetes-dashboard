@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Remote } from '../remote/remote';
+import type { Remote } from '/@/remote/remote';
 import { StreamPodTerminals } from './pod-terminals';
 import type { PodTerminalsApi, PodTerminalChunk, IDisposable } from '@kubernetes-dashboard/channels';
 import type { RpcBrowser } from '@kubernetes-dashboard/rpc';

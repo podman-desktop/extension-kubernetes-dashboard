@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "/@/": ["./src/"]
+      "/@/*": ["./src/*"]
     },
     "allowJs": true,
     "checkJs": true,

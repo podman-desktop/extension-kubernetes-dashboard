@@ -18,7 +18,7 @@
 
 import { inject, injectable } from 'inversify';
 import { IDisposable, PodLogsApi } from '@kubernetes-dashboard/channels';
-import { PodLogsService } from '../pod-logs/pod-logs-service';
+import { PodLogsService } from '/@/pod-logs/pod-logs-service';
 import { ContextsManager } from './contexts-manager';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
 

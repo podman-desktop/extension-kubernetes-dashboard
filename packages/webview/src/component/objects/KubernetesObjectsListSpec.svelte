@@ -3,7 +3,7 @@ import KubernetesObjectsList from './KubernetesObjectsList.svelte';
 import { TableColumn, TableRow } from '@podman-desktop/ui-svelte';
 import NameColumn from '/@/component/objects/columns/Name.svelte';
 import type { KubernetesObjectUI } from './KubernetesObjectUI';
-import PodIcon from '../icons/PodIcon.svelte';
+import PodIcon from '/@/component/icons/PodIcon.svelte';
 
 interface ObjectUI {
   kind: string;

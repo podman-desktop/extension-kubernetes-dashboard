@@ -9,7 +9,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa';
 
-import type { JobCondition } from '../JobUI';
+import type { JobCondition } from '/@/component/jobs/JobUI';
 import type { Props } from './props';
 import Label from '/@/component/label/Label.svelte';
 

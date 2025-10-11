@@ -20,7 +20,7 @@ const config = defineConfig({
   ],
   resolve: {
     alias: {
-      '/@/': join(PACKAGE_ROOT, 'src') + '/',
+      '/@common/': join(PACKAGE_ROOT, 'src') + '/',
     },
     mainFields: ['module', 'jsnext:main', 'jsnext'],
   },

@@ -21,10 +21,10 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import type { IngressUI } from '../IngressUI';
-import type { RouteUI } from '../RouteUI';
+import type { IngressUI } from '/@/component/ingresses-routes/IngressUI';
+import type { RouteUI } from '/@/component/ingresses-routes/RouteUI';
 import Backend from './Backend.svelte';
-import { IngressRouteHelper } from '../ingress-route-helper';
+import { IngressRouteHelper } from '/@/component/ingresses-routes/ingress-route-helper';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 
 const dependencyMocks = new DependencyMocks();

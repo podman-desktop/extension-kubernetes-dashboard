@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
-import type { ConfigMapSecretUI } from '../ConfigMapSecretUI';
+import type { ConfigMapSecretUI } from '/@/component/configmaps-secrets/ConfigMapSecretUI';
 import Type from './Type.svelte';
 
 test('Expect type display for ConfigMap', async () => {

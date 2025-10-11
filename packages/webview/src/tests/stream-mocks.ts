@@ -18,8 +18,8 @@
 
 import { assert, vi } from 'vitest';
 import * as svelte from 'svelte';
-import { Streams } from '../stream/streams';
-import type { StreamObject } from '../stream/util/stream-object';
+import { Streams } from '/@/stream/streams';
+import type { StreamObject } from '/@/stream/util/stream-object';
 
 /** Build mocks for streams injected in context via inversify
  *

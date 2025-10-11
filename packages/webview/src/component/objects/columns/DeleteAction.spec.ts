@@ -26,9 +26,9 @@ import type { ConfigMapSecretUI } from '/@/component/configmaps-secrets/ConfigMa
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
-import { KubernetesObjectUIHelper } from '../kubernetes-object-ui-helper';
-import type { NamespaceUI } from '../../namespaces/NamespaceUI';
 import type { ContextsApi } from '@kubernetes-dashboard/channels';
+import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
+import type { NamespaceUI } from '/@/component/namespaces/NamespaceUI';
 
 const fakeConfigMap: ConfigMapSecretUI = {
   kind: 'ConfigMap',

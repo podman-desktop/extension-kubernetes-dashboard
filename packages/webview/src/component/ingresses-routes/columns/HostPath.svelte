@@ -3,7 +3,7 @@ import { Link } from '@podman-desktop/ui-svelte';
 
 import type { Props } from './props';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
-import { IngressRouteHelper } from '../ingress-route-helper';
+import { IngressRouteHelper } from '/@/component/ingresses-routes/ingress-route-helper';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
 import { API_SYSTEM } from '@kubernetes-dashboard/channels';
