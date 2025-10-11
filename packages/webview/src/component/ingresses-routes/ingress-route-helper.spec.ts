@@ -271,28 +271,28 @@ test('expect getIngressHostPaths is called with IngressUI object', async () => {
   const getIngressHostPathMock = vi.spyOn(ingressRouteHelper, 'getIngressHostPaths');
   const getRouteHostPathMock = vi.spyOn(ingressRouteHelper, 'getRouteHostPaths');
   ingressRouteHelper.getHostPaths(ingressUI);
-  expect(getIngressHostPathMock).toBeCalledWith(ingressUI);
-  expect(getRouteHostPathMock).not.toBeCalled();
+  expect(getIngressHostPathMock).toHaveBeenCalledWith(ingressUI);
+  expect(getRouteHostPathMock).not.toHaveBeenCalled();
 });
 
 test('expect getIngressHostPaths is called with RouteUI object', async () => {
   const getIngressHostPathMock = vi.spyOn(ingressRouteHelper, 'getIngressHostPaths');
   const getRouteHostPathMock = vi.spyOn(ingressRouteHelper, 'getRouteHostPaths');
   ingressRouteHelper.getHostPaths(routeUI);
-  expect(getRouteHostPathMock).toBeCalledWith(routeUI);
-  expect(getIngressHostPathMock).not.toBeCalled();
+  expect(getRouteHostPathMock).toHaveBeenCalledWith(routeUI);
+  expect(getIngressHostPathMock).not.toHaveBeenCalled();
 });
 
 test('expect getIngressBackends is called with IngressUI object', async () => {
   const getIngressBackendsMock = vi.spyOn(ingressRouteHelper, 'getIngressBackends');
   ingressRouteHelper.getBackends(ingressUI);
-  expect(getIngressBackendsMock).toBeCalledWith(ingressUI);
+  expect(getIngressBackendsMock).toHaveBeenCalledWith(ingressUI);
 });
 
 test('expect getIngressBackends is not called with RouteUI object', async () => {
   const getIngressBackendsMock = vi.spyOn(ingressRouteHelper, 'getIngressBackends');
   const result = ingressRouteHelper.getBackends(routeUI);
-  expect(getIngressBackendsMock).not.toBeCalled();
+  expect(getIngressBackendsMock).not.toHaveBeenCalled();
   expect(result.length).toBe(1);
   expect(result[0]).toEqual('Service service');
 });
