@@ -177,6 +177,7 @@ export default [
       'vitest/valid-title': 'off',
       'vitest/no-alias-methods': 'error',
       'vitest/no-conditional-expect': 'error',
+      'vitest/no-conditional-in-test': 'error',
     },
   },
 
