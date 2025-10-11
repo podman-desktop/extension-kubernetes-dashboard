@@ -23,11 +23,9 @@ import { NodesResourceFactory } from './nodes-resource-factory.js';
 
 test('node with no status is not active', () => {
   const factory = new NodesResourceFactory();
-  if (!factory.isActive) {
-    throw new Error('isActive should not be undefined');
-  }
+  expect(factory.isActive).toBeDefined();
   expect(
-    factory.isActive({
+    factory.isActive!({
       spec: {
         replicas: 0,
       },
@@ -37,11 +35,9 @@ test('node with no status is not active', () => {
 
 test('node with "Ready" condition set to true is active', () => {
   const factory = new NodesResourceFactory();
-  if (!factory.isActive) {
-    throw new Error('isActive should not be undefined');
-  }
+  expect(factory.isActive).toBeDefined();
   expect(
-    factory.isActive({
+    factory.isActive!({
       status: {
         conditions: [
           {
@@ -56,11 +52,9 @@ test('node with "Ready" condition set to true is active', () => {
 
 test('node with "Ready" condition set to false is not active', () => {
   const factory = new NodesResourceFactory();
-  if (!factory.isActive) {
-    throw new Error('isActive should not be undefined');
-  }
+  expect(factory.isActive).toBeDefined();
   expect(
-    factory.isActive({
+    factory.isActive!({
       status: {
         conditions: [
           {

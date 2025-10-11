@@ -23,11 +23,9 @@ import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
 
 test('deployment with replica=0 is not active', () => {
   const factory = new DeploymentsResourceFactory();
-  if (!factory.isActive) {
-    throw new Error('isActive should not be undefined');
-  }
+  expect(factory.isActive).toBeDefined();
   expect(
-    factory.isActive({
+    factory.isActive!({
       spec: {
         replicas: 0,
       },
@@ -37,11 +35,9 @@ test('deployment with replica=0 is not active', () => {
 
 test('deployment with replica=1 is active', () => {
   const factory = new DeploymentsResourceFactory();
-  if (!factory.isActive) {
-    throw new Error('isActive should not be undefined');
-  }
+  expect(factory.isActive).toBeDefined();
   expect(
-    factory.isActive({
+    factory.isActive!({
       spec: {
         replicas: 1,
       },
@@ -51,8 +47,6 @@ test('deployment with replica=1 is active', () => {
 
 test('deployment with replica undefined is not active', () => {
   const factory = new DeploymentsResourceFactory();
-  if (!factory.isActive) {
-    throw new Error('isActive should not be undefined');
-  }
-  expect(factory.isActive({} as V1Deployment)).toBeFalsy();
+  expect(factory.isActive).toBeDefined();
+  expect(factory.isActive!({} as V1Deployment)).toBeFalsy();
 });

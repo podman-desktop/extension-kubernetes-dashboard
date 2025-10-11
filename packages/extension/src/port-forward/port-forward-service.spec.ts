@@ -66,7 +66,7 @@ describe('KubernetesPortForwardService', () => {
   test('should create a forward configuration', async () => {
     vi.mocked(mockConfigManagementService.listForwards).mockReturnValue([]);
     const forward = sampleForwardConfig.forward;
-    if (!forward) throw new Error('undefined forward');
+    expect(forward).toBeDefined();
 
     const result = await service.createForward({
       name: sampleForwardConfig.name,
