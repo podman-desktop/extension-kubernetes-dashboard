@@ -18,6 +18,7 @@ let meta: TinroRouteMeta = {} as TinroRouteMeta;
 
 const webviewApi = getContext<WebviewApi>('WebviewApi');
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 const route = createRouteObject({
   fallback,
   onShow() {
@@ -36,6 +37,7 @@ const route = createRouteObject({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 $: route.update({
   path,
   redirect,

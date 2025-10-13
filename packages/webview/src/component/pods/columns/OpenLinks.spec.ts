@@ -78,6 +78,8 @@ test('OpenLinks component', () => {
     }),
   );
   const call = vi.mocked(IconButton).mock.calls[0][1];
-  call.onClick!();
+  expect(call.onClick).toBeDefined();
+  const onClick = call.onClick as () => void;
+  onClick();
   expect(remoteMocks.get(API_SYSTEM).openExternal).toHaveBeenCalledWith('http://example.com/path/to/pod1');
 });

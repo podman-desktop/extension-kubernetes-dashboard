@@ -31,7 +31,8 @@ test('should verify string line reader', () => {
   const reader = new StringLineReader();
 
   reader.on('data', chunk => {
-    expect(chunk.toString()).toEqual('foo');
+    expect(Buffer.isBuffer(chunk)).toBeTruthy();
+    expect((chunk as Buffer).toString()).toEqual('foo');
   });
 
   reader.push('foo');
