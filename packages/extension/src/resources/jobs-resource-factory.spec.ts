@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, type MockedFunction, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { JobsResourceFactory } from './jobs-resource-factory';
 import type { ContextsManager } from '/@/manager/contexts-manager';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
@@ -27,13 +27,11 @@ const contextsManager: ContextsManager = {
   restartObject: vi.fn(),
 } as unknown as ContextsManager;
 
-const makeApiClientMock = vi.fn() as MockedFunction<KubeConfig['makeApiClient']>;
-
+const kubeConfigMock = {
+  makeApiClient: vi.fn(),
+} as unknown as KubeConfig;
 const kubeconfig: KubeConfigSingleContext = {
-  getKubeConfig: () =>
-    ({
-      makeApiClient: makeApiClientMock,
-    }) as unknown as KubeConfig,
+  getKubeConfig: () => kubeConfigMock,
 } as unknown as KubeConfigSingleContext;
 
 test('readObject is set by factory', () => {
@@ -47,7 +45,7 @@ test('restartObject', async () => {
     deleteNamespacedJob: vi.fn(),
     createNamespacedJob: vi.fn(),
   } as unknown as BatchV1Api;
-  makeApiClientMock.mockReturnValue(apiClientMock);
+  vi.mocked(kubeConfigMock.makeApiClient).mockReturnValue(apiClientMock);
   vi.mocked(apiClientMock.readNamespacedJob).mockResolvedValue({
     metadata: {
       name: 'job1',

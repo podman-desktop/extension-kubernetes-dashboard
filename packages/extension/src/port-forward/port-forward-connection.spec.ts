@@ -20,7 +20,7 @@ import net from 'node:net';
 
 import type { KubeConfig, V1Deployment, V1Pod, V1Service } from '@kubernetes/client-node';
 import { AppsV1Api, CoreV1Api, PortForward } from '@kubernetes/client-node';
-import { afterEach, beforeEach, describe, expect, type MockedFunction, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { type ForwardingSetup, PortForwardConnectionService } from './port-forward-connection';
 import {
   type IDisposable,
@@ -150,14 +150,10 @@ describe('PortForwardConnectionService', () => {
       listen: vi.fn((_port, _host): void => {}),
       on: vi.fn(),
       close: vi.fn(),
-    };
+    } as unknown as net.Server;
 
-    (net.createServer as unknown as MockedFunction<typeof net.createServer>).mockReturnValue(
-      server as unknown as net.Server,
-    );
-    (global.fetch as unknown as MockedFunction<typeof fetch>).mockResolvedValueOnce(
-      new Response(undefined, { status: 200 }),
-    );
+    vi.mocked(net.createServer).mockReturnValue(server);
+    vi.mocked(global.fetch).mockResolvedValueOnce(new Response(undefined, { status: 200 }));
 
     const disposable = await service.performForward(forwardSetup);
 
@@ -182,15 +178,15 @@ describe('PortForwardConnectionService', () => {
       listen: vi.fn(),
       on: vi.fn(),
       close: vi.fn(),
-    };
+    } as unknown as net.Server;
 
-    (net.createServer as unknown as MockedFunction<typeof net.createServer>).mockImplementation(
+    vi.mocked(net.createServer).mockImplementation(
       // @ts-expect-error we're sure in the method signature
       (connectionListener?: (socket: net.Socket) => void) => {
         if (connectionListener) {
           connectionListener(socket);
         }
-        return server as unknown as net.Server;
+        return server;
       },
     );
 

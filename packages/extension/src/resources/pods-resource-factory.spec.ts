@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, type MockedFunction, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { PodsResourceFactory } from './pods-resource-factory';
 import type { ContextsManager } from '/@/manager/contexts-manager';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
@@ -27,13 +27,11 @@ const contextsManager: ContextsManager = {
   restartObject: vi.fn(),
 } as unknown as ContextsManager;
 
-const makeApiClientMock = vi.fn() as MockedFunction<KubeConfig['makeApiClient']>;
-
+const kubeConfigMock = {
+  makeApiClient: vi.fn(),
+} as unknown as KubeConfig;
 const kubeconfig: KubeConfigSingleContext = {
-  getKubeConfig: () =>
-    ({
-      makeApiClient: makeApiClientMock,
-    }) as unknown as KubeConfig,
+  getKubeConfig: () => kubeConfigMock,
 } as unknown as KubeConfigSingleContext;
 
 test('readObject is set by factory', () => {
@@ -47,7 +45,7 @@ test('restartObject with standalone pod deletes the pod and recreates a new one'
     deleteNamespacedPod: vi.fn(),
     createNamespacedPod: vi.fn(),
   } as unknown as CoreV1Api;
-  makeApiClientMock.mockReturnValue(apiClientMock);
+  vi.mocked(kubeConfigMock.makeApiClient).mockReturnValue(apiClientMock);
   vi.mocked(apiClientMock.readNamespacedPod).mockResolvedValue({
     metadata: {
       name: 'pod1',
@@ -80,7 +78,7 @@ test('restartObject with a pod managed by a Job restarts the Job', async () => {
     deleteNamespacedPod: vi.fn(),
     createNamespacedPod: vi.fn(),
   } as unknown as CoreV1Api;
-  makeApiClientMock.mockReturnValue(apiClientMock);
+  vi.mocked(kubeConfigMock.makeApiClient).mockReturnValue(apiClientMock);
   vi.mocked(apiClientMock.readNamespacedPod).mockResolvedValue({
     metadata: {
       name: 'pod1',
@@ -110,7 +108,7 @@ test('restartObject with a pod managed by a Deployment deletes the pod', async (
     deleteNamespacedPod: vi.fn(),
     createNamespacedPod: vi.fn(),
   } as unknown as CoreV1Api;
-  makeApiClientMock.mockReturnValue(apiClientMock);
+  vi.mocked(kubeConfigMock.makeApiClient).mockReturnValue(apiClientMock);
   vi.mocked(apiClientMock.readNamespacedPod).mockResolvedValue({
     metadata: {
       name: 'pod1',
