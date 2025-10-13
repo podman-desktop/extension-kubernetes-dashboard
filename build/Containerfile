@@ -40,8 +40,12 @@ RUN mkdir /opt/app-root/extension && \
       cp packages/extension/*.png /opt/app-root/extension/ && \
       cp -r packages/extension/media /opt/app-root/extension/media && \
       cp pnpm-workspace.yaml /opt/app-root/extension/ && \
-      mkdir -p /opt/app-root/extension/packages/rpc/ && \
-      cp packages/rpc/package.json /opt/app-root/extension/packages/rpc/ && \
+      mkdir -p /opt/app-root/extension/packages/rpc-api/ && \
+      cp packages/rpc-api/package.json /opt/app-root/extension/packages/rpc-api/ && \
+      mkdir -p /opt/app-root/extension/packages/rpc-webview/ && \
+      cp packages/rpc-webview/package.json /opt/app-root/extension/packages/rpc-webview/ && \
+      mkdir -p /opt/app-root/extension/packages/rpc-extension/ && \
+      cp packages/rpc-extension/package.json /opt/app-root/extension/packages/rpc-extension/ && \
       mkdir -p /opt/app-root/extension/packages/channels/ && \
       cp packages/channels/package.json /opt/app-root/extension/packages/channels/
 
