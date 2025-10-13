@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 
 import type { IDisposable } from '@kubernetes-dashboard/channels';
 

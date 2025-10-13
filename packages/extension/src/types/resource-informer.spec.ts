@@ -200,15 +200,16 @@ test('ResourceInformer should fire onOffline event is informer fails', async () 
     kind: 'MyResource',
     plural: 'myresources',
   });
-  const onCB = vi.fn();
-  vi.spyOn(informer, 'makeInformer').mockReturnValue({
-    on: onCB,
-    start: vi.fn().mockResolvedValue({}),
-  } as unknown as ListWatch<MyResource>);
+  const informerMock = {
+    on: vi.fn(),
+    start: vi.fn(),
+  } as unknown as ListWatch<MyResource>;
+  vi.mocked(informerMock.start).mockResolvedValue();
+  vi.spyOn(informer, 'makeInformer').mockReturnValue(informerMock);
   const onOfflineCB = vi.fn();
-  onCB.mockImplementation((e: string, f) => {
+  vi.mocked(informerMock.on).mockImplementation((e: string, callback) => {
     if (e === ERROR) {
-      f(new ApiException(500, 'an error', {}, {}));
+      callback(new ApiException(500, 'an error', {}, {}));
     }
   });
   informer.onOffline(onOfflineCB);
@@ -268,24 +269,24 @@ test('reconnect should call start again if there is an error', async () => {
     kind: 'MyResource',
     plural: 'myresources',
   });
-  const onCB = vi.fn();
-  const startMock = vi.fn().mockResolvedValue({});
-  vi.spyOn(informer, 'makeInformer').mockReturnValue({
-    on: onCB,
-    start: startMock,
-  } as unknown as ListWatch<MyResource>);
+  const informerMock = {
+    on: vi.fn(),
+    start: vi.fn(),
+  } as unknown as ListWatch<MyResource>;
+  vi.spyOn(informer, 'makeInformer').mockReturnValue(informerMock);
+  vi.mocked(informerMock.start).mockResolvedValue();
   const onOfflineCB = vi.fn();
-  onCB.mockImplementation((e: string, f) => {
+  vi.mocked(informerMock.on).mockImplementation((e: string, callback) => {
     if (e === ERROR) {
-      f('an error');
+      callback('an error');
     }
   });
   informer.onOffline(onOfflineCB);
   informer.start();
-  expect(startMock).toHaveBeenCalledOnce();
-  startMock.mockClear();
+  expect(informerMock.start).toHaveBeenCalledOnce();
+  vi.mocked(informerMock.start).mockClear();
   informer.reconnect();
-  expect(startMock).toHaveBeenCalled();
+  expect(informerMock.start).toHaveBeenCalled();
 });
 
 test('informer is stopped when disposed', async () => {

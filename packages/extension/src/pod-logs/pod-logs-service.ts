@@ -38,7 +38,11 @@ export class PodLogsService {
 
     this.#logStream = new PassThrough();
 
-    this.#logStream.on('data', chunk => {
+    this.#logStream.on('data', (chunk: unknown) => {
+      if (!Buffer.isBuffer(chunk)) {
+        console.error('chunk is not a buffer', chunk);
+        return;
+      }
       this.rpcExtension
         .fire(POD_LOGS, {
           podName,
