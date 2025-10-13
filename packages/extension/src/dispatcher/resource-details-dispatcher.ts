@@ -25,7 +25,7 @@ import {
   type ResourceDetailsInfo,
   type ResourceDetailsOptions,
 } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc-extension';
 
 @injectable()
 export class ResourceDetailsDispatcher

@@ -21,7 +21,8 @@
     "watch": "vite --mode development build -w"
   },
   "devDependencies": {
-    "@kubernetes-dashboard/rpc": "workspace:*",
+    "@kubernetes-dashboard/rpc-extension": "workspace:*",
+    "@kubernetes-dashboard/rpc-api": "workspace:*",
     "@kubernetes-dashboard/channels": "workspace:*",
     "@podman-desktop/api": "1.22.0",
     "@types/node": "^24",

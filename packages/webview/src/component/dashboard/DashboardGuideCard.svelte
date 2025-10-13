@@ -2,7 +2,7 @@
 import { Button } from '@podman-desktop/ui-svelte';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '@kubernetes-dashboard/channels';
+import { API_SYSTEM, type SystemApi } from '@kubernetes-dashboard/channels';
 
 interface Props {
   title: string;
@@ -13,7 +13,7 @@ interface Props {
 let { title, link, image }: Props = $props();
 
 const remote = getContext<Remote>(Remote);
-const systemApi = remote.getProxy(API_SYSTEM);
+const systemApi = remote.getProxy<SystemApi>(API_SYSTEM);
 
 async function openLink(): Promise<void> {
   await systemApi.openExternal(link);

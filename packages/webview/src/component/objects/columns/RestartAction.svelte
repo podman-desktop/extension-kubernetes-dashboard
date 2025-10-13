@@ -6,13 +6,13 @@ import IconButton from '/@/component/button/IconButton.svelte';
 import type { ObjectProps } from './object-props';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
+import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import { type KubernetesNamespacedObjectUI } from '/@/component/objects/KubernetesObjectUI';
 
 let { object }: ObjectProps = $props();
 
 const remote = getContext<Remote>(Remote);
-const contextsApi = remote.getProxy(API_CONTEXTS);
+const contextsApi = remote.getProxy<ContextsApi>(API_CONTEXTS);
 
 async function restartKubernetesObject(obj: KubernetesNamespacedObjectUI): Promise<void> {
   await contextsApi.restartObject(obj.kind, obj.name, obj.namespace);

@@ -19,7 +19,7 @@
 import type { WebviewPanel, ExtensionContext, KubeconfigUpdateEvent } from '@podman-desktop/api';
 import { env, kubernetes, Uri, window } from '@podman-desktop/api';
 
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc-extension';
 
 import { readFile } from 'node:fs/promises';
 import { ContextsManager } from '/@/manager/contexts-manager';

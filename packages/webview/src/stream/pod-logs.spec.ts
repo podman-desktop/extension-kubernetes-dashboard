@@ -19,7 +19,7 @@
 import type { Remote } from '/@/remote/remote';
 import { StreamPodLogs } from './pod-logs';
 import type { PodLogsApi, PodLogsChunk, IDisposable } from '@kubernetes-dashboard/channels';
-import type { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import type { RpcBrowser } from '@kubernetes-dashboard/rpc-webview';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 const remoteMock = {

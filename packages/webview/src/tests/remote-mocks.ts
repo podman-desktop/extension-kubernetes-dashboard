@@ -18,7 +18,7 @@
 
 import { assert, vi } from 'vitest';
 import * as svelte from 'svelte';
-import type { RpcChannel } from '@kubernetes-dashboard/rpc';
+import type { RpcChannel } from '@kubernetes-dashboard/rpc-api';
 import { Remote } from '/@/remote/remote';
 
 /** Build mocks for Remote injected in context via inversify

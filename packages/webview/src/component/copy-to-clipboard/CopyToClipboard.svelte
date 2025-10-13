@@ -4,13 +4,13 @@ import { Tooltip } from '@podman-desktop/ui-svelte';
 import { getContext } from 'svelte';
 import Fa from 'svelte-fa';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '@kubernetes-dashboard/channels';
+import { API_SYSTEM, type SystemApi } from '@kubernetes-dashboard/channels';
 
 export let clipboardData: string;
 export let title: string;
 
 const remote = getContext<Remote>(Remote);
-const systemApi = remote.getProxy(API_SYSTEM);
+const systemApi = remote.getProxy<SystemApi>(API_SYSTEM);
 
 async function copyTextToClipboard(): Promise<void> {
   await systemApi.clipboardWriteText(clipboardData);

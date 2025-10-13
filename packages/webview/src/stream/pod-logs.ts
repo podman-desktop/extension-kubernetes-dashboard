@@ -26,7 +26,7 @@ import {
   Disposable,
   type IDisposable,
 } from '@kubernetes-dashboard/channels';
-import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc-webview';
 import type { StreamObject } from './util/stream-object';
 
 export class StreamPodLogs implements StreamObject<PodLogsChunk> {
@@ -36,7 +36,7 @@ export class StreamPodLogs implements StreamObject<PodLogsChunk> {
     @inject(Remote) remote: Remote,
     @inject(RpcBrowser) private rpcBrowser: RpcBrowser,
   ) {
-    this.#podLogsApi = remote.getProxy(API_POD_LOGS);
+    this.#podLogsApi = remote.getProxy<PodLogsApi>(API_POD_LOGS);
   }
   async subscribe(
     podName: string,

@@ -22,7 +22,7 @@ import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context
 import { ContextsHealthsDispatcher } from './contexts-healths-dispatcher';
 import { InversifyBinding } from '/@/inject/inversify-binding';
 import type { ExtensionContext, TelemetryLogger } from '@podman-desktop/api';
-import type { RpcExtension } from '@kubernetes-dashboard/rpc';
+import type { RpcExtension } from '@kubernetes-dashboard/rpc-extension';
 import type { Container } from 'inversify';
 import { ContextsManager } from '/@/manager/contexts-manager';
 

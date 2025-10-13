@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc-webview';
 
 import { InversifyBinding } from '/@/inject/inversify-binding';
 import { IDisposable } from '@kubernetes-dashboard/channels';

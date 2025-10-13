@@ -3,12 +3,12 @@ import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@podman-desktop/ui-svelte';
 import { getContext, onDestroy, onMount } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
+import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';
 
 const remote = getContext<Remote>(Remote);
-const contextsApi = remote.getProxy(API_CONTEXTS);
+const contextsApi = remote.getProxy<ContextsApi>(API_CONTEXTS);
 
 const states = getContext<States>(States);
 const currentContext = states.stateCurrentContextInfoUI;

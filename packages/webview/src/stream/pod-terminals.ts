@@ -19,7 +19,7 @@
 import { inject } from 'inversify';
 import { Remote } from '/@/remote/remote';
 import { API_POD_TERMINALS, POD_TERMINAL_DATA } from '@kubernetes-dashboard/channels';
-import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc-webview';
 import {
   Disposable,
   type IDisposable,
@@ -35,7 +35,7 @@ export class StreamPodTerminals implements StreamObject<PodTerminalChunk> {
     @inject(Remote) remote: Remote,
     @inject(RpcBrowser) private rpcBrowser: RpcBrowser,
   ) {
-    this.#podTerminalsApi = remote.getProxy(API_POD_TERMINALS);
+    this.#podTerminalsApi = remote.getProxy<PodTerminalsApi>(API_POD_TERMINALS);
   }
   async subscribe(
     podName: string,

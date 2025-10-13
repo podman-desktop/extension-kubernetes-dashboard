@@ -8,7 +8,7 @@ import { getTerminalTheme } from '/@/component/terminal/terminal-theme';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
 import { Remote } from '/@/remote/remote';
-import { API_POD_TERMINALS, Disposable } from '@kubernetes-dashboard/channels';
+import { API_POD_TERMINALS, Disposable, type PodTerminalsApi } from '@kubernetes-dashboard/channels';
 
 interface Props {
   object: V1Pod;
@@ -18,7 +18,7 @@ let { object, containerName }: Props = $props();
 
 const streams = getContext<Streams>(Streams);
 const remote = getContext<Remote>(Remote);
-const podTerminalsApi = remote.getProxy(API_POD_TERMINALS);
+const podTerminalsApi = remote.getProxy<PodTerminalsApi>(API_POD_TERMINALS);
 
 let disposables: IDisposable[] = [];
 

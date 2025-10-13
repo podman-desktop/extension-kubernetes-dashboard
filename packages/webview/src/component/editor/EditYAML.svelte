@@ -4,7 +4,7 @@ import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 import MonacoEditor from './MonacoEditor.svelte';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
+import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 
 // Make sure that when using the MonacoEditor, the content is "stringified" before
 // being passed into this component. ex. stringify(kubeDeploymentYAML)
@@ -15,7 +15,7 @@ interface Props {
 let { content = '' }: Props = $props();
 
 const remote = getContext<Remote>(Remote);
-const contextsApi = remote.getProxy(API_CONTEXTS);
+const contextsApi = remote.getProxy<ContextsApi>(API_CONTEXTS);
 
 let key = $state(0); // Initial key
 let changesDetected = $state(false);

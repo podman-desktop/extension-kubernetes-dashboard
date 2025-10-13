@@ -19,7 +19,7 @@
 import { inject, injectable } from 'inversify';
 
 import { CURRENT_CONTEXT } from '@kubernetes-dashboard/channels';
-import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc-webview';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { CurrentContextInfo } from '@kubernetes-dashboard/channels';

@@ -4,7 +4,7 @@ import { faSquareUpRight, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
 import { API_PORT_FORWARD, API_SYSTEM } from '@kubernetes-dashboard/channels';
-import type { ForwardConfig } from '@kubernetes-dashboard/channels';
+import type { ForwardConfig, SystemApi, PortForwardApi } from '@kubernetes-dashboard/channels';
 import IconButton from '/@/component/button/IconButton.svelte';
 import { States } from '/@/state/states';
 
@@ -14,8 +14,8 @@ interface Props {
 let { object }: Props = $props();
 
 const remote = getContext<Remote>(Remote);
-const portForwardApi = remote.getProxy(API_PORT_FORWARD);
-const systemApi = remote.getProxy(API_SYSTEM);
+const portForwardApi = remote.getProxy<PortForwardApi>(API_PORT_FORWARD);
+const systemApi = remote.getProxy<SystemApi>(API_SYSTEM);
 
 const portForwards = getContext<States>(States).statePortForwardsInfoUI;
 

@@ -4,7 +4,13 @@ import { Button, ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 
 import CopyToClipboard from '/@/component/copy-to-clipboard/CopyToClipboard.svelte';
-import type { ForwardConfig, PortMapping, WorkloadKind } from '@kubernetes-dashboard/channels';
+import type {
+  ForwardConfig,
+  PortForwardApi,
+  PortMapping,
+  SystemApi,
+  WorkloadKind,
+} from '@kubernetes-dashboard/channels';
 
 import type { KubePortInfo } from './kube-port';
 import { getContext } from 'svelte';
@@ -22,8 +28,8 @@ interface Props {
 let { port, forwardConfig, resourceName, namespace, kind }: Props = $props();
 
 const remote = getContext<Remote>(Remote);
-const systemApi = remote.getProxy(API_SYSTEM);
-const portForwardApi = remote.getProxy(API_PORT_FORWARD);
+const systemApi = remote.getProxy<SystemApi>(API_SYSTEM);
+const portForwardApi = remote.getProxy<PortForwardApi>(API_PORT_FORWARD);
 
 let mapping: PortMapping | undefined = $derived(forwardConfig?.forward);
 let loading: boolean = $state(false);

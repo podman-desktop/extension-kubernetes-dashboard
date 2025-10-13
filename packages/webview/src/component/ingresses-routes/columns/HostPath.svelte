@@ -6,7 +6,7 @@ import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { IngressRouteHelper } from '/@/component/ingresses-routes/ingress-route-helper';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '@kubernetes-dashboard/channels';
+import { API_SYSTEM, type SystemApi } from '@kubernetes-dashboard/channels';
 
 let { object }: Props = $props();
 
@@ -14,7 +14,7 @@ const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const ingressRouteHelper = dependencyAccessor.get<IngressRouteHelper>(IngressRouteHelper);
 
 const remote = getContext<Remote>(Remote);
-const systemApi = remote.getProxy(API_SYSTEM);
+const systemApi = remote.getProxy<SystemApi>(API_SYSTEM);
 </script>
 
 {#each ingressRouteHelper.getHostPaths(object) as hostPath, index (index)}

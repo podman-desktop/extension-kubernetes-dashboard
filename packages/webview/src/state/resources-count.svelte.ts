@@ -19,7 +19,7 @@
 import { inject, injectable } from 'inversify';
 
 import { RESOURCES_COUNT } from '@kubernetes-dashboard/channels';
-import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc-webview';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 import type { ResourcesCountInfo } from '@kubernetes-dashboard/channels';

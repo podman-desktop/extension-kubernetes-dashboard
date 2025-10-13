@@ -25,7 +25,8 @@
   },
   "devDependencies": {
     "@kubernetes-dashboard/channels": "workspace:*",
-    "@kubernetes-dashboard/rpc": "workspace:*",
+    "@kubernetes-dashboard/rpc-webview": "workspace:*",
+    "@kubernetes-dashboard/rpc-api": "workspace:*",
     "@fortawesome/fontawesome-free": "^7.0.0",
     "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@fortawesome/free-regular-svg-icons": "^7.0.1",

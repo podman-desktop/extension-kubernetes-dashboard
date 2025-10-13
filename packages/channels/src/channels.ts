@@ -35,10 +35,16 @@ import type { ResourceDetailsInfo } from './model/resource-details-info';
 import type { ResourceEventsInfo } from './model/resource-events-info';
 import type { ResourcesCountInfo } from './model/resources-count-info';
 import type { UpdateResourceInfo } from './model/update-resource-info';
-import { createRpcChannel } from '@kubernetes-dashboard/rpc';
+import { createRpcChannel } from '@kubernetes-dashboard/rpc-extension';
+import { type RpcChannel } from '@kubernetes-dashboard/rpc-api';
 
 // RPC channels (used by the webview to send requests to the extension)
-export const API_CONTEXTS = createRpcChannel<ContextsApi>('ContextsApi');
+
+// declaring the type a first is necessary to avoid type errors when building:
+// >>  src/channels.ts:41:14 - error TS2742: The inferred type of 'API_CONTEXTS'
+// >>  cannot be named without a reference to '../../rpc-extension/node_modules/@kubernetes-dashboard/rpc-api/dist'.
+// >>  This is likely not portable. A type annotation is necessary.
+export const API_CONTEXTS: RpcChannel<ContextsApi> = createRpcChannel<ContextsApi>('ContextsApi');
 export const API_SUBSCRIBE = createRpcChannel<SubscribeApi>('SubscribeApi');
 export const API_SYSTEM = createRpcChannel<SystemApi>('SystemApi');
 export const API_PORT_FORWARD = createRpcChannel<PortForwardApi>('PortForwardApi');

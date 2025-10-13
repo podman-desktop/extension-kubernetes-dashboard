@@ -36,7 +36,7 @@ import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsManager } from './contexts-manager.js';
-import { RpcChannel } from '@kubernetes-dashboard/rpc';
+import { type RpcChannel } from '@kubernetes-dashboard/rpc-api';
 import { inject, injectable, multiInject } from 'inversify';
 import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
 import { ChannelSubscriber } from '/@/types/channel-subscriber.js';

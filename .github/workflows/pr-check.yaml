@@ -51,8 +51,8 @@ jobs:
       - name: Execute pnpm
         run: pnpm install --frozen-lockfile
 
-      - name: Run build:rpc
-        run: pnpm build:rpc
+      - name: Run build:rpc-* modules
+        run: pnpm build:rpc-api && pnpm build:rpc-webview && pnpm build:rpc-extension
 
       - name: Run build:channels
         run: pnpm build:channels

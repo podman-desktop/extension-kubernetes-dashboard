@@ -5,7 +5,7 @@ import { getContext, onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 import IconButton from '/@/component/button/IconButton.svelte';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
-import type { Endpoint } from '@kubernetes-dashboard/channels';
+import type { Endpoint, SystemApi } from '@kubernetes-dashboard/channels';
 import { Remote } from '/@/remote/remote';
 import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 
@@ -19,7 +19,7 @@ const endpoints = states.stateEndpointsInfoUI;
 const currentContext = states.stateCurrentContextInfoUI;
 
 const remote = getContext<Remote>(Remote);
-const systemApi = remote.getProxy(API_SYSTEM);
+const systemApi = remote.getProxy<SystemApi>(API_SYSTEM);
 
 onMount(() => {
   initialCurrentContextName = currentContext.data?.contextName;

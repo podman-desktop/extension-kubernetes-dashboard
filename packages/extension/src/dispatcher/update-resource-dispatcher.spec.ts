@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { RpcExtension } from '@kubernetes-dashboard/rpc';
+import type { RpcExtension } from '@kubernetes-dashboard/rpc-extension';
 import type { ContextsManager } from '/@/manager/contexts-manager';
 import { UpdateResourceDispatcher } from '/@/dispatcher/update-resource-dispatcher';
 

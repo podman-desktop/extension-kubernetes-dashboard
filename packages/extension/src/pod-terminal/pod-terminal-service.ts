@@ -18,7 +18,7 @@
 
 import { injectable } from 'inversify';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc-extension';
 import { Exec, V1Status } from '@kubernetes/client-node';
 import { POD_TERMINAL_DATA } from '@kubernetes-dashboard/channels';
 import { BufferedStreamWriter, ExecStreamWriter, ResizableTerminalWriter, StringLineReader } from './exec-transmitter';

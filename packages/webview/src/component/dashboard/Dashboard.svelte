@@ -4,7 +4,7 @@ import DashboardResources from './DashboardResources.svelte';
 import CurrentContextConnectionBadge from '/@/component/connection/CurrentContextConnectionBadge.svelte';
 import { Remote } from '/@/remote/remote';
 import { getContext, onDestroy, onMount } from 'svelte';
-import { API_SYSTEM } from '@kubernetes-dashboard/channels';
+import { API_SYSTEM, type SystemApi } from '@kubernetes-dashboard/channels';
 import { States } from '/@/state/states';
 import DashboardGuideCard from './DashboardGuideCard.svelte';
 
@@ -19,7 +19,7 @@ const currentContext = states.stateCurrentContextInfoUI;
 const currentContextName = $derived(currentContext.data?.contextName);
 
 const remote = getContext<Remote>(Remote);
-const systemApi = remote.getProxy(API_SYSTEM);
+const systemApi = remote.getProxy<SystemApi>(API_SYSTEM);
 
 async function openKubernetesDocumentation(): Promise<void> {
   await systemApi.openExternal('https://podman-desktop.io/docs/kubernetes');

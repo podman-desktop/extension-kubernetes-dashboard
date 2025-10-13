@@ -3,7 +3,7 @@ import { Link } from '@podman-desktop/ui-svelte';
 
 import Cell from '/@/component/details/Cell.svelte';
 import Title from '/@/component/details/Title.svelte';
-import type { V1RouteSpec } from '@kubernetes-dashboard/channels';
+import type { V1RouteSpec, SystemApi } from '@kubernetes-dashboard/channels';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
 import { API_SYSTEM } from '@kubernetes-dashboard/channels';
@@ -14,7 +14,7 @@ interface Props {
 let { spec }: Props = $props();
 
 const remote = getContext<Remote>(Remote);
-const systemApi = remote.getProxy(API_SYSTEM);
+const systemApi = remote.getProxy<SystemApi>(API_SYSTEM);
 </script>
 
 <tr>

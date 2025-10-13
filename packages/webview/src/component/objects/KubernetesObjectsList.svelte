@@ -7,7 +7,7 @@ import { type Unsubscriber } from 'svelte/store';
 
 import type { KubernetesObjectUI } from './KubernetesObjectUI';
 import { States } from '/@/state/states';
-import type { ContextResourceItems } from '@kubernetes-dashboard/channels';
+import type { ContextResourceItems, ContextsApi } from '@kubernetes-dashboard/channels';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import CurrentContextConnectionBadge from '/@/component/connection/CurrentContextConnectionBadge.svelte';
@@ -42,7 +42,7 @@ const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const objectHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
 
 const remote = getContext<Remote>(Remote);
-const contextsApi = remote.getProxy(API_CONTEXTS);
+const contextsApi = remote.getProxy<ContextsApi>(API_CONTEXTS);
 
 let searchTerm = $state<string>('');
 

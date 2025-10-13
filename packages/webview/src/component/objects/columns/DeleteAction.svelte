@@ -6,7 +6,7 @@ import IconButton from '/@/component/button/IconButton.svelte';
 import type { ObjectProps } from './object-props';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
+import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import type { KubernetesObjectUI } from '/@/component/objects/KubernetesObjectUI';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
@@ -14,7 +14,7 @@ import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object
 let { object }: ObjectProps = $props();
 
 const remote = getContext<Remote>(Remote);
-const contextsApi = remote.getProxy(API_CONTEXTS);
+const contextsApi = remote.getProxy<ContextsApi>(API_CONTEXTS);
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const objectHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);

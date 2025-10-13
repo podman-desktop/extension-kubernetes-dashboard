@@ -19,7 +19,7 @@
 import { Log } from '@kubernetes/client-node';
 import { injectable } from 'inversify';
 import { PassThrough } from 'node:stream';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc-extension';
 import { POD_LOGS } from '@kubernetes-dashboard/channels';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
 

@@ -25,7 +25,7 @@ import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsManager } from './contexts-manager.js';
 import { ContextsStatesDispatcher } from './contexts-states-dispatcher.js';
-import type { RpcExtension } from '@kubernetes-dashboard/rpc';
+import type { RpcExtension } from '@kubernetes-dashboard/rpc-extension';
 import type { ExtensionContext, TelemetryLogger } from '@podman-desktop/api';
 import type { Container } from 'inversify';
 import { InversifyBinding } from '/@/inject/inversify-binding.js';

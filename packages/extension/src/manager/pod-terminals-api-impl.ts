@@ -20,7 +20,7 @@ import { inject, injectable } from 'inversify';
 import { IDisposable, PodTerminalsApi } from '@kubernetes-dashboard/channels';
 import { PodTerminalService } from '/@/pod-terminal/pod-terminal-service';
 import { ContextsManager } from './contexts-manager';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { RpcExtension } from '@kubernetes-dashboard/rpc-extension';
 
 type PodTerminalInstance = {
   service: PodTerminalService;

@@ -23,7 +23,7 @@ import {
   type ResourceDetailsInfo,
   type ResourceDetailsOptions,
 } from '@kubernetes-dashboard/channels';
-import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc-webview';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 

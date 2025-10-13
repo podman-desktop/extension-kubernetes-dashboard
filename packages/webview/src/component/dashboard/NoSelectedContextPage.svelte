@@ -3,13 +3,13 @@ import { Link } from '@podman-desktop/ui-svelte';
 import KubeIcon from '/@/component/icons/KubeIcon.svelte';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
+import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 
 interface Props {
   availableContexts?: string[];
 }
 const remote = getContext<Remote>(Remote);
-const contextsApi = remote.getProxy(API_CONTEXTS);
+const contextsApi = remote.getProxy<ContextsApi>(API_CONTEXTS);
 
 let { availableContexts }: Props = $props();
 </script>

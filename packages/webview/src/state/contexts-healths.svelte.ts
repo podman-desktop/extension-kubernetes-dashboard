@@ -19,7 +19,7 @@
 import { inject, injectable } from 'inversify';
 
 import { CONTEXTS_HEALTHS } from '@kubernetes-dashboard/channels';
-import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc-webview';
 
 import { AbsStateObjectImpl, type StateObject } from '/@/state/util/state-object.svelte';
 import type { ContextsHealthsInfo } from '@kubernetes-dashboard/channels';

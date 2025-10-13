@@ -10,8 +10,10 @@
     "npm": ">=11.0.0"
   },
   "scripts": {
-    "build": "pnpm run build:rpc && pnpm run build:channels && concurrently \"cd packages/webview && pnpm run build\" \"cd packages/extension && pnpm run build\"",
-    "build:rpc": "cd packages/rpc && pnpm run build",
+    "build": "pnpm run build:rpc-api && pnpm run build:rpc-webview && pnpm run build:rpc-extension && pnpm run build:channels && concurrently \"cd packages/webview && pnpm run build\" \"cd packages/extension && pnpm run build\"",
+    "build:rpc-api": "cd packages/rpc-api && pnpm run build",
+    "build:rpc-webview": "cd packages/rpc-webview && pnpm run build",
+    "build:rpc-extension": "cd packages/rpc-extension && pnpm run build",
     "build:channels": "cd packages/channels && pnpm run build",
     "watch": "concurrently \"cd packages/webview && pnpm run watch\" \"cd packages/extension && pnpm run watch\"",
     "format:check": "prettier --check \"**/src/**/*.{ts,svelte}\"",
@@ -23,11 +25,13 @@
     "test:webview": "vitest run --project webview --passWithNoTests",
     "test:channels": "vitest run --project channels --passWithNoTests",
     "test": "pnpm run test:extension && pnpm run test:webview && pnpm run test:channels",
-    "typecheck:rpc": "tsc --noEmit --project packages/rpc",
+    "typecheck:rpc-api": "tsc --noEmit --project packages/rpc-api",
+    "typecheck:rpc-webview": "tsc --noEmit --project packages/rpc-webview",
+    "typecheck:rpc-extension": "tsc --noEmit --project packages/rpc-extension",
     "typecheck:channels": "tsc --noEmit --project packages/channels",
     "typecheck:webview": "tsc --noEmit --project packages/webview",
     "typecheck:extension": "tsc --noEmit --project packages/extension",
-    "typecheck": "pnpm run typecheck:rpc && pnpm run typecheck:channels && pnpm run typecheck:webview && pnpm run typecheck:extension"
+    "typecheck": "pnpm run typecheck:rpc-api && pnpm run typecheck:rpc-webview && pnpm run typecheck:rpc-extension && pnpm run typecheck:channels && pnpm run typecheck:webview && pnpm run typecheck:extension"
   },
   "devDependencies": {
     "@eslint/compat": "^1.3.2",

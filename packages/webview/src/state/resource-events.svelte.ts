@@ -19,7 +19,7 @@
 import { inject, injectable } from 'inversify';
 
 import { RESOURCE_EVENTS, type ResourceEventsInfo, type ResourceEventsOptions } from '@kubernetes-dashboard/channels';
-import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc-webview';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 

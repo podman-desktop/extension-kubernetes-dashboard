@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { RpcChannel } from '@kubernetes-dashboard/rpc';
+import type { RpcChannel } from '@kubernetes-dashboard/rpc-api';
 
 export const Remote = Symbol.for('Remote');
 export interface Remote {
