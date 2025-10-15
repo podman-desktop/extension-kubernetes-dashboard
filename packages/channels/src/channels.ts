@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ContextsApi } from './interface/contexts-api';
+import type { NavigationApi } from './interface/navigation-api';
 import type { PodLogsApi } from './interface/pod-logs-api';
 import type { PodTerminalsApi } from './interface/pod-terminals-api';
 import type { PortForwardApi } from './interface/port-forward-api';
@@ -28,6 +29,7 @@ import type { ContextsHealthsInfo } from './model/contexts-healths-info';
 import type { ContextsPermissionsInfo } from './model/contexts-permissions-info';
 import type { CurrentContextInfo } from './model/current-context-info';
 import type { EndpointsInfo } from './model/endpoints-info';
+import type { KubernetesProvidersInfo } from './model/kubernetes-providers-info';
 import type { PodLogsChunk } from './model/pod-logs-chunk';
 import type { PodTerminalChunk } from './model/pod-terminal-chunk';
 import type { PortForwardsInfo } from './model/port-forward-info';
@@ -42,6 +44,7 @@ export const API_CONTEXTS = createRpcChannel<ContextsApi>('ContextsApi');
 export const API_SUBSCRIBE = createRpcChannel<SubscribeApi>('SubscribeApi');
 export const API_SYSTEM = createRpcChannel<SystemApi>('SystemApi');
 export const API_PORT_FORWARD = createRpcChannel<PortForwardApi>('PortForwardApi');
+export const API_NAVIGATION = createRpcChannel<NavigationApi>('NavigationApi');
 
 // Broadcast events (sent by extension and received by the webview)
 export const RESOURCES_COUNT = createRpcChannel<ResourcesCountInfo>('ResourcesCount');
@@ -55,6 +58,7 @@ export const RESOURCE_DETAILS = createRpcChannel<ResourceDetailsInfo>('ResourceD
 export const RESOURCE_EVENTS = createRpcChannel<ResourceEventsInfo>('ResourceEvents');
 export const PORT_FORWARDS = createRpcChannel<PortForwardsInfo>('PortForwards');
 export const ENDPOINTS = createRpcChannel<EndpointsInfo>('Endpoints');
+export const KUBERNETES_PROVIDERS = createRpcChannel<KubernetesProvidersInfo>('KubernetesProviders');
 
 // Channels fot streams
 export const API_POD_LOGS = createRpcChannel<PodLogsApi>('PodLogsApi');

@@ -25,6 +25,8 @@ import { PortForwardApiImpl } from './port-forward-api-impl';
 import { PodLogsApiImpl } from './pod-logs-api-impl';
 import { IDisposable } from '@kubernetes-dashboard/channels';
 import { PodTerminalsApiImpl } from './pod-terminals-api-impl';
+import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
+import { NavigationApiImpl } from '/@/manager/navigation-api';
 
 const managersModule = new ContainerModule(options => {
   options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
@@ -33,10 +35,13 @@ const managersModule = new ContainerModule(options => {
   options.bind<PortForwardApiImpl>(PortForwardApiImpl).toSelf().inSingletonScope();
   options.bind<PodLogsApiImpl>(PodLogsApiImpl).toSelf().inSingletonScope();
   options.bind<PodTerminalsApiImpl>(PodTerminalsApiImpl).toSelf().inSingletonScope();
+  options.bind<KubernetesProvidersManager>(KubernetesProvidersManager).toSelf().inSingletonScope();
+  options.bind<NavigationApiImpl>(NavigationApiImpl).toSelf().inSingletonScope();
 
   // Bind IDisposable to services which need to clear data/stop connection/etc when the panel is left
   // (the onDestroy are not called from components when the panel is left, which may introduce memory leaks if not disposed here)
   options.bind(IDisposable).toService(PodLogsApiImpl);
+  options.bind(IDisposable).toService(KubernetesProvidersManager);
 });
 
 export { managersModule };

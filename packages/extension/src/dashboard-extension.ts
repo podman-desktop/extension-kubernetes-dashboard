@@ -30,6 +30,7 @@ import { InversifyBinding } from '/@/inject/inversify-binding';
 import type { Container } from 'inversify';
 import {
   API_CONTEXTS,
+  API_NAVIGATION,
   API_POD_LOGS,
   API_POD_TERMINALS,
   API_PORT_FORWARD,
@@ -42,6 +43,8 @@ import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 import { PortForwardServiceProvider } from './port-forward/port-forward-service';
 import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
 import { PodTerminalsApiImpl } from './manager/pod-terminals-api-impl';
+import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
+import { NavigationApiImpl } from '/@/manager/navigation-api';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -56,6 +59,8 @@ export class DashboardExtension {
   #portForwardServiceProvider: PortForwardServiceProvider;
   #podLogsApiImpl: PodLogsApiImpl;
   #podTerminalsApiImpl: PodTerminalsApiImpl;
+  #kubernetesProvidersManager: KubernetesProvidersManager;
+  #navigationApiImpl: NavigationApiImpl;
 
   constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
@@ -82,6 +87,10 @@ export class DashboardExtension {
     this.#portForwardServiceProvider = await this.#container.getAsync(PortForwardServiceProvider);
     this.#podLogsApiImpl = await this.#container.getAsync(PodLogsApiImpl);
     this.#podTerminalsApiImpl = await this.#container.getAsync(PodTerminalsApiImpl);
+    this.#kubernetesProvidersManager = await this.#container.getAsync(KubernetesProvidersManager);
+    this.#navigationApiImpl = await this.#container.getAsync(NavigationApiImpl);
+
+    this.#kubernetesProvidersManager.init();
 
     const afterFirst = performance.now();
 
@@ -93,6 +102,7 @@ export class DashboardExtension {
     rpcExtension.registerInstance(API_PORT_FORWARD, this.#portForwardApiImpl);
     rpcExtension.registerInstance(API_POD_LOGS, this.#podLogsApiImpl);
     rpcExtension.registerInstance(API_POD_TERMINALS, this.#podTerminalsApiImpl);
+    rpcExtension.registerInstance(API_NAVIGATION, this.#navigationApiImpl);
 
     await this.listenMonitoring();
     await this.startMonitoring();
