@@ -22,6 +22,7 @@ import { type PodTerminalsApi } from './pod-terminals-api';
 import { type DeletePortForwardOptions, type PortForwardApi } from './port-forward-api';
 import { type SubscribeApi } from './subscribe-api';
 import { type SystemApi } from './system-api';
+import { type NavigationApi } from './navigation-api';
 
 export type {
   ContextsApi,
@@ -31,4 +32,5 @@ export type {
   SubscribeApi,
   SystemApi,
   DeletePortForwardOptions,
+  NavigationApi,
 };
