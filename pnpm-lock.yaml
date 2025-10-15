@@ -77,7 +77,7 @@ importers:
         version: 61.0.2(eslint@9.37.0(jiti@2.6.1))
       node-gyp:
         specifier: ^11.2.0
-        version: 11.4.2
+        version: 11.5.0
       prettier:
         specifier: ^3.6.1
         version: 3.6.2
@@ -249,8 +249,8 @@ importers:
         specifier: 1.22.0
         version: 1.22.0(svelte-fa@4.0.4(svelte@5.40.0))(svelte@5.40.0)
       '@podman-desktop/webview-api':
-        specifier: 1.22.0
-        version: 1.22.0
+        specifier: 1.22.1
+        version: 1.22.1
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6
         version: 6.2.1(svelte@5.40.0)(vite@7.1.10(@types/node@24.7.2)(jiti@2.6.1)(lightningcss@1.30.1)(yaml@2.8.1))
@@ -863,8 +863,8 @@ packages:
       svelte: ^4.0.0 || ^5.0.0
       svelte-fa: ^4.0.0
 
-  '@podman-desktop/webview-api@1.22.0':
-    resolution: {integrity: sha512-OOwjiAFXYUw7unAl7eAJXMlcAV0wOwAt2aLL0DyYKMkbDRSjEBLh+EutWhBadGtR0TtoIkayPdsHV/FKvN6pxA==}
+  '@podman-desktop/webview-api@1.22.1':
+    resolution: {integrity: sha512-JdUf/Pzn1CRpNh61tupiXzqQUjgJavvfhYcCkWJnNDEHWv1kUTJR6SyIEraX+6xDXFBbQkZzs973BXgr6+PURw==}
 
   '@rollup/pluginutils@5.3.0':
     resolution: {integrity: sha512-5EdhGZtnu3V88ces7s53hhfK5KSASnJZv8Lulpc04cWO3REESroJXg73DFsOmgbU2BhwV0E20bu2IDZb3VKW4Q==}
@@ -3039,8 +3039,8 @@ packages:
       encoding:
         optional: true
 
-  node-gyp@11.4.2:
-    resolution: {integrity: sha512-3gD+6zsrLQH7DyYOUIutaauuXrcyxeTPyQuZQCQoNPZMHMMS5m4y0xclNpvYzoK3VNzuyxT6eF4mkIL4WSZ1eQ==}
+  node-gyp@11.5.0:
+    resolution: {integrity: sha512-ra7Kvlhxn5V9Slyus0ygMa2h+UqExPqUIkfk7Pc8QTLT956JLSy51uWFwHtIYy0vI8cB4BDhc/S03+880My/LQ==}
     engines: {node: ^18.17.0 || >=20.5.0}
     hasBin: true
 
@@ -4599,7 +4599,7 @@ snapshots:
       svelte: 5.40.0
       svelte-fa: 4.0.4(svelte@5.40.0)
 
-  '@podman-desktop/webview-api@1.22.0': {}
+  '@podman-desktop/webview-api@1.22.1': {}
 
   '@rollup/pluginutils@5.3.0(rollup@4.52.3)':
     dependencies:
@@ -6955,7 +6955,7 @@ snapshots:
     optionalDependencies:
       encoding: 0.1.13
 
-  node-gyp@11.4.2:
+  node-gyp@11.5.0:
     dependencies:
       env-paths: 2.2.1
       exponential-backoff: 3.1.2
