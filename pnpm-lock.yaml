@@ -122,7 +122,7 @@ importers:
         version: 1.4.0(encoding@0.1.13)
       inversify:
         specifier: ^7.9.1
-        version: 7.10.2(reflect-metadata@0.2.2)
+        version: 7.10.3(reflect-metadata@0.2.2)
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
@@ -213,7 +213,7 @@ importers:
         version: 3.3.0
       inversify:
         specifier: ^7.9.1
-        version: 7.10.2(reflect-metadata@0.2.2)
+        version: 7.10.3(reflect-metadata@0.2.2)
       moment:
         specifier: ^2.30.1
         version: 2.30.1
@@ -246,8 +246,8 @@ importers:
         specifier: workspace:*
         version: link:../rpc
       '@podman-desktop/ui-svelte':
-        specifier: 1.22.0
-        version: 1.22.0(svelte-fa@4.0.4(svelte@5.40.0))(svelte@5.40.0)
+        specifier: 1.22.1
+        version: 1.22.1(svelte-fa@4.0.4(svelte@5.40.0))(svelte@5.40.0)
       '@podman-desktop/webview-api':
         specifier: 1.22.1
         version: 1.22.1
@@ -686,13 +686,13 @@ packages:
   '@inversifyjs/common@1.5.2':
     resolution: {integrity: sha512-WlzR9xGadABS9gtgZQ+luoZ8V6qm4Ii6RQfcfC9Ho2SOlE6ZuemFo7PKJvKI0ikm8cmKbU8hw5UK6E4qovH21w==}
 
-  '@inversifyjs/container@1.13.2':
-    resolution: {integrity: sha512-nr02jAB4LSuLNB4d5oFb+yXclfwnQ27QSaAHiO/SMkEc02dLhFMEq+Sk41ycUjvKgbVo6HoxcETJGKBoTlZ+SA==}
+  '@inversifyjs/container@1.14.0':
+    resolution: {integrity: sha512-jOxjPgkDGc8N6tm2kuAg911/83Ybnf4u70EanXZPSdOskUSnxohCZmLrOJ1WRr/kzLJYCg3sqhZ5iK32z0uOPQ==}
     peerDependencies:
       reflect-metadata: ~0.2.2
 
-  '@inversifyjs/core@9.0.1':
-    resolution: {integrity: sha512-glc/HLeHedD4Qy6XKEv065ABWfy23rXuENxy6+GbplQOJFL4rPN6H4XEPmThuXPhmR+a38VcQ5eL/tjcF7HXPQ==}
+  '@inversifyjs/core@9.1.0':
+    resolution: {integrity: sha512-SEpW7Rqa/9f1OcaqtqSTGJQOiuSlauSDcyOcZZCyK1g15efshVw0LsYQS+wpUFkpgEYKhGRBIfvlfgWKKYiFuQ==}
 
   '@inversifyjs/plugin@0.2.0':
     resolution: {integrity: sha512-R/JAdkTSD819pV1zi0HP54mWHyX+H2m8SxldXRgPQarS3ySV4KPyRdosWcfB8Se0JJZWZLHYiUNiS6JvMWSPjw==}
@@ -857,8 +857,8 @@ packages:
   '@podman-desktop/api@1.22.0':
     resolution: {integrity: sha512-erh6Sw+rj8k908WNox5wDGxB9g4XpP4isf2PEdaFHzONph3zRE33VSsf9Ogpj09OCF4P04pgiqk4Fhol8DRpFw==}
 
-  '@podman-desktop/ui-svelte@1.22.0':
-    resolution: {integrity: sha512-186b1q/I+//Ra2qqQ849hCOL1hdswSEkNTXH2pu+i6MUVsQAYCjEQ77GL6zxl9VoV2zLmxS9w6BSSmBEXkK2aA==}
+  '@podman-desktop/ui-svelte@1.22.1':
+    resolution: {integrity: sha512-LhHPvphcKBuSIz5xqH6Uevhac32RCYNta45gH4BQYYKlsFtJxhVd9LIBHovzK6oxoQ++fNxtCvhUGEtR7Rw/6Q==}
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0
       svelte-fa: ^4.0.0
@@ -2523,8 +2523,8 @@ packages:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
     engines: {node: '>= 0.4'}
 
-  inversify@7.10.2:
-    resolution: {integrity: sha512-BdR5jPo2lm8PlIEiDvEyEciLeLxabnJ6bNV7jv2Ijq6uNxuIxhApKmk360boKbSdRL9SOVMLK/O97S1EzNw+WA==}
+  inversify@7.10.3:
+    resolution: {integrity: sha512-pqcnrXWOg28LykoR/ndoPQJIgkoxtUgxbkcsH+43nmf1BcM4GfCBKjzC0IncWdQRYOKUdkKhOGAtQfdlhwAEiQ==}
 
   ip-address@10.0.1:
     resolution: {integrity: sha512-NWv9YLW4PoW2B7xtzaS3NCot75m6nK7Icdv0o3lfMceJVRfSoQwqD4wEH5rLwoKJwUiZ/rfpiVBhnaF0FK4HoA==}
@@ -4355,15 +4355,15 @@ snapshots:
 
   '@inversifyjs/common@1.5.2': {}
 
-  '@inversifyjs/container@1.13.2(reflect-metadata@0.2.2)':
+  '@inversifyjs/container@1.14.0(reflect-metadata@0.2.2)':
     dependencies:
       '@inversifyjs/common': 1.5.2
-      '@inversifyjs/core': 9.0.1(reflect-metadata@0.2.2)
+      '@inversifyjs/core': 9.1.0(reflect-metadata@0.2.2)
       '@inversifyjs/plugin': 0.2.0
       '@inversifyjs/reflect-metadata-utils': 1.4.1(reflect-metadata@0.2.2)
       reflect-metadata: 0.2.2
 
-  '@inversifyjs/core@9.0.1(reflect-metadata@0.2.2)':
+  '@inversifyjs/core@9.1.0(reflect-metadata@0.2.2)':
     dependencies:
       '@inversifyjs/common': 1.5.2
       '@inversifyjs/prototype-utils': 0.1.2
@@ -4588,7 +4588,7 @@ snapshots:
 
   '@podman-desktop/api@1.22.0': {}
 
-  '@podman-desktop/ui-svelte@1.22.0(svelte-fa@4.0.4(svelte@5.40.0))(svelte@5.40.0)':
+  '@podman-desktop/ui-svelte@1.22.1(svelte-fa@4.0.4(svelte@5.40.0))(svelte@5.40.0)':
     dependencies:
       '@fortawesome/fontawesome-free': 7.1.0
       '@fortawesome/free-brands-svg-icons': 7.1.0
@@ -6455,11 +6455,11 @@ snapshots:
       hasown: 2.0.2
       side-channel: 1.1.0
 
-  inversify@7.10.2(reflect-metadata@0.2.2):
+  inversify@7.10.3(reflect-metadata@0.2.2):
     dependencies:
       '@inversifyjs/common': 1.5.2
-      '@inversifyjs/container': 1.13.2(reflect-metadata@0.2.2)
-      '@inversifyjs/core': 9.0.1(reflect-metadata@0.2.2)
+      '@inversifyjs/container': 1.14.0(reflect-metadata@0.2.2)
+      '@inversifyjs/core': 9.1.0(reflect-metadata@0.2.2)
     transitivePeerDependencies:
       - reflect-metadata
 
