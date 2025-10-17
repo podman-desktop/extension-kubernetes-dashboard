@@ -29,6 +29,7 @@ export * from './endpoints-info';
 export * from './endpoints-options';
 export * from './kubernetes-contexts-healths';
 export * from './kubernetes-contexts-permissions';
+export * from './kubernetes-providers-info';
 export * from './kubernetes-resource-count';
 export * from './kubernetes-troubleshooting';
 export * from './openshift-types';
