@@ -16,21 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type ContextsApi } from './contexts-api';
-import { type PodLogsApi } from './pod-logs-api';
-import { type PodTerminalsApi } from './pod-terminals-api';
-import { type DeletePortForwardOptions, type PortForwardApi } from './port-forward-api';
-import { type SubscribeApi } from './subscribe-api';
-import { type SystemApi } from './system-api';
-import { type NavigationApi } from './navigation-api';
+export const NavigationApi = Symbol.for('NavigationApi');
 
-export type {
-  ContextsApi,
-  PodLogsApi,
-  PodTerminalsApi,
-  PortForwardApi,
-  SubscribeApi,
-  SystemApi,
-  DeletePortForwardOptions,
-  NavigationApi,
-};
+export interface NavigationApi {
+  navigateToProviderNewConnection(id: string): Promise<void>;
+}
