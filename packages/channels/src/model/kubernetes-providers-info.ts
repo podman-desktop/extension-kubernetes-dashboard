@@ -16,21 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type ContextsApi } from './contexts-api';
-import { type PodLogsApi } from './pod-logs-api';
-import { type PodTerminalsApi } from './pod-terminals-api';
-import { type DeletePortForwardOptions, type PortForwardApi } from './port-forward-api';
-import { type SubscribeApi } from './subscribe-api';
-import { type SystemApi } from './system-api';
-import { type NavigationApi } from './navigation-api';
+import type { ProviderImages } from '@podman-desktop/api';
 
-export type {
-  ContextsApi,
-  PodLogsApi,
-  PodTerminalsApi,
-  PortForwardApi,
-  SubscribeApi,
-  SystemApi,
-  DeletePortForwardOptions,
-  NavigationApi,
-};
+export interface KubernetesProvider {
+  id: string;
+  creationDisplayName?: string;
+  creationButtonTitle?: string;
+  emptyConnectionMarkdownDescription?: string;
+  images?: ProviderImages;
+}
+
+export interface KubernetesProvidersInfo {
+  providers: KubernetesProvider[];
+}

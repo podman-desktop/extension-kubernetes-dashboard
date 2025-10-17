@@ -16,21 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type ContextsApi } from './contexts-api';
-import { type PodLogsApi } from './pod-logs-api';
-import { type PodTerminalsApi } from './pod-terminals-api';
-import { type DeletePortForwardOptions, type PortForwardApi } from './port-forward-api';
-import { type SubscribeApi } from './subscribe-api';
-import { type SystemApi } from './system-api';
-import { type NavigationApi } from './navigation-api';
+import { inject, injectable } from 'inversify';
 
-export type {
-  ContextsApi,
-  PodLogsApi,
-  PodTerminalsApi,
-  PortForwardApi,
-  SubscribeApi,
-  SystemApi,
-  DeletePortForwardOptions,
-  NavigationApi,
-};
+import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { KUBERNETES_PROVIDERS } from '@kubernetes-dashboard/channels';
+import type { KubernetesProvidersInfo } from '@kubernetes-dashboard/channels';
+
+// Define a state for the KubernetesProvidersInfo
+@injectable()
+export class StateKubernetesProvidersInfo
+  extends AbsStateObjectImpl<KubernetesProvidersInfo, void>
+  implements StateObject<KubernetesProvidersInfo, void>
+{
+  constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
+    super(rpcBrowser);
+  }
+
+  async init(): Promise<void> {
+    await this.initChannel(KUBERNETES_PROVIDERS);
+  }
+}
