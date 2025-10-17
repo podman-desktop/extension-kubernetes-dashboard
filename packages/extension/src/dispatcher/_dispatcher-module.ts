@@ -29,6 +29,7 @@ import { ResourceEventsDispatcher } from './resource-events-dispatcher';
 import { PortForwardsDispatcher } from './port-forwards-dispatcher';
 import { EndpointsDispatcher } from './endpoints-dispatcher';
 import { AvailableContextsDispatcher } from './available-contexts-dispatcher';
+import { KubernetesProvidersDispatcher } from './kubernetes-providers-dispatcher';
 
 const dispatchersModule = new ContainerModule(options => {
   options.bind<ActiveResourcesCountDispatcher>(ActiveResourcesCountDispatcher).toSelf().inSingletonScope();
@@ -63,6 +64,9 @@ const dispatchersModule = new ContainerModule(options => {
 
   options.bind<EndpointsDispatcher>(EndpointsDispatcher).toSelf().inSingletonScope();
   options.bind(DispatcherObject).toService(EndpointsDispatcher);
+
+  options.bind<KubernetesProvidersDispatcher>(KubernetesProvidersDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(KubernetesProvidersDispatcher);
 });
 
 export { dispatchersModule };
