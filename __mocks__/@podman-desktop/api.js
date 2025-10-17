@@ -40,6 +40,9 @@ const plugin = {
     onDidUpdateContainerConnection: vi.fn(),
     onDidRegisterContainerConnection: vi.fn(),
     onDidUnregisterContainerConnection: vi.fn(),
+    onDidSetConnectionFactory: vi.fn(),
+    onDidUnsetConnectionFactory: vi.fn(),
+    getConnectionFactories: vi.fn(),
   },
   containerEngine: {
     onEvent: vi.fn(),
