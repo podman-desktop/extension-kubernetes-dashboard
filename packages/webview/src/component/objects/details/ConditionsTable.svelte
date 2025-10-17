@@ -16,19 +16,24 @@ let { conditions }: Props = $props();
 
 <tr>
   <td colspan="2">
-    <table class="w-full ml-2.5">
+    <table class="w-full ml-2.5 border-separate border-spacing-x-3 border-spacing-y-1" aria-label="conditions">
       <tbody>
         <tr>
-          <th align="left">Type</th><th align="left">Status</th><th align="left">Updated</th><th align="left">Reason</th
-          ><th align="left">Message</th>
+          <th scope="col" class="px-2 py-1 text-left">Type</th>
+          <th scope="col" class="px-2 py-1 text-left">Status</th>
+          <th scope="col" class="px-2 py-1 text-left">Updated</th>
+          <th scope="col" class="px-2 py-1 text-left">Reason</th>
+          <th scope="col" class="px-2 py-1 text-left">Message</th>
         </tr>
         {#each conditions as condition, index (index)}
           <tr>
-            <td>{condition.type}</td>
-            <td>{condition.status}</td>
-            <td>{humanizeDuration(moment().diff(condition.lastTransitionTime), { round: true, largest: 1 })}</td>
-            <td>{condition.reason}</td>
-            <td>{condition.message}</td>
+            <td class="px-2 py-1 align-top">{condition.type}</td>
+            <td class="px-2 py-1 align-top">{condition.status}</td>
+            <td class="px-2 py-1 align-top">
+              {humanizeDuration(moment().diff(condition.lastTransitionTime), { round: true, largest: 1 })}
+            </td>
+            <td class="px-2 py-1 align-top">{condition.reason}</td>
+            <td class="px-2 py-1 align-top">{condition.message}</td>
           </tr>
         {/each}
       </tbody>
