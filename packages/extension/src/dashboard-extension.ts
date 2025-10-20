@@ -42,6 +42,7 @@ import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 import { PortForwardServiceProvider } from './port-forward/port-forward-service';
 import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
 import { PodTerminalsApiImpl } from './manager/pod-terminals-api-impl';
+import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -56,6 +57,7 @@ export class DashboardExtension {
   #portForwardServiceProvider: PortForwardServiceProvider;
   #podLogsApiImpl: PodLogsApiImpl;
   #podTerminalsApiImpl: PodTerminalsApiImpl;
+  #kubernetesProvidersManager: KubernetesProvidersManager;
 
   constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
@@ -82,6 +84,9 @@ export class DashboardExtension {
     this.#portForwardServiceProvider = await this.#container.getAsync(PortForwardServiceProvider);
     this.#podLogsApiImpl = await this.#container.getAsync(PodLogsApiImpl);
     this.#podTerminalsApiImpl = await this.#container.getAsync(PodTerminalsApiImpl);
+    this.#kubernetesProvidersManager = await this.#container.getAsync(KubernetesProvidersManager);
+
+    this.#kubernetesProvidersManager.init();
 
     const afterFirst = performance.now();
 
