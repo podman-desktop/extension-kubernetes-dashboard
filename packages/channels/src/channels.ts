@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { ContextsApi } from './interface/contexts-api';
+import type { NavigationApi } from './interface/navigation-api';
 import type { PodLogsApi } from './interface/pod-logs-api';
 import type { PodTerminalsApi } from './interface/pod-terminals-api';
 import type { PortForwardApi } from './interface/port-forward-api';
@@ -42,6 +43,7 @@ export const API_CONTEXTS = createRpcChannel<ContextsApi>('ContextsApi');
 export const API_SUBSCRIBE = createRpcChannel<SubscribeApi>('SubscribeApi');
 export const API_SYSTEM = createRpcChannel<SystemApi>('SystemApi');
 export const API_PORT_FORWARD = createRpcChannel<PortForwardApi>('PortForwardApi');
+export const API_NAVIGATION = createRpcChannel<NavigationApi>('NavigationApi');
 
 // Broadcast events (sent by extension and received by the webview)
 export const RESOURCES_COUNT = createRpcChannel<ResourcesCountInfo>('ResourcesCount');
