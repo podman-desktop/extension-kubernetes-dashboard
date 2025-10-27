@@ -28,6 +28,7 @@ import { StateResourceEventsInfo } from './resource-events.svelte';
 import { StatePortForwardsInfo } from './port-forwards.svelte';
 import { StateEndpointsInfo } from './endpoints.svelte';
 import { StateAvailableContextsInfo } from './available-contexts.svelte';
+import { StateDebuggerInfo } from '/@/state/debugger.svelte';
 
 @injectable()
 export class States {
@@ -106,5 +107,12 @@ export class States {
 
   get stateEndpointsInfoUI(): StateEndpointsInfo {
     return this._stateEndpointsInfoUI;
+  }
+
+  @inject(StateDebuggerInfo)
+  private _stateDebuggerInfoUI: StateDebuggerInfo;
+
+  get stateDebuggerInfoUI(): StateDebuggerInfo {
+    return this._stateDebuggerInfoUI;
   }
 }

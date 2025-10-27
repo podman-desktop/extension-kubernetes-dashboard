@@ -62,6 +62,26 @@ export interface ResourceInformerOptions<T extends KubernetesObject> {
   plural: string;
 }
 
+class StepByStepCache<T extends KubernetesObject> implements ObjectCache<T> {
+  #cache: Map<string, T> = new Map();
+  #namespace: string | undefined;
+
+  constructor(objects: readonly T[], namespace?: string) {
+    this.#namespace = namespace;
+    this.#cache = new Map(objects.map(object => [object.metadata?.name ?? '', object]));
+  }
+
+  get(name: string, namespace?: string): T | undefined {
+    if (!namespace || namespace === this.#namespace) {
+      return this.#cache.get(name);
+    }
+    return undefined;
+  }
+  list(): T[] {
+    return Array.from(this.#cache.values());
+  }
+}
+
 export class ResourceInformer<T extends KubernetesObject> implements Disposable {
   #kubeConfig: KubeConfigSingleContext;
   #path: string;
@@ -69,8 +89,10 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
   #pluralName: string;
   #kindName: string;
   #informer: Informer<T> | undefined;
-  #cache: ObjectCache<T>;
+  #realtimeCache: ObjectCache<T>;
   #offline: boolean = false;
+  #stepByStepMode: boolean;
+  #stepByStepCache: StepByStepCache<T> | undefined;
 
   #onCacheUpdated = new Emitter<CacheUpdatedEvent>();
   onCacheUpdated: Event<CacheUpdatedEvent> = this.#onCacheUpdated.event;
@@ -87,6 +109,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     this.#listFn = options.listFn;
     this.#pluralName = options.plural;
     this.#kindName = options.kind;
+    this.#stepByStepMode = false;
   }
 
   // start the informer and returns a cache to the data
@@ -107,9 +130,14 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     };
     const internalInformer = this.makeInformer(this.#kubeConfig.getKubeConfig(), this.#path, typedList);
     this.#informer = internalInformer;
-    this.#cache = internalInformer;
+    this.#realtimeCache = internalInformer;
 
     this.#informer.on(UPDATE, (_obj: T) => {
+      if (this.#stepByStepMode) {
+        console.log(`==> UPDATE ${this.#pluralName} ${_obj.metadata?.name}`);
+        // TODO update local cache
+        return;
+      }
       this.#onCacheUpdated.fire({
         kubeconfig: this.#kubeConfig,
         resourceName: this.#pluralName,
@@ -117,6 +145,11 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
       });
     });
     this.#informer.on(ADD, (_obj: T) => {
+      if (this.#stepByStepMode) {
+        console.log(`==> ADD ${this.#pluralName} ${_obj.metadata?.name}`);
+        // TODO update local cache
+        return;
+      }
       this.#onCacheUpdated.fire({
         kubeconfig: this.#kubeConfig,
         resourceName: this.#pluralName,
@@ -124,6 +157,11 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
       });
     });
     this.#informer.on(DELETE, (obj: T) => {
+      if (this.#stepByStepMode) {
+        console.log(`==> DELETE ${this.#pluralName} ${obj.metadata?.name}`);
+        // TODO update local cache
+        return;
+      }
       this.#onCacheUpdated.fire({
         kubeconfig: this.#kubeConfig,
         resourceName: this.#pluralName,
@@ -195,6 +233,26 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
   }
 
   getCache(): ObjectCache<T> {
-    return this.#cache;
+    if (this.#stepByStepMode) {
+      if (!this.#stepByStepCache) {
+        throw new Error('Step by step cache is not initialized');
+      }
+      return this.#stepByStepCache;
+    }
+    return this.#realtimeCache;
+  }
+
+  setStepByStepMode(stepByStep: boolean): void {
+    this.#stepByStepMode = stepByStep;
+    if (stepByStep) {
+      this.#stepByStepCache = new StepByStepCache<T>(this.#realtimeCache.list(), this.#kubeConfig.getNamespace());
+    } else {
+      this.#stepByStepCache = undefined;
+    }
+    this.#onCacheUpdated.fire({
+      kubeconfig: this.#kubeConfig,
+      resourceName: this.#pluralName,
+      countChanged: false,
+    });
   }
 }

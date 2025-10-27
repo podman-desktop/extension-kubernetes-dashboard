@@ -32,6 +32,7 @@ import { StateResourceEventsInfo } from './resource-events.svelte';
 import { StatePortForwardsInfo } from './port-forwards.svelte';
 import { StateEndpointsInfo } from './endpoints.svelte';
 import { StateAvailableContextsInfo } from './available-contexts.svelte';
+import { StateDebuggerInfo } from '/@/state/debugger.svelte';
 
 const statesModule = new ContainerModule(options => {
   options.bind(States).toSelf().inSingletonScope();
@@ -79,6 +80,10 @@ const statesModule = new ContainerModule(options => {
   options.bind(StateEndpointsInfo).toSelf().inSingletonScope();
   options.bind(StateObject).toService(StateEndpointsInfo);
   options.bind(IDisposable).toService(StateEndpointsInfo);
+
+  options.bind(StateDebuggerInfo).toSelf().inSingletonScope();
+  options.bind(StateObject).toService(StateDebuggerInfo);
+  options.bind(IDisposable).toService(StateDebuggerInfo);
 });
 
 export { statesModule };

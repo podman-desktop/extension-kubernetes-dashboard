@@ -16,15 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const ContextsApi = Symbol.for('ContextsApi');
+import { inject, injectable } from 'inversify';
 
-export interface ContextsApi {
-  setCurrentContext(contextName: string): Promise<void>;
-  refreshContextState(contextName: string): Promise<void>;
-  deleteObject(kind: string, name: string, namespace?: string): Promise<void>;
-  deleteObjects(objects: { kind: string; name: string; namespace?: string }[]): Promise<void>;
-  setCurrentNamespace(namespace: string): Promise<void>;
-  restartObject(kind: string, name: string, namespace: string): Promise<void>;
-  applyResources(yamlDocuments: string): Promise<void>;
-  setStepByStepMode(stepByStep: boolean): Promise<void>;
+import { DEBUGGER, type DebuggerInfo } from '@kubernetes-dashboard/channels';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+
+import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
+
+// Define a state for the DebuggerInfo
+@injectable()
+export class StateDebuggerInfo
+  extends AbsStateObjectImpl<DebuggerInfo, void>
+  implements StateObject<DebuggerInfo, void>
+{
+  constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
+    super(rpcBrowser);
+  }
+
+  async init(): Promise<void> {
+    await this.initChannel(DEBUGGER);
+  }
 }

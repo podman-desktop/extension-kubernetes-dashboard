@@ -36,6 +36,7 @@ import type { ResourceEventsInfo } from './model/resource-events-info';
 import type { ResourcesCountInfo } from './model/resources-count-info';
 import type { UpdateResourceInfo } from './model/update-resource-info';
 import { createRpcChannel } from '@kubernetes-dashboard/rpc';
+import type { DebuggerInfo } from '/@/model/debugger-info';
 
 // RPC channels (used by the webview to send requests to the extension)
 export const API_CONTEXTS = createRpcChannel<ContextsApi>('ContextsApi');
@@ -55,6 +56,7 @@ export const RESOURCE_DETAILS = createRpcChannel<ResourceDetailsInfo>('ResourceD
 export const RESOURCE_EVENTS = createRpcChannel<ResourceEventsInfo>('ResourceEvents');
 export const PORT_FORWARDS = createRpcChannel<PortForwardsInfo>('PortForwards');
 export const ENDPOINTS = createRpcChannel<EndpointsInfo>('Endpoints');
+export const DEBUGGER = createRpcChannel<DebuggerInfo>('Debugger');
 
 // Channels fot streams
 export const API_POD_LOGS = createRpcChannel<PodLogsApi>('PodLogsApi');

@@ -39,6 +39,7 @@ import {
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
+  DEBUGGER,
   ENDPOINTS,
   RESOURCE_DETAILS,
   RESOURCE_EVENTS,
@@ -60,6 +61,7 @@ const contextsManagerMock: ContextsManager = {
   isContextOffline: vi.fn(),
   onCurrentContextChange: vi.fn(),
   onEndpointsChange: vi.fn(),
+  onStepByStepChange: vi.fn(),
 } as unknown as ContextsManager;
 const rpcExtension: RpcExtension = {
   fire: vi.fn(),
@@ -215,4 +217,17 @@ test('ContextsStatesDispatcher should dispatch ENDPOINTS when onEndpointsChange 
     expect(dispatcherSpy).toHaveBeenCalledTimes(1);
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(ENDPOINTS);
+});
+
+test('ContextsStatesDispatcher should dispatch DEBUGGER when onStepByStepChange event is fired', async () => {
+  const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
+  dispatcher.init();
+  expect(dispatcherSpy).not.toHaveBeenCalled();
+
+  vi.mocked(contextsManagerMock.onStepByStepChange).mockImplementation(f => f() as IDisposable);
+  dispatcher.init();
+  await vi.waitFor(() => {
+    expect(dispatcherSpy).toHaveBeenCalledTimes(1);
+  });
+  expect(dispatcherSpy).toHaveBeenCalledWith(DEBUGGER);
 });

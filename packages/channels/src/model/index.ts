@@ -24,6 +24,7 @@ export * from './context-resources-items';
 export * from './contexts-healths-info';
 export * from './contexts-permissions-info';
 export * from './current-context-info';
+export * from './debugger-info';
 export * from './endpoint';
 export * from './endpoints-info';
 export * from './endpoints-options';
