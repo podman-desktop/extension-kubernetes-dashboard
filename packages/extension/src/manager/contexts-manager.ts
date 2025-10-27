@@ -36,6 +36,7 @@ import type {
   ContextPermission,
   ResourceCount,
   KubernetesTroubleshootingInformation,
+  ContextsApi,
 } from '@kubernetes-dashboard/channels';
 import { kubernetes, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
@@ -89,7 +90,7 @@ const FIELD_MANAGER = 'kubernetes-dashboard';
  * ContextsManager exposes the current state of the health checkers, permission checkers and informers.
  */
 @injectable()
-export class ContextsManager {
+export class ContextsManager implements ContextsApi {
   #resourceFactoryHandler: ResourceFactoryHandler;
   #dispatcher: ContextsDispatcher;
   #healthCheckers: Map<string, ContextHealthChecker>;
@@ -97,6 +98,7 @@ export class ContextsManager {
   #informers: ContextResourceRegistry<ResourceInformer<KubernetesObject>>;
   #currentContext?: KubeConfigSingleContext;
   #currentKubeConfig: KubeConfig;
+  #stepByStepMode: boolean;
 
   #onContextHealthStateChange = new Emitter<ContextHealthState>();
   onContextHealthStateChange: Event<ContextHealthState> = this.#onContextHealthStateChange.event;
@@ -129,9 +131,13 @@ export class ContextsManager {
   #onEndpointsChange = new Emitter<void>();
   onEndpointsChange: Event<void> = this.#onEndpointsChange.event;
 
+  #onStepByStepChange = new Emitter<void>();
+  onStepByStepChange: Event<void> = this.#onStepByStepChange.event;
+
   constructor() {
     this.#currentKubeConfig = new KubeConfig();
     this.#resourceFactoryHandler = new ResourceFactoryHandler();
+    this.#stepByStepMode = false;
     for (const resourceFactory of this.getResourceFactories()) {
       this.#resourceFactoryHandler.add(resourceFactory);
     }
@@ -447,6 +453,7 @@ export class ContextsManager {
   }
 
   protected stopMonitoring(contextName: string): void {
+    this.#stepByStepMode = false;
     const healthChecker = this.#healthCheckers.get(contextName);
     healthChecker?.dispose();
     this.#healthCheckers.delete(contextName);
@@ -465,6 +472,7 @@ export class ContextsManager {
       informer.dispose();
     }
     this.#informers.removeForContext(contextName);
+    this.setStepByStepMode(false).catch((e: unknown) => console.error('error setting step by step mode', e));
   }
 
   // returns true if at least one informer for the context is 'offline'
@@ -850,5 +858,20 @@ export class ContextsManager {
     const yamlString = jsYaml.dump(JSON.parse(jsonString));
     const kubeconfigUri = kubernetes.getKubeconfig();
     await writeFile(kubeconfigUri.path, yamlString);
+  }
+
+  async setStepByStepMode(stepByStep: boolean): Promise<void> {
+    if (this.#stepByStepMode === stepByStep) {
+      return;
+    }
+    this.#stepByStepMode = stepByStep;
+    for (const informer of this.#informers.getAll()) {
+      informer.value.setStepByStepMode(stepByStep);
+    }
+    this.#onStepByStepChange.fire();
+  }
+
+  isStepByStepMode(): boolean {
+    return this.#stepByStepMode;
   }
 }

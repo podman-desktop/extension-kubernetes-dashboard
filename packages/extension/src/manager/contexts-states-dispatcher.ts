@@ -30,6 +30,7 @@ import {
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
   SubscribeApi,
+  DEBUGGER,
 } from '@kubernetes-dashboard/channels';
 
 import type { ContextHealthState } from './context-health-checker.js';
@@ -99,6 +100,9 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
       await this.dispatch(ENDPOINTS);
     });
     this.onSubscribe(channelName => this.dispatchByChannelName(channelName));
+    this.manager.onStepByStepChange(async () => {
+      await this.dispatch(DEBUGGER);
+    });
   }
 
   // TODO replace this with an event
