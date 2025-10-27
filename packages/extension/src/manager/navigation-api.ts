@@ -32,4 +32,8 @@ export class NavigationApiImpl implements NavigationApi {
     }
     return podmanDesktopApi.navigation.navigateToCreateProviderConnection(id);
   }
+
+  async navigateToExtensionsCatalog(searchTerm?: string): Promise<void> {
+    return podmanDesktopApi.navigation.navigateToExtensionsCatalog(searchTerm);
+  }
 }

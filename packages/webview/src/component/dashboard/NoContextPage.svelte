@@ -4,9 +4,15 @@ import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';
 import KubernetesProviderCard from '/@/component/dashboard/KubernetesProviderCard.svelte';
+import { Remote } from '/@/remote/remote';
+import { API_NAVIGATION } from '@kubernetes-dashboard/channels';
+import { Button } from '@podman-desktop/ui-svelte';
 
 const states = getContext<States>(States);
 const kubernetesProviders = states.stateKubernetesProvidersInfoUI;
+
+const remote = getContext<Remote>(Remote);
+const navigationApi = remote.getProxy(API_NAVIGATION);
 
 let unsubscribers: Unsubscriber[] = [];
 onMount(() => {
@@ -34,5 +40,7 @@ onDestroy(() => {
         <KubernetesProviderCard provider={provider} />
       {/each}
     </div>
+
+    <Button on:click={async (): Promise<void> => { await navigationApi.navigateToExtensionsCatalog('category:kubernetes keyword:provider'); }}>Add Kubernetes cluster</Button>
   </div>
 </div>
