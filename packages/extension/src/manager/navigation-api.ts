@@ -16,21 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type ContextsApi } from './contexts-api';
-import { type PodLogsApi } from './pod-logs-api';
-import { type PodTerminalsApi } from './pod-terminals-api';
-import { type DeletePortForwardOptions, type PortForwardApi } from './port-forward-api';
-import { type SubscribeApi } from './subscribe-api';
-import { type SystemApi } from './system-api';
-import { type NavigationApi } from './navigation-api';
+import { injectable } from 'inversify';
+import * as podmanDesktopApi from '@podman-desktop/api';
+import { NavigationApi } from '@kubernetes-dashboard/channels/dist/interface/navigation-api';
 
-export type {
-  ContextsApi,
-  PodLogsApi,
-  PodTerminalsApi,
-  PortForwardApi,
-  SubscribeApi,
-  SystemApi,
-  DeletePortForwardOptions,
-  NavigationApi,
-};
+@injectable()
+export class NavigationApiImpl implements NavigationApi {
+  async navigateToProviderNewConnection(id: string): Promise<void> {
+    // This test can be removed when the minimal version is set to 1.23
+    if (!('navigateToCreateProviderConnection' in podmanDesktopApi.navigation)) {
+      console.warn(
+        'navigating to provider page is not supported in this version of Podman Desktop, please upgrade to the latest version',
+      );
+      return;
+    }
+    return podmanDesktopApi.navigation.navigateToCreateProviderConnection(id);
+  }
+}
