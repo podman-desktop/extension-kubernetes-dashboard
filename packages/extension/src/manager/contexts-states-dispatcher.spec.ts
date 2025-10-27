@@ -40,11 +40,13 @@ import {
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
   ENDPOINTS,
+  KUBERNETES_PROVIDERS,
   RESOURCE_DETAILS,
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
 } from '@kubernetes-dashboard/channels';
+import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
 
 let container: Container;
 const contextsManagerMock: ContextsManager = {
@@ -80,6 +82,10 @@ const contextsHealthsDispatcher = {
 const contextsPermissionsDispatcher = {
   dispatch: vi.fn(),
 } as unknown as ContextsPermissionsDispatcher;
+const kubernetesProvidersManagerMock = {
+  onKubernetesProvidersChange: vi.fn(),
+  getKubernetesProviders: vi.fn(),
+} as unknown as KubernetesProvidersManager;
 
 beforeAll(async () => {
   const inversifyBinding = new InversifyBinding(rpcExtension, extensionContext, telemetryLogger);
@@ -89,6 +95,7 @@ beforeAll(async () => {
   (await container.rebind(ActiveResourcesCountDispatcher)).toConstantValue(activeResourcesCountDispatcher);
   (await container.rebind(ContextsHealthsDispatcher)).toConstantValue(contextsHealthsDispatcher);
   (await container.rebind(ContextsPermissionsDispatcher)).toConstantValue(contextsPermissionsDispatcher);
+  (await container.rebind(KubernetesProvidersManager)).toConstantValue(kubernetesProvidersManagerMock);
 });
 
 beforeEach(() => {
@@ -215,4 +222,17 @@ test('ContextsStatesDispatcher should dispatch ENDPOINTS when onEndpointsChange 
     expect(dispatcherSpy).toHaveBeenCalledTimes(1);
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(ENDPOINTS);
+});
+
+test('ContextsStatesDispatcher should dispatch KUBERNETES_PROVIDERS when onKubernetesProvidersChange event is fired', async () => {
+  const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
+  dispatcher.init();
+  expect(dispatcherSpy).not.toHaveBeenCalled();
+
+  vi.mocked(kubernetesProvidersManagerMock.onKubernetesProvidersChange).mockImplementation(f => f() as IDisposable);
+  dispatcher.init();
+  await vi.waitFor(() => {
+    expect(dispatcherSpy).toHaveBeenCalledTimes(1);
+  });
+  expect(dispatcherSpy).toHaveBeenCalledWith(KUBERNETES_PROVIDERS);
 });

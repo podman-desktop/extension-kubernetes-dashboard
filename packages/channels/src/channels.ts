@@ -29,6 +29,7 @@ import type { ContextsHealthsInfo } from './model/contexts-healths-info';
 import type { ContextsPermissionsInfo } from './model/contexts-permissions-info';
 import type { CurrentContextInfo } from './model/current-context-info';
 import type { EndpointsInfo } from './model/endpoints-info';
+import type { KubernetesProvidersInfo } from './model/kubernetes-providers-info';
 import type { PodLogsChunk } from './model/pod-logs-chunk';
 import type { PodTerminalChunk } from './model/pod-terminal-chunk';
 import type { PortForwardsInfo } from './model/port-forward-info';
@@ -57,6 +58,7 @@ export const RESOURCE_DETAILS = createRpcChannel<ResourceDetailsInfo>('ResourceD
 export const RESOURCE_EVENTS = createRpcChannel<ResourceEventsInfo>('ResourceEvents');
 export const PORT_FORWARDS = createRpcChannel<PortForwardsInfo>('PortForwards');
 export const ENDPOINTS = createRpcChannel<EndpointsInfo>('Endpoints');
+export const KUBERNETES_PROVIDERS = createRpcChannel<KubernetesProvidersInfo>('KubernetesProviders');
 
 // Channels fot streams
 export const API_POD_LOGS = createRpcChannel<PodLogsApi>('PodLogsApi');
