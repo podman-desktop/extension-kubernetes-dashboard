@@ -81,7 +81,8 @@ test('ResourceInformer should eventually return the list of resources', async ()
     kind: 'MyResource',
     plural: 'myresources',
   });
-  const result = informer.start();
+  informer.start();
+  const result = informer.getCache();
   await vi.waitFor(() => {
     const list = result.list();
     expect(list).toEqual(items.map(i => ({ apiVersion: 'v8', kind: 'MyResource', ...i })));

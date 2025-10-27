@@ -69,6 +69,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
   #pluralName: string;
   #kindName: string;
   #informer: Informer<T> | undefined;
+  #cache: ObjectCache<T>;
   #offline: boolean = false;
 
   #onCacheUpdated = new Emitter<CacheUpdatedEvent>();
@@ -91,7 +92,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
   // start the informer and returns a cache to the data
   // The cache will be active all the time, even if an error happens
   // and the informer becomes offline
-  start(): ObjectCache<T> {
+  start(): void {
     // internalInformer extends both Informer and ObjectCache
     const typedList = async (): Promise<KubernetesListObject<T>> => {
       const list = await this.#listFn();
@@ -106,6 +107,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     };
     const internalInformer = this.makeInformer(this.#kubeConfig.getKubeConfig(), this.#path, typedList);
     this.#informer = internalInformer;
+    this.#cache = internalInformer;
 
     this.#informer.on(UPDATE, (_obj: T) => {
       this.#onCacheUpdated.fire({
@@ -154,7 +156,6 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
         `error starting the informer for resource ${this.#pluralName} on context ${this.#kubeConfig.getKubeConfig().currentContext}: ${String(err)}`,
       );
     });
-    return internalInformer;
   }
 
   // reconnect tries to start the informer again if it is marked as offline
@@ -191,5 +192,9 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
 
   makeInformer(kubeConfig: KubeConfig, path: string, listFn: ListPromise<T>): Informer<T> & ObjectCache<T> {
     return makeInformer(kubeConfig, path, listFn);
+  }
+
+  getCache(): ObjectCache<T> {
+    return this.#cache;
   }
 }
