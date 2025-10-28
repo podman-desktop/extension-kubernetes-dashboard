@@ -16,6 +16,22 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { CoreV1Event, KubernetesObject } from '@kubernetes/client-node';
+
+export interface DebuggerStepResource {
+    type: 'update' | 'delete' | 'add';
+    object: KubernetesObject;
+}
+
+export interface DebuggerStepEvent {
+    type: 'event';
+    object: KubernetesObject;
+    event: CoreV1Event;
+}
+
+export type DebuggerStep = DebuggerStepResource | DebuggerStepEvent;
+
 export interface DebuggerInfo {
-  active: boolean;
+    active: boolean;
+    steps: DebuggerStep[];
 }

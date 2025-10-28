@@ -62,6 +62,11 @@ export interface ResourceInformerOptions<T extends KubernetesObject> {
   plural: string;
 }
 
+export interface StepEvent {
+  type: 'update' | 'delete' | 'add';
+  object: KubernetesObject;
+}
+
 class StepByStepCache<T extends KubernetesObject> implements ObjectCache<T> {
   #cache: Map<string, T> = new Map();
   #namespace: string | undefined;
@@ -93,6 +98,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
   #offline: boolean = false;
   #stepByStepMode: boolean;
   #stepByStepCache: StepByStepCache<T> | undefined;
+  #onEventCallback: ((event: StepEvent) => void) | undefined;
 
   #onCacheUpdated = new Emitter<CacheUpdatedEvent>();
   onCacheUpdated: Event<CacheUpdatedEvent> = this.#onCacheUpdated.event;
@@ -132,9 +138,12 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     this.#informer = internalInformer;
     this.#realtimeCache = internalInformer;
 
-    this.#informer.on(UPDATE, (_obj: T) => {
+    this.#informer.on(UPDATE, (obj: T) => {
       if (this.#stepByStepMode) {
-        console.log(`==> UPDATE ${this.#pluralName} ${_obj.metadata?.name}`);
+        this.#onEventCallback?.({
+          type: 'update',
+          object: obj,
+        });
         // TODO update local cache
         return;
       }
@@ -144,9 +153,12 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
         countChanged: false,
       });
     });
-    this.#informer.on(ADD, (_obj: T) => {
+    this.#informer.on(ADD, (obj: T) => {
       if (this.#stepByStepMode) {
-        console.log(`==> ADD ${this.#pluralName} ${_obj.metadata?.name}`);
+        this.#onEventCallback?.({
+          type: 'add',
+          object: obj,
+        });
         // TODO update local cache
         return;
       }
@@ -158,7 +170,10 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     });
     this.#informer.on(DELETE, (obj: T) => {
       if (this.#stepByStepMode) {
-        console.log(`==> DELETE ${this.#pluralName} ${obj.metadata?.name}`);
+        this.#onEventCallback?.({
+          type: 'delete',
+          object: obj,
+        });
         // TODO update local cache
         return;
       }
@@ -242,11 +257,15 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     return this.#realtimeCache;
   }
 
-  setStepByStepMode(stepByStep: boolean): void {
+  setStepByStepMode(stepByStep: false): void;
+  setStepByStepMode(stepByStep: true, onEvent: (event: StepEvent) => void): void;
+  setStepByStepMode(stepByStep: boolean, onEvent?: (event: StepEvent) => void): void {
     this.#stepByStepMode = stepByStep;
     if (stepByStep) {
+      this.#onEventCallback = onEvent;
       this.#stepByStepCache = new StepByStepCache<T>(this.#realtimeCache.list(), this.#kubeConfig.getNamespace());
     } else {
+      this.#onEventCallback = undefined;
       this.#stepByStepCache = undefined;
     }
     this.#onCacheUpdated.fire({

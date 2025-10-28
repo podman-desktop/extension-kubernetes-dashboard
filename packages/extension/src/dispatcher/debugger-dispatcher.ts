@@ -35,6 +35,7 @@ export class DebuggerDispatcher extends AbsDispatcherObjectImpl<void, DebuggerIn
   getData(): DebuggerInfo {
     return {
       active: this.manager.isStepByStepMode(),
+      steps: this.manager.getSteps(),
     };
   }
 }

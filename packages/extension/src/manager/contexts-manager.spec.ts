@@ -33,7 +33,7 @@ import { ContextsManager } from './contexts-manager.js';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceFactory } from '/@/resources/resource-factory.js';
 import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
-import type { CacheUpdatedEvent, ObjectDeletedEvent, ResourceInformer } from '/@/types/resource-informer.js';
+import type { CacheUpdatedEvent, ObjectDeletedEvent, ResourceInformer, StepEvent } from '/@/types/resource-informer.js';
 import { vol } from 'memfs';
 import { Disposable } from '@kubernetes-dashboard/channels';
 
@@ -944,8 +944,118 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       });
 
       test('calls setStepByStepMode on informers', async () => {
-        expect(createdResource1InformerMock.setStepByStepMode).toHaveBeenCalledWith(true);
-        expect(createdEventInformerMock.setStepByStepMode).toHaveBeenCalledWith(true);
+        expect(createdResource1InformerMock.setStepByStepMode).toHaveBeenCalledWith(true, expect.any(Function));
+        expect(createdEventInformerMock.setStepByStepMode).toHaveBeenCalledWith(true, expect.any(Function));
+      });
+
+      describe('setStepByStepMode is called with a callback', () => {
+        let onEventCB: (event: StepEvent) => void;
+        let onResource1CB: (event: StepEvent) => void;
+
+        beforeEach(async () => {
+          expect(createdResource1InformerMock.setStepByStepMode).toHaveBeenCalledWith(true, expect.any(Function));
+          expect(createdEventInformerMock.setStepByStepMode).toHaveBeenCalledWith(true, expect.any(Function));
+          onEventCB = vi.mocked(createdEventInformerMock.setStepByStepMode).mock.calls[0]?.[1];
+          onResource1CB = vi.mocked(createdResource1InformerMock.setStepByStepMode).mock.calls[0]?.[1];
+        });
+
+        test('an added Resource1 adds a step', async () => {
+          onResource1CB({
+            type: 'add',
+            object: {
+              kind: 'Pod',
+              metadata: { name: 'pod1' },
+            },
+          });
+          expect(manager.getSteps()).toEqual([{
+            type: 'add',
+            object: {
+              kind: 'Pod',
+              metadata: { name: 'pod1' },
+            },
+          }]); 
+        });
+
+        test('an added Event adds a step', async () => {
+          onEventCB({
+            type: 'add',
+            object: {
+              kind: 'Event',
+              metadata: { name: 'event1' },
+              involvedObject: {
+                kind: 'Pod',
+                apiVersion: 'v1',
+                name: 'pod1',
+                namespace: 'ns1',
+                uid: 'uid1',
+                resourceVersion: '123',
+              },
+            } as CoreV1Event,
+          });
+          expect(manager.getSteps()).toEqual([{
+            type: 'event',
+            object: {
+              apiVersion: 'v1',
+              kind: 'Pod',
+              metadata: { 
+                name: 'pod1',
+                namespace: 'ns1',
+                uid: 'uid1',
+                resourceVersion: '123',
+              },
+            },
+            event: {
+              kind: 'Event',
+              metadata: { name: 'event1' },
+              involvedObject: {
+                kind: 'Pod',
+                apiVersion: 'v1',
+                name: 'pod1',
+                namespace: 'ns1',
+                uid: 'uid1',
+                resourceVersion: '123',
+              },
+            },
+          }]);
+        });
+
+        test('an updated Event does not add a step', async () => {
+          onEventCB({
+            type: 'update',
+            object: {
+              kind: 'Event',
+              metadata: { name: 'event1' },
+              involvedObject: {
+                kind: 'Pod',
+                apiVersion: 'v1',
+                name: 'pod1',
+                namespace: 'ns1',
+                uid: 'uid1',
+                resourceVersion: '123',
+              },
+            } as CoreV1Event,
+          });
+          expect(manager.getSteps()).toEqual([]);
+        });
+
+        test('a deleted Event does not add a step', async () => {
+          onEventCB({
+            type: 'delete',
+            object: {
+              kind: 'Event',
+              metadata: { name: 'event1' },
+              involvedObject: {
+                kind: 'Pod',
+                apiVersion: 'v1',
+                name: 'pod1',
+                namespace: 'ns1',
+                uid: 'uid1',
+                resourceVersion: '123',
+              },
+            } as CoreV1Event,
+          });
+          expect(manager.getSteps()).toEqual([]);
+        });
       });
     });
   });

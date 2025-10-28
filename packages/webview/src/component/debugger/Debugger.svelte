@@ -44,4 +44,21 @@ onDestroy(() => {
         icon={faStop} />
     </div>
   {/snippet}
+  {#snippet content()}
+    <div>
+      {#each debuggerInfo.data?.steps as step, index (index)}
+        <div>
+          {step.type} /
+          {step.object.kind} /
+          {step.object.metadata?.name}
+          {#if step.type === 'event'}
+            <div class="ml-2">{step.event.message}</div>
+          {/if}
+          {#each step.object.metadata?.managedFields as managedField, index (index)}
+            <div class="ml-2">{managedField.operation} / {managedField.time} / {managedField.manager} / {managedField.subresource}</div>
+          {/each}
+        </div>
+      {/each}
+    </div>
+  {/snippet}
 </NavPage>

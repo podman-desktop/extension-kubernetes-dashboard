@@ -37,6 +37,7 @@ import type {
   ResourceCount,
   KubernetesTroubleshootingInformation,
   ContextsApi,
+  DebuggerStep,
 } from '@kubernetes-dashboard/channels';
 import { kubernetes, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
@@ -67,6 +68,7 @@ import type {
   ObjectDeletedEvent,
   OfflineEvent,
   ResourceInformer,
+  StepEvent,
 } from '/@/types/resource-informer.js';
 import { RoutesResourceFactory } from '/@/resources/routes-resource-factory.js';
 import { SecretsResourceFactory } from '/@/resources/secrets-resource-factory.js';
@@ -99,6 +101,7 @@ export class ContextsManager implements ContextsApi {
   #currentContext?: KubeConfigSingleContext;
   #currentKubeConfig: KubeConfig;
   #stepByStepMode: boolean;
+  #steps: DebuggerStep[] = [];
 
   #onContextHealthStateChange = new Emitter<ContextHealthState>();
   onContextHealthStateChange: Event<ContextHealthState> = this.#onContextHealthStateChange.event;
@@ -865,13 +868,45 @@ export class ContextsManager implements ContextsApi {
       return;
     }
     this.#stepByStepMode = stepByStep;
+    this.#steps = [];
     for (const informer of this.#informers.getAll()) {
-      informer.value.setStepByStepMode(stepByStep);
+      if (stepByStep) {
+        informer.value.setStepByStepMode(true, (event: StepEvent) => {
+          if (informer.resourceName === 'events') {
+            if (event.type === 'add') {
+              const eventObject = event.object as CoreV1Event;
+              this.#steps.push({
+                type: 'event',
+                object: {
+                  kind: eventObject.involvedObject.kind,
+                  apiVersion: eventObject.involvedObject.apiVersion,
+                  metadata: {
+                    name: eventObject.involvedObject.name,
+                    namespace: eventObject.involvedObject.namespace,
+                    uid: eventObject.involvedObject.uid,
+                    resourceVersion: eventObject.involvedObject.resourceVersion,
+                  },
+                },
+                event: eventObject,
+              });  
+            }
+          } else {
+            this.#steps.push(event);
+          }
+          this.#onStepByStepChange.fire();
+        });
+      } else {
+        informer.value.setStepByStepMode(false);
+      }
     }
     this.#onStepByStepChange.fire();
   }
 
   isStepByStepMode(): boolean {
     return this.#stepByStepMode;
+  }
+
+  getSteps(): DebuggerStep[] {
+    return this.#steps;
   }
 }
