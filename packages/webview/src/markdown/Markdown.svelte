@@ -46,20 +46,26 @@ UI guidelines -->
 
 <script lang="ts">
 import { micromark } from 'micromark';
-import { onMount } from 'svelte';
+import { onMount, type Snippet } from 'svelte';
 
-let text: string;
-let html: string;
+let text = $state('');
+let html = $state('');
 
 // Optional attribute to specify the markdown to use
 // the user can use: <Markdown>**bold</Markdown> or <Markdown markdown="**bold**" /> syntax
-export let markdown = '';
+interface Props {
+  markdown?: string;
+  children?: Snippet;
+}
+let { markdown = '', children }: Props = $props();
 
 // Render the markdown or the html+micromark markdown reactively
-$: markdown
-  ? // eslint-disable-next-line sonarjs/no-nested-assignment
-    (html = micromark(markdown))
-  : undefined;
+$effect(() => {
+  markdown
+    ? // eslint-disable-next-line sonarjs/no-nested-assignment
+      (html = micromark(markdown))
+    : undefined;
+});
 
 onMount(() => {
   if (markdown) {
@@ -71,7 +77,7 @@ onMount(() => {
 
 <!-- Placeholder to grab the content if people are using <Markdown>**bold</Markdown> -->
 <span contenteditable="false" bind:textContent={text} class="hidden">
-  <slot />
+  {@render children?.()}
 </span>
 
 <section class="markdown" aria-label="markdown-content">
