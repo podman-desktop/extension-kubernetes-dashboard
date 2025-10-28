@@ -45,6 +45,7 @@ import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
 import { PodTerminalsApiImpl } from './manager/pod-terminals-api-impl';
 import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
+import { ChannelSubscriber } from '/@/types/channel-subscriber';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -61,6 +62,7 @@ export class DashboardExtension {
   #podTerminalsApiImpl: PodTerminalsApiImpl;
   #navigationApiImpl: NavigationApiImpl;
   #kubernetesProvidersManager: KubernetesProvidersManager;
+  #webviewSubscriber: ChannelSubscriber;
 
   constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
@@ -89,6 +91,7 @@ export class DashboardExtension {
     this.#podTerminalsApiImpl = await this.#container.getAsync(PodTerminalsApiImpl);
     this.#navigationApiImpl = await this.#container.getAsync(NavigationApiImpl);
     this.#kubernetesProvidersManager = await this.#container.getAsync(KubernetesProvidersManager);
+    this.#webviewSubscriber = await this.#container.getAsync(ChannelSubscriber);
 
     this.#kubernetesProvidersManager.init();
 
@@ -96,7 +99,7 @@ export class DashboardExtension {
 
     console.log('activation time:', afterFirst - now);
 
-    rpcExtension.registerInstance(API_SUBSCRIBE, this.#contextsStatesDispatcher);
+    rpcExtension.registerInstance(API_SUBSCRIBE, this.#webviewSubscriber);
     rpcExtension.registerInstance(API_CONTEXTS, this.#contextsManager);
     rpcExtension.registerInstance(API_SYSTEM, this.#systemApiImpl);
     rpcExtension.registerInstance(API_PORT_FORWARD, this.#portForwardApiImpl);
