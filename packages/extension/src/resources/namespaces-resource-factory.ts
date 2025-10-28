@@ -51,7 +51,7 @@ export class NamespacesResourceFactory extends ResourceFactoryBase implements Re
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setDeleteObject(this.deleteNamespace);
     this.setSearchBySelector(this.searchNamespacesBySelector);

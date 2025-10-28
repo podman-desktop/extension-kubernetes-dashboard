@@ -48,7 +48,7 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setDeleteObject(this.deletePod);
     this.setSearchBySelector(this.searchPodsBySelector);

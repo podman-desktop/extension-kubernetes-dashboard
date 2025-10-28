@@ -278,12 +278,7 @@ export class ContextsManager {
     namespace?: string,
   ): KubernetesObject | undefined {
     const value = this.#objectCaches.get(contextName, resourceName);
-    let details = value?.get(name, namespace);
-    if (details) {
-      const kind = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName)?.kind;
-      details = { ...details, kind };
-    }
-    return details;
+    return value?.get(name, namespace);
   }
 
   getResourceEvents(contextName: string, uid: string): CoreV1Event[] {

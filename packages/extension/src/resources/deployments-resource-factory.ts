@@ -47,7 +47,7 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setIsActive(this.isDeploymentActive);
     this.setDeleteObject(this.deleteDeployment);

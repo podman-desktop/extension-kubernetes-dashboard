@@ -51,7 +51,7 @@ export class PVCsResourceFactory extends ResourceFactoryBase implements Resource
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setDeleteObject(this.deletePVC);
   }
