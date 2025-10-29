@@ -49,7 +49,7 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setDeleteObject(this.deleteIngress);
     this.setSearchByTargetRef(this.searchIngressesByTargetRef);

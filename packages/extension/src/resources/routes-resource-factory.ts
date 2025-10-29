@@ -50,7 +50,7 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setDeleteObject(this.deleteRoute);
     this.setSearchByTargetRef(this.searchRoutesByTargetRef);

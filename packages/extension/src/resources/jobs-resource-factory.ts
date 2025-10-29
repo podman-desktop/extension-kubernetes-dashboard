@@ -48,7 +48,7 @@ export class JobsResourceFactory extends ResourceFactoryBase implements Resource
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setDeleteObject(this.deleteJob);
     this.setReadObject(this.readJob);
