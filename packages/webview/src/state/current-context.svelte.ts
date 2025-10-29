@@ -22,7 +22,7 @@ import { CURRENT_CONTEXT } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { CurrentContextInfo } from '@kubernetes-dashboard/channels';
+import type { CurrentContextInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 // Define a state for the CurrentContextInfo
 @injectable()

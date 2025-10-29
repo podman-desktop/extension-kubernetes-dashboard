@@ -27,7 +27,6 @@ import type {
   ResourceDetailsOptions,
   ResourceEventsInfo,
   ResourceEventsOptions,
-  CurrentContextInfo,
 } from '@kubernetes-dashboard/channels';
 import { NodeHelper } from './node-helper';
 import { Navigator } from '/@/navigation/navigator';
@@ -37,6 +36,7 @@ import type { NodeUI } from './NodeUI';
 import * as svelte from 'svelte';
 import NodeDetailsSummary from '/@/component/nodes/NodeDetailsSummary.svelte';
 import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
+import type { CurrentContextInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 vi.mock(import('./NodeDetailsSummary.svelte'));
 const dependencyMocks = new DependencyMocks();

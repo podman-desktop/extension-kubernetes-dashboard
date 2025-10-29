@@ -36,6 +36,8 @@ import {
   API_PORT_FORWARD,
   API_SUBSCRIBE,
   API_SYSTEM,
+  AVAILABLE_CONTEXTS,
+  CURRENT_CONTEXT,
   IDisposable,
 } from '@kubernetes-dashboard/channels';
 import { SystemApiImpl } from './manager/system-api';
@@ -47,6 +49,8 @@ import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
 import type {
+  AvailableContextsInfo,
+  CurrentContextInfo,
   KubernetesDashboardExtensionApi,
   KubernetesDashboardSubscriber,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -131,6 +135,12 @@ export class DashboardExtension {
         const subscriber = new ApiSubscriber();
         this.#contextsStatesDispatcher.addSubscriber(subscriber);
         return {
+          onAvailableContexts: (listener: (event: AvailableContextsInfo) => void): IDisposable => {
+            return subscriber.subscribe(AVAILABLE_CONTEXTS, undefined, listener);
+          },
+          onCurrentContext: (listener: (event: CurrentContextInfo) => void): IDisposable => {
+            return subscriber.subscribe(CURRENT_CONTEXT, undefined, listener);
+          },
           dispose: () => {
             subscriber.dispose();
           },

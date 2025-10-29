@@ -19,7 +19,6 @@
 import { render } from '@testing-library/svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { AvailableContextsInfo, CurrentContextInfo } from '@kubernetes-dashboard/channels';
 import App from './App.svelte';
 import NoContextPage from './component/dashboard/NoContextPage.svelte';
 import NoSelectedContextPage from './component/dashboard/NoSelectedContextPage.svelte';
@@ -27,6 +26,7 @@ import * as svelte from 'svelte';
 import type { WebviewApi } from '@podman-desktop/webview-api';
 import AppWithContext from '/@/AppWithContext.svelte';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import type { CurrentContextInfo, AvailableContextsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 vi.mock(import('/@/component/dashboard/NoContextPage.svelte'));
 vi.mock(import('/@/component/dashboard/NoSelectedContextPage.svelte'));

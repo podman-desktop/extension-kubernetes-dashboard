@@ -21,10 +21,11 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { ContextsHealthsInfo, CurrentContextInfo } from '@kubernetes-dashboard/channels';
+import type { ContextsHealthsInfo } from '@kubernetes-dashboard/channels';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import CurrentContextConnectionBadge from './CurrentContextConnectionBadge.svelte';
+import type { CurrentContextInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 const statesMocks = new StatesMocks();
 

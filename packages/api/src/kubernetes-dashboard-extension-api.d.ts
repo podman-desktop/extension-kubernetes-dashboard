@@ -16,10 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Disposable } from '@podman-desktop/api';
+
+export interface AvailableContextsInfo {
+  contextNames: string[];
+}
+
+export interface CurrentContextInfo {
+  contextName?: string;
+  namespace?: string;
+}
+
 /**
  * The subscriber for the events emitted by the Kubernetes Dashboard extension.
  */
 export interface KubernetesDashboardSubscriber {
+  onAvailableContexts(listener: (event: AvailableContextsInfo) => void): Disposable;
+  onCurrentContext(listener: (event: CurrentContextInfo) => void): Disposable;
   /**
    * Disposes the subscriber and unsubscribes from all the events emitted by the Kubernetes Dashboard extension.
    */
