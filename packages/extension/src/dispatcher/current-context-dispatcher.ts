@@ -20,7 +20,6 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { CURRENT_CONTEXT, type CurrentContextInfo } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { ContextsManager } from '/@/manager/contexts-manager';
 
 @injectable()
@@ -28,11 +27,8 @@ export class CurrentContextDispatcher
   extends AbsDispatcherObjectImpl<void, CurrentContextInfo>
   implements DispatcherObject<void>
 {
-  constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
-    @inject(ContextsManager) private manager: ContextsManager,
-  ) {
-    super(rpcExtension, CURRENT_CONTEXT);
+  constructor(@inject(ContextsManager) private manager: ContextsManager) {
+    super(CURRENT_CONTEXT);
   }
 
   getData(): CurrentContextInfo {

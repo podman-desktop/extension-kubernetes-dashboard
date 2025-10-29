@@ -21,18 +21,14 @@ import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { ENDPOINTS, type EndpointsOptions, type EndpointsInfo } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
 
 @injectable()
 export class EndpointsDispatcher
   extends AbsDispatcherObjectImpl<EndpointsOptions[], EndpointsInfo>
   implements DispatcherObject<EndpointsOptions[]>
 {
-  constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
-    @inject(ContextsManager) private manager: ContextsManager,
-  ) {
-    super(rpcExtension, ENDPOINTS);
+  constructor(@inject(ContextsManager) private manager: ContextsManager) {
+    super(ENDPOINTS);
   }
 
   getData(options: EndpointsOptions[]): EndpointsInfo {
