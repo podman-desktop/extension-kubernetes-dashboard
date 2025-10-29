@@ -46,7 +46,7 @@ export class NodesResourceFactory extends ResourceFactoryBase implements Resourc
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setIsActive(this.isNodeActive);
   }

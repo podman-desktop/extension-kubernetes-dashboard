@@ -46,7 +46,7 @@ export class ServicesResourceFactory extends ResourceFactoryBase implements Reso
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setDeleteObject(this.deleteService);
   }

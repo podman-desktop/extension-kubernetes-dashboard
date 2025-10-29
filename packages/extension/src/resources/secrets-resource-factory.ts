@@ -46,7 +46,7 @@ export class SecretsResourceFactory extends ResourceFactoryBase implements Resou
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setDeleteObject(this.deleteSecret);
   }

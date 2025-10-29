@@ -874,8 +874,8 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
         list: listMock,
         get: getMock,
       } as ObjectCache<KubernetesObject>);
-      listMock.mockReturnValue([{ metadata: { name: 'obj1', namespace: 'ns1' } }]);
-      getMock.mockReturnValue({ metadata: { name: 'obj1', namespace: 'ns1' } });
+      listMock.mockReturnValue([{ kind: 'Resource1', metadata: { name: 'obj1', namespace: 'ns1' } }]);
+      getMock.mockReturnValue({ kind: 'Resource1', metadata: { name: 'obj1', namespace: 'ns1' } });
       await manager.update(kc);
 
       const result = manager.getResourceDetails('context1', 'resource1', 'obj1', 'ns1');
@@ -889,7 +889,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
         list: listMock,
         get: getMock,
       } as ObjectCache<KubernetesObject>);
-      listMock.mockReturnValue([{ metadata: { name: 'obj1', namespace: 'ns1' } }]);
+      listMock.mockReturnValue([{ kind: 'Resource1', metadata: { name: 'obj1', namespace: 'ns1' } }]);
       getMock.mockReturnValue(undefined);
       await manager.update(kc);
 

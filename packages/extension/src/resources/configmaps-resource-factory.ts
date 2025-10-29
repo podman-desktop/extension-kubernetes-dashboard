@@ -46,7 +46,7 @@ export class ConfigmapsResourceFactory extends ResourceFactoryBase implements Re
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
     this.setDeleteObject(this.deleteConfigMap);
   }

@@ -46,7 +46,7 @@ export class EventsResourceFactory extends ResourceFactoryBase implements Resour
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
   }
 

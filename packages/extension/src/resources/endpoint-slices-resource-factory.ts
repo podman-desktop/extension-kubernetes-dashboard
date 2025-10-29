@@ -52,7 +52,7 @@ export class EndpointSlicesResourceFactory extends ResourceFactoryBase implement
       ],
     });
     this.setInformer({
-      createInformer: this.createInformer,
+      createInformer: this.createInformer.bind(this),
     });
 
     this.setSearchByTargetRef(this.searchEndpointSlicesByTargetRef);
