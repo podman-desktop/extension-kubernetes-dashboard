@@ -18,31 +18,31 @@
 
 import util from 'node:util';
 
-import { Disposable } from '@kubernetes-dashboard/channels';
+import { Disposable, type IDisposable } from '@kubernetes-dashboard/channels';
 import type { StateSubscriber } from './state-subscriber';
 import { Emitter, type Event } from '/@/types/emitter';
 import type { RpcChannel } from '@kubernetes-dashboard/rpc';
 
-interface ApiSubscriberInfo {
-  uid: symbol;
+interface ApiSubscriberInfo<T> {
   options: unknown;
+  listener: (event: T) => void;
 }
 
-export class ApiSubscriber implements StateSubscriber {
-  #subscribers: { [channelName: string]: ApiSubscriberInfo[] } = {};
+export class ApiSubscriber implements StateSubscriber, IDisposable {
+  #subscribers: { [channelName: string]: ApiSubscriberInfo<any>[] } = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   #onSubscribe = new Emitter<string>();
   onSubscribe: Event<string> = this.#onSubscribe.event;
 
-  subscribe(channelName: string, options: unknown): Disposable {
-    const uid = Symbol();
-    this.#subscribers[channelName] = [...(this.#subscribers[channelName] ?? []), { uid, options }];
+  subscribe<T>(channel: RpcChannel<T>, options: unknown, listener: (event: T) => void): Disposable {
+    const channelName = channel.name;
+    this.#subscribers[channelName] = [...(this.#subscribers[channelName] ?? []), { options, listener }];
 
     this.#onSubscribe.fire(channelName);
 
     return Disposable.create(() => {
       this.#subscribers[channelName] = (this.#subscribers[channelName] ?? []).filter(
-        subscriber => subscriber.uid !== uid,
+        subscriber => subscriber.listener !== listener,
       );
     });
   }
@@ -64,7 +64,17 @@ export class ApiSubscriber implements StateSubscriber {
     );
   }
 
-  async dispatch<T>(_channel: RpcChannel<T>, _data: T): Promise<void> {
-    // TODO implement
+  async dispatch<T>(channel: RpcChannel<T>, data: T): Promise<void> {
+    const subscriptions = this.#subscribers[channel.name];
+    if (!subscriptions) {
+      return;
+    }
+    for (const subscription of subscriptions) {
+      subscription.listener(data);
+    }
+  }
+
+  dispose(): void {
+    this.#subscribers = {};
   }
 }

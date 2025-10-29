@@ -36,6 +36,8 @@ import {
   API_PORT_FORWARD,
   API_SUBSCRIBE,
   API_SYSTEM,
+  AVAILABLE_CONTEXTS,
+  CURRENT_CONTEXT,
   IDisposable,
 } from '@kubernetes-dashboard/channels';
 import { SystemApiImpl } from './manager/system-api';
@@ -46,6 +48,13 @@ import { PodTerminalsApiImpl } from './manager/pod-terminals-api-impl';
 import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 import { ChannelSubscriber } from './subscriber/channel-subscriber';
+import type {
+  AvailableContextsInfo,
+  CurrentContextInfo,
+  KubernetesDashboardExtensionApi,
+  KubernetesDashboardSubscriber,
+} from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { ApiSubscriber } from '/@/subscriber/api-subscriber';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -68,7 +77,7 @@ export class DashboardExtension {
     this.#extensionContext = extensionContext;
   }
 
-  async activate(): Promise<void> {
+  async activate(): Promise<KubernetesDashboardExtensionApi> {
     const telemetryLogger = env.createTelemetryLogger();
 
     const panel = await this.createWebview();
@@ -120,6 +129,24 @@ export class DashboardExtension {
         }
       }
     });
+
+    return {
+      getSubscriber: () => {
+        const subscriber = new ApiSubscriber();
+        this.#contextsStatesDispatcher.addSubscriber(subscriber);
+        return {
+          onAvailableContexts: (listener: (event: AvailableContextsInfo) => void): IDisposable => {
+            return subscriber.subscribe(AVAILABLE_CONTEXTS, undefined, listener);
+          },
+          onCurrentContext: (listener: (event: CurrentContextInfo) => void): IDisposable => {
+            return subscriber.subscribe(CURRENT_CONTEXT, undefined, listener);
+          },
+          dispose: () => {
+            subscriber.dispose();
+          },
+        } as KubernetesDashboardSubscriber;
+      },
+    } as KubernetesDashboardExtensionApi;
   }
 
   async deactivate(): Promise<void> {

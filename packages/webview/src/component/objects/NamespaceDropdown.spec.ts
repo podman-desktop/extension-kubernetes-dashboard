@@ -24,14 +24,10 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import NamespaceDropdown from './NamespaceDropdown.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type {
-  CurrentContextInfo,
-  ContextsHealthsInfo,
-  UpdateResourceInfo,
-  ContextsApi,
-} from '@kubernetes-dashboard/channels';
+import type { ContextsHealthsInfo, UpdateResourceInfo, ContextsApi } from '@kubernetes-dashboard/channels';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
+import type { CurrentContextInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 const firstNS = 'ns1';
 const secondNS = 'ns2';

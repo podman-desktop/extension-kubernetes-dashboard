@@ -19,8 +19,9 @@
 import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { type AvailableContextsInfo, AVAILABLE_CONTEXTS } from '@kubernetes-dashboard/channels';
+import { AVAILABLE_CONTEXTS } from '@kubernetes-dashboard/channels';
 import { ContextsManager } from '/@/manager/contexts-manager';
+import type { AvailableContextsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 @injectable()
 export class AvailableContextsDispatcher

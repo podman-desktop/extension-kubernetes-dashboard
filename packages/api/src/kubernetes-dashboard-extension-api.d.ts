@@ -16,6 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export interface IDisposable {
+  dispose(): void;
+}
+
 export interface AvailableContextsInfo {
   contextNames: string[];
+}
+
+export interface CurrentContextInfo {
+  contextName?: string;
+  namespace?: string;
+}
+
+export interface KubernetesDashboardSubscriber extends IDisposable {
+  onAvailableContexts(listener: (event: AvailableContextsInfo) => void): IDisposable;
+  onCurrentContext(listener: (event: CurrentContextInfo) => void): IDisposable;
+}
+
+export interface KubernetesDashboardExtensionApi {
+  getSubscriber(): KubernetesDashboardSubscriber;
 }

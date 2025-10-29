@@ -18,6 +18,9 @@ importers:
       '@eslint/compat':
         specifier: ^1.4.1
         version: 1.4.1(eslint@9.38.0(jiti@2.6.1))
+      '@tsconfig/strictest':
+        specifier: ^2.0.6
+        version: 2.0.6
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.46.1
         version: 8.46.2(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
@@ -106,11 +109,16 @@ importers:
         specifier: ^3.1.2
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.9.2)(jiti@2.6.1)(jsdom@27.0.1(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.1)
 
+  packages/api: {}
+
   packages/channels:
     devDependencies:
       '@kubernetes-dashboard/rpc':
         specifier: workspace:*
         version: link:../rpc
+      '@podman-desktop/kubernetes-dashboard-extension-api':
+        specifier: workspace:*
+        version: link:../api
       vite-plugin-dts:
         specifier: ^4.5.4
         version: 4.5.4(@types/node@24.9.2)(rollup@4.52.5)(typescript@5.9.3)(vite@7.1.12(@types/node@24.9.2)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.1))
@@ -142,6 +150,9 @@ importers:
       '@podman-desktop/api':
         specifier: 1.23.0-next.202510141447-e1ab0ef8faf
         version: 1.23.0-next.202510141447-e1ab0ef8faf
+      '@podman-desktop/kubernetes-dashboard-extension-api':
+        specifier: workspace:*
+        version: link:../api
       '@types/node':
         specifier: ^24
         version: 24.9.2
@@ -245,6 +256,9 @@ importers:
       '@kubernetes-dashboard/rpc':
         specifier: workspace:*
         version: link:../rpc
+      '@podman-desktop/kubernetes-dashboard-extension-api':
+        specifier: workspace:*
+        version: link:../api
       '@podman-desktop/ui-svelte':
         specifier: 1.22.1
         version: 1.22.1(svelte-fa@4.0.4(svelte@5.43.2))(svelte@5.43.2)
@@ -1158,6 +1172,9 @@ packages:
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
+
+  '@tsconfig/strictest@2.0.6':
+    resolution: {integrity: sha512-tPOhmDhIUcDjvpDDYyiUdssP84Eqm7n5KxJe5J3/g+s6xoDIPAf+SIn06dhw7VkhxIvLOnhDDrX7tsqMHNEhDg==}
 
   '@tsconfig/svelte@5.0.5':
     resolution: {integrity: sha512-48fAnUjKye38FvMiNOj0J9I/4XlQQiZlpe9xaNPfe8vy2Y1hFBt8g1yqf2EGjVvHavo4jf2lC+TQyENCr4BJBQ==}
@@ -4950,6 +4967,8 @@ snapshots:
   '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.1)':
     dependencies:
       '@testing-library/dom': 10.4.1
+
+  '@tsconfig/strictest@2.0.6': {}
 
   '@tsconfig/svelte@5.0.5': {}
 

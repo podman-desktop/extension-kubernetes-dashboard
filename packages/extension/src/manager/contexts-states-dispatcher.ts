@@ -118,6 +118,11 @@ export class ContextsStatesDispatcher {
     });
   }
 
+  addSubscriber(subscriber: StateSubscriber): void {
+    this.#subscribers.push(subscriber);
+    subscriber.onSubscribe(channelName => this.dispatchByChannelName(subscriber, channelName));
+  }
+
   // TODO replace this with an event
   getTroubleshootingInformation(): KubernetesTroubleshootingInformation {
     return this.manager.getTroubleshootingInformation();

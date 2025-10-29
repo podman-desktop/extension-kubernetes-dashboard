@@ -21,18 +21,14 @@ import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { render, screen } from '@testing-library/svelte';
 import KubernetesObjectsListSpec from './KubernetesObjectsListSpec.svelte';
-import type {
-  UpdateResourceOptions,
-  UpdateResourceInfo,
-  CurrentContextInfo,
-  ContextsApi,
-} from '@kubernetes-dashboard/channels';
+import type { UpdateResourceOptions, UpdateResourceInfo, ContextsApi } from '@kubernetes-dashboard/channels';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import * as uiSvelte from '@podman-desktop/ui-svelte';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
+import type { CurrentContextInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 vi.mock(import('/@/component/connection/CurrentContextConnectionBadge.svelte'));
 vi.mock(import('./NamespaceDropdown.svelte'));
