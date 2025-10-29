@@ -47,7 +47,7 @@ import {
   UPDATE_RESOURCE,
 } from '@kubernetes-dashboard/channels';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
-import { ChannelSubscriber } from '/@/types/channel-subscriber.js';
+import { ChannelSubscriber } from '/@/subscriber/channel-subscriber.js';
 
 let container: Container;
 const contextsManagerMock: ContextsManager = {

@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { RpcChannel } from '@kubernetes-dashboard/rpc';
-import type { StateSubscriber } from '/@/types/state-subscriber';
+import type { StateSubscriber } from '/@/subscriber/state-subscriber';
 
 export const DispatcherObject = Symbol.for('DispatcherObject');
 export interface DispatcherObject<T> {

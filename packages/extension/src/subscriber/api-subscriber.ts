@@ -19,7 +19,7 @@
 import util from 'node:util';
 
 import { Disposable } from '@kubernetes-dashboard/channels';
-import type { StateSubscriber } from '/@/types/state-subscriber';
+import type { StateSubscriber } from './state-subscriber';
 import { Emitter, type Event } from '/@/types/emitter';
 import type { RpcChannel } from '@kubernetes-dashboard/rpc';
 

@@ -39,10 +39,10 @@ import { ContextsManager } from './contexts-manager.js';
 import { RpcChannel } from '@kubernetes-dashboard/rpc';
 import { inject, injectable, multiInject } from 'inversify';
 import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
-import { ChannelSubscriber } from '/@/types/channel-subscriber.js';
+import { ChannelSubscriber } from '/@/subscriber/channel-subscriber.js';
 import { PortForwardServiceProvider } from '/@/port-forward/port-forward-service.js';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
-import { StateSubscriber } from '/@/types/state-subscriber.js';
+import { StateSubscriber } from '/@/subscriber/state-subscriber.js';
 
 @injectable()
 export class ContextsStatesDispatcher {

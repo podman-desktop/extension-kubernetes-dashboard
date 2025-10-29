@@ -17,10 +17,10 @@
  ***********************************************************************/
 
 import { ContainerModule } from 'inversify';
-import { ChannelSubscriber } from '/@/types/channel-subscriber';
+import { ChannelSubscriber } from './channel-subscriber';
 
-const typesModule = new ContainerModule(options => {
+const subscriberModule = new ContainerModule(options => {
   options.bind<ChannelSubscriber>(ChannelSubscriber).toSelf().inSingletonScope();
 });
 
-export { typesModule };
+export { subscriberModule };

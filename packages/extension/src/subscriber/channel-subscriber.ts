@@ -18,9 +18,9 @@
 
 import util from 'node:util';
 
-import type { Event } from './emitter';
-import { Emitter } from './emitter';
-import type { StateSubscriber } from '/@/types/state-subscriber';
+import type { Event } from '/@/types/emitter';
+import { Emitter } from '/@/types/emitter';
+import type { StateSubscriber } from './state-subscriber';
 import { RpcChannel, RpcExtension } from '@kubernetes-dashboard/rpc';
 import { inject, injectable } from 'inversify';
 
