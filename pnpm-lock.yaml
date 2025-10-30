@@ -71,7 +71,7 @@ importers:
         version: 3.0.5(eslint@9.38.0(jiti@2.6.1))
       eslint-plugin-svelte:
         specifier: ^3.12.3
-        version: 3.12.5(eslint@9.38.0(jiti@2.6.1))(svelte@5.43.0)
+        version: 3.13.0(eslint@9.38.0(jiti@2.6.1))(svelte@5.43.0)
       eslint-plugin-unicorn:
         specifier: ^62.0.0
         version: 62.0.0(eslint@9.38.0(jiti@2.6.1))
@@ -140,8 +140,8 @@ importers:
         specifier: workspace:*
         version: link:../rpc
       '@podman-desktop/api':
-        specifier: 1.23.0-next.202510141447-e1ab0ef8faf
-        version: 1.23.0-next.202510141447-e1ab0ef8faf
+        specifier: 1.23.0-next.202510300908-15afc2cf1ea
+        version: 1.23.0-next.202510300908-15afc2cf1ea
       '@types/node':
         specifier: ^24
         version: 24.9.2
@@ -853,8 +853,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@podman-desktop/api@1.23.0-next.202510141447-e1ab0ef8faf':
-    resolution: {integrity: sha512-tfWmbtZtdaptmk7Nv3ptYEb/leWank9XBMcke7RxkEiVK2UXaM/co7RgnxMwaeGdFnWdu01VH846CBUFVopw+g==}
+  '@podman-desktop/api@1.23.0-next.202510300908-15afc2cf1ea':
+    resolution: {integrity: sha512-8cg16lMPjG8Q3FgL4S2lpyweb7FZUiAQPn6UEGi1l4DUMrTNIntz8xhsJoVGBZBntXWF8Wm2yy/zbpJKCtNyFg==}
 
   '@podman-desktop/ui-svelte@1.22.1':
     resolution: {integrity: sha512-LhHPvphcKBuSIz5xqH6Uevhac32RCYNta45gH4BQYYKlsFtJxhVd9LIBHovzK6oxoQ++fNxtCvhUGEtR7Rw/6Q==}
@@ -2219,8 +2219,8 @@ packages:
     peerDependencies:
       eslint: ^8.0.0 || ^9.0.0
 
-  eslint-plugin-svelte@3.12.5:
-    resolution: {integrity: sha512-4KRG84eAHQfYd9OjZ1K7sCHy0nox+9KwT+s5WCCku3jTim5RV4tVENob274nCwIaApXsYPKAUAZFBxKZ3Wyfjw==}
+  eslint-plugin-svelte@3.13.0:
+    resolution: {integrity: sha512-2ohCCQJJTNbIpQCSDSTWj+FN0OVfPmSO03lmSNT7ytqMaWF6kpT86LdzDqtm4sh7TVPl/OEWJ/d7R87bXP2Vjg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.1 || ^9.0.0
@@ -4691,7 +4691,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@podman-desktop/api@1.23.0-next.202510141447-e1ab0ef8faf': {}
+  '@podman-desktop/api@1.23.0-next.202510300908-15afc2cf1ea': {}
 
   '@podman-desktop/ui-svelte@1.22.1(svelte-fa@4.0.4(svelte@5.43.0))(svelte@5.43.0)':
     dependencies:
@@ -6229,7 +6229,7 @@ snapshots:
       semver: 7.7.2
       typescript: 5.9.3
 
-  eslint-plugin-svelte@3.12.5(eslint@9.38.0(jiti@2.6.1))(svelte@5.43.0):
+  eslint-plugin-svelte@3.13.0(eslint@9.38.0(jiti@2.6.1))(svelte@5.43.0):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.0(eslint@9.38.0(jiti@2.6.1))
       '@jridgewell/sourcemap-codec': 1.5.5
