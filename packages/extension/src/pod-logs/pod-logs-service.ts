@@ -20,7 +20,7 @@ import { Log } from '@kubernetes/client-node';
 import { injectable } from 'inversify';
 import { PassThrough } from 'node:stream';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { POD_LOGS } from '@kubernetes-dashboard/channels';
+import { POD_LOGS, type PodLogsOptions } from '@kubernetes-dashboard/channels';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
 
 @injectable()
@@ -33,7 +33,7 @@ export class PodLogsService {
     private readonly rpcExtension: RpcExtension,
   ) {}
 
-  async startStream(podName: string, namespace: string, containerName: string): Promise<void> {
+  async startStream(podName: string, namespace: string, containerName: string, options?: PodLogsOptions): Promise<void> {
     const log = new Log(this.context.getKubeConfig());
 
     this.#logStream = new PassThrough();
@@ -52,7 +52,14 @@ export class PodLogsService {
         })
         .catch(console.error);
     });
-    this.#abortController = await log.log(namespace, podName, containerName, this.#logStream, { follow: true });
+    this.#abortController = await log.log(namespace, podName, containerName, this.#logStream,
+      {
+        follow: options?.stream ?? true,
+        previous: options?.previous,
+        tailLines: options?.tailLines,
+        sinceSeconds: options?.sinceSeconds,
+        timestamps: options?.timestamps,
+      });
   }
 
   stopStream(): void {

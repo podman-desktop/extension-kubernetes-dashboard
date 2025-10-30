@@ -7,3 +7,4 @@ dist
 output
 packages/extension/media
 
+/.vs
