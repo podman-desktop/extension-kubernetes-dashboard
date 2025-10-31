@@ -21,18 +21,14 @@ import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { UPDATE_RESOURCE, type UpdateResourceInfo, type UpdateResourceOptions } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
 
 @injectable()
 export class UpdateResourceDispatcher
   extends AbsDispatcherObjectImpl<UpdateResourceOptions[], UpdateResourceInfo>
   implements DispatcherObject<UpdateResourceOptions[]>
 {
-  constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
-    @inject(ContextsManager) private manager: ContextsManager,
-  ) {
-    super(rpcExtension, UPDATE_RESOURCE);
+  constructor(@inject(ContextsManager) private manager: ContextsManager) {
+    super(UPDATE_RESOURCE);
   }
 
   getData(options: UpdateResourceOptions[]): UpdateResourceInfo {

@@ -20,7 +20,6 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { ACTIVE_RESOURCES_COUNT, type ActiveResourcesCountInfo } from '@kubernetes-dashboard/channels';
 
 @injectable()
@@ -31,8 +30,8 @@ export class ActiveResourcesCountDispatcher
   @inject(ContextsManager)
   private manager: ContextsManager;
 
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
-    super(rpcExtension, ACTIVE_RESOURCES_COUNT);
+  constructor() {
+    super(ACTIVE_RESOURCES_COUNT);
   }
 
   getData(): ActiveResourcesCountInfo {

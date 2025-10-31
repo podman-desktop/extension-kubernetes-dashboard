@@ -19,14 +19,15 @@
 import type { ExtensionContext } from '@podman-desktop/api';
 
 import { DashboardExtension } from '/@/dashboard-extension';
+import type { KubernetesDashboardExtensionApi } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 let dashboardExtension: DashboardExtension | undefined;
 
 // Initialize the activation of the extension.
-export async function activate(extensionContext: ExtensionContext): Promise<void> {
+export async function activate(extensionContext: ExtensionContext): Promise<KubernetesDashboardExtensionApi> {
   dashboardExtension ??= new DashboardExtension(extensionContext);
 
-  await dashboardExtension.activate();
+  return dashboardExtension.activate();
 }
 
 export async function deactivate(): Promise<void> {

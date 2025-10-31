@@ -16,24 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { inject, injectable } from 'inversify';
-import type { DispatcherObject } from './util/dispatcher-object';
-import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { PORT_FORWARDS, type PortForwardsInfo } from '@kubernetes-dashboard/channels';
-import { PortForwardApiImpl } from '/@/manager/port-forward-api-impl';
+import { ContainerModule } from 'inversify';
+import { ChannelSubscriber } from './channel-subscriber';
 
-@injectable()
-export class PortForwardsDispatcher
-  extends AbsDispatcherObjectImpl<void, PortForwardsInfo>
-  implements DispatcherObject<void>
-{
-  constructor(@inject(PortForwardApiImpl) private portForwardManager: PortForwardApiImpl) {
-    super(PORT_FORWARDS);
-  }
+const subscriberModule = new ContainerModule(options => {
+  options.bind<ChannelSubscriber>(ChannelSubscriber).toSelf().inSingletonScope();
+});
 
-  getData(): PortForwardsInfo {
-    return {
-      portForwards: this.portForwardManager.getPortForwards(),
-    };
-  }
-}
+export { subscriberModule };

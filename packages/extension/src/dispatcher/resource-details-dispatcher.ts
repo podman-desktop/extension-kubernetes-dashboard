@@ -25,18 +25,14 @@ import {
   type ResourceDetailsInfo,
   type ResourceDetailsOptions,
 } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
 
 @injectable()
 export class ResourceDetailsDispatcher
   extends AbsDispatcherObjectImpl<ResourceDetailsOptions[], ResourceDetailsInfo>
   implements DispatcherObject<ResourceDetailsOptions[]>
 {
-  constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
-    @inject(ContextsManager) private manager: ContextsManager,
-  ) {
-    super(rpcExtension, RESOURCE_DETAILS);
+  constructor(@inject(ContextsManager) private manager: ContextsManager) {
+    super(RESOURCE_DETAILS);
   }
 
   getData(options: ResourceDetailsOptions[]): ResourceDetailsInfo {
