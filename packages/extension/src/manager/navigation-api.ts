@@ -34,6 +34,6 @@ export class NavigationApiImpl implements NavigationApi {
   }
 
   async navigateToExtensionsCatalog(searchTerm?: string): Promise<void> {
-    return podmanDesktopApi.navigation.navigateToExtensionsCatalog(searchTerm);
+    return podmanDesktopApi.navigation.navigateToExtensionsCatalog({ searchTerm });
   }
 }
