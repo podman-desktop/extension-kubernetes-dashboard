@@ -34,6 +34,7 @@ export * from './kubernetes-resource-count';
 export * from './kubernetes-troubleshooting';
 export * from './openshift-types';
 export * from './pod-logs-chunk';
+export * from './pod-logs-options';
 export * from './pod-terminal-chunk';
 export * from './port-forward-info';
 export * from './port-forward';
