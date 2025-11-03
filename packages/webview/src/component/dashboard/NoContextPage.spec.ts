@@ -59,7 +59,7 @@ test('should render the description text', () => {
 
   const description = screen.getByText(/A Kubernetes cluster is a group of nodes/);
   expect(description).toBeInTheDocument();
-  expect(description).toHaveClass('text-[var(--pd-details-empty-sub-header)]', 'text-balance');
+  expect(description).toHaveClass('text-(--pd-details-empty-sub-header)', 'text-balance');
 });
 
 test('should render providers when data is available', () => {

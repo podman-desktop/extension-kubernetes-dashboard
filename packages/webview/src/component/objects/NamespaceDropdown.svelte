@@ -67,6 +67,6 @@ onDestroy(() => {
     value: namespace,
   }))}>
   {#snippet left()}
-    <div class="mr-1 text-[var(--pd-input-field-placeholder-text)]">Namespace:</div>
+    <div class="mr-1 text-(--pd-input-field-placeholder-text)">Namespace:</div>
   {/snippet}
 </Dropdown>
