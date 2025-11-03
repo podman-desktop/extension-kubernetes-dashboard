@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { IDisposable, Disposable } from './types/disposable';
+import { IDisposable } from './types/disposable';
 
-export { IDisposable, Disposable };
+export { IDisposable };
 export * from './interface';
 export * from './model';
 export * from './channels';
