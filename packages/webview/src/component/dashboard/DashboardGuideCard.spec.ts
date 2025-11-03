@@ -43,12 +43,12 @@ test('Verify basic card format', async () => {
 
   const titleComp = screen.getByText(title);
   expect(titleComp).toBeInTheDocument();
-  expect(titleComp).toHaveClass('text-[var(--pd-content-card-carousel-card-header-text)]');
+  expect(titleComp).toHaveClass('text-(--pd-content-card-carousel-card-header-text)');
   expect(titleComp).toHaveClass('text-center');
   expect(titleComp).toHaveClass('font-semibold');
 
-  expect(titleComp.parentElement).toHaveClass('bg-[var(--pd-content-card-carousel-card-bg)]');
-  expect(titleComp.parentElement).toHaveClass('hover:bg-[var(--pd-content-card-carousel-card-hover-bg)]');
+  expect(titleComp.parentElement).toHaveClass('bg-(--pd-content-card-carousel-card-bg)');
+  expect(titleComp.parentElement).toHaveClass('hover:bg-(--pd-content-card-carousel-card-hover-bg)');
   expect(titleComp.parentElement).toHaveClass('rounded-md');
   expect(titleComp.parentElement).toHaveClass('items-center');
 

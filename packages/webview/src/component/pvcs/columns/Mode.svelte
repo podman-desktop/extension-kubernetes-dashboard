@@ -14,19 +14,19 @@ function getModeAttributes(mode: string): { color: string; icon: IconDefinition 
   switch (mode) {
     case 'ReadOnlyMany':
       // faEye: Symbolizes visibility, suitable for ReadOnlyMany where the volume can be read by many
-      return { color: 'text-[var(--pd-status-running)]', icon: faEye };
+      return { color: 'text-(--pd-status-running)', icon: faEye };
     case 'ReadWriteMany':
       // faTh: Indicates multiple access points, apt for ReadWriteMany where multiple users can read and write
-      return { color: 'text-[var(--pd-status-running)]', icon: faTh };
+      return { color: 'text-(--pd-status-running)', icon: faTh };
     case 'ReadWriteOnce':
       // faLock: Represents exclusive write access (one writer), indicative of the ReadWriteOnce mode
-      return { color: 'text-[var(--pd-status-paused)]', icon: faLock };
+      return { color: 'text-(--pd-status-paused)', icon: faLock };
     case 'ReadWriteOncePod':
       // faSitemap: Represents a specific structure or cluster, used for ReadWriteOncePod where access is restricted to a single pod
-      return { color: 'text-[var(--pd-status-paused)]', icon: faSitemap };
+      return { color: 'text-(--pd-status-paused)', icon: faSitemap };
     default:
       // A generic circle icon for undefined modes
-      return { color: 'text-[var(--pd-status-unknown)]', icon: faCircle };
+      return { color: 'text-(--pd-status-unknown)', icon: faCircle };
   }
 }
 </script>

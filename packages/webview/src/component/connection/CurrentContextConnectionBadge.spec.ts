@@ -95,7 +95,7 @@ describe('current context is reachable', () => {
     render(CurrentContextConnectionBadge);
 
     const status = screen.getByRole('status');
-    expect(status.firstChild).toHaveClass('bg-[var(--pd-status-connected)]');
+    expect(status.firstChild).toHaveClass('bg-(--pd-status-connected)');
   });
 
   test('no tooltip', async () => {
@@ -139,7 +139,7 @@ describe('current context is not reachable', () => {
     render(CurrentContextConnectionBadge);
 
     const status = screen.getByRole('status');
-    expect(status.firstChild).toHaveClass('bg-[var(--pd-status-disconnected)]');
+    expect(status.firstChild).toHaveClass('bg-(--pd-status-disconnected)');
   });
 
   test('tooltip', async () => {
@@ -183,7 +183,7 @@ describe('current context is offline', () => {
     render(CurrentContextConnectionBadge);
 
     const status = screen.getByRole('status');
-    expect(status.firstChild).toHaveClass('bg-[var(--pd-status-paused)]');
+    expect(status.firstChild).toHaveClass('bg-(--pd-status-paused)');
   });
 
   test('expect tooltip when offline', async () => {

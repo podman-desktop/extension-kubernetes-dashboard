@@ -113,9 +113,9 @@
 <svelte:window on:keyup|preventDefault={onKeyUp} />
 
 {#if showSearch}
-  <div class="flex flex-row py-2 h-[40px] items-center justify-end bg-[var(--pd-content-header-bg)] border-b border-[var(--pd-content-divider)]">
+  <div class="flex flex-row py-2 h-[40px] items-center justify-end bg-(--pd-content-header-bg) border-b border-(--pd-content-divider)">
     {#if searchTerm && !hasMatches}
-      <span class="text-sm text-[var(--pd-content-text)] mr-2">
+      <span class="text-sm text-(--pd-content-text) mr-2">
         No results
       </span>
     {/if}
@@ -131,19 +131,19 @@
     <div class="space-x-1 mr-4">
       <button
         aria-label="Previous Match"
-        class="p-2 rounded-sm hover:bg-[var(--pd-action-button-details-bg)]"
+        class="p-2 rounded-sm hover:bg-(--pd-action-button-details-bg)"
         onclick={(): void => onSearchPrevious(true)}>
         <Fa icon={faArrowUp} />
       </button>
       <button
         aria-label="Next Match"
-        class="p-2 rounded-sm hover:bg-[var(--pd-action-button-details-bg)]"
+        class="p-2 rounded-sm hover:bg-(--pd-action-button-details-bg)"
         onclick={(): void => onSearchNext(true)}>
         <Fa icon={faArrowDown} />
       </button>
       <button
         aria-label="Close Search"
-        class="p-2 rounded-sm hover:bg-[var(--pd-action-button-details-bg)]"
+        class="p-2 rounded-sm hover:bg-(--pd-action-button-details-bg)"
         onclick={closeSearch}>
         <Fa icon={faTimes} />
       </button>

@@ -16,14 +16,14 @@ let { availableContexts }: Props = $props();
 
 <div class="mt-8 flex justify-center overflow-auto">
   <div class="max-w-[600px] flex flex-col text-center space-y-3">
-    <div class="flex justify-center text-[var(--pd-details-empty-icon)] py-2">
+    <div class="flex justify-center text-(--pd-details-empty-icon) py-2">
       <KubeIcon size="80" />
     </div>
-    <h1 class="text-xl text-[var(--pd-details-empty-header)]">No Kubernetes context selected</h1>
-    <div class="text-[var(--pd-details-empty-sub-header)] text-pretty">
+    <h1 class="text-xl text-(--pd-details-empty-header)">No Kubernetes context selected</h1>
+    <div class="text-(--pd-details-empty-sub-header) text-pretty">
       No Kubernetes context is currently selected. Please select a context to continue.
     </div>
-    <div class="text-[var(--pd-details-empty-sub-header)] text-pretty">
+    <div class="text-(--pd-details-empty-sub-header) text-pretty">
       Available contexts:
       {#if availableContexts}
         {#each availableContexts as context, index (index)}
