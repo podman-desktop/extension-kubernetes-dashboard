@@ -40,59 +40,59 @@ beforeEach(() => {
 test('Expect the dot to have the correct color for running status', () => {
   renderStatusDot('running');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-[var(--pd-status-running)]');
+  expect(dot).toHaveClass('bg-(--pd-status-running)');
 });
 
 test('Expect the dot to have the correct color for terminated status', () => {
   renderStatusDot('terminated');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-[var(--pd-status-terminated)]');
+  expect(dot).toHaveClass('bg-(--pd-status-terminated)');
 });
 
 test('Expect the dot to have the correct color for waiting status', () => {
   renderStatusDot('waiting');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-[var(--pd-status-waiting)]');
+  expect(dot).toHaveClass('bg-(--pd-status-waiting)');
 });
 
 test('Expect the dot to have the correct color for stopped status', () => {
   renderStatusDot('stopped');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('outline-[var(--pd-status-stopped)]');
+  expect(dot).toHaveClass('outline-(--pd-status-stopped)');
 });
 
 test('Expect the dot to have the correct color for paused status', () => {
   renderStatusDot('paused');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-[var(--pd-status-paused)]');
+  expect(dot).toHaveClass('bg-(--pd-status-paused)');
 });
 
 test('Expect the dot to have the correct color for exited status', () => {
   renderStatusDot('exited');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('outline-[var(--pd-status-exited)]');
+  expect(dot).toHaveClass('outline-(--pd-status-exited)');
 });
 
 test('Expect the dot to have the correct color for dead status', () => {
   renderStatusDot('dead');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-[var(--pd-status-dead)]');
+  expect(dot).toHaveClass('bg-(--pd-status-dead)');
 });
 
 test('Expect the dot to have the correct color for created status', () => {
   renderStatusDot('created');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('outline-[var(--pd-status-created)]');
+  expect(dot).toHaveClass('outline-(--pd-status-created)');
 });
 
 test('Expect the dot to have the correct color for degraded status', () => {
   renderStatusDot('degraded');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-[var(--pd-status-degraded)]');
+  expect(dot).toHaveClass('bg-(--pd-status-degraded)');
 });
 
 test('Expect the dot to have the correct color for unknown status', () => {
   renderStatusDot('unknown');
   const dot = screen.getByTestId('status-dot');
-  expect(dot).toHaveClass('bg-[var(--pd-status-unknown)]');
+  expect(dot).toHaveClass('bg-(--pd-status-unknown)');
 });

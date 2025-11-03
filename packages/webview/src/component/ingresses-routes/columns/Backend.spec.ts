@@ -67,7 +67,7 @@ test('Expect simple column styling with single path ingress', async () => {
 
   const text = screen.getByText('a backend');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-[var(--pd-table-body-text)]');
+  expect(text).toHaveClass('text-(--pd-table-body-text)');
 });
 
 test('Expect simple column styling with multiple paths ingress', async () => {
@@ -113,10 +113,10 @@ test('Expect simple column styling with multiple paths ingress', async () => {
 
   const firstElement = screen.getByText(backends[0]);
   expect(firstElement).toBeInTheDocument();
-  expect(firstElement).toHaveClass('text-[var(--pd-table-body-text)]');
+  expect(firstElement).toHaveClass('text-(--pd-table-body-text)');
   const secondElement = screen.getByText(backends[1]);
   expect(secondElement).toBeInTheDocument();
-  expect(secondElement).toHaveClass('text-[var(--pd-table-body-text)]');
+  expect(secondElement).toHaveClass('text-(--pd-table-body-text)');
 });
 
 test('Expect simple column styling with route', async () => {
@@ -140,5 +140,5 @@ test('Expect simple column styling with route', async () => {
 
   const text = screen.getByText('a backend');
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-[var(--pd-table-body-text)]');
+  expect(text).toHaveClass('text-(--pd-table-body-text)');
 });

@@ -49,7 +49,7 @@ test('Expect column styling available', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-running)]');
+  expect(svg).toHaveClass('text-(--pd-status-running)');
 });
 
 test('Expect column styling unavailable', async () => {
@@ -63,7 +63,7 @@ test('Expect column styling unavailable', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-degraded)]');
+  expect(svg).toHaveClass('text-(--pd-status-degraded)');
 });
 
 test('Expect column styling updated', async () => {
@@ -77,7 +77,7 @@ test('Expect column styling updated', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-updated)]');
+  expect(svg).toHaveClass('text-(--pd-status-updated)');
 });
 
 test('Expect column styling new replica set', async () => {
@@ -91,7 +91,7 @@ test('Expect column styling new replica set', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-updated)]');
+  expect(svg).toHaveClass('text-(--pd-status-updated)');
 });
 
 test('Expect column styling progressed', async () => {
@@ -105,7 +105,7 @@ test('Expect column styling progressed', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-running)]');
+  expect(svg).toHaveClass('text-(--pd-status-running)');
 });
 
 test('Expect column styling scaled up', async () => {
@@ -119,7 +119,7 @@ test('Expect column styling scaled up', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-updated)]');
+  expect(svg).toHaveClass('text-(--pd-status-updated)');
 });
 
 test('Expect column styling scaled down', async () => {
@@ -133,7 +133,7 @@ test('Expect column styling scaled down', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-updated)]');
+  expect(svg).toHaveClass('text-(--pd-status-updated)');
 });
 
 test('Expect column styling deadline exceeded', async () => {
@@ -147,7 +147,7 @@ test('Expect column styling deadline exceeded', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-dead)]');
+  expect(svg).toHaveClass('text-(--pd-status-dead)');
 });
 
 test('Expect column styling replica failure', async () => {
@@ -161,5 +161,5 @@ test('Expect column styling replica failure', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-dead)]');
+  expect(svg).toHaveClass('text-(--pd-status-dead)');
 });

@@ -32,7 +32,7 @@ function waitThrottleDelay(): Promise<void> {
 </script>
 
 <Route path="/*" isAppMounted={isMounted} let:meta>
-  <main class="flex flex-col w-screen h-screen overflow-hidden bg-[var(--pd-content-bg)] text-base">
+  <main class="flex flex-col w-screen h-screen overflow-hidden bg-(--pd-content-bg) text-base">
     <div class="flex flex-row w-full h-full overflow-hidden">
       {#if !currentContextName}
         {#await waitThrottleDelay() then _}

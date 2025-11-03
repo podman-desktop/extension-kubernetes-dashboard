@@ -102,4 +102,4 @@ onDestroy(() => {
 });
 </script>
 
-<div class="h-full w-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]" bind:this={terminalXtermDiv}></div>
+<div class="h-full w-full p-[5px] pr-0 bg-(--pd-terminal-background)" bind:this={terminalXtermDiv}></div>

@@ -54,5 +54,5 @@ function refresh(): void {
 
 {#if currentContext.data?.contextName && !isReachableAndNotOffline}
   <Button on:click={refresh} icon={faRefresh} inProgress={inProgress}>Refresh</Button>
-  {#if error}<div class="p-2 text-[var(--pd-state-error)]">{error}</div>{/if}
+  {#if error}<div class="p-2 text-(--pd-state-error)">{error}</div>{/if}
 {/if}
