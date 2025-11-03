@@ -25,7 +25,7 @@
     "@kubernetes-dashboard/channels": "workspace:*",
     "@podman-desktop/api": "1.23.0-next.202510141447-e1ab0ef8faf",
     "@types/node": "^24",
-    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.30.1",
     "@vitest/coverage-v8": "^3.2.2",
     "eslint": "^9.37.0",
