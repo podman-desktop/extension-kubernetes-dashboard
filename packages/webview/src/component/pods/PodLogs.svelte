@@ -8,7 +8,7 @@ import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import type { Terminal } from '@xterm/xterm';
 import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import { SvelteMap } from 'svelte/reactivity';
-import { ansi256Colours, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
+import { ansi256Colours, colourizedANSIContainerName, colorizeLogLevel } from '/@/component/terminal/terminal-colors';
 
 interface Props {
   object: V1Pod;
@@ -54,13 +54,17 @@ onMount(async () => {
           // All lines are prefixed, except the last one if it's empty.
           const lines = data
             .split('\n')
+            .map(line => colorizeLogLevel(line))
             .map((line, index, arr) =>
               index < arr.length - 1 || line.length > 0 ? `${padding}${colouredName}|${line}` : line,
             );
           callback(lines.join('\n'));
         }
       : (_name: string, data: string, callback: (data: string) => void): void => {
-          callback(data);
+            const lines = data
+              .split('\n')
+              .map(line => colorizeLogLevel(line));
+            callback(lines.join('\n'));
         };
 
   for (const containerName of object.spec?.containers.map(c => c.name) ?? []) {
