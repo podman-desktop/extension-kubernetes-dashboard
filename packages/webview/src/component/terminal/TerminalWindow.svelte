@@ -17,6 +17,7 @@
     search?: boolean;
     class?: string;
     fontSize?: number;
+    lineCount?: number;
   }
 
   let {
@@ -28,6 +29,7 @@
     search = false,
     class: className,
     fontSize = 10,
+    lineCount = 1000,
   }: Props = $props();
 
   let logsXtermDiv: HTMLDivElement | undefined;
@@ -50,6 +52,7 @@
     convertEol: convertEol,
     screenReaderMode: screenReaderMode,
     rightClickSelectsWord: true,
+    scrollback: lineCount
   });
   fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
@@ -70,9 +73,14 @@
 }
 
 $effect(() => {
-  if (terminal && fontSize) {
-    terminal.options.fontSize = fontSize;
-    fitAddon?.fit();
+  if (terminal) {
+    if (fontSize) {
+      terminal.options.fontSize = fontSize;
+      fitAddon?.fit();
+    }
+    if (lineCount) {
+      terminal.options.scrollback = lineCount;
+    }    
   }
 });
 
@@ -91,7 +99,7 @@ onDestroy(() => {
 {/if}
 
 <div
-  class="{className} overflow-hidden p-[5px] pr-0 bg-[var(--pd-terminal-background)]"
+  class="{className} overflow-hidden p-[5px] pr-0 bg-[var(--pd-terminal-background)] h-full w-full"
   role="term"
   bind:this={logsXtermDiv}>
 </div>

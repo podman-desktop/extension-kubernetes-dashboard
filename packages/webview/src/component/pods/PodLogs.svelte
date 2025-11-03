@@ -193,10 +193,10 @@
     hidden={noLogs === false} />
 
   <div
-    class="min-w-full flex flex-col"
+    class="min-w-full flex flex-col overflow-hidden"
     class:invisible={noLogs === true}
     class:h-0={noLogs === true}
     class:flex-1={noLogs === false}>
-    <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn fontSize={fontSize} />
+    <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn fontSize={fontSize} lineCount={tailLines} />
   </div>
 </div>
