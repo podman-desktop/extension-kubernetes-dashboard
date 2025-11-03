@@ -1,14 +1,14 @@
 <script lang="ts">
+import { API_POD_TERMINALS, Disposable } from '@kubernetes-dashboard/channels';
 import type { V1Pod } from '@kubernetes/client-node';
-import { getContext, onDestroy, onMount } from 'svelte';
-import { Streams } from '/@/stream/streams';
-import type { IDisposable } from 'monaco-editor';
-import { Terminal } from '@xterm/xterm';
-import { getTerminalTheme } from '/@/component/terminal/terminal-theme';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
+import { Terminal } from '@xterm/xterm';
+import type { IDisposable } from 'monaco-editor';
+import { getContext, onDestroy, onMount } from 'svelte';
+import { getTerminalTheme } from '/@/component/terminal/terminal-theme';
 import { Remote } from '/@/remote/remote';
-import { API_POD_TERMINALS, Disposable } from '@kubernetes-dashboard/channels';
+import { Streams } from '/@/stream/streams';
 
 interface Props {
   object: V1Pod;

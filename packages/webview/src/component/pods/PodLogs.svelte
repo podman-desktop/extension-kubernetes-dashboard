@@ -1,24 +1,29 @@
 <script lang="ts">
-  import type { V1Pod } from '@kubernetes/client-node';
-  import { getContext, onDestroy, onMount, tick } from 'svelte';
-  import { Streams } from '/@/stream/streams';
-  import type { IDisposable, PodLogsOptions } from '@kubernetes-dashboard/channels';
-  import { EmptyScreen, Button, Input } from '@podman-desktop/ui-svelte';
-  import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
-  import type { Terminal } from '@xterm/xterm';
-  import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
-  import { SvelteMap } from 'svelte/reactivity';
-  import { ansi256Colours, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
+	import type { IDisposable, PodLogsOptions } from '@kubernetes-dashboard/channels';
+	import type { V1Pod } from '@kubernetes/client-node';
+	import { Button, EmptyScreen, Input } from '@podman-desktop/ui-svelte';
+	import type { Terminal } from '@xterm/xterm';
+	import { getContext, onDestroy, onMount, tick } from 'svelte';
+	import { SvelteMap } from 'svelte/reactivity';
+	import type { Unsubscriber } from 'svelte/store';
+	import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
+	import { ansi256Colours, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
+	import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
+	import { States } from '/@/state/states';
+	import { Streams } from '/@/stream/streams';
 
-  interface Props {
-  object: V1Pod;
-  }
-  let { object }: Props = $props();
+	interface Props {
+		object: V1Pod;
+	}
+	let { object }: Props = $props();
 
-  // Logs has been initialized
-  let noLogs = $state(true);
+  const states = getContext<States>(States);
+  const editorSettingsState = states.stateEditorSettingsInfoUI;
 
-  let logsTerminal = $state<Terminal>();
+	// Logs has been initialized
+	let noLogs = $state(true);
+
+	let logsTerminal = $state<Terminal>();
 
   // Log retrieval mode and options
   let isStreaming = $state(true);
@@ -26,7 +31,14 @@
   let tailLines = $state<number | undefined>(undefined);
   let sinceSeconds = $state<number | undefined>(undefined);
   let timestamps = $state(false);
-  let fontSize = $state(10);
+  let fontSize = $state(editorSettingsState.data?.fontSize ?? 10);
+
+  // Update fontSize when editor settings change
+  $effect(() => {
+    if (editorSettingsState.data?.fontSize !== undefined) {
+      fontSize = editorSettingsState.data.fontSize;
+    }
+  });
 
   let disposables: IDisposable[] = [];
   const streams = getContext<Streams>(Streams);
@@ -38,7 +50,7 @@
   async function loadLogs() {
     logsTerminal?.clear();
     noLogs = true;
-  
+
     disposables.forEach(disposable => disposable.dispose());
     disposables = [];
 
@@ -73,8 +85,8 @@
           }
         : (_name: string, data: string, callback: (data: string) => void): void => {
             callback(data);
-          };								
-      
+          };
+
       const options: PodLogsOptions = {
         stream: isStreaming,
         previous,
@@ -82,7 +94,7 @@
         sinceSeconds,
         timestamps,
       };
-                  
+
       for (const containerName of object.spec?.containers.map(c => c.name) ?? []) {
         disposables.push(
           await streams.streamPodLogs.subscribe(
@@ -105,11 +117,15 @@
       }
   }
 
+  let unsubscribers: Unsubscriber[] = [];
+
   onMount(async () => {
+    unsubscribers.push(editorSettingsState.subscribe());
     await loadLogs();
   });
 
   onDestroy(() => {
+    unsubscribers.forEach(unsubscriber => unsubscriber());
     disposables.forEach(disposable => disposable.dispose());
     disposables = [];
   });

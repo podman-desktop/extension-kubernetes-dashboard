@@ -18,21 +18,22 @@
 
 import { ContainerModule } from 'inversify';
 
-import { States } from './states';
-import { StateObject } from './util/state-object.svelte';
 import { IDisposable } from '@kubernetes-dashboard/channels';
-import { StateResourcesCountInfo } from './resources-count.svelte';
 import { StateActiveResourcesCountInfo } from './active-resources-count.svelte';
-import { StateCurrentContextInfo } from './current-context.svelte';
-import { StateUpdateResourceInfo } from './update-resource.svelte';
-import { StateContextsPermissionsInfo } from './contexts-permissions.svelte';
+import { StateAvailableContextsInfo } from './available-contexts.svelte';
 import { StateContextsHealthsInfo } from './contexts-healths.svelte';
+import { StateContextsPermissionsInfo } from './contexts-permissions.svelte';
+import { StateCurrentContextInfo } from './current-context.svelte';
+import { StateEditorSettingsInfo } from './editor-settings.svelte';
+import { StateEndpointsInfo } from './endpoints.svelte';
+import { StateKubernetesProvidersInfo } from './kubernetes-providers.svelte';
+import { StatePortForwardsInfo } from './port-forwards.svelte';
 import { StateResourceDetailsInfo } from './resource-details.svelte';
 import { StateResourceEventsInfo } from './resource-events.svelte';
-import { StatePortForwardsInfo } from './port-forwards.svelte';
-import { StateEndpointsInfo } from './endpoints.svelte';
-import { StateAvailableContextsInfo } from './available-contexts.svelte';
-import { StateKubernetesProvidersInfo } from './kubernetes-providers.svelte';
+import { StateResourcesCountInfo } from './resources-count.svelte';
+import { States } from './states';
+import { StateUpdateResourceInfo } from './update-resource.svelte';
+import { StateObject } from './util/state-object.svelte';
 
 const statesModule = new ContainerModule(options => {
   options.bind(States).toSelf().inSingletonScope();
@@ -52,6 +53,10 @@ const statesModule = new ContainerModule(options => {
   options.bind(StateAvailableContextsInfo).toSelf().inSingletonScope();
   options.bind(StateObject).toService(StateAvailableContextsInfo);
   options.bind(IDisposable).toService(StateAvailableContextsInfo);
+
+  options.bind(StateEditorSettingsInfo).toSelf().inSingletonScope();
+  options.bind(StateObject).toService(StateEditorSettingsInfo);
+  options.bind(IDisposable).toService(StateEditorSettingsInfo);
 
   options.bind(StateUpdateResourceInfo).toSelf().inSingletonScope();
   options.bind(StateObject).toService(StateUpdateResourceInfo);

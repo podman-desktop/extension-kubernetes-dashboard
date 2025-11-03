@@ -18,18 +18,19 @@
 
 import { ContainerModule } from 'inversify';
 import { ActiveResourcesCountDispatcher } from './active-resources-count-dispatcher';
+import { AvailableContextsDispatcher } from './available-contexts-dispatcher';
 import { ContextsHealthsDispatcher } from './contexts-healths-dispatcher';
 import { ContextsPermissionsDispatcher } from './contexts-permissions-dispatcher';
-import { ResourcesCountDispatcher } from './resources-count-dispatcher';
-import { DispatcherObject } from './util/dispatcher-object';
 import { CurrentContextDispatcher } from './current-context-dispatcher';
-import { UpdateResourceDispatcher } from './update-resource-dispatcher';
+import { EditorSettingsDispatcher } from './editor-settings-dispatcher';
+import { EndpointsDispatcher } from './endpoints-dispatcher';
+import { KubernetesProvidersDispatcher } from './kubernetes-providers-dispatcher';
+import { PortForwardsDispatcher } from './port-forwards-dispatcher';
 import { ResourceDetailsDispatcher } from './resource-details-dispatcher';
 import { ResourceEventsDispatcher } from './resource-events-dispatcher';
-import { PortForwardsDispatcher } from './port-forwards-dispatcher';
-import { EndpointsDispatcher } from './endpoints-dispatcher';
-import { AvailableContextsDispatcher } from './available-contexts-dispatcher';
-import { KubernetesProvidersDispatcher } from './kubernetes-providers-dispatcher';
+import { ResourcesCountDispatcher } from './resources-count-dispatcher';
+import { UpdateResourceDispatcher } from './update-resource-dispatcher';
+import { DispatcherObject } from './util/dispatcher-object';
 
 const dispatchersModule = new ContainerModule(options => {
   options.bind<ActiveResourcesCountDispatcher>(ActiveResourcesCountDispatcher).toSelf().inSingletonScope();
@@ -49,6 +50,9 @@ const dispatchersModule = new ContainerModule(options => {
 
   options.bind<AvailableContextsDispatcher>(AvailableContextsDispatcher).toSelf().inSingletonScope();
   options.bind(DispatcherObject).toService(AvailableContextsDispatcher);
+
+  options.bind<EditorSettingsDispatcher>(EditorSettingsDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(EditorSettingsDispatcher);
 
   options.bind<UpdateResourceDispatcher>(UpdateResourceDispatcher).toSelf().inSingletonScope();
   options.bind(DispatcherObject).toService(UpdateResourceDispatcher);
