@@ -23,7 +23,7 @@ import {
   API_POD_TERMINALS,
   type PodTerminalsApi,
   type PodTerminalChunk,
-  Disposable,
+  type IDisposable,
 } from '@kubernetes-dashboard/channels';
 import { StreamsMocks } from '/@/tests/stream-mocks';
 import { Terminal } from '@xterm/xterm';
@@ -63,7 +63,7 @@ const terminalMock = {
 beforeEach(() => {
   vi.resetAllMocks();
   vi.mocked(Terminal).mockReturnValue(terminalMock);
-  vi.mocked(terminalMock.onData).mockReturnValue(Disposable.create(() => {}));
+  vi.mocked(terminalMock.onData).mockReturnValue({ dispose: () => {} } as IDisposable);
   streamMocks.reset();
   streamMocks.mock<PodTerminalChunk>('streamPodTerminals', streamPodTerminalsMock);
 
