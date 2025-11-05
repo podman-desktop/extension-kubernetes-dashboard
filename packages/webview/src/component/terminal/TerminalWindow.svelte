@@ -57,7 +57,7 @@
 			return;
 		}
 		// grab font size
-    const fontSize = 10; // TODO: get from configuration
+        const fontSize = 10; // TODO: get from configuration
 		const lineHeight = 1; // TODO: get from configuration
 
 		terminal = new Terminal({
@@ -78,11 +78,11 @@
 			terminal.write('\x1b[?25l');
 		}
 
-	  //copy behavior
+	    //copy behavior
 		terminal.attachCustomKeyEventHandler((event: KeyboardEvent): boolean => {
 			if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
 				copySelectionToClipboard();
-				return false;
+                //after copying allow other terminal behavior to continue
 			}
 			return true;
 		});
