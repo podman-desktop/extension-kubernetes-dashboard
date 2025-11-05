@@ -32,8 +32,8 @@ test('Expect basic styling', async () => {
   });
   const label = screen.getByText(text);
   expect(label).toBeInTheDocument();
-  expect(label.parentElement).toHaveClass('bg-[var(--pd-label-bg)]');
-  expect(label.parentElement).toHaveClass('text-[var(--pd-label-text)]');
+  expect(label.parentElement).toHaveClass('bg-(--pd-label-bg)');
+  expect(label.parentElement).toHaveClass('text-(--pd-label-text)');
   expect(label.parentElement).toHaveClass('text-sm');
   expect(label.parentElement).toHaveClass('rounded-md');
   expect(label.parentElement).toHaveClass('p-1');

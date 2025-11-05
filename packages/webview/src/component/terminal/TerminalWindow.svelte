@@ -99,7 +99,7 @@ onDestroy(() => {
 {/if}
 
 <div
-  class="{className} overflow-hidden p-[5px] pr-0 bg-[var(--pd-terminal-background)] h-full w-full"
+  class="{className} overflow-hidden p-[5px] pr-0 bg-(--pd-terminal-background) h-full w-full"
   role="term"
   bind:this={logsXtermDiv}>
 </div>

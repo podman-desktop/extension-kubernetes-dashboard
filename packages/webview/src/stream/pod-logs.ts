@@ -16,19 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { inject } from 'inversify';
-import { Remote } from '/@/remote/remote';
 import {
   API_POD_LOGS,
   POD_LOGS,
+  type IDisposable,
   type PodLogsApi,
   type PodLogsChunk,
-  Disposable,
-  type IDisposable,
   type PodLogsOption,
 } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { inject } from 'inversify';
 import type { StreamObject } from './util/stream-object';
+import { Remote } from '/@/remote/remote';
 
 export class StreamPodLogs implements StreamObject<PodLogsChunk> {
   #podLogsApi: PodLogsApi;
@@ -52,10 +51,12 @@ export class StreamPodLogs implements StreamObject<PodLogsChunk> {
       }
       callback(chunk);
     });
-      await this.#podLogsApi.streamPodLogs(podName, namespace, containerName, options);
-    return Disposable.create(() => {
-      disposable.dispose();
-      this.#podLogsApi.stopStreamPodLogs(podName, namespace, containerName).catch(console.error);
-    });
+    await this.#podLogsApi.streamPodLogs(podName, namespace, containerName, options);
+    return {
+      dispose: () => {
+        disposable.dispose();
+        this.#podLogsApi.stopStreamPodLogs(podName, namespace, containerName).catch(console.error);
+      },
+    } as IDisposable;
   }
 }

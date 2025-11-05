@@ -1,5 +1,5 @@
 <script lang="ts">
-import { API_POD_TERMINALS, Disposable } from '@kubernetes-dashboard/channels';
+import { API_POD_TERMINALS } from '@kubernetes-dashboard/channels';
 import type { V1Pod } from '@kubernetes/client-node';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
@@ -47,7 +47,7 @@ async function initializeNewTerminal(
   containerName: string,
 ): Promise<IDisposable> {
   if (!container) {
-    return Disposable.create(() => {});
+    return { dispose: () => {} } as IDisposable;
   }
   shellTerminal = new Terminal({
     fontSize: 10,
@@ -86,14 +86,16 @@ async function initializeNewTerminal(
   window.addEventListener('resize', onResize);
   await resize();
 
-  return Disposable.create(() => {
-    const terminalContent = serializeAddon.serialize();
-    podTerminalsApi.saveState(podName, namespace, containerName, terminalContent).catch(console.error);
-    window.removeEventListener('resize', onResize);
-    shellTerminal.dispose();
-    fitAddon.dispose();
-    serializeAddon.dispose();
-  });
+  return {
+    dispose: () => {
+      const terminalContent = serializeAddon.serialize();
+      podTerminalsApi.saveState(podName, namespace, containerName, terminalContent).catch(console.error);
+      window.removeEventListener('resize', onResize);
+      shellTerminal.dispose();
+      fitAddon.dispose();
+      serializeAddon.dispose();
+    },
+  } as IDisposable;
 }
 
 onDestroy(() => {
@@ -102,4 +104,4 @@ onDestroy(() => {
 });
 </script>
 
-<div class="h-full w-full p-[5px] pr-0 bg-[var(--pd-terminal-background)]" bind:this={terminalXtermDiv}></div>
+<div class="h-full w-full p-[5px] pr-0 bg-(--pd-terminal-background)" bind:this={terminalXtermDiv}></div>
