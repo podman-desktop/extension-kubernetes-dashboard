@@ -38,6 +38,7 @@ import {
   API_SYSTEM,
   AVAILABLE_CONTEXTS,
   CONTEXTS_HEALTHS,
+  CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
   IDisposable,
 } from '@kubernetes-dashboard/channels';
@@ -52,6 +53,7 @@ import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
 import type {
   AvailableContextsInfo,
   ContextsHealthsInfo,
+  ContextsPermissionsInfo,
   CurrentContextInfo,
   KubernetesDashboardExtensionApi,
   KubernetesDashboardSubscriber,
@@ -139,6 +141,9 @@ export class DashboardExtension {
         return {
           onContextsHealth: (listener: (event: ContextsHealthsInfo) => void): IDisposable => {
             return subscriber.subscribe(CONTEXTS_HEALTHS, undefined, listener);
+          },
+          onContextsPermissions: (listener: (event: ContextsPermissionsInfo) => void): IDisposable => {
+            return subscriber.subscribe(CONTEXTS_PERMISSIONS, undefined, listener);
           },
           onAvailableContexts: (listener: (event: AvailableContextsInfo) => void): IDisposable => {
             return subscriber.subscribe(AVAILABLE_CONTEXTS, undefined, listener);

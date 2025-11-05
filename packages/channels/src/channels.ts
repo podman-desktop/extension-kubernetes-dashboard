@@ -24,7 +24,6 @@ import type { PortForwardApi } from './interface/port-forward-api';
 import type { SubscribeApi } from './interface/subscribe-api';
 import type { SystemApi } from './interface/system-api';
 import type { ActiveResourcesCountInfo } from './model/active-resources-count-info';
-import type { ContextsPermissionsInfo } from './model/contexts-permissions-info';
 import type { EndpointsInfo } from './model/endpoints-info';
 import type { KubernetesProvidersInfo } from './model/kubernetes-providers-info';
 import type { PodLogsChunk } from './model/pod-logs-chunk';
@@ -38,6 +37,7 @@ import { createRpcChannel } from '@kubernetes-dashboard/rpc';
 import type {
   AvailableContextsInfo,
   ContextsHealthsInfo,
+  ContextsPermissionsInfo,
   CurrentContextInfo,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 

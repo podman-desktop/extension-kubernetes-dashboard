@@ -36,6 +36,28 @@ export interface ContextsHealthsInfo {
   healths: ContextHealth[];
 }
 
+export interface ContextPermission {
+  contextName: string;
+  // the resource name is a generic string type and not a string literal type, as we want to handle CRDs names
+  resourceName: string;
+  // permitted if allowed and not denied
+  // > When multiple authorization modules are configured, each is checked in sequence.
+  // > If any authorizer approves or denies a request, that decision is immediately returned
+  // > and no other authorizer is consulted. If all modules have no opinion on the request,
+  // > then the request is denied. An overall deny verdict means that the API server rejects
+  // > the request and responds with an HTTP 403 (Forbidden) status.
+  // (source: https://kubernetes.io/docs/reference/access-authn-authz/authorization/)
+  permitted: boolean;
+  // A free-form and optional text reason for the resource being allowed or denied.
+  // We cannot rely on having a reason for every request.
+  // For exemple on Kind cluster, a reason is given only when the access is allowed, no reason is done for denial.
+  reason?: string;
+}
+
+export interface ContextsPermissionsInfo {
+  permissions: ContextPermission[];
+}
+
 export interface AvailableContextsInfo {
   contextNames: string[];
 }
@@ -50,6 +72,7 @@ export interface CurrentContextInfo {
  */
 export interface KubernetesDashboardSubscriber {
   onContextsHealth(listener: (event: ContextsHealthsInfo) => void): Disposable;
+  onContextsPermissions(listener: (event: ContextsPermissionsInfo) => void): Disposable;
   onAvailableContexts(listener: (event: AvailableContextsInfo) => void): Disposable;
   onCurrentContext(listener: (event: CurrentContextInfo) => void): Disposable;
   /**
