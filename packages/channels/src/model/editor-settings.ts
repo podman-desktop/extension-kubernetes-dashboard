@@ -16,17 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const PodLogsApi = Symbol.for('PodLogsApi');
-
-export type PodLogsOptions = {
-    stream?: boolean;
-    previous?: boolean;
-    tailLines?: number;
-    sinceSeconds?: number;
-    timestamps?: boolean;
-};
-
-export interface PodLogsApi {
-    streamPodLogs(podName: string, namespace: string, containerName: string, options?: PodLogsOptions): Promise<void>;
-    stopStreamPodLogs(podName: string, namespace: string, containerName: string): Promise<void>;
+export interface EditorSettings {
+  fontSize: number;
 }

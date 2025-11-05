@@ -17,18 +17,19 @@
  ***********************************************************************/
 
 import { inject, injectable } from 'inversify';
-import { StateResourcesCountInfo } from './resources-count.svelte';
 import { StateActiveResourcesCountInfo } from './active-resources-count.svelte';
-import { StateCurrentContextInfo } from './current-context.svelte';
-import { StateUpdateResourceInfo } from './update-resource.svelte';
-import { StateContextsPermissionsInfo } from './contexts-permissions.svelte';
+import { StateAvailableContextsInfo } from './available-contexts.svelte';
 import { StateContextsHealthsInfo } from './contexts-healths.svelte';
+import { StateContextsPermissionsInfo } from './contexts-permissions.svelte';
+import { StateCurrentContextInfo } from './current-context.svelte';
+import { StateEditorSettingsInfo } from './editor-settings.svelte';
+import { StateEndpointsInfo } from './endpoints.svelte';
+import { StateKubernetesProvidersInfo } from './kubernetes-providers.svelte';
+import { StatePortForwardsInfo } from './port-forwards.svelte';
 import { StateResourceDetailsInfo } from './resource-details.svelte';
 import { StateResourceEventsInfo } from './resource-events.svelte';
-import { StatePortForwardsInfo } from './port-forwards.svelte';
-import { StateEndpointsInfo } from './endpoints.svelte';
-import { StateAvailableContextsInfo } from './available-contexts.svelte';
-import { StateKubernetesProvidersInfo } from './kubernetes-providers.svelte';
+import { StateResourcesCountInfo } from './resources-count.svelte';
+import { StateUpdateResourceInfo } from './update-resource.svelte';
 
 @injectable()
 export class States {
@@ -100,6 +101,13 @@ export class States {
 
   get statePortForwardsInfoUI(): StatePortForwardsInfo {
     return this._statePortForwardsInfoUI;
+  }
+
+  @inject(StateEditorSettingsInfo)
+  private _stateEditorSettingsInfoUI: StateEditorSettingsInfo;
+
+  get stateEditorSettingsInfoUI(): StateEditorSettingsInfo {
+    return this._stateEditorSettingsInfoUI;
   }
 
   @inject(StateEndpointsInfo)
