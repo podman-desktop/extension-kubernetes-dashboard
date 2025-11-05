@@ -47,6 +47,7 @@ import {
   UPDATE_RESOURCE,
 } from '@kubernetes-dashboard/channels';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
+import { ChannelSubscriber } from '/@/types/channel-subscriber.js';
 
 let container: Container;
 const contextsManagerMock: ContextsManager = {
@@ -86,7 +87,11 @@ const kubernetesProvidersManagerMock = {
   onKubernetesProvidersChange: vi.fn(),
   getKubernetesProviders: vi.fn(),
 } as unknown as KubernetesProvidersManager;
-
+const webviewSubscriberMock = {
+  onSubscribe: vi.fn(),
+  hasSubscribers: vi.fn(),
+  getSubscriptions: vi.fn(),
+} as unknown as ChannelSubscriber;
 beforeAll(async () => {
   const inversifyBinding = new InversifyBinding(rpcExtension, extensionContext, telemetryLogger);
   container = await inversifyBinding.initBindings();
@@ -96,6 +101,7 @@ beforeAll(async () => {
   (await container.rebind(ContextsHealthsDispatcher)).toConstantValue(contextsHealthsDispatcher);
   (await container.rebind(ContextsPermissionsDispatcher)).toConstantValue(contextsPermissionsDispatcher);
   (await container.rebind(KubernetesProvidersManager)).toConstantValue(kubernetesProvidersManagerMock);
+  (await container.rebind(ChannelSubscriber)).toConstantValue(webviewSubscriberMock);
 });
 
 beforeEach(() => {
@@ -206,9 +212,9 @@ test('ContextsStatesDispatcher should dispatch CURRENT_CONTEXT when onCurrentCon
 test('dispatchByChannelName is called when onSubscribe emits an event', async () => {
   const dispatchByChannelNameSpy = vi.spyOn(dispatcher, 'dispatchByChannelName').mockResolvedValue();
 
-  vi.spyOn(dispatcher, 'onSubscribe').mockImplementation(f => f('channel1') as IDisposable);
+  vi.mocked(webviewSubscriberMock.onSubscribe).mockImplementation(f => f('channel1') as IDisposable);
   dispatcher.init();
-  expect(dispatchByChannelNameSpy).toHaveBeenCalledWith('channel1');
+  expect(dispatchByChannelNameSpy).toHaveBeenCalledWith(webviewSubscriberMock, 'channel1');
 });
 
 test('ContextsStatesDispatcher should dispatch ENDPOINTS when onEndpointsChange event is fired', async () => {
