@@ -37,6 +37,7 @@ import {
   API_SUBSCRIBE,
   API_SYSTEM,
   AVAILABLE_CONTEXTS,
+  CONTEXTS_HEALTHS,
   CURRENT_CONTEXT,
   IDisposable,
 } from '@kubernetes-dashboard/channels';
@@ -50,6 +51,7 @@ import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
 import type {
   AvailableContextsInfo,
+  ContextsHealthsInfo,
   CurrentContextInfo,
   KubernetesDashboardExtensionApi,
   KubernetesDashboardSubscriber,
@@ -135,6 +137,9 @@ export class DashboardExtension {
         const subscriber = new ApiSubscriber();
         this.#contextsStatesDispatcher.addSubscriber(subscriber);
         return {
+          onContextsHealth: (listener: (event: ContextsHealthsInfo) => void): IDisposable => {
+            return subscriber.subscribe(CONTEXTS_HEALTHS, undefined, listener);
+          },
           onAvailableContexts: (listener: (event: AvailableContextsInfo) => void): IDisposable => {
             return subscriber.subscribe(AVAILABLE_CONTEXTS, undefined, listener);
           },

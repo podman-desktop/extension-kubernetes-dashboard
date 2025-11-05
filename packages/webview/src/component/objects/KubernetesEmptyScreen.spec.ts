@@ -23,9 +23,9 @@ import KubernetesEmptyScreen from './KubernetesEmptyScreen.svelte';
 import CheckConnection from '/@/component/connection/CheckConnection.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { ContextsHealthsInfo, ContextsPermissionsInfo } from '@kubernetes-dashboard/channels';
+import type { ContextsPermissionsInfo } from '@kubernetes-dashboard/channels';
 import NodeIcon from '/@/component/icons/NodeIcon.svelte';
-import type { CurrentContextInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import type { ContextsHealthsInfo, CurrentContextInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 vi.mock(import('/@/component/connection/CheckConnection.svelte'));
 

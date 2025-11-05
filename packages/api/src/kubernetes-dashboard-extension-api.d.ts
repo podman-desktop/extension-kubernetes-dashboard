@@ -18,6 +18,24 @@
 
 import type { Disposable } from '@podman-desktop/api';
 
+export interface ContextHealth {
+  contextName: string;
+  // is the health of the cluster being checked?
+  checking: boolean;
+  // was the health check successful?
+  reachable: boolean;
+  // is one of the informers marked offline (disconnect after being connected, the cache still being populated)
+  offline: boolean;
+  // description in case of error (other than health check)
+  // currently detected errors:
+  // - user.exec.command not found
+  errorMessage?: string;
+}
+
+export interface ContextsHealthsInfo {
+  healths: ContextHealth[];
+}
+
 export interface AvailableContextsInfo {
   contextNames: string[];
 }
@@ -31,6 +49,7 @@ export interface CurrentContextInfo {
  * The subscriber for the events emitted by the Kubernetes Dashboard extension.
  */
 export interface KubernetesDashboardSubscriber {
+  onContextsHealth(listener: (event: ContextsHealthsInfo) => void): Disposable;
   onAvailableContexts(listener: (event: AvailableContextsInfo) => void): Disposable;
   onCurrentContext(listener: (event: CurrentContextInfo) => void): Disposable;
   /**
