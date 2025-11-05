@@ -24,11 +24,15 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import KubernetesDashboardResourceCard from './DashboardResourceCard.svelte';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { ActiveResourcesCountInfo, ResourcesCountInfo } from '@kubernetes-dashboard/channels';
+import type { ActiveResourcesCountInfo } from '@kubernetes-dashboard/channels';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { Navigator } from '/@/navigation/navigator';
-import type { CurrentContextInfo, ContextsPermissionsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import type {
+  CurrentContextInfo,
+  ContextsPermissionsInfo,
+  ResourcesCountInfo,
+} from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 const statesMocks = new StatesMocks();
 const dependencyMocks = new DependencyMocks();

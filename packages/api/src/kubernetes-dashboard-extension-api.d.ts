@@ -67,6 +67,16 @@ export interface CurrentContextInfo {
   namespace?: string;
 }
 
+export interface ResourceCount {
+  contextName: string;
+  resourceName: string;
+  count: number;
+}
+
+export interface ResourcesCountInfo {
+  counts: ResourceCount[];
+}
+
 /**
  * The subscriber for the events emitted by the Kubernetes Dashboard extension.
  */
@@ -75,6 +85,7 @@ export interface KubernetesDashboardSubscriber {
   onContextsPermissions(listener: (event: ContextsPermissionsInfo) => void): Disposable;
   onAvailableContexts(listener: (event: AvailableContextsInfo) => void): Disposable;
   onCurrentContext(listener: (event: CurrentContextInfo) => void): Disposable;
+  onResourcesCount(listener: (event: ResourcesCountInfo) => void): Disposable;
   /**
    * Disposes the subscriber and unsubscribes from all the events emitted by the Kubernetes Dashboard extension.
    */

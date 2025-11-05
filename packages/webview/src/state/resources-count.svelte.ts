@@ -22,7 +22,7 @@ import { RESOURCES_COUNT } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { ResourcesCountInfo } from '@kubernetes-dashboard/channels';
+import type { ResourcesCountInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 // Define a state for the ResourcesCountInfo
 @injectable()
