@@ -17,13 +17,8 @@
  ***********************************************************************/
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { RpcExtension } from '@kubernetes-dashboard/rpc';
 import type { ContextsManager } from '/@/manager/contexts-manager';
 import { UpdateResourceDispatcher } from '/@/dispatcher/update-resource-dispatcher';
-
-const rpcExtension = {
-  fire: vi.fn(),
-} as unknown as RpcExtension;
 
 const contextsManager = {
   getResources: vi.fn(),
@@ -34,7 +29,7 @@ beforeEach(() => {
 });
 
 test('getData with explicit context names', () => {
-  const dispatcher = new UpdateResourceDispatcher(rpcExtension, contextsManager);
+  const dispatcher = new UpdateResourceDispatcher(contextsManager);
   dispatcher.getData([
     { resourceName: 'resource1', contextName: 'context1' },
     { resourceName: 'resource2', contextName: 'context2' },
@@ -45,7 +40,7 @@ test('getData with explicit context names', () => {
 });
 
 test('getData with implicit context name', () => {
-  const dispatcher = new UpdateResourceDispatcher(rpcExtension, contextsManager);
+  const dispatcher = new UpdateResourceDispatcher(contextsManager);
   dispatcher.getData([{ resourceName: 'resource1' }, { resourceName: 'resource2' }]);
   expect(contextsManager.getResources).toHaveBeenCalledTimes(2);
   expect(contextsManager.getResources).toHaveBeenCalledWith('resource1', undefined);
