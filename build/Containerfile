@@ -43,7 +43,9 @@ RUN mkdir /opt/app-root/extension && \
       mkdir -p /opt/app-root/extension/packages/rpc/ && \
       cp packages/rpc/package.json /opt/app-root/extension/packages/rpc/ && \
       mkdir -p /opt/app-root/extension/packages/channels/ && \
-      cp packages/channels/package.json /opt/app-root/extension/packages/channels/
+      cp packages/channels/package.json /opt/app-root/extension/packages/channels/ && \
+      mkdir -p /opt/app-root/extension/packages/api/ && \
+      cp packages/api/package.json /opt/app-root/extension/packages/api/
 
 COPY LICENSE /opt/app-root/extension/
 COPY README.md /opt/app-root/extension/
