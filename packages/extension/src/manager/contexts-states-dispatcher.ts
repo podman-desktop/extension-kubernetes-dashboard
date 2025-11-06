@@ -29,7 +29,6 @@ import {
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
-  SubscribeApi,
   KUBERNETES_PROVIDERS,
 } from '@kubernetes-dashboard/channels';
 
@@ -45,7 +44,7 @@ import { PortForwardServiceProvider } from '/@/port-forward/port-forward-service
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
 
 @injectable()
-export class ContextsStatesDispatcher extends ChannelSubscriber implements SubscribeApi {
+export class ContextsStatesDispatcher {
   @inject(ContextsManager)
   private manager: ContextsManager;
 
@@ -55,10 +54,12 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
   @inject(KubernetesProvidersManager)
   private kubernetesProvidersManager: KubernetesProvidersManager;
 
+  @inject(ChannelSubscriber)
+  private webviewSubscriber: ChannelSubscriber;
+
   #dispatchers: Map<string, DispatcherObject<unknown>> = new Map();
 
   constructor(@multiInject(DispatcherObject) dispatchers: DispatcherObject<unknown>[]) {
-    super();
     dispatchers.forEach(dispatcher => {
       this.#dispatchers.set(dispatcher.channelName, dispatcher);
     });
@@ -103,10 +104,11 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
     this.manager.onEndpointsChange(async () => {
       await this.dispatch(ENDPOINTS);
     });
-    this.onSubscribe(channelName => this.dispatchByChannelName(channelName));
     this.kubernetesProvidersManager.onKubernetesProvidersChange(async () => {
       await this.dispatch(KUBERNETES_PROVIDERS);
     });
+
+    this.webviewSubscriber.onSubscribe(channelName => this.dispatchByChannelName(this.webviewSubscriber, channelName));
   }
 
   // TODO replace this with an event
@@ -115,14 +117,14 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
   }
 
   async dispatch(channel: RpcChannel<unknown>): Promise<void> {
-    return this.dispatchByChannelName(channel.name);
+    return this.dispatchByChannelName(this.webviewSubscriber, channel.name);
   }
 
-  async dispatchByChannelName(channelName: string): Promise<void> {
-    if (!this.hasSubscribers(channelName)) {
+  async dispatchByChannelName(subscriber: ChannelSubscriber, channelName: string): Promise<void> {
+    if (!subscriber.hasSubscribers(channelName)) {
       return;
     }
-    const subscriptions = this.getSubscriptions(channelName);
+    const subscriptions = subscriber.getSubscriptions(channelName);
 
     const dispatcher = this.#dispatchers.get(channelName);
     if (!dispatcher) {
