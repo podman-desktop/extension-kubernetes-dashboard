@@ -45,7 +45,7 @@ import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
 import { PodTerminalsApiImpl } from './manager/pod-terminals-api-impl';
 import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
-import { ChannelSubscriber } from '/@/types/channel-subscriber';
+import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
 
 export class DashboardExtension {
   #container: Container | undefined;
