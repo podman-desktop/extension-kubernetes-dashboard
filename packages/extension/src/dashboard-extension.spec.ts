@@ -24,6 +24,7 @@ import { vol } from 'memfs';
 
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { ContextsStatesDispatcher } from '/@/manager/contexts-states-dispatcher';
+import { type ApiSubscriber } from '/@/subscriber/api-subscriber';
 
 let extensionContextMock: ExtensionContext;
 let dashboardExtension: DashboardExtension;
@@ -35,11 +36,15 @@ vi.mock(import('node:fs/promises'));
 vi.mock(import('@kubernetes/client-node'));
 vi.mock(import('./manager/contexts-manager'));
 vi.mock(import('./manager/contexts-states-dispatcher'));
+vi.mock(import('./subscriber/api-subscriber'));
 
 beforeEach(() => {
   vi.restoreAllMocks();
   vi.resetAllMocks();
   vol.reset();
+  vol.fromJSON({
+    '/path/to/extension/index.html': '<html></html>',
+  });
 
   vi.mocked(window.createWebviewPanel).mockReturnValue({
     webview: {
@@ -63,6 +68,7 @@ beforeEach(() => {
 
   contextsStatesDispatcherMock = {
     init: vi.fn(),
+    addSubscriber: vi.fn(),
   } as unknown as ContextsStatesDispatcher;
   vi.mocked(ContextsStatesDispatcher).mockReturnValue(contextsStatesDispatcherMock);
 
@@ -73,12 +79,6 @@ beforeEach(() => {
 });
 
 describe('a kubeconfig file is not present', () => {
-  beforeEach(() => {
-    vol.fromJSON({
-      '/path/to/extension/index.html': '<html></html>',
-    });
-  });
-
   test('should activate correctly and calls contextsManager every time the kubeconfig file changes', async () => {
     await dashboardExtension.activate();
     expect(contextsManagerMock.update).not.toHaveBeenCalled();
@@ -125,4 +125,19 @@ describe('a kubeconfig file is present', () => {
     const p = await dashboardExtension.deactivate();
     expect(p).toBeUndefined();
   });
+});
+
+test('activate should return a KubernetesDashboardExtensionApi', async () => {
+  const api = await dashboardExtension.activate();
+  expect(api).toBeDefined();
+  expect(api.getSubscriber).toBeDefined();
+
+  const subscriber = api.getSubscriber();
+  expect(subscriber).toBeDefined();
+  expect(contextsStatesDispatcherMock.addSubscriber).toHaveBeenCalled();
+  const apiSubscriber = vi.mocked(contextsStatesDispatcherMock.addSubscriber).mock.lastCall?.[0];
+
+  subscriber.dispose();
+  expect(apiSubscriber).toBeDefined();
+  expect((apiSubscriber as ApiSubscriber).dispose).toHaveBeenCalledOnce();
 });
