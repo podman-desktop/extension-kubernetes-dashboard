@@ -46,6 +46,11 @@ import { PodTerminalsApiImpl } from './manager/pod-terminals-api-impl';
 import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
+import type {
+  KubernetesDashboardExtensionApi,
+  KubernetesDashboardSubscriber,
+} from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { ApiSubscriber } from '/@/subscriber/api-subscriber';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -68,7 +73,7 @@ export class DashboardExtension {
     this.#extensionContext = extensionContext;
   }
 
-  async activate(): Promise<void> {
+  async activate(): Promise<KubernetesDashboardExtensionApi> {
     const telemetryLogger = env.createTelemetryLogger();
 
     const panel = await this.createWebview();
@@ -120,6 +125,18 @@ export class DashboardExtension {
         }
       }
     });
+
+    return {
+      getSubscriber: () => {
+        const subscriber = new ApiSubscriber();
+        this.#contextsStatesDispatcher.addSubscriber(subscriber);
+        return {
+          dispose: () => {
+            subscriber.dispose();
+          },
+        } as KubernetesDashboardSubscriber;
+      },
+    } as KubernetesDashboardExtensionApi;
   }
 
   async deactivate(): Promise<void> {
