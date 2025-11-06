@@ -16,11 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { ChannelSubscriber } from '/@/types/channel-subscriber';
+import type { IDisposable } from '@kubernetes-dashboard/channels';
+import type { RpcChannel } from '@kubernetes-dashboard/rpc';
 
-const typesModule = new ContainerModule(options => {
-  options.bind<ChannelSubscriber>(ChannelSubscriber).toSelf().inSingletonScope();
-});
-
-export { typesModule };
+export interface StateSubscriber {
+  hasSubscribers(channelName: string): boolean;
+  getSubscriptions(channelName: string): unknown[];
+  onSubscribe: (listener: (e: string) => unknown) => IDisposable;
+  dispatch<T>(channel: RpcChannel<T>, data: T): Promise<void>;
+}

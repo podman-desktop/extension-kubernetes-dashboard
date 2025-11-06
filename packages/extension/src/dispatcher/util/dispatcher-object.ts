@@ -16,12 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { RpcChannel, RpcExtension } from '@kubernetes-dashboard/rpc';
+import type { RpcChannel } from '@kubernetes-dashboard/rpc';
+import type { StateSubscriber } from '/@/subscriber/state-subscriber';
 
 export const DispatcherObject = Symbol.for('DispatcherObject');
 export interface DispatcherObject<T> {
   get channelName(): string;
-  dispatch(options?: T): Promise<void>;
+  dispatch(subscriber: StateSubscriber, options?: T): Promise<void>;
 }
 
 // Allow to receive event for a given object
@@ -33,10 +34,7 @@ export abstract class AbsDispatcherObjectImpl<T, U> implements DispatcherObject<
   #debounceTimer: NodeJS.Timeout | undefined;
   #throttleTimer: NodeJS.Timeout | undefined;
 
-  constructor(
-    private rpcExtension: RpcExtension,
-    channel: RpcChannel<U>,
-  ) {
+  constructor(channel: RpcChannel<U>) {
     this.#channel = channel;
     this.#debounceTimeout = 100;
     this.#throttleTimeout = 200;
@@ -46,9 +44,9 @@ export abstract class AbsDispatcherObjectImpl<T, U> implements DispatcherObject<
     return this.#channel.name;
   }
 
-  async dispatch(options?: T): Promise<void> {
-    const doDispatch = (): Promise<boolean> => {
-      return this.rpcExtension.fire(this.#channel, this.getData(options));
+  async dispatch(subscriber: StateSubscriber, options?: T): Promise<void> {
+    const doDispatch = (): Promise<void> => {
+      return subscriber.dispatch(this.#channel, this.getData(options));
     };
 
     if (this.#debounceTimer) {
