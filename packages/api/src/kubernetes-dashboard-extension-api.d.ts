@@ -16,10 +16,34 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Disposable } from '@podman-desktop/api';
+
+export interface ContextHealth {
+  contextName: string;
+  // is the health of the cluster being checked?
+  checking: boolean;
+  // was the health check successful?
+  reachable: boolean;
+  // is one of the informers marked offline (disconnect after being connected, the cache still being populated)
+  offline: boolean;
+  // description in case of error (other than health check)
+  // currently detected errors:
+  // - user.exec.command not found
+  errorMessage?: string;
+}
+
+export interface ContextsHealthsInfo {
+  healths: ContextHealth[];
+}
+
 /**
  * The subscriber for the events emitted by the Kubernetes Dashboard extension.
  */
 export interface KubernetesDashboardSubscriber {
+  /**
+   * Subscribes to the events emitted every time the health of the contexts changes.
+   */
+  onContextsHealth(listener: (event: ContextsHealthsInfo) => void): Disposable;
   /**
    * Disposes the subscriber and unsubscribes from all the events emitted by the Kubernetes Dashboard extension.
    */
