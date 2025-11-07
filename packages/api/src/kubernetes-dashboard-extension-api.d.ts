@@ -16,10 +16,76 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { Disposable } from '@podman-desktop/api';
+
+export interface ContextHealth {
+  contextName: string;
+  // is the health of the cluster being checked?
+  checking: boolean;
+  // was the health check successful?
+  reachable: boolean;
+  // is one of the informers marked offline (disconnect after being connected, the cache still being populated)
+  offline: boolean;
+  // description in case of error (other than health check)
+  // currently detected errors:
+  // - user.exec.command not found
+  errorMessage?: string;
+}
+
+export interface ContextsHealthsInfo {
+  healths: ContextHealth[];
+}
+
+export interface ContextPermission {
+  contextName: string;
+  // the resource name is a generic string type and not a string literal type, as we want to handle CRDs names
+  resourceName: string;
+  // permitted if allowed and not denied
+  // > When multiple authorization modules are configured, each is checked in sequence.
+  // > If any authorizer approves or denies a request, that decision is immediately returned
+  // > and no other authorizer is consulted. If all modules have no opinion on the request,
+  // > then the request is denied. An overall deny verdict means that the API server rejects
+  // > the request and responds with an HTTP 403 (Forbidden) status.
+  // (source: https://kubernetes.io/docs/reference/access-authn-authz/authorization/)
+  permitted: boolean;
+  // A free-form and optional text reason for the resource being allowed or denied.
+  // We cannot rely on having a reason for every request.
+  // For exemple on Kind cluster, a reason is given only when the access is allowed, no reason is done for denial.
+  reason?: string;
+}
+
+export interface ContextsPermissionsInfo {
+  permissions: ContextPermission[];
+}
+
+export interface AvailableContextsInfo {
+  contextNames: string[];
+}
+
+export interface CurrentContextInfo {
+  contextName?: string;
+  namespace?: string;
+}
+
+export interface ResourceCount {
+  contextName: string;
+  resourceName: string;
+  count: number;
+}
+
+export interface ResourcesCountInfo {
+  counts: ResourceCount[];
+}
+
 /**
  * The subscriber for the events emitted by the Kubernetes Dashboard extension.
  */
 export interface KubernetesDashboardSubscriber {
+  onContextsHealth(listener: (event: ContextsHealthsInfo) => void): Disposable;
+  onContextsPermissions(listener: (event: ContextsPermissionsInfo) => void): Disposable;
+  onAvailableContexts(listener: (event: AvailableContextsInfo) => void): Disposable;
+  onCurrentContext(listener: (event: CurrentContextInfo) => void): Disposable;
+  onResourcesCount(listener: (event: ResourcesCountInfo) => void): Disposable;
   /**
    * Disposes the subscriber and unsubscribes from all the events emitted by the Kubernetes Dashboard extension.
    */

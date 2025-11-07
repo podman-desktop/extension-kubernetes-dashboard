@@ -22,7 +22,7 @@ import { CONTEXTS_HEALTHS } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from '/@/state/util/state-object.svelte';
-import type { ContextsHealthsInfo } from '@kubernetes-dashboard/channels';
+import type { ContextsHealthsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 // Define a state for the ContextsHealthsInfo
 @injectable()

@@ -36,7 +36,12 @@ import {
   API_PORT_FORWARD,
   API_SUBSCRIBE,
   API_SYSTEM,
+  AVAILABLE_CONTEXTS,
+  CONTEXTS_HEALTHS,
+  CONTEXTS_PERMISSIONS,
+  CURRENT_CONTEXT,
   IDisposable,
+  RESOURCES_COUNT,
 } from '@kubernetes-dashboard/channels';
 import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
@@ -47,8 +52,13 @@ import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
 import type {
+  AvailableContextsInfo,
+  ContextsHealthsInfo,
+  ContextsPermissionsInfo,
+  CurrentContextInfo,
   KubernetesDashboardExtensionApi,
   KubernetesDashboardSubscriber,
+  ResourcesCountInfo,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { ApiSubscriber } from '/@/subscriber/api-subscriber';
 
@@ -131,6 +141,21 @@ export class DashboardExtension {
         const subscriber = new ApiSubscriber();
         this.#contextsStatesDispatcher.addSubscriber(subscriber);
         return {
+          onContextsHealth: (listener: (event: ContextsHealthsInfo) => void): IDisposable => {
+            return subscriber.subscribe(CONTEXTS_HEALTHS, undefined, listener);
+          },
+          onContextsPermissions: (listener: (event: ContextsPermissionsInfo) => void): IDisposable => {
+            return subscriber.subscribe(CONTEXTS_PERMISSIONS, undefined, listener);
+          },
+          onAvailableContexts: (listener: (event: AvailableContextsInfo) => void): IDisposable => {
+            return subscriber.subscribe(AVAILABLE_CONTEXTS, undefined, listener);
+          },
+          onCurrentContext: (listener: (event: CurrentContextInfo) => void): IDisposable => {
+            return subscriber.subscribe(CURRENT_CONTEXT, undefined, listener);
+          },
+          onResourcesCount: (listener: (event: ResourcesCountInfo) => void): IDisposable => {
+            return subscriber.subscribe(RESOURCES_COUNT, undefined, listener);
+          },
           dispose: () => {
             subscriber.dispose();
           },

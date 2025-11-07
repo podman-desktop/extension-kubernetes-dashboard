@@ -19,8 +19,9 @@
 import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { CURRENT_CONTEXT, CurrentContextInfo } from '@kubernetes-dashboard/channels';
+import { CURRENT_CONTEXT } from '@kubernetes-dashboard/channels';
 import { ContextsManager } from '/@/manager/contexts-manager';
+import type { CurrentContextInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 @injectable()
 export class CurrentContextDispatcher

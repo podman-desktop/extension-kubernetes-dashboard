@@ -22,7 +22,7 @@ import { AVAILABLE_CONTEXTS } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { AvailableContextsInfo } from '@kubernetes-dashboard/channels';
+import type { AvailableContextsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 // Define a state for the AvailableContextsInfo
 @injectable()

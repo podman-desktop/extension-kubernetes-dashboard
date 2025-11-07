@@ -4,8 +4,8 @@ import type { Unsubscriber } from 'svelte/store';
 
 import Label from '/@/component/label/Label.svelte';
 import { States } from '/@/state/states';
-import type { ContextHealth } from '@kubernetes-dashboard/channels';
 import { Spinner } from '@podman-desktop/ui-svelte';
+import type { ContextHealth } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 const states = getContext<States>(States);
 const currentContext = states.stateCurrentContextInfoUI;

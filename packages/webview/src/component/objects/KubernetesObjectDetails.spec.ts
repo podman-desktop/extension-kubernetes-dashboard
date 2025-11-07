@@ -20,7 +20,6 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { render } from '@testing-library/svelte';
 import type {
-  CurrentContextInfo,
   ResourceDetailsOptions,
   ResourceDetailsInfo,
   ResourceEventsInfo,
@@ -34,6 +33,7 @@ import NodeDetailsSummary from '/@/component/nodes/NodeDetailsSummary.svelte';
 import * as svelte from 'svelte';
 import { router } from 'tinro';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
+import type { CurrentContextInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 vi.mock(import('/@/component/nodes/NodeDetailsSummary.svelte'));
 
