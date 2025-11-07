@@ -4,6 +4,7 @@
   "description": "API for Kubernetes Dashboard extension",
   "repository": "https://github.com/podman-desktop/extension-kubernetes-dashboard",
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
     "provenance": true,
     "access": "public"
   },
@@ -16,8 +17,7 @@
     "prepare": "",
     "clean": "rimraf lib *.tsbuildinfo",
     "build": "",
-    "watch": "",
-    "publish:next": "pnpm publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+    "watch": ""
   },
   "dependencies": {}
 }
