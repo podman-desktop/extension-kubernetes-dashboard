@@ -150,6 +150,20 @@ jobs:
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
           push-to-registry: true
 
+  publish-api-package:
+    name: Publish api package
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
       - name: Set api package version
         run: |
           PACKAGE_VERSION=$(jq -r '.version' packages/api/package.json)
