@@ -149,3 +149,17 @@ jobs:
           subject-name: ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
           push-to-registry: true
+
+      - name: Set api package version
+        run: |
+          PACKAGE_VERSION=$(jq -r '.version' packages/api/package.json)
+          STRIPPED_VERSION=${PACKAGE_VERSION%-next}
+          SHORT_SHA1=$(git rev-parse --short HEAD)
+          TAG_PATTERN=${STRIPPED_VERSION}-$(date +'%Y%m%d%H%M')-${SHORT_SHA1}
+          echo "Using version ${TAG_PATTERN}"
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${TAG_PATTERN}\",#g" packages/api/package.json
+
+      - name: publish api package
+        run: pnpm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
