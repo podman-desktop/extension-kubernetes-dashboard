@@ -164,6 +164,13 @@ jobs:
         with:
           run_install: false
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://npm.pkg.github.com'
+          scope: ${{ github.repository_owner }}
+          cache: 'pnpm'
+
       - name: Set api package version
         run: |
           PACKAGE_VERSION=$(jq -r '.version' packages/api/package.json)
@@ -174,6 +181,8 @@ jobs:
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${TAG_PATTERN}\",#g" packages/api/package.json
 
       - name: publish api package
-        run: pnpm publish
+        run: |
+          cd packages/api
+          pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
