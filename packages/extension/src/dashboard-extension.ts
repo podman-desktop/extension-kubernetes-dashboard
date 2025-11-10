@@ -37,6 +37,7 @@ import {
   API_SUBSCRIBE,
   API_SYSTEM,
   CONTEXTS_HEALTHS,
+  CONTEXTS_PERMISSIONS,
   IDisposable,
 } from '@kubernetes-dashboard/channels';
 import { SystemApiImpl } from './manager/system-api';
@@ -49,6 +50,7 @@ import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
 import type {
   ContextsHealthsInfo,
+  ContextsPermissionsInfo,
   KubernetesDashboardExtensionApi,
   KubernetesDashboardSubscriber,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -135,6 +137,9 @@ export class DashboardExtension {
         return {
           onContextsHealth: (listener: (event: ContextsHealthsInfo) => void): IDisposable => {
             return subscriber.subscribe(CONTEXTS_HEALTHS, undefined, listener);
+          },
+          onContextsPermissions: (listener: (event: ContextsPermissionsInfo) => void): IDisposable => {
+            return subscriber.subscribe(CONTEXTS_PERMISSIONS, undefined, listener);
           },
           dispose: () => {
             subscriber.dispose();

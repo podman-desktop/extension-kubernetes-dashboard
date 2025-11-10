@@ -22,7 +22,7 @@ import { CONTEXTS_PERMISSIONS } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
-import type { ContextsPermissionsInfo } from '@kubernetes-dashboard/channels';
+import type { ContextsPermissionsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 // Define a state for the ContextsPermissionsInfo
 @injectable()
