@@ -34,7 +34,6 @@ import type {
   TargetRef,
   Endpoint,
   V1Route,
-  ResourceCount,
   KubernetesTroubleshootingInformation,
 } from '@kubernetes-dashboard/channels';
 import { kubernetes, window } from '@podman-desktop/api';
@@ -75,7 +74,7 @@ import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-fact
 import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
-import { ContextPermission } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 const DEFAULT_NAMESPACE = 'default';

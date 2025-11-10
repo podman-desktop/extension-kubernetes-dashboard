@@ -39,6 +39,7 @@ import {
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   IDisposable,
+  RESOURCES_COUNT,
 } from '@kubernetes-dashboard/channels';
 import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
@@ -53,6 +54,7 @@ import type {
   ContextsPermissionsInfo,
   KubernetesDashboardExtensionApi,
   KubernetesDashboardSubscriber,
+  ResourcesCountInfo,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { ApiSubscriber } from '/@/subscriber/api-subscriber';
 
@@ -140,6 +142,9 @@ export class DashboardExtension {
           },
           onContextsPermissions: (listener: (event: ContextsPermissionsInfo) => void): IDisposable => {
             return subscriber.subscribe(CONTEXTS_PERMISSIONS, undefined, listener);
+          },
+          onResourcesCount: (listener: (event: ResourcesCountInfo) => void): IDisposable => {
+            return subscriber.subscribe(RESOURCES_COUNT, undefined, listener);
           },
           dispose: () => {
             subscriber.dispose();

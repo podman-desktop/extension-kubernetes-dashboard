@@ -3,12 +3,12 @@ import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 import KubernetesIcon from '/@/component/icons/KubernetesIcon.svelte';
-import type { ResourceCount } from '@kubernetes-dashboard/channels';
 import type { Unsubscriber } from 'svelte/store';
 import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { Navigator } from '/@/navigation/navigator';
+import type { ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 interface Props {
   type: string;
