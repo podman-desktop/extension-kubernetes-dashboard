@@ -20,7 +20,8 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { CONTEXTS_PERMISSIONS, type ContextsPermissionsInfo } from '@kubernetes-dashboard/channels';
+import { CONTEXTS_PERMISSIONS } from '@kubernetes-dashboard/channels';
+import type { ContextsPermissionsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 @injectable()
 export class ContextsPermissionsDispatcher
