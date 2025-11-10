@@ -58,6 +58,16 @@ export interface ContextsPermissionsInfo {
   permissions: ContextPermission[];
 }
 
+export interface ResourceCount {
+  contextName: string;
+  resourceName: string;
+  count: number;
+}
+
+export interface ResourcesCountInfo {
+  counts: ResourceCount[];
+}
+
 /**
  * The subscriber for the events emitted by the Kubernetes Dashboard extension.
  */
@@ -66,10 +76,17 @@ export interface KubernetesDashboardSubscriber {
    * Subscribes to the events emitted every time the health of the contexts changes.
    */
   onContextsHealth(listener: (event: ContextsHealthsInfo) => void): Disposable;
+
   /**
    * Subscribes to the events emitted every time the permissions of the contexts change.
    */
   onContextsPermissions(listener: (event: ContextsPermissionsInfo) => void): Disposable;
+
+  /**
+   * Subscribes to the events emitted every time the resources count changes.
+   */
+  onResourcesCount(listener: (event: ResourcesCountInfo) => void): Disposable;
+
   /**
    * Disposes the subscriber and unsubscribes from all the events emitted by the Kubernetes Dashboard extension.
    */
