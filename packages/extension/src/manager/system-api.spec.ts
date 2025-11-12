@@ -16,42 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { SystemApiImpl } from '/@/manager/system-api';
-import * as podmanDesktopApi from '@podman-desktop/api';
+import * as os from 'node:os';
 
-describe('getSystemName', async () => {
+vi.mock(import('node:os'));
+
+describe('getPlatformName', async () => {
   const systemApi = new SystemApiImpl();
 
-  test('should return linux', async () => {
-    (podmanDesktopApi.env.isLinux as boolean) = true;
-    (podmanDesktopApi.env.isMac as boolean) = false;
-    (podmanDesktopApi.env.isWindows as boolean) = false;
-    const systemName = await systemApi.getSystemName();
-    expect(systemName).toBe('linux');
-  });
-
-  test('should return mac', async () => {
-    (podmanDesktopApi.env.isLinux as boolean) = false;
-    (podmanDesktopApi.env.isMac as boolean) = true;
-    (podmanDesktopApi.env.isWindows as boolean) = false;
-    const systemName = await systemApi.getSystemName();
-    expect(systemName).toBe('mac');
-  });
-
-  test('should return windows', async () => {
-    (podmanDesktopApi.env.isLinux as boolean) = false;
-    (podmanDesktopApi.env.isMac as boolean) = false;
-    (podmanDesktopApi.env.isWindows as boolean) = true;
-    const systemName = await systemApi.getSystemName();
-    expect(systemName).toBe('windows');
-  });
-
-  test('should return undefined', async () => {
-    (podmanDesktopApi.env.isLinux as boolean) = false;
-    (podmanDesktopApi.env.isMac as boolean) = false;
-    (podmanDesktopApi.env.isWindows as boolean) = false;
-    const systemName = await systemApi.getSystemName();
-    expect(systemName).toBeUndefined();
+  test('should return value from os.platform', async () => {
+    // testing with a non-tested platform, to be sure that the value is not obtained from the system
+    vi.mocked(os.platform).mockReturnValue('sunos');
+    const platformName = await systemApi.getPlatformName();
+    expect(platformName).toBe('sunos');
   });
 });

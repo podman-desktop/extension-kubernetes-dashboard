@@ -19,6 +19,7 @@
 import { injectable } from 'inversify';
 import type { SystemApi } from '@kubernetes-dashboard/channels';
 import * as podmanDesktopApi from '@podman-desktop/api';
+import * as os from 'node:os';
 
 @injectable()
 export class SystemApiImpl implements SystemApi {
@@ -34,14 +35,7 @@ export class SystemApiImpl implements SystemApi {
     return podmanDesktopApi.net.getFreePort(startPort);
   }
 
-  async getSystemName(): Promise<'linux' | 'mac' | 'windows' | undefined> {
-    if (podmanDesktopApi.env.isLinux) {
-      return 'linux';
-    } else if (podmanDesktopApi.env.isMac) {
-      return 'mac';
-    } else if (podmanDesktopApi.env.isWindows) {
-      return 'windows';
-    }
-    return undefined;
+  async getPlatformName(): Promise<string> {
+    return os.platform();
   }
 }
