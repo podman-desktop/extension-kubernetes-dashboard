@@ -16,26 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { injectable } from 'inversify';
-import type { SystemApi } from '@kubernetes-dashboard/channels';
-import * as podmanDesktopApi from '@podman-desktop/api';
+import { describe, expect, test, vi } from 'vitest';
+import { SystemApiImpl } from '/@/manager/system-api';
 import * as os from 'node:os';
 
-@injectable()
-export class SystemApiImpl implements SystemApi {
-  async openExternal(uri: string): Promise<boolean> {
-    return podmanDesktopApi.env.openExternal(podmanDesktopApi.Uri.parse(uri));
-  }
+vi.mock(import('node:os'));
 
-  async clipboardWriteText(text: string): Promise<void> {
-    return podmanDesktopApi.env.clipboard.writeText(text);
-  }
+describe('getPlatformName', async () => {
+  const systemApi = new SystemApiImpl();
 
-  async getFreePort(startPort: number): Promise<number> {
-    return podmanDesktopApi.net.getFreePort(startPort);
-  }
-
-  async getPlatformName(): Promise<string> {
-    return os.platform();
-  }
-}
+  test('should return value from os.platform', async () => {
+    // testing with a non-tested platform, to be sure that the value is not obtained from the system
+    vi.mocked(os.platform).mockReturnValue('sunos');
+    const platformName = await systemApi.getPlatformName();
+    expect(platformName).toBe('sunos');
+  });
+});
