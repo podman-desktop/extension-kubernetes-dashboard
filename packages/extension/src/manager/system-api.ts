@@ -33,4 +33,15 @@ export class SystemApiImpl implements SystemApi {
   async getFreePort(startPort: number): Promise<number> {
     return podmanDesktopApi.net.getFreePort(startPort);
   }
+
+  async getSystemName(): Promise<'linux' | 'mac' | 'windows' | undefined> {
+    if (podmanDesktopApi.env.isLinux) {
+      return 'linux';
+    } else if (podmanDesktopApi.env.isMac) {
+      return 'mac';
+    } else if (podmanDesktopApi.env.isWindows) {
+      return 'windows';
+    }
+    return undefined;
+  }
 }
