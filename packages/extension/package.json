@@ -50,6 +50,6 @@
     "inversify": "^7.9.1",
     "reflect-metadata": "^0.2.2",
     "yaml": "^2.8.1",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.1"
   }
 }
