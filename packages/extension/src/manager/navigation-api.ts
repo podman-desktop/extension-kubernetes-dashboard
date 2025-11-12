@@ -34,6 +34,13 @@ export class NavigationApiImpl implements NavigationApi {
   }
 
   async navigateToExtensionsCatalog(searchTerm?: string): Promise<void> {
+    // This test can be removed when the minimal version is set to 1.23
+    if (!('navigateToExtensionsCatalog' in podmanDesktopApi.navigation)) {
+      console.warn(
+        'navigating to extensions catalog is not supported in this version of Podman Desktop, please upgrade to the latest version',
+      );
+      return;
+    }
     return podmanDesktopApi.navigation.navigateToExtensionsCatalog({ searchTerm });
   }
 }
