@@ -23,7 +23,7 @@
   "devDependencies": {
     "@kubernetes-dashboard/rpc": "workspace:*",
     "@kubernetes-dashboard/channels": "workspace:*",
-    "@podman-desktop/api": "1.23.0-next.202511101448-c2d8ab5c976",
+    "@podman-desktop/api": "1.23.0-next.202511111623-b5b60b20440",
     "@types/node": "^24",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.30.1",
