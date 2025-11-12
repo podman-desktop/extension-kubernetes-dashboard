@@ -151,8 +151,8 @@ importers:
         specifier: workspace:*
         version: link:../rpc
       '@podman-desktop/api':
-        specifier: 1.23.0-next.202511111623-b5b60b20440
-        version: 1.23.0-next.202511111623-b5b60b20440
+        specifier: 1.23.0-next.202511121502-24fa2fece10
+        version: 1.23.0-next.202511121502-24fa2fece10
       '@podman-desktop/kubernetes-dashboard-extension-api':
         specifier: workspace:*
         version: link:../api
@@ -887,8 +887,8 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@podman-desktop/api@1.23.0-next.202511111623-b5b60b20440':
-    resolution: {integrity: sha512-Rpgs8sAuKBUsYTGnntWtiB73gKnO+sg3+smE0sWoDgV2Ovp9tnc1QnmJCkKvOuTYH9D0GgCySnlYD9qzen+02A==}
+  '@podman-desktop/api@1.23.0-next.202511121502-24fa2fece10':
+    resolution: {integrity: sha512-BxmDd4RVgrrke7RbOpqfVvNwZ1tORh2P8iXSpng9rcCgePEgP4xYYw1qEoIUlbnhu1xc9v1+xDnTMiPgK87Vpw==}
 
   '@podman-desktop/ui-svelte@1.22.1':
     resolution: {integrity: sha512-LhHPvphcKBuSIz5xqH6Uevhac32RCYNta45gH4BQYYKlsFtJxhVd9LIBHovzK6oxoQ++fNxtCvhUGEtR7Rw/6Q==}
@@ -4771,7 +4771,7 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@podman-desktop/api@1.23.0-next.202511111623-b5b60b20440': {}
+  '@podman-desktop/api@1.23.0-next.202511121502-24fa2fece10': {}
 
   '@podman-desktop/ui-svelte@1.22.1(svelte-fa@4.0.4(svelte@5.43.6))(svelte@5.43.6)':
     dependencies:
