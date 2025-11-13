@@ -1,38 +1,45 @@
 <script lang="ts">
 	import '@xterm/xterm/css/xterm.css';
 
+	import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 	import { FitAddon } from '@xterm/addon-fit';
 	import { Terminal } from '@xterm/xterm';
-	import { onDestroy, onMount } from 'svelte';
+	import { getContext, onDestroy, onMount } from 'svelte';
+	import { Remote } from '/@/remote/remote';
 
 	import { getTerminalTheme } from './terminal-theme';
 	import TerminalSearchControls from './TerminalSearchControls.svelte';
 
 	interface Props {
-	terminal?: Terminal;
-	convertEol?: boolean;
-	disableStdIn?: boolean;
-	screenReaderMode?: boolean;
-	showCursor?: boolean;
-	search?: boolean;
-	class?: string;
+		terminal?: Terminal;
+		convertEol?: boolean;
+		disableStdIn?: boolean;
+		screenReaderMode?: boolean;
+		showCursor?: boolean;
+		search?: boolean;
+		class?: string;
 	}
 
 	let {
-	terminal = $bindable(),
-	convertEol,
-	disableStdIn = true,
-	screenReaderMode,
-	showCursor = false,
-	search = false,
-	class: className,
+		terminal = $bindable(),
+		convertEol,
+		disableStdIn = true,
+		screenReaderMode,
+		showCursor = false,
+		search = false,
+		class: className,
 	}: Props = $props();
 
 	let logsXtermDiv: HTMLDivElement | undefined;
 	let resizeHandler: () => void;
 	let contextMenuHandler: (event: MouseEvent) => void;
+	
+	const remote = getContext<Remote>(Remote);
+	const systemApi = remote.getProxy(API_SYSTEM);
+	let platformName = $state<string>();
 
-	function copySelectionToClipboard(): void {
+	function copySelectionToClipboard(): boolean {
+		let copied = false;
 		const selection = terminal?.getSelection();
 		if (selection) {
 			//We don't have permissions to the clipboard so instead we can use a text area with copy command to get around that
@@ -44,11 +51,13 @@
 			textarea.select();
 			try {
 				document.execCommand('copy');
+				copied = true;
 			} catch (err) {
 				console.error('Failed to copy:', err);
 			}
 			document.body.removeChild(textarea);
 		}
+		return copied;
 	}
 
 	async function refreshTerminal(): Promise<void> {
@@ -57,7 +66,7 @@
 			return;
 		}
 		// grab font size
-        const fontSize = 10; // TODO: get from configuration
+		const fontSize = 10; // TODO: get from configuration
 		const lineHeight = 1; // TODO: get from configuration
 
 		terminal = new Terminal({
@@ -78,22 +87,31 @@
 			terminal.write('\x1b[?25l');
 		}
 
-	    //copy behavior
+		//copy behavior
 		terminal.attachCustomKeyEventHandler((event: KeyboardEvent): boolean => {
-			if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
-				copySelectionToClipboard();
-                //after copying allow other terminal behavior to continue
+			const isCopyShortcut = platformName === 'darwin' 
+				? event.metaKey && event.key === 'c'
+				: event.ctrlKey && event.key === 'c';
+			
+			if (isCopyShortcut) {
+				const handled = copySelectionToClipboard();
+				if (handled) {
+					terminal?.clearSelection();
+					event.preventDefault();
+					return false;
+				}
 			}
 			return true;
 		});
 
-		contextMenuHandler = (event: MouseEvent): void => {
-			const selection = terminal?.getSelection();
-			if (selection) {
-				event.preventDefault();
-				copySelectionToClipboard();
+		contextMenuHandler = (event: MouseEvent): boolean => {
+			const handled = copySelectionToClipboard();
+			if (handled) {
 				terminal?.clearSelection();
+				event.preventDefault();
+				return false;
 			}
+			return true;
 		};
 		logsXtermDiv.addEventListener('contextmenu', contextMenuHandler);
 
@@ -107,6 +125,7 @@
 	}
 
 	onMount(async () => {
+		platformName = await systemApi.getPlatformName();
 		await refreshTerminal();
 	});
 
@@ -118,11 +137,11 @@
 </script>
 
 {#if search && terminal}
-  <TerminalSearchControls terminal={terminal} />
+	<TerminalSearchControls terminal={"terminal"} />
 {/if}
 
 <div
-  class="{className} overflow-hidden p-[5px] pr-0 bg-(--pd-terminal-background)"
-  role="term"
-  bind:this={logsXtermDiv}>
+	class="{className} overflow-hidden p-[5px] pr-0 bg-[var(--pd-terminal-background)]" 
+	role="term" 
+	bind:this={logsXtermDiv}>
 </div>
