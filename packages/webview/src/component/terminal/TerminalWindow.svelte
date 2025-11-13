@@ -89,9 +89,18 @@
 
 		//copy behavior
 		terminal.attachCustomKeyEventHandler((event: KeyboardEvent): boolean => {
-			const isCopyShortcut = platformName === 'darwin' 
-				? event.metaKey && event.key === 'c'
-				: event.ctrlKey && event.key === 'c';
+			let isCopyShortcut = false;
+			
+			if (platformName === 'darwin') {
+				// macOS: Cmd+C
+				isCopyShortcut = event.metaKey && event.key === 'c';
+			} else if (platformName === 'linux') {
+				// Linux: Ctrl+Shift+C
+				isCopyShortcut = event.ctrlKey && event.shiftKey && event.key === 'C';
+			} else {
+				// Windows: Ctrl+C
+				isCopyShortcut = event.ctrlKey && event.key === 'c';
+			}
 			
 			if (isCopyShortcut) {
 				const handled = copySelectionToClipboard();
