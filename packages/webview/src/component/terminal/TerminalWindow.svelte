@@ -137,7 +137,7 @@
 </script>
 
 {#if search && terminal}
-	<TerminalSearchControls terminal={"terminal"} />
+	<TerminalSearchControls terminal={terminal} />
 {/if}
 
 <div
