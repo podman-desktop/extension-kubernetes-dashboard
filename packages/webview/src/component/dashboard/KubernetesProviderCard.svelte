@@ -34,14 +34,12 @@ async function createNew(provider: KubernetesProvider): Promise<void> {
     <Markdown markdown={provider.emptyConnectionMarkdownDescription} />
   </p>
 
-  <div class="flex justify-center">
-    <Button
-      type="primary"
-      on:click={(): Promise<void> => createNew(provider)}
-      class="flex items-center"
-      aria-label={provider.creationButtonTitle ?? 'Create new'}>
-      <Fa icon={faPlusCircle} size="1.2x" class="mr-1" />
-      {provider.creationButtonTitle ?? 'Create new'}
-    </Button>
-  </div>
+  <Button
+    type="primary"
+    on:click={(): Promise<void> => createNew(provider)}
+    class="flex items-center"
+    aria-label={provider.creationButtonTitle ?? 'Create new'}>
+    <Fa icon={faPlusCircle} size="1.2x" class="mr-1" />
+    {provider.creationButtonTitle ?? 'Create new'}
+  </Button>
 </div>
