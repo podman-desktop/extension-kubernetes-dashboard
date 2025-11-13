@@ -4,6 +4,7 @@ import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';
 import KubernetesProviderCard from '/@/component/dashboard/KubernetesProviderCard.svelte';
+import NewProviderCard from '/@/component/dashboard/NewProviderCard.svelte';
 
 const states = getContext<States>(States);
 const kubernetesProviders = states.stateKubernetesProvidersInfoUI;
@@ -33,6 +34,7 @@ onDestroy(() => {
       {#each kubernetesProviders.data?.providers as provider (provider.id)}
         <KubernetesProviderCard provider={provider} />
       {/each}
+      <NewProviderCard />
     </div>
   </div>
 </div>
