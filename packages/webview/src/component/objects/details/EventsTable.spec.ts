@@ -96,6 +96,7 @@ test('expect the events are displayed reactively', async () => {
   rows = await within(table).findAllByRole('row');
   expect(rows.length).toBe(4);
 
+  // TODO
   expect(within(rows[1]).getByText('35 seconds')).toBeInTheDocument();
   expect(within(rows[2]).getByText('30 seconds (2x over 35 seconds)')).toBeInTheDocument();
 
