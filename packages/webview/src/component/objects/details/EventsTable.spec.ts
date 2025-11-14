@@ -82,6 +82,8 @@ test('expect the events are displayed reactively', async () => {
   expect(within(rows[2]).getByText('a second message')).toBeInTheDocument();
 
   // refresh the component
+  events[0] = { ...events[0] };
+  events[1] = { ...events[1] };
   events.push({
     count: 1,
     type: 'Normal',
