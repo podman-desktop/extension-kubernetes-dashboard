@@ -26,6 +26,7 @@ import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import CurrentContextConnectionBadge from './CurrentContextConnectionBadge.svelte';
 import type { ContextsHealthsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { fireEvent } from '@testing-library/dom';
 
 const statesMocks = new StatesMocks();
 
@@ -102,6 +103,9 @@ describe('current context is reachable', () => {
   test('no tooltip', async () => {
     render(CurrentContextConnectionBadge);
 
+    const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+    fireEvent.mouseEnter(tooltipTrigger);
+
     expect(screen.queryByLabelText('tooltip')).toBeNull();
   });
 });
@@ -146,6 +150,9 @@ describe('current context is not reachable', () => {
   test('tooltip', async () => {
     render(CurrentContextConnectionBadge);
 
+    const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+    fireEvent.mouseEnter(tooltipTrigger);
+
     expect(screen.getByLabelText('tooltip')).toBeDefined();
   });
 });
@@ -189,6 +196,9 @@ describe('current context is offline', () => {
 
   test('expect tooltip when offline', async () => {
     render(CurrentContextConnectionBadge);
+
+    const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+    fireEvent.mouseEnter(tooltipTrigger);
 
     const tooltip = screen.getByLabelText('tooltip');
     expect(tooltip).toHaveTextContent('connection lost, you can try to reconnect');
