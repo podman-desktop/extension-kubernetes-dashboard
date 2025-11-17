@@ -30,7 +30,7 @@
     "typecheck": "pnpm run typecheck:rpc && pnpm run typecheck:channels && pnpm run typecheck:webview && pnpm run typecheck:extension"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.4.1",
+    "@eslint/compat": "^2.0.0",
     "@tsconfig/strictest": "^2.0.6",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.30.1",
