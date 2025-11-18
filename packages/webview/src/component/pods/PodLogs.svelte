@@ -1,14 +1,14 @@
 <script lang="ts">
-import type { V1Pod } from '@kubernetes/client-node';
-import { getContext, onDestroy, onMount, tick } from 'svelte';
-import { Streams } from '/@/stream/streams';
 import type { IDisposable } from '@kubernetes-dashboard/channels';
+import type { V1Pod } from '@kubernetes/client-node';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
-import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import type { Terminal } from '@xterm/xterm';
-import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
+import { getContext, onDestroy, onMount, tick } from 'svelte';
 import { SvelteMap } from 'svelte/reactivity';
-import { ansi256Colours, colourizedANSIContainerName, colorizeLogLevel } from '/@/component/terminal/terminal-colors';
+import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
+import { ansi256Colours, colorizeLogLevel, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
+import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
+import { Streams } from '/@/stream/streams';
 
 interface Props {
   object: V1Pod;
@@ -61,10 +61,8 @@ onMount(async () => {
           callback(lines.join('\n'));
         }
       : (_name: string, data: string, callback: (data: string) => void): void => {
-            const lines = data
-              .split('\n')
-              .map(line => colorizeLogLevel(line));
-            callback(lines.join('\n'));
+          const lines = data.split('\n').map(line => colorizeLogLevel(line));
+          callback(lines.join('\n'));
         };
 
   for (const containerName of object.spec?.containers.map(c => c.name) ?? []) {
