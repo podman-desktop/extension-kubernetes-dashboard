@@ -18,7 +18,7 @@ const systemApi = remote.getProxy(API_SYSTEM);
 </script>
 
 {#each ingressRouteHelper.getHostPaths(object) as hostPath, index (index)}
-  <div class="text-[var(--pd-table-body-text)] overflow-hidden text-ellipsis">
+  <div class="text-(--pd-table-body-text) overflow-hidden text-ellipsis">
     {#if hostPath.url}
       <Link
         aria-label={hostPath.label}

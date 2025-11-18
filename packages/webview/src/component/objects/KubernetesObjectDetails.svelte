@@ -184,7 +184,7 @@ function navigateToList(): void {
     {/snippet}
     {#snippet detailSnippet()}
       {#if objectUI}
-        <div class="flex py-2 w-full justify-end text-sm text-[var(--pd-content-text)]">
+        <div class="flex py-2 w-full justify-end text-sm text-(--pd-content-text)">
           <StateChange state={objectUI.status} />
         </div>
       {/if}

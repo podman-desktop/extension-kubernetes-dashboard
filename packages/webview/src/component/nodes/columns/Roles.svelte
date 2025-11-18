@@ -18,13 +18,13 @@ $effect(() => {
       roleName = 'Control Plane';
       // faSatelliteDish: Represents a satellite dish, suitable for the control plane role
       roleIcon = faSatelliteDish;
-      roleClass = 'text-[var(--pd-status-running)]';
+      roleClass = 'text-(--pd-status-running)';
       break;
     case 'node':
       roleName = 'Node';
       // faServer: Better represents a "node" / server rack
       roleIcon = faServer;
-      roleClass = 'text-[var(--pd-status-updated)]';
+      roleClass = 'text-(--pd-status-updated)';
       break;
   }
 });
@@ -36,7 +36,7 @@ $effect(() => {
   </Label>
   {#if object.hasGpu}
     <Label name="GPU">
-      <Fa size="1x" icon={faMicrochip} class="text-[var(--pd-status-updated)]" />
+      <Fa size="1x" icon={faMicrochip} class="text-(--pd-status-updated)" />
     </Label>
   {/if}
 </div>

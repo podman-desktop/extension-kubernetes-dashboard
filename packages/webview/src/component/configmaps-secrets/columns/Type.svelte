@@ -11,7 +11,7 @@ let { object }: Props = $props();
 function getTypeAttributes(type: string): { color: string; icon: IconDefinition } {
   const isConfigMap = type === 'ConfigMap';
   return {
-    color: 'text-[var(--pd-status-running)]',
+    color: 'text-(--pd-status-running)',
     icon: isConfigMap ? faFileAlt : faKey,
   };
 }

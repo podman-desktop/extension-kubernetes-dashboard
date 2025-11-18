@@ -84,16 +84,16 @@ beforeEach(() => {
 });
 
 test('getStatusColor returns the correct colors', () => {
-  expect(getStatusColor('running')).toBe('bg-[var(--pd-status-running)]');
-  expect(getStatusColor('terminated')).toBe('bg-[var(--pd-status-terminated)]');
-  expect(getStatusColor('waiting')).toBe('bg-[var(--pd-status-waiting)]');
-  expect(getStatusColor('stopped')).toBe('outline-[var(--pd-status-stopped)]');
-  expect(getStatusColor('paused')).toBe('bg-[var(--pd-status-paused)]');
-  expect(getStatusColor('exited')).toBe('outline-[var(--pd-status-exited)]');
-  expect(getStatusColor('dead')).toBe('bg-[var(--pd-status-dead)]');
-  expect(getStatusColor('created')).toBe('outline-[var(--pd-status-created)]');
-  expect(getStatusColor('degraded')).toBe('bg-[var(--pd-status-degraded)]');
-  expect(getStatusColor('unknown')).toBe('bg-[var(--pd-status-unknown)]');
+  expect(getStatusColor('running')).toBe('bg-(--pd-status-running)');
+  expect(getStatusColor('terminated')).toBe('bg-(--pd-status-terminated)');
+  expect(getStatusColor('waiting')).toBe('bg-(--pd-status-waiting)');
+  expect(getStatusColor('stopped')).toBe('outline-(--pd-status-stopped)');
+  expect(getStatusColor('paused')).toBe('bg-(--pd-status-paused)');
+  expect(getStatusColor('exited')).toBe('outline-(--pd-status-exited)');
+  expect(getStatusColor('dead')).toBe('bg-(--pd-status-dead)');
+  expect(getStatusColor('created')).toBe('outline-(--pd-status-created)');
+  expect(getStatusColor('degraded')).toBe('bg-(--pd-status-degraded)');
+  expect(getStatusColor('unknown')).toBe('bg-(--pd-status-unknown)');
 });
 
 test('organizeContainers returns a record of containers organized by status', () => {

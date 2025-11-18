@@ -19,13 +19,13 @@ import net from 'node:net';
 
 import type { KubeConfig, V1Deployment, V1Pod, V1Service } from '@kubernetes/client-node';
 import { PortForward } from '@kubernetes/client-node';
+import { Disposable } from '@podman-desktop/api';
 import {
   type ForwardConfig,
   type PortForwardableResource,
   type PortMapping,
   WorkloadKind,
   type IDisposable,
-  Disposable,
 } from '@kubernetes-dashboard/channels';
 import type { ForwardConfigRequirements } from './port-forward-validation';
 import type { ContextsManager } from '/@/manager/contexts-manager';

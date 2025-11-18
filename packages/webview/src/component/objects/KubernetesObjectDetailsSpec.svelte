@@ -6,6 +6,7 @@ import type { V1Node } from '@kubernetes/client-node';
 </script>
 
 <KubernetesObjectDetails
+  listName="Nodes"
   typed={{} as V1Node}
   typedUI={{} as NodeUI}
   kind="Node"

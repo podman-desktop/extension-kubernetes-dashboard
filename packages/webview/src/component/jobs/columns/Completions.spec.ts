@@ -41,5 +41,5 @@ test('Expect simple column styling', async () => {
 
   const text = screen.getByText(job.succeeded + ' / ' + job.completions);
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-[var(--pd-table-body-text)]');
+  expect(text).toHaveClass('text-(--pd-table-body-text)');
 });

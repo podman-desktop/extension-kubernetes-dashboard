@@ -18,7 +18,7 @@
 
 import type { Cluster, CoreV1Event, KubernetesObject, ObjectCache, V1Status } from '@kubernetes/client-node';
 import { ApiException, KubeConfig } from '@kubernetes/client-node';
-import type { Uri } from '@podman-desktop/api';
+import { type Uri, Disposable } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
 import { kubernetes, window } from '@podman-desktop/api';
 
@@ -35,7 +35,6 @@ import type { ResourceFactory } from '/@/resources/resource-factory.js';
 import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
 import type { CacheUpdatedEvent, ObjectDeletedEvent, ResourceInformer } from '/@/types/resource-informer.js';
 import { vol } from 'memfs';
-import { Disposable } from '@kubernetes-dashboard/channels';
 
 const resource4DeleteObjectMock = vi.fn();
 const resource4SearchBySelectorMock = vi.fn();

@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
 import LabelSpec from './LabelSpec.svelte';
@@ -32,8 +32,8 @@ test('Expect basic styling', async () => {
   });
   const label = screen.getByText(text);
   expect(label).toBeInTheDocument();
-  expect(label.parentElement).toHaveClass('bg-[var(--pd-label-bg)]');
-  expect(label.parentElement).toHaveClass('text-[var(--pd-label-text)]');
+  expect(label.parentElement).toHaveClass('bg-(--pd-label-bg)');
+  expect(label.parentElement).toHaveClass('text-(--pd-label-text)');
   expect(label.parentElement).toHaveClass('text-sm');
   expect(label.parentElement).toHaveClass('rounded-md');
   expect(label.parentElement).toHaveClass('p-1');
@@ -48,6 +48,10 @@ test('Expect tooltip', async () => {
     name: 'label',
     tip: tip,
   });
+
+  const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+  await fireEvent.mouseEnter(tooltipTrigger);
+
   const label = screen.getByText(tip);
   expect(label).toBeInTheDocument();
   expect(label.parentElement?.firstChild).toBeInTheDocument();

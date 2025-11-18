@@ -29,7 +29,6 @@ import {
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
-  SubscribeApi,
   KUBERNETES_PROVIDERS,
 } from '@kubernetes-dashboard/channels';
 
@@ -40,12 +39,13 @@ import { ContextsManager } from './contexts-manager.js';
 import { RpcChannel } from '@kubernetes-dashboard/rpc';
 import { inject, injectable, multiInject } from 'inversify';
 import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
-import { ChannelSubscriber } from '/@/types/channel-subscriber.js';
+import { ChannelSubscriber } from '/@/subscriber/channel-subscriber.js';
 import { PortForwardServiceProvider } from '/@/port-forward/port-forward-service.js';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
+import { StateSubscriber } from '/@/subscriber/state-subscriber.js';
 
 @injectable()
-export class ContextsStatesDispatcher extends ChannelSubscriber implements SubscribeApi {
+export class ContextsStatesDispatcher {
   @inject(ContextsManager)
   private manager: ContextsManager;
 
@@ -57,11 +57,17 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
 
   #dispatchers: Map<string, DispatcherObject<unknown>> = new Map();
 
-  constructor(@multiInject(DispatcherObject) dispatchers: DispatcherObject<unknown>[]) {
-    super();
+  #subscribers: StateSubscriber[] = [];
+
+  constructor(
+    @multiInject(DispatcherObject) dispatchers: DispatcherObject<unknown>[],
+    @inject(ChannelSubscriber) webviewSubscriber: ChannelSubscriber,
+  ) {
     dispatchers.forEach(dispatcher => {
       this.#dispatchers.set(dispatcher.channelName, dispatcher);
     });
+
+    this.#subscribers.push(webviewSubscriber);
   }
 
   init(): void {
@@ -103,10 +109,18 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
     this.manager.onEndpointsChange(async () => {
       await this.dispatch(ENDPOINTS);
     });
-    this.onSubscribe(channelName => this.dispatchByChannelName(channelName));
     this.kubernetesProvidersManager.onKubernetesProvidersChange(async () => {
       await this.dispatch(KUBERNETES_PROVIDERS);
     });
+
+    this.#subscribers.forEach(subscriber => {
+      subscriber.onSubscribe(channelName => this.dispatchByChannelName(subscriber, channelName));
+    });
+  }
+
+  addSubscriber(subscriber: StateSubscriber): void {
+    this.#subscribers.push(subscriber);
+    subscriber.onSubscribe(channelName => this.dispatchByChannelName(subscriber, channelName));
   }
 
   // TODO replace this with an event
@@ -115,20 +129,22 @@ export class ContextsStatesDispatcher extends ChannelSubscriber implements Subsc
   }
 
   async dispatch(channel: RpcChannel<unknown>): Promise<void> {
-    return this.dispatchByChannelName(channel.name);
+    for (const subscriber of this.#subscribers) {
+      await this.dispatchByChannelName(subscriber, channel.name);
+    }
   }
 
-  async dispatchByChannelName(channelName: string): Promise<void> {
-    if (!this.hasSubscribers(channelName)) {
+  async dispatchByChannelName(subscriber: StateSubscriber, channelName: string): Promise<void> {
+    if (!subscriber.hasSubscribers(channelName)) {
       return;
     }
-    const subscriptions = this.getSubscriptions(channelName);
+    const subscriptions = subscriber.getSubscriptions(channelName);
 
     const dispatcher = this.#dispatchers.get(channelName);
     if (!dispatcher) {
       console.error(`dispatcher not found for channel ${channelName}`);
       return;
     }
-    await dispatcher.dispatch(subscriptions);
+    await dispatcher.dispatch(subscriber, subscriptions);
   }
 }

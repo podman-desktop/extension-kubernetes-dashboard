@@ -20,19 +20,16 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { CONTEXTS_HEALTHS, type ContextHealth, type ContextsHealthsInfo } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { CONTEXTS_HEALTHS } from '@kubernetes-dashboard/channels';
+import { ContextHealth, ContextsHealthsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 @injectable()
 export class ContextsHealthsDispatcher
   extends AbsDispatcherObjectImpl<void, ContextsHealthsInfo>
   implements DispatcherObject<void>
 {
-  constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
-    @inject(ContextsManager) private manager: ContextsManager,
-  ) {
-    super(rpcExtension, CONTEXTS_HEALTHS);
+  constructor(@inject(ContextsManager) private manager: ContextsManager) {
+    super(CONTEXTS_HEALTHS);
   }
 
   getData(): ContextsHealthsInfo {

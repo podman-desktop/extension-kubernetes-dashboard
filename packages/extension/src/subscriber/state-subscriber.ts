@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface ContextHealth {
-  contextName: string;
-  // is the health of the cluster being checked?
-  checking: boolean;
-  // was the health check successful?
-  reachable: boolean;
-  // is one of the informers marked offline (disconnect after being connected, the cache still being populated)
-  offline: boolean;
-  // description in case of error (other than health check)
-  // currently detected errors:
-  // - user.exec.command not found
-  errorMessage?: string;
+import type { IDisposable } from '@kubernetes-dashboard/channels';
+import type { RpcChannel } from '@kubernetes-dashboard/rpc';
+
+export interface StateSubscriber {
+  hasSubscribers(channelName: string): boolean;
+  getSubscriptions(channelName: string): unknown[];
+  onSubscribe: (listener: (e: string) => unknown) => IDisposable;
+  dispatch<T>(channel: RpcChannel<T>, data: T): Promise<void>;
 }

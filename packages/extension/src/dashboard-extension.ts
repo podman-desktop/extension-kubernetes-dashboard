@@ -36,7 +36,10 @@ import {
   API_PORT_FORWARD,
   API_SUBSCRIBE,
   API_SYSTEM,
+  CONTEXTS_HEALTHS,
+  CONTEXTS_PERMISSIONS,
   IDisposable,
+  RESOURCES_COUNT,
 } from '@kubernetes-dashboard/channels';
 import { SystemApiImpl } from './manager/system-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
@@ -45,6 +48,15 @@ import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
 import { PodTerminalsApiImpl } from './manager/pod-terminals-api-impl';
 import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
+import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
+import type {
+  ContextsHealthsInfo,
+  ContextsPermissionsInfo,
+  KubernetesDashboardExtensionApi,
+  KubernetesDashboardSubscriber,
+  ResourcesCountInfo,
+} from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { ApiSubscriber } from '/@/subscriber/api-subscriber';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -61,12 +73,13 @@ export class DashboardExtension {
   #podTerminalsApiImpl: PodTerminalsApiImpl;
   #navigationApiImpl: NavigationApiImpl;
   #kubernetesProvidersManager: KubernetesProvidersManager;
+  #webviewSubscriber: ChannelSubscriber;
 
   constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
   }
 
-  async activate(): Promise<void> {
+  async activate(): Promise<KubernetesDashboardExtensionApi> {
     const telemetryLogger = env.createTelemetryLogger();
 
     const panel = await this.createWebview();
@@ -89,6 +102,7 @@ export class DashboardExtension {
     this.#podTerminalsApiImpl = await this.#container.getAsync(PodTerminalsApiImpl);
     this.#navigationApiImpl = await this.#container.getAsync(NavigationApiImpl);
     this.#kubernetesProvidersManager = await this.#container.getAsync(KubernetesProvidersManager);
+    this.#webviewSubscriber = await this.#container.getAsync(ChannelSubscriber);
 
     this.#kubernetesProvidersManager.init();
 
@@ -96,7 +110,7 @@ export class DashboardExtension {
 
     console.log('activation time:', afterFirst - now);
 
-    rpcExtension.registerInstance(API_SUBSCRIBE, this.#contextsStatesDispatcher);
+    rpcExtension.registerInstance(API_SUBSCRIBE, this.#webviewSubscriber);
     rpcExtension.registerInstance(API_CONTEXTS, this.#contextsManager);
     rpcExtension.registerInstance(API_SYSTEM, this.#systemApiImpl);
     rpcExtension.registerInstance(API_PORT_FORWARD, this.#portForwardApiImpl);
@@ -117,6 +131,27 @@ export class DashboardExtension {
         }
       }
     });
+
+    return {
+      getSubscriber: () => {
+        const subscriber = new ApiSubscriber();
+        this.#contextsStatesDispatcher.addSubscriber(subscriber);
+        return {
+          onContextsHealth: (listener: (event: ContextsHealthsInfo) => void): IDisposable => {
+            return subscriber.subscribe(CONTEXTS_HEALTHS, undefined, listener);
+          },
+          onContextsPermissions: (listener: (event: ContextsPermissionsInfo) => void): IDisposable => {
+            return subscriber.subscribe(CONTEXTS_PERMISSIONS, undefined, listener);
+          },
+          onResourcesCount: (listener: (event: ResourcesCountInfo) => void): IDisposable => {
+            return subscriber.subscribe(RESOURCES_COUNT, undefined, listener);
+          },
+          dispose: () => {
+            subscriber.dispose();
+          },
+        } as KubernetesDashboardSubscriber;
+      },
+    } as KubernetesDashboardExtensionApi;
   }
 
   async deactivate(): Promise<void> {

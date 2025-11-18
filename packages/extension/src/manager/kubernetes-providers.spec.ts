@@ -18,9 +18,8 @@
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
-import type { ConnectionFactory, ConnectionFactoryDetails } from '@podman-desktop/api';
+import { type ConnectionFactory, type ConnectionFactoryDetails, Disposable } from '@podman-desktop/api';
 import { provider } from '@podman-desktop/api';
-import { Disposable } from '@kubernetes-dashboard/channels';
 
 let manager: KubernetesProvidersManager;
 let onDidSetDisposable: Disposable;

@@ -80,7 +80,10 @@ const plugin = {
   kubernetes: {
     onDidUpdateKubeconfig: vi.fn(),
     getKubeconfig: vi.fn(),
-  }
+  },
+  Disposable: {
+    create: (func) => ({ dispose: func }),
+  },
 };
 
 module.exports = plugin;

@@ -44,7 +44,7 @@ test('Expect basic column styling', async () => {
 
   const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('text-[var(--pd-badge-gray)]');
+  expect(dot).toHaveClass('text-(--pd-badge-gray)');
   result.unmount();
 });
 
@@ -57,7 +57,7 @@ test('Expect column styling ClusterIP', async () => {
 
   const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('text-[var(--pd-badge-sky)]');
+  expect(dot).toHaveClass('text-(--pd-badge-sky)');
 });
 
 test('Expect column styling LoadBalancer', async () => {
@@ -69,7 +69,7 @@ test('Expect column styling LoadBalancer', async () => {
 
   const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('text-[var(--pd-badge-purple)]');
+  expect(dot).toHaveClass('text-(--pd-badge-purple)');
 });
 
 test('Expect column styling NodePort', async () => {
@@ -81,5 +81,5 @@ test('Expect column styling NodePort', async () => {
 
   const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('text-[var(--pd-badge-fuschia)]');
+  expect(dot).toHaveClass('text-(--pd-badge-fuschia)');
 });

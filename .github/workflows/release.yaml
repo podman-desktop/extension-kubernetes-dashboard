@@ -68,6 +68,7 @@ jobs:
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" package.json
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" packages/extension/package.json
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" packages/webview/package.json
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" packages/api/package.json
           sed -i "s#\(ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard-builder:\)next#\1${{ steps.TAG_UTIL.outputs.extVersion }}#g" build/Containerfile
 
           git add package.json packages/extension/package.json packages/webview/package.json build/Containerfile

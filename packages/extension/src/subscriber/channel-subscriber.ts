@@ -18,15 +18,22 @@
 
 import util from 'node:util';
 
-import type { Event } from './emitter';
-import { Emitter } from './emitter';
+import type { Event } from '/@/types/emitter';
+import { Emitter } from '/@/types/emitter';
+import type { StateSubscriber } from './state-subscriber';
+import { RpcChannel, RpcExtension } from '@kubernetes-dashboard/rpc';
+import { inject, injectable } from 'inversify';
 
 interface ChannelSubscriberInfo {
   uid: number;
   options: unknown;
 }
 
-export class ChannelSubscriber {
+@injectable()
+export class ChannelSubscriber implements StateSubscriber {
+  @inject(RpcExtension)
+  private rpcExtension: RpcExtension;
+
   #subscribers: { [channelName: string]: ChannelSubscriberInfo[] } = {};
 
   #onSubscribe = new Emitter<string>();
@@ -71,5 +78,9 @@ export class ChannelSubscriber {
         // return unique values
         .filter((value, index, self) => self.findIndex(elt => util.isDeepStrictEqual(value, elt)) === index)
     );
+  }
+
+  async dispatch<T>(channel: RpcChannel<T>, data: T): Promise<void> {
+    await this.rpcExtension.fire(channel, data);
   }
 }

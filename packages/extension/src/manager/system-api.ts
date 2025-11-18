@@ -19,6 +19,7 @@
 import { injectable } from 'inversify';
 import type { SystemApi } from '@kubernetes-dashboard/channels';
 import * as podmanDesktopApi from '@podman-desktop/api';
+import * as os from 'node:os';
 
 @injectable()
 export class SystemApiImpl implements SystemApi {
@@ -32,5 +33,9 @@ export class SystemApiImpl implements SystemApi {
 
   async getFreePort(startPort: number): Promise<number> {
     return podmanDesktopApi.net.getFreePort(startPort);
+  }
+
+  async getPlatformName(): Promise<string> {
+    return os.platform();
   }
 }

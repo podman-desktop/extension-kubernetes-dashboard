@@ -21,7 +21,6 @@ import { PortForwardConnectionService } from './port-forward-connection';
 import { ForwardConfigRequirements } from './port-forward-validation';
 import { ConfigManagementService, MemoryBasedStorage } from './port-forward-storage';
 import {
-  Disposable,
   type IDisposable,
   type ForwardConfig,
   type ForwardOptions,
@@ -31,7 +30,7 @@ import { ContextsManager } from '/@/manager/contexts-manager';
 import { inject, injectable } from 'inversify';
 import { Emitter, Event } from '/@/types/emitter';
 import { SystemApiImpl } from '/@/manager/system-api';
-import { window } from '@podman-desktop/api';
+import { Disposable, window } from '@podman-desktop/api';
 
 /**
  * Service provider for Kubernetes port forwarding.

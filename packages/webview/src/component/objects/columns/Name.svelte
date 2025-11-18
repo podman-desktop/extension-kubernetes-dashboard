@@ -29,11 +29,11 @@ async function openDetails(): Promise<void> {
 </script>
 
 <button class="hover:cursor-pointer flex flex-col max-w-full text-left" onclick={openDetails}>
-  <div class="text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis">
+  <div class="text-(--pd-table-body-text-highlight) overflow-hidden text-ellipsis">
     {object.name}
   </div>
   {#if objectHelper.isNamespaced(object)}
-    <div class="text-[var(--pd-table-body-text)] font-extra-light text-sm overflow-hidden text-ellipsis">
+    <div class="text-(--pd-table-body-text) font-extra-light text-sm overflow-hidden text-ellipsis">
       {object.namespace}
     </div>
   {/if}

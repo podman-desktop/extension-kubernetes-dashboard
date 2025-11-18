@@ -1,0 +1,23 @@
+{
+  "name": "@podman-desktop/kubernetes-dashboard-extension-api",
+  "version": "0.2.0-next",
+  "description": "API for Kubernetes Dashboard extension",
+  "repository": "https://github.com/podman-desktop/extension-kubernetes-dashboard",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "provenance": true,
+    "access": "public"
+  },
+  "license": "Apache-2.0",
+  "types": "./src/kubernetes-dashboard-extension-api.d.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "prepare": "",
+    "clean": "rimraf lib *.tsbuildinfo",
+    "build": "",
+    "watch": ""
+  },
+  "dependencies": {}
+}

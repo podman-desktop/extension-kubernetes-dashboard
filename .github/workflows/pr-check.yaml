@@ -60,6 +60,9 @@ jobs:
       - name: Run typecheck
         run: pnpm typecheck
 
+      - name: Run svelte check
+        run: pnpm svelte:check
+
         # skip formatter on windows
       - name: Run formatter
         if: ${{ matrix.os=='ubuntu-24.04' || matrix.os=='macos-14' }}

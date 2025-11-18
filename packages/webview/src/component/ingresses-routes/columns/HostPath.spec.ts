@@ -84,7 +84,7 @@ test('Expect simple column styling with single host/path ingress', async () => {
 
   const parent = link.parentElement;
   expect(parent).toBeInTheDocument();
-  expect(parent).toHaveClass('text-[var(--pd-table-body-text)]');
+  expect(parent).toHaveClass('text-(--pd-table-body-text)');
 });
 
 test('Expect simple column styling with multiple paths ingress', async () => {

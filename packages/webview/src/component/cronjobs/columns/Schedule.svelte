@@ -18,6 +18,6 @@ function getScheduleReadableText(schedule: string): string {
 }
 </script>
 
-<div class="text-[var(--pd-table-body-text)] max-w-full text-wrap line-clamp-2">
+<div class="text-(--pd-table-body-text) max-w-full text-wrap line-clamp-2">
   <span>{getScheduleReadableText(object)}</span>
 </div>

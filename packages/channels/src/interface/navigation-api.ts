@@ -20,4 +20,5 @@ export const NavigationApi = Symbol.for('NavigationApi');
 
 export interface NavigationApi {
   navigateToProviderNewConnection(id: string): Promise<void>;
+  navigateToExtensionsCatalog(searchTerm?: string): Promise<void>;
 }

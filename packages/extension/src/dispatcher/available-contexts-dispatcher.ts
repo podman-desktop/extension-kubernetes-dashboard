@@ -19,8 +19,7 @@
 import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
-import { type AvailableContextsInfo, AVAILABLE_CONTEXTS } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { AVAILABLE_CONTEXTS, AvailableContextsInfo } from '@kubernetes-dashboard/channels';
 import { ContextsManager } from '/@/manager/contexts-manager';
 
 @injectable()
@@ -28,11 +27,8 @@ export class AvailableContextsDispatcher
   extends AbsDispatcherObjectImpl<void, AvailableContextsInfo>
   implements DispatcherObject<void>
 {
-  constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
-    @inject(ContextsManager) private manager: ContextsManager,
-  ) {
-    super(rpcExtension, AVAILABLE_CONTEXTS);
+  constructor(@inject(ContextsManager) private manager: ContextsManager) {
+    super(AVAILABLE_CONTEXTS);
   }
 
   getData(): AvailableContextsInfo {

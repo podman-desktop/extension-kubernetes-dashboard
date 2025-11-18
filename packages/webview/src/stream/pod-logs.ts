@@ -23,7 +23,6 @@ import {
   POD_LOGS,
   type PodLogsApi,
   type PodLogsChunk,
-  Disposable,
   type IDisposable,
 } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
@@ -51,9 +50,11 @@ export class StreamPodLogs implements StreamObject<PodLogsChunk> {
       callback(chunk);
     });
     await this.#podLogsApi.streamPodLogs(podName, namespace, containerName);
-    return Disposable.create(() => {
-      disposable.dispose();
-      this.#podLogsApi.stopStreamPodLogs(podName, namespace, containerName).catch(console.error);
-    });
+    return {
+      dispose: () => {
+        disposable.dispose();
+        this.#podLogsApi.stopStreamPodLogs(podName, namespace, containerName).catch(console.error);
+      },
+    } as IDisposable;
   }
 }

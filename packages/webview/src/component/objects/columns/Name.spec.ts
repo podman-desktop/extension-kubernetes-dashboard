@@ -55,7 +55,7 @@ test('Expect simple column styling', async () => {
 
   const name = screen.getByText(node.name);
   expect(name).toBeInTheDocument();
-  expect(name).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
+  expect(name).toHaveClass('text-(--pd-table-body-text-highlight)');
   expect(name).toHaveClass('overflow-hidden');
   expect(name).toHaveClass('text-ellipsis');
 
@@ -68,7 +68,7 @@ test('Expect namespaced column styling', async () => {
 
   const name = screen.getByText(deployment.name);
   expect(name).toBeInTheDocument();
-  expect(name).toHaveClass('text-[var(--pd-table-body-text-highlight)]');
+  expect(name).toHaveClass('text-(--pd-table-body-text-highlight)');
   expect(name).toHaveClass('overflow-hidden');
   expect(name).toHaveClass('text-ellipsis');
 
@@ -76,7 +76,7 @@ test('Expect namespaced column styling', async () => {
 
   const namespace = screen.getByText(deployment.namespace);
   expect(namespace).toBeInTheDocument();
-  expect(namespace).toHaveClass('text-[var(--pd-table-body-text)]');
+  expect(namespace).toHaveClass('text-(--pd-table-body-text)');
   expect(namespace).toHaveClass('overflow-hidden');
   expect(namespace).toHaveClass('text-ellipsis');
 });

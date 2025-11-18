@@ -19,34 +19,34 @@ let { object }: Props = $props();
 function getConditionAttributes(condition: JobCondition): { name: string; color: string; icon: IconDefinition } {
   const defaults = {
     name: condition,
-    color: 'text-[var(--pd-status-unknown)]',
+    color: 'text-(--pd-status-unknown)',
     icon: faQuestionCircle,
   };
 
   // Condition map for easier lookup
   const conditionMap: { [key: string]: { name: string; color: string; icon: IconDefinition } } = {
     completed: {
-      color: 'text-[var(--pd-status-running)]',
+      color: 'text-(--pd-status-running)',
       name: 'Completed',
       icon: faCheckCircle,
     },
     failed: {
-      color: 'text-[var(--pd-status-dead)]',
+      color: 'text-(--pd-status-dead)',
       name: 'Failed',
       icon: faTimesCircle,
     },
     running: {
-      color: 'text-[var(--pd-status-running)]',
+      color: 'text-(--pd-status-running)',
       name: 'Running',
       icon: faSync,
     },
     pending: {
-      color: 'text-[var(--pd-status-starting)]',
+      color: 'text-(--pd-status-starting)',
       name: 'Pending',
       icon: faSync,
     },
     unknown: {
-      color: 'text-[var(--pd-status-degraded)]',
+      color: 'text-(--pd-status-degraded)',
       name: 'Unknown',
       icon: faExclamationTriangle,
     },

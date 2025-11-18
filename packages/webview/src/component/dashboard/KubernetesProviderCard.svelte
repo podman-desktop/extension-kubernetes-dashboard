@@ -22,26 +22,24 @@ async function createNew(provider: KubernetesProvider): Promise<void> {
 }
 </script>
 
-<div class="rounded-xl p-5 text-left bg-[var(--pd-content-card-bg)]">
-  <div class="flex justify-left text-[var(--pd-details-empty-icon)] py-2 mb-2">
+<div class="rounded-xl p-5 text-left bg-(--pd-content-card-bg)">
+  <div class="flex justify-left text-(--pd-details-empty-icon) py-2 mb-2">
     <IconImage image={provider?.images?.icon} class="mx-0 max-h-10" alt={provider.creationDisplayName}></IconImage>
   </div>
   <h1 class="text-lg font-semibold mb-4">
     {provider.creationDisplayName ?? 'Create'}
   </h1>
 
-  <p class="text-sm text-[var(--pd-content-text)] mb-6">
+  <p class="text-sm text-(--pd-content-text) mb-6">
     <Markdown markdown={provider.emptyConnectionMarkdownDescription} />
   </p>
 
-  <div class="flex justify-center">
-    <Button
-      type="primary"
-      on:click={(): Promise<void> => createNew(provider)}
-      class="flex items-center"
-      aria-label={provider.creationButtonTitle ?? 'Create new'}>
-      <Fa icon={faPlusCircle} size="1.2x" class="mr-1" />
-      {provider.creationButtonTitle ?? 'Create new'}
-    </Button>
-  </div>
+  <Button
+    type="primary"
+    on:click={(): Promise<void> => createNew(provider)}
+    class="flex items-center"
+    aria-label={provider.creationButtonTitle ?? 'Create new'}>
+    <Fa icon={faPlusCircle} size="1.2x" class="mr-1" />
+    {provider.creationButtonTitle ?? 'Create new'}
+  </Button>
 </div>

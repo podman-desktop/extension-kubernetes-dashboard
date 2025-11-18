@@ -4,6 +4,7 @@ import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';
 import KubernetesProviderCard from '/@/component/dashboard/KubernetesProviderCard.svelte';
+import NewProviderCard from '/@/component/dashboard/NewProviderCard.svelte';
 
 const states = getContext<States>(States);
 const kubernetesProviders = states.stateKubernetesProvidersInfoUI;
@@ -21,11 +22,11 @@ onDestroy(() => {
 
 <div class="mt-8 flex justify-center overflow-auto">
   <div class="max-w-[800px] flex flex-col text-center content-center space-y-3">
-    <div class="flex justify-center text-[var(--pd-details-empty-icon)] py-2">
+    <div class="flex justify-center text-(--pd-details-empty-icon) py-2">
       <KubeIcon size="80" />
     </div>
-    <h1 class="text-xl text-[var(--pd-details-empty-header)]">No Kubernetes cluster</h1>
-    <div class="text-[var(--pd-details-empty-sub-header)] text-balance">
+    <h1 class="text-xl text-(--pd-details-empty-header)">No Kubernetes cluster</h1>
+    <div class="text-(--pd-details-empty-sub-header) text-balance">
       A Kubernetes cluster is a group of nodes (virtual or physical) that run Kubernetes, a system for automating the
       deployment and management of containerized applications.
     </div>
@@ -33,6 +34,7 @@ onDestroy(() => {
       {#each kubernetesProviders.data?.providers as provider (provider.id)}
         <KubernetesProviderCard provider={provider} />
       {/each}
+      <NewProviderCard />
     </div>
   </div>
 </div>

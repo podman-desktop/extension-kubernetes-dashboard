@@ -7,7 +7,7 @@ interface Props {
 let { children }: Props = $props();
 </script>
 
-<div class="flex px-5 py-4 flex-col items-start h-full overflow-auto text-[var(--pd-table-body-text)]">
+<div class="flex px-5 py-4 flex-col items-start h-full overflow-auto text-(--pd-table-body-text)">
   <table class="w-full">
     <tbody>
       {@render children?.()}

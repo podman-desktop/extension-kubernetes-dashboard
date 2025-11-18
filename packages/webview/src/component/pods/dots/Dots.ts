@@ -29,23 +29,23 @@ export function getStatusColor(status: string): string {
   // must be either "bg-" or "outline-" for either solid / outline colors
   const colors: Record<string, string> = {
     // Podman & Kubernetes
-    running: 'bg-[var(--pd-status-running)]',
+    running: 'bg-(--pd-status-running)',
 
     // Kubernetes-only
-    terminated: 'bg-[var(--pd-status-terminated)]',
-    waiting: 'bg-[var(--pd-status-waiting)]',
+    terminated: 'bg-(--pd-status-terminated)',
+    waiting: 'bg-(--pd-status-waiting)',
 
     // Podman-only
-    stopped: 'outline-[var(--pd-status-stopped)]',
-    paused: 'bg-[var(--pd-status-paused)]',
-    exited: 'outline-[var(--pd-status-exited)]',
-    dead: 'bg-[var(--pd-status-dead)]',
-    created: 'outline-[var(--pd-status-created)]',
-    degraded: 'bg-[var(--pd-status-degraded)]',
+    stopped: 'outline-(--pd-status-stopped)',
+    paused: 'bg-(--pd-status-paused)',
+    exited: 'outline-(--pd-status-exited)',
+    dead: 'bg-(--pd-status-dead)',
+    created: 'outline-(--pd-status-created)',
+    degraded: 'bg-(--pd-status-degraded)',
   };
 
   // Return the corresponding color class or a default if not found
-  return colors[status] || 'bg-[var(--pd-status-unknown)]';
+  return colors[status] || 'bg-(--pd-status-unknown)';
 }
 
 // Organize the containers by returning their status as the key + an array of containers by order of

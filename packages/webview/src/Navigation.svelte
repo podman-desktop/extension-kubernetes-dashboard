@@ -16,11 +16,11 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
 </script>
 
 <nav
-  class="z-1 w-leftsidebar min-w-leftsidebar shadow-xs flex-col justify-between flex transition-all duration-500 ease-in-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
+  class="z-1 w-leftsidebar min-w-leftsidebar shadow-xs flex-col justify-between flex transition-all duration-500 ease-in-out bg-(--pd-secondary-nav-bg) border-(--pd-global-nav-bg-border) border-r-[1px]"
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
     <div class="pt-4 pl-3 px-5 mb-10 flex items-center ml-[4px]">
-      <p class="text-xl first-letter:uppercase text-[color:var(--pd-secondary-nav-header-text)]">Kubernetes</p>
+      <p class="text-xl first-letter:uppercase text-(--pd-secondary-nav-header-text)">Kubernetes</p>
     </div>
   </div>
   <div class="h-full overflow-hidden hover:overflow-y-auto" style="margin-bottom:auto">

@@ -21,10 +21,12 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import type { ContextsHealthsInfo, CurrentContextInfo } from '@kubernetes-dashboard/channels';
+import type { CurrentContextInfo } from '@kubernetes-dashboard/channels';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import CurrentContextConnectionBadge from './CurrentContextConnectionBadge.svelte';
+import type { ContextsHealthsInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { fireEvent } from '@testing-library/dom';
 
 const statesMocks = new StatesMocks();
 
@@ -95,11 +97,14 @@ describe('current context is reachable', () => {
     render(CurrentContextConnectionBadge);
 
     const status = screen.getByRole('status');
-    expect(status.firstChild).toHaveClass('bg-[var(--pd-status-connected)]');
+    expect(status.firstChild).toHaveClass('bg-(--pd-status-connected)');
   });
 
   test('no tooltip', async () => {
     render(CurrentContextConnectionBadge);
+
+    const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+    fireEvent.mouseEnter(tooltipTrigger);
 
     expect(screen.queryByLabelText('tooltip')).toBeNull();
   });
@@ -139,11 +144,14 @@ describe('current context is not reachable', () => {
     render(CurrentContextConnectionBadge);
 
     const status = screen.getByRole('status');
-    expect(status.firstChild).toHaveClass('bg-[var(--pd-status-disconnected)]');
+    expect(status.firstChild).toHaveClass('bg-(--pd-status-disconnected)');
   });
 
   test('tooltip', async () => {
     render(CurrentContextConnectionBadge);
+
+    const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+    fireEvent.mouseEnter(tooltipTrigger);
 
     expect(screen.getByLabelText('tooltip')).toBeDefined();
   });
@@ -183,11 +191,14 @@ describe('current context is offline', () => {
     render(CurrentContextConnectionBadge);
 
     const status = screen.getByRole('status');
-    expect(status.firstChild).toHaveClass('bg-[var(--pd-status-paused)]');
+    expect(status.firstChild).toHaveClass('bg-(--pd-status-paused)');
   });
 
   test('expect tooltip when offline', async () => {
     render(CurrentContextConnectionBadge);
+
+    const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+    fireEvent.mouseEnter(tooltipTrigger);
 
     const tooltip = screen.getByLabelText('tooltip');
     expect(tooltip).toHaveTextContent('connection lost, you can try to reconnect');

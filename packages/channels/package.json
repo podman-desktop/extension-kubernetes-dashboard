@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@kubernetes-dashboard/rpc": "workspace:*",
+    "@podman-desktop/kubernetes-dashboard-extension-api": "workspace:*",
     "vite-plugin-dts": "^4.5.4"
   }
 }
