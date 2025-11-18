@@ -16,9 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { JsonColorScheme } from './json-colorizer.js';
-import { JsonColorizer } from './json-colorizer.js';
-
 // An array of readable ANSI escape sequence colours against a black terminal background
 // these are the most "readable" colours against a black background
 // No colours like grey, normal blue (cyan instead) or red, since they don't appear very well.
@@ -117,31 +114,4 @@ export function colorizeLogLevel(logLine: string): string {
   }
 
   return logLine;
-}
-
-// Create a default JSON colorizer instance
-const defaultJsonColorScheme: JsonColorScheme = {
-  keyColor: '\u001b[34;1m', // bright blue for keys
-  braceColor: '\u001b[33m', // yellow for {}[]
-  numberColor: '\u001b[32m', // green for numbers
-  booleanColor: '\u001b[35m', // magenta for booleans
-  nullColor: '\u001b[35m', // magenta for null
-  reset: '\u001b[0m',
-};
-
-const defaultJsonColorizer = new JsonColorizer(defaultJsonColorScheme);
-
-/**
- * Colorizes JSON strings for terminal display.
- * Applies ANSI colors to improve readability.
- *
- * Color scheme:
- * - Keys: bright blue
- * - Braces/brackets: yellow
- * - Numbers: green
- * - Booleans/null: magenta
- * - String values: no colorization (optional)
- */
-export function colorizeJSON(jsonLine: string): string {
-  return defaultJsonColorizer.colorize(jsonLine);
 }
