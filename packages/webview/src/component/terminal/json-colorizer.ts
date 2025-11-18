@@ -209,3 +209,46 @@ export class JsonColorizer {
     return undefined;
   }
 }
+
+/**
+ * Checks if a string appears to be valid JSON.
+ * A valid JSON line should have both { and } and contain at least one key-value pair pattern.
+ *
+ * @param line - The line to check
+ * @returns true if the line appears to be JSON
+ */
+export function isValidJSON(line: string): boolean {
+  const trimmed = line.trim();
+  if (!trimmed) return false;
+
+  // Check for basic JSON structure: has { and } and contains key-value patterns
+  const hasBraces = trimmed.includes('{') && trimmed.includes('}');
+  if (!hasBraces) return false;
+
+  // Look for key-value pair pattern: "key": value or "key":value
+  const kvpPattern = /"[^"]+"\s*:\s*[^,}]+/;
+  return kvpPattern.test(trimmed);
+}
+
+/**
+ * Detects if log lines are predominantly JSON format.
+ * Checks the first 10 non-empty lines and returns true if at least 80% are valid JSON.
+ *
+ * @param lines - Array of log lines to analyze
+ * @returns true if logs should be treated as JSON format
+ */
+export function detectJsonLogs(lines: string[]): boolean {
+  const samplesToCheck = 10;
+  const threshold = 0.8; // 80%
+
+  // Filter out empty lines and take first 10
+  const nonEmptyLines = lines.filter(line => line.trim().length > 0).slice(0, samplesToCheck);
+
+  // Need at least a few lines to make a determination
+  if (nonEmptyLines.length === 0) return false;
+
+  const jsonCount = nonEmptyLines.filter(line => isValidJSON(line)).length;
+  const jsonRatio = jsonCount / nonEmptyLines.length;
+
+  return jsonRatio >= threshold;
+}

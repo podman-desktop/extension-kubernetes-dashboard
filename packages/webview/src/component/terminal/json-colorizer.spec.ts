@@ -19,7 +19,7 @@
 import { describe, expect, test } from 'vitest';
 
 import type { JsonColorScheme } from './json-colorizer.js';
-import { JsonColorizer } from './json-colorizer.js';
+import { detectJsonLogs, JsonColorizer } from './json-colorizer.js';
 
 describe('JsonColorizer', () => {
   const colorScheme: JsonColorScheme = {
@@ -281,5 +281,159 @@ describe('JsonColorizer', () => {
 
     // Decimal should be green
     expect(result).toContain('\u001b[32m0.5\u001b[0m');
+  });
+});
+
+describe('detectJsonLogs', () => {
+  test('should detect JSON logs when 80% or more lines are valid JSON', () => {
+    const logs = [
+      '{"timestamp":"2025-11-18T10:00:00Z","level":"info","message":"Starting application"}',
+      '{"timestamp":"2025-11-18T10:00:01Z","level":"info","message":"Connected to database"}',
+      '{"timestamp":"2025-11-18T10:00:02Z","level":"info","message":"Server listening on port 8080"}',
+      '{"timestamp":"2025-11-18T10:00:03Z","level":"debug","message":"Request received"}',
+      '{"timestamp":"2025-11-18T10:00:04Z","level":"debug","message":"Processing request"}',
+      '{"timestamp":"2025-11-18T10:00:05Z","level":"info","message":"Request completed"}',
+      '{"timestamp":"2025-11-18T10:00:06Z","level":"info","message":"Cache updated"}',
+      '{"timestamp":"2025-11-18T10:00:07Z","level":"info","message":"Background job started"}',
+      'Not a JSON line',
+      '{"timestamp":"2025-11-18T10:00:08Z","level":"info","message":"Job completed"}',
+    ];
+
+    expect(detectJsonLogs(logs)).toBe(true);
+  });
+
+  test('should not detect JSON logs when less than 80% are valid JSON', () => {
+    const logs = [
+      '{"timestamp":"2025-11-18T10:00:00Z","level":"info","message":"Starting"}',
+      '{"timestamp":"2025-11-18T10:00:01Z","level":"info","message":"Running"}',
+      'Regular log line without JSON',
+      'Another regular log line',
+      'Yet another non-JSON line',
+      'Still not JSON',
+      'Nope, not JSON either',
+      '{"timestamp":"2025-11-18T10:00:02Z","level":"info","message":"Done"}',
+      'More regular logs',
+      'Last regular log',
+    ];
+
+    expect(detectJsonLogs(logs)).toBe(false);
+  });
+
+  test('should handle empty log array', () => {
+    expect(detectJsonLogs([])).toBe(false);
+  });
+
+  test('should ignore empty lines when calculating ratio', () => {
+    const logs = [
+      '{"timestamp":"2025-11-18T10:00:00Z","level":"info","message":"Line 1"}',
+      '',
+      '{"timestamp":"2025-11-18T10:00:01Z","level":"info","message":"Line 2"}',
+      '',
+      '{"timestamp":"2025-11-18T10:00:02Z","level":"info","message":"Line 3"}',
+      '',
+      '{"timestamp":"2025-11-18T10:00:03Z","level":"info","message":"Line 4"}',
+      '',
+      '{"timestamp":"2025-11-18T10:00:04Z","level":"info","message":"Line 5"}',
+      '',
+      '{"timestamp":"2025-11-18T10:00:05Z","level":"info","message":"Line 6"}',
+      '',
+      '{"timestamp":"2025-11-18T10:00:06Z","level":"info","message":"Line 7"}',
+      '',
+      '{"timestamp":"2025-11-18T10:00:07Z","level":"info","message":"Line 8"}',
+      '',
+    ];
+
+    expect(detectJsonLogs(logs)).toBe(true);
+  });
+
+  test('should only check first 10 non-empty lines', () => {
+    const logs = [
+      '{"timestamp":"2025-11-18T10:00:00Z","level":"info","message":"Line 1"}',
+      '{"timestamp":"2025-11-18T10:00:01Z","level":"info","message":"Line 2"}',
+      '{"timestamp":"2025-11-18T10:00:02Z","level":"info","message":"Line 3"}',
+      '{"timestamp":"2025-11-18T10:00:03Z","level":"info","message":"Line 4"}',
+      '{"timestamp":"2025-11-18T10:00:04Z","level":"info","message":"Line 5"}',
+      '{"timestamp":"2025-11-18T10:00:05Z","level":"info","message":"Line 6"}',
+      '{"timestamp":"2025-11-18T10:00:06Z","level":"info","message":"Line 7"}',
+      '{"timestamp":"2025-11-18T10:00:07Z","level":"info","message":"Line 8"}',
+      '{"timestamp":"2025-11-18T10:00:08Z","level":"info","message":"Line 9"}',
+      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 10"}',
+      // These lines after the 10th should be ignored
+      'Not JSON line 11',
+      'Not JSON line 12',
+      'Not JSON line 13',
+    ];
+
+    expect(detectJsonLogs(logs)).toBe(true);
+  });
+
+  test('should detect JSON with nested objects', () => {
+    const logs = [
+      '{"user":{"id":123,"name":"John"},"action":"login"}',
+      '{"user":{"id":124,"name":"Jane"},"action":"logout"}',
+      '{"data":{"key":"value","nested":{"deep":"data"}},"timestamp":"2025-11-18"}',
+      '{"array":[1,2,3],"object":{"a":"b"}}',
+      '{"simple":"test","number":42}',
+      '{"bool":true,"null":null}',
+      '{"str":"value","num":123}',
+      '{"x":1,"y":2}',
+      '{"foo":"bar"}',
+      '{"last":"one"}',
+    ];
+
+    expect(detectJsonLogs(logs)).toBe(true);
+  });
+
+  test('should not detect lines with braces but no key-value pairs', () => {
+    const logs = [
+      'Processing {item}',
+      'Found {value} in cache',
+      'Error: {error message}',
+      'Debug: {info}',
+      'Status: {ok}',
+      'Result: {success}',
+      'Output: {data}',
+      'Input: {params}',
+      'Config: {settings}',
+      'State: {ready}',
+    ];
+
+    expect(detectJsonLogs(logs)).toBe(false);
+  });
+
+  test('should detect exactly 80% threshold', () => {
+    const logs = [
+      '{"valid":"json","line":1}',
+      '{"valid":"json","line":2}',
+      '{"valid":"json","line":3}',
+      '{"valid":"json","line":4}',
+      '{"valid":"json","line":5}',
+      '{"valid":"json","line":6}',
+      '{"valid":"json","line":7}',
+      '{"valid":"json","line":8}',
+      'Not JSON line 9',
+      'Not JSON line 10',
+    ];
+
+    // 8 out of 10 = 80%
+    expect(detectJsonLogs(logs)).toBe(true);
+  });
+
+  test('should not detect just below 80% threshold', () => {
+    const logs = [
+      '{"valid":"json","line":1}',
+      '{"valid":"json","line":2}',
+      '{"valid":"json","line":3}',
+      '{"valid":"json","line":4}',
+      '{"valid":"json","line":5}',
+      '{"valid":"json","line":6}',
+      '{"valid":"json","line":7}',
+      'Not JSON line 8',
+      'Not JSON line 9',
+      'Not JSON line 10',
+    ];
+
+    // 7 out of 10 = 70%
+    expect(detectJsonLogs(logs)).toBe(false);
   });
 });
