@@ -20,19 +20,16 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
-import { RESOURCES_COUNT, type ResourcesCountInfo } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { RESOURCES_COUNT } from '@kubernetes-dashboard/channels';
+import type { ResourcesCountInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 @injectable()
 export class ResourcesCountDispatcher
   extends AbsDispatcherObjectImpl<void, ResourcesCountInfo>
   implements DispatcherObject<void>
 {
-  constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
-    @inject(ContextsManager) private manager: ContextsManager,
-  ) {
-    super(rpcExtension, RESOURCES_COUNT);
+  constructor(@inject(ContextsManager) private manager: ContextsManager) {
+    super(RESOURCES_COUNT);
   }
 
   getData(): ResourcesCountInfo {
