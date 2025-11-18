@@ -1,123 +1,119 @@
 <script lang="ts">
-  import { faArrowDown, faArrowUp, faTimes } from '@fortawesome/free-solid-svg-icons';
-  import { API_SYSTEM } from '@kubernetes-dashboard/channels';
-  import { Input } from '@podman-desktop/ui-svelte';
-  import { SearchAddon } from '@xterm/addon-search';
-  import type { Terminal } from '@xterm/xterm';
-  import { getContext, onDestroy, onMount } from 'svelte';
-  import Fa from 'svelte-fa';
-  import { Remote } from '/@/remote/remote';
+import { faArrowDown, faArrowUp, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
+import { Input } from '@podman-desktop/ui-svelte';
+import { SearchAddon } from '@xterm/addon-search';
+import type { Terminal } from '@xterm/xterm';
+import { getContext, onDestroy, onMount } from 'svelte';
+import Fa from 'svelte-fa';
+import { Remote } from '/@/remote/remote';
 
-  interface Props {
-    terminal: Terminal;
-  }
+interface Props {
+  terminal: Terminal;
+}
 
-  let { terminal }: Props = $props();
+let { terminal }: Props = $props();
 
-  let searchAddon: SearchAddon | undefined;
-  let searchTerm: string = $state('');
-  let showSearch: boolean = $state(false);
-  let hasMatches: boolean = $state(false);
+let searchAddon: SearchAddon | undefined;
+let searchTerm: string = $state('');
+let showSearch: boolean = $state(false);
+let hasMatches: boolean = $state(false);
 
-  let input: HTMLInputElement | undefined = $state();
+let input: HTMLInputElement | undefined = $state();
 
-    let platformName = $state<string>();
+let platformName = $state<string>();
 
-  const remote = getContext<Remote>(Remote);
-    const systemApi = remote.getProxy(API_SYSTEM);
+const remote = getContext<Remote>(Remote);
+const systemApi = remote.getProxy(API_SYSTEM);
 
-  onMount(async () => {
-    searchAddon = new SearchAddon();
-    searchAddon.activate(terminal);
+onMount(async () => {
+  searchAddon = new SearchAddon();
+  searchAddon.activate(terminal);
 
-    platformName = await systemApi.getPlatformName();
+  platformName = await systemApi.getPlatformName();
 
-    // TODO onDidChangeResults doesn't seem to be working even if i add decorations...
+  // TODO onDidChangeResults doesn't seem to be working even if i add decorations...
 
-    // Make sure the terminal doesn't intercept Cmd+F (Mac) or Ctrl+F (Windows/Linux)
-    terminal.attachCustomKeyEventHandler((event: KeyboardEvent) => {
-      const isFindShortcut = platformName === 'darwin' 
-        ? event.metaKey && event.key === 'f'
-        : event.ctrlKey && event.key === 'f';
-      
-      if (isFindShortcut && event.type === 'keydown') {
-        event.preventDefault();
-        showSearch = true;
-        setTimeout(() => input?.focus(), 0);
-        return false;
-      }
-      return true;
-    });
-  });
+  // Make sure the terminal doesn't intercept Cmd+F (Mac) or Ctrl+F (Windows/Linux)
+  terminal.attachCustomKeyEventHandler((event: KeyboardEvent) => {
+    const isFindShortcut =
+      platformName === 'darwin' ? event.metaKey && event.key === 'f' : event.ctrlKey && event.key === 'f';
 
-  onDestroy(() => {
-    searchAddon?.dispose();
-  });
-
-  function onKeyPressed(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      onSearchNext(true);
-    } else if (event.key === 'Escape') {
-      showSearch = false;
-    }
-  }
-
-  function onSearchNext(incremental = false): void {
-    if (searchTerm) {
-      const found = searchAddon?.findNext(searchTerm, {
-        incremental: incremental,
-      });
-      hasMatches = found ?? false;
-    }
-  }
-
-  function onSearchPrevious(incremental = false): void {
-    if (searchTerm) {
-      const found = searchAddon?.findPrevious(searchTerm, {
-        incremental: incremental,
-      });
-      hasMatches = found ?? false;
-    }
-  }
-
-  function onSearch(event: Event): void {
-    searchTerm = (event.target as HTMLInputElement).value;
-    if (searchTerm) {
-      onSearchNext(true);
-    } else {
-      hasMatches = false;
-    }
-  }
-
-  function onKeyUp(e: KeyboardEvent): void {
-    const isFindShortcut = platformName === 'darwin'
-      ? e.metaKey && e.key === 'f'
-      : e.ctrlKey && e.key === 'f';
-      
-    if (isFindShortcut) {
-      e.preventDefault();
+    if (isFindShortcut && event.type === 'keydown') {
+      event.preventDefault();
       showSearch = true;
       setTimeout(() => input?.focus(), 0);
-    } else if (e.key === 'Escape' && showSearch) {
-      e.preventDefault();
-      closeSearch();
+      return false;
     }
-  }
+    return true;
+  });
+});
 
-  function closeSearch(): void {
+onDestroy(() => {
+  searchAddon?.dispose();
+});
+
+function onKeyPressed(event: KeyboardEvent): void {
+  if (event.key === 'Enter') {
+    onSearchNext(true);
+  } else if (event.key === 'Escape') {
     showSearch = false;
-    searchTerm = '';
   }
+}
+
+function onSearchNext(incremental = false): void {
+  if (searchTerm) {
+    const found = searchAddon?.findNext(searchTerm, {
+      incremental: incremental,
+    });
+    hasMatches = found ?? false;
+  }
+}
+
+function onSearchPrevious(incremental = false): void {
+  if (searchTerm) {
+    const found = searchAddon?.findPrevious(searchTerm, {
+      incremental: incremental,
+    });
+    hasMatches = found ?? false;
+  }
+}
+
+function onSearch(event: Event): void {
+  searchTerm = (event.target as HTMLInputElement).value;
+  if (searchTerm) {
+    onSearchNext(true);
+  } else {
+    hasMatches = false;
+  }
+}
+
+function onKeyUp(e: KeyboardEvent): void {
+  const isFindShortcut = platformName === 'darwin' ? e.metaKey && e.key === 'f' : e.ctrlKey && e.key === 'f';
+
+  if (isFindShortcut) {
+    e.preventDefault();
+    showSearch = true;
+    setTimeout(() => input?.focus(), 0);
+  } else if (e.key === 'Escape' && showSearch) {
+    e.preventDefault();
+    closeSearch();
+  }
+}
+
+function closeSearch(): void {
+  showSearch = false;
+  searchTerm = '';
+}
 </script>
 
 <svelte:window on:keyup|preventDefault={onKeyUp} />
 
 {#if showSearch}
-  <div class="flex flex-row py-2 h-[40px] items-center justify-end bg-(--pd-content-header-bg) border-b border-(--pd-content-divider)">
+  <div
+    class="flex flex-row py-2 h-[40px] items-center justify-end bg-(--pd-content-header-bg) border-b border-(--pd-content-divider)">
     {#if searchTerm && !hasMatches}
-      <span class="text-sm text-(--pd-content-text) mr-2">
-        No results
-      </span>
+      <span class="text-sm text-(--pd-content-text) mr-2"> No results </span>
     {/if}
     <div class="w-200px mx-4">
       <Input
