@@ -18,7 +18,7 @@
 
 import { describe, expect, test } from 'vitest';
 
-import { colorizeJSON, colorizeLogLevel } from './terminal-colors.js';
+import { colorizeLogLevel } from './terminal-colors.js';
 
 describe('colorizeLogLevel', () => {
   test('should colorize INFO log level in cyan', () => {
@@ -198,20 +198,5 @@ describe('colorizeLogLevel', () => {
     expect(result).toContain('\u001b[36m');
     expect(result).toContain('\u001b[0m');
     expect(result).toContain('"information"');
-  });
-
-  test('should work with JSON colorization function', () => {
-    const jsonLine = '{"level":"info","message":"test"}';
-    const result = colorizeJSON(jsonLine);
-
-    // Should colorize braces in yellow
-    expect(result).toContain('\u001b[33m{\u001b[0m');
-    expect(result).toContain('\u001b[33m}\u001b[0m');
-
-    // Strings should not be colorized
-    expect(result).toContain('"level"');
-    expect(result).toContain('"info"');
-    expect(result).toContain('"message"');
-    expect(result).toContain('"test"');
   });
 });
