@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ResourceCount } from './kubernetes-resource-count';
+import type { ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 export interface ActiveResourcesCountInfo {
   counts: ResourceCount[];

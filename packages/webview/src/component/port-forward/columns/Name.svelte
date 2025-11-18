@@ -37,12 +37,12 @@ async function openResourceDetails(): Promise<void> {
   class="hover:cursor-pointer flex flex-col max-w-full"
   disabled={object.kind !== WorkloadKind.POD}
   onclick={openResourceDetails}>
-  <div class="text-[var(--pd-table-body-text-highlight)] max-w-full overflow-hidden text-ellipsis">
+  <div class="text-(--pd-table-body-text-highlight) max-w-full overflow-hidden text-ellipsis">
     {object.name}
   </div>
   <div class="flex flex-row text-sm gap-1">
     {#if object.namespace}
-      <div class="font-extra-light text-[var(--pd-table-body-text)]">{object.namespace}</div>
+      <div class="font-extra-light text-(--pd-table-body-text)">{object.namespace}</div>
     {/if}
   </div>
 </button>

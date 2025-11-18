@@ -22,4 +22,5 @@ export interface SystemApi {
   openExternal(uri: string): Promise<boolean>;
   clipboardWriteText(text: string): Promise<void>;
   getFreePort(startPort: number): Promise<number>;
+  getPlatformName(): Promise<string>;
 }

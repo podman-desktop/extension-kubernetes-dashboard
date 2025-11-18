@@ -47,7 +47,7 @@ test('Expect column styling completed', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-running)]');
+  expect(svg).toHaveClass('text-(--pd-status-running)');
 });
 
 test('Expect column styling failed', async () => {
@@ -59,7 +59,7 @@ test('Expect column styling failed', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-dead)]');
+  expect(svg).toHaveClass('text-(--pd-status-dead)');
 });
 
 test('Expect column styling running', async () => {
@@ -71,7 +71,7 @@ test('Expect column styling running', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-running)]');
+  expect(svg).toHaveClass('text-(--pd-status-running)');
 });
 
 test('Expect column styling pending', async () => {
@@ -83,7 +83,7 @@ test('Expect column styling pending', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-starting)]');
+  expect(svg).toHaveClass('text-(--pd-status-starting)');
 });
 
 test('Expect column styling unknown', async () => {
@@ -95,5 +95,5 @@ test('Expect column styling unknown', async () => {
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-[var(--pd-status-degraded)]');
+  expect(svg).toHaveClass('text-(--pd-status-degraded)');
 });

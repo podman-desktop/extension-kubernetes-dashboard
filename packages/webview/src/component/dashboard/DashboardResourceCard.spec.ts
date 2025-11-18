@@ -24,15 +24,11 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import KubernetesDashboardResourceCard from './DashboardResourceCard.svelte';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type {
-  CurrentContextInfo,
-  ActiveResourcesCountInfo,
-  ResourcesCountInfo,
-  ContextsPermissionsInfo,
-} from '@kubernetes-dashboard/channels';
+import type { CurrentContextInfo, ActiveResourcesCountInfo } from '@kubernetes-dashboard/channels';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { Navigator } from '/@/navigation/navigator';
+import type { ContextsPermissionsInfo, ResourcesCountInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 const statesMocks = new StatesMocks();
 const dependencyMocks = new DependencyMocks();
@@ -96,18 +92,18 @@ describe('all resources permitted', () => {
     });
 
     const type = screen.getByText('Seals and Dolphins');
-    expect(type).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(type).toHaveClass('text-(--pd-invert-content-card-text)');
     expect(type).toHaveClass('font-semibold');
 
     const activeCount = screen.getByLabelText('Seals and Dolphins active count');
     expect(activeCount).toHaveTextContent('3');
     expect(activeCount).toHaveClass('text-2xl');
-    expect(activeCount).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(activeCount).toHaveClass('text-(--pd-invert-content-card-text)');
 
     const count = screen.getByLabelText('Seals and Dolphins count');
     expect(count).toHaveTextContent('23');
     expect(count).toHaveClass('text-2xl');
-    expect(count).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(count).toHaveClass('text-(--pd-invert-content-card-text)');
   });
 });
 
@@ -147,18 +143,18 @@ describe('one resource permitted', () => {
     });
 
     const type = screen.getByText('Seals and Dolphins');
-    expect(type).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(type).toHaveClass('text-(--pd-invert-content-card-text)');
     expect(type).toHaveClass('font-semibold');
 
     const activeCount = screen.getByLabelText('Seals and Dolphins active count');
     expect(activeCount).toHaveTextContent('1');
     expect(activeCount).toHaveClass('text-2xl');
-    expect(activeCount).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(activeCount).toHaveClass('text-(--pd-invert-content-card-text)');
 
     const count = screen.getByLabelText('Seals and Dolphins count');
     expect(count).toHaveTextContent('11');
     expect(count).toHaveClass('text-2xl');
-    expect(count).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(count).toHaveClass('text-(--pd-invert-content-card-text)');
   });
 });
 
@@ -194,7 +190,7 @@ describe('one resource permitted, resource cannot be active', () => {
     });
 
     const type = screen.getByText('Seals and Dolphins');
-    expect(type).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(type).toHaveClass('text-(--pd-invert-content-card-text)');
     expect(type).toHaveClass('font-semibold');
 
     expect(screen.queryByLabelText('Seals and Dolphins active count')).toBeNull();
@@ -202,7 +198,7 @@ describe('one resource permitted, resource cannot be active', () => {
     const count = screen.getByLabelText('Seals and Dolphins count');
     expect(count).toHaveTextContent('11');
     expect(count).toHaveClass('text-2xl');
-    expect(count).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(count).toHaveClass('text-(--pd-invert-content-card-text)');
   });
 
   test('clicking on the card', async () => {
@@ -257,18 +253,18 @@ describe('no resource permitted', () => {
     expect(button).toHaveClass('opacity-60');
 
     const type = screen.getByText('Seals and Dolphins');
-    expect(type).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(type).toHaveClass('text-(--pd-invert-content-card-text)');
     expect(type).toHaveClass('font-semibold');
 
     const activeCount = screen.getByLabelText('Seals and Dolphins active count');
     expect(activeCount).toHaveTextContent('-');
     expect(activeCount).toHaveClass('text-2xl');
-    expect(activeCount).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(activeCount).toHaveClass('text-(--pd-invert-content-card-text)');
 
     const count = screen.getByLabelText('Seals and Dolphins count');
     expect(count).toHaveTextContent('-');
     expect(count).toHaveClass('text-2xl');
-    expect(count).toHaveClass('text-[var(--pd-invert-content-card-text)]');
+    expect(count).toHaveClass('text-(--pd-invert-content-card-text)');
   });
 
   test('clicking on the card', async () => {

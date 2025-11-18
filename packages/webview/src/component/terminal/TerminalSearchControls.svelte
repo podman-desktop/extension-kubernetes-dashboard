@@ -70,13 +70,13 @@ function onKeyUp(e: KeyboardEvent): void {
   <div class="space-x-1">
     <button
       aria-label="Previous Match"
-      class="p-2 rounded-sm hover:bg-[var(--pd-action-button-details-bg)]"
+      class="p-2 rounded-sm hover:bg-(--pd-action-button-details-bg)"
       onclick={(): void => onSearchPrevious(true)}>
       <Fa icon={faArrowUp} />
     </button>
     <button
       aria-label="Next Match"
-      class="p-2 rounded-sm hover:bg-[var(--pd-action-button-details-bg)]"
+      class="p-2 rounded-sm hover:bg-(--pd-action-button-details-bg)"
       onclick={(): void => onSearchNext(true)}>
       <Fa icon={faArrowDown} />
     </button>

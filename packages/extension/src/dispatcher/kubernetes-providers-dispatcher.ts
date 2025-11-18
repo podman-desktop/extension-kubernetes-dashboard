@@ -21,7 +21,6 @@ import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { KubernetesProvidersInfo } from '@kubernetes-dashboard/channels/dist/model/kubernetes-providers-info';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { KUBERNETES_PROVIDERS } from '@kubernetes-dashboard/channels';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 
@@ -31,11 +30,10 @@ export class KubernetesProvidersDispatcher
   implements DispatcherObject<void>
 {
   constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
     @inject(ContextsManager) private manager: ContextsManager,
     @inject(KubernetesProvidersManager) private kubernetesProvidersManager: KubernetesProvidersManager,
   ) {
-    super(rpcExtension, KUBERNETES_PROVIDERS);
+    super(KUBERNETES_PROVIDERS);
   }
 
   getData(): KubernetesProvidersInfo {

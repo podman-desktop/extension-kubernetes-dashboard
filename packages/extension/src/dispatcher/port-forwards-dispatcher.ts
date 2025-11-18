@@ -20,7 +20,6 @@ import { inject, injectable } from 'inversify';
 import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { PORT_FORWARDS, type PortForwardsInfo } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { PortForwardApiImpl } from '/@/manager/port-forward-api-impl';
 
 @injectable()
@@ -28,11 +27,8 @@ export class PortForwardsDispatcher
   extends AbsDispatcherObjectImpl<void, PortForwardsInfo>
   implements DispatcherObject<void>
 {
-  constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
-    @inject(PortForwardApiImpl) private portForwardManager: PortForwardApiImpl,
-  ) {
-    super(rpcExtension, PORT_FORWARDS);
+  constructor(@inject(PortForwardApiImpl) private portForwardManager: PortForwardApiImpl) {
+    super(PORT_FORWARDS);
   }
 
   getData(): PortForwardsInfo {

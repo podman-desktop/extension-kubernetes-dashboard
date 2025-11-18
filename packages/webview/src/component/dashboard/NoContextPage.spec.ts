@@ -23,23 +23,30 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import NoContextPage from './NoContextPage.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { KubernetesProvidersInfo } from '@kubernetes-dashboard/channels';
+import { API_NAVIGATION, type KubernetesProvidersInfo, type NavigationApi } from '@kubernetes-dashboard/channels';
 import KubeIcon from '/@/component/icons/KubeIcon.svelte';
 import KubernetesProviderCard from '/@/component/dashboard/KubernetesProviderCard.svelte';
 import type { Unsubscriber } from 'svelte/store';
+import { RemoteMocks } from '/@/tests/remote-mocks';
 
 vi.mock(import('./KubernetesProviderCard.svelte'));
 vi.mock(import('/@/component/icons/KubeIcon.svelte'));
 
 const statesMocks = new StatesMocks();
 let kubernetesProvidersMock: FakeStateObject<KubernetesProvidersInfo, void>;
+const remoteMocks = new RemoteMocks();
 
 beforeEach(() => {
   vi.resetAllMocks();
   statesMocks.reset();
+  remoteMocks.reset();
 
   kubernetesProvidersMock = new FakeStateObject<KubernetesProvidersInfo, void>();
   statesMocks.mock<KubernetesProvidersInfo, void>('stateKubernetesProvidersInfoUI', kubernetesProvidersMock);
+
+  remoteMocks.mock(API_NAVIGATION, {
+    navigateToExtensionsCatalog: vi.fn(),
+  } as unknown as NavigationApi);
 });
 
 test('should render the Kubernetes icon', () => {
@@ -50,8 +57,17 @@ test('should render the Kubernetes icon', () => {
 test('should render the main heading', () => {
   render(NoContextPage);
 
-  const heading = screen.getByRole('heading', { level: 1 });
-  expect(heading).toHaveTextContent('No Kubernetes cluster');
+  const headings = screen.getAllByRole('heading', { level: 1 });
+  expect(headings.length).toBeGreaterThan(0);
+  expect(headings[0]).toHaveTextContent('No Kubernetes cluster');
+});
+
+test('should render the New provider card', () => {
+  render(NoContextPage);
+
+  const headings = screen.getAllByRole('heading', { level: 1 });
+  expect(headings.length).toBeGreaterThan(1);
+  expect(headings[1]).toHaveTextContent('New provider');
 });
 
 test('should render the description text', () => {
@@ -59,7 +75,7 @@ test('should render the description text', () => {
 
   const description = screen.getByText(/A Kubernetes cluster is a group of nodes/);
   expect(description).toBeInTheDocument();
-  expect(description).toHaveClass('text-[var(--pd-details-empty-sub-header)]', 'text-balance');
+  expect(description).toHaveClass('text-(--pd-details-empty-sub-header)', 'text-balance');
 });
 
 test('should render providers when data is available', () => {
