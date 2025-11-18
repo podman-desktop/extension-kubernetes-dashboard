@@ -11,5 +11,5 @@ const ingressRouteHelper = dependencyAccessor.get<IngressRouteHelper>(IngressRou
 </script>
 
 {#each ingressRouteHelper.getBackends(object) as backend, index (index)}
-  <div class="text-[var(--pd-table-body-text)]">{backend}</div>
+  <div class="text-(--pd-table-body-text)">{backend}</div>
 {/each}

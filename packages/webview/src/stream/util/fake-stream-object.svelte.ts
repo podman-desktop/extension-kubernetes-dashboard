@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { StreamObject } from './stream-object';
-import { Disposable, type IDisposable } from '@kubernetes-dashboard/channels';
+import { type IDisposable } from '@kubernetes-dashboard/channels';
 
 /**
  * Fake StreamObject for tests
@@ -31,7 +31,7 @@ export class FakeStreamObject<T> implements StreamObject<T> {
     callback: (data: T) => void,
   ): Promise<IDisposable> {
     this.#callback = callback;
-    return Disposable.create(() => {});
+    return { dispose: () => {} } as IDisposable;
   }
 
   sendData(data: T): void {

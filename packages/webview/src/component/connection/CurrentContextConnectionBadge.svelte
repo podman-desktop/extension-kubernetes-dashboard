@@ -4,8 +4,8 @@ import type { Unsubscriber } from 'svelte/store';
 
 import Label from '/@/component/label/Label.svelte';
 import { States } from '/@/state/states';
-import type { ContextHealth } from '@kubernetes-dashboard/channels';
 import { Spinner } from '@podman-desktop/ui-svelte';
+import type { ContextHealth } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 const states = getContext<States>(States);
 const currentContext = states.stateCurrentContextInfoUI;
@@ -61,9 +61,9 @@ function getText(health: ContextHealth): string {
 }
 
 function getClassColor(health: ContextHealth): string {
-  if (health.offline) return 'bg-[var(--pd-status-paused)]';
-  if (health.reachable) return 'bg-[var(--pd-status-connected)]';
-  return 'bg-[var(--pd-status-disconnected)]';
+  if (health.offline) return 'bg-(--pd-status-paused)';
+  if (health.reachable) return 'bg-(--pd-status-connected)';
+  return 'bg-(--pd-status-disconnected)';
 }
 
 function getTip(health: ContextHealth): string {

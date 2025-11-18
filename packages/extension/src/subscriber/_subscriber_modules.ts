@@ -16,8 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ResourceCount } from './kubernetes-resource-count';
+import { ContainerModule } from 'inversify';
+import { ChannelSubscriber } from './channel-subscriber';
 
-export interface ResourcesCountInfo {
-  counts: ResourceCount[];
-}
+const subscriberModule = new ContainerModule(options => {
+  options.bind<ChannelSubscriber>(ChannelSubscriber).toSelf().inSingletonScope();
+});
+
+export { subscriberModule };

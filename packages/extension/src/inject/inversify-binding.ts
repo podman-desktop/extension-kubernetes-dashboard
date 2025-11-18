@@ -26,6 +26,7 @@ import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { managersModule } from '/@/manager/_manager-module';
 import { dispatchersModule } from '/@/dispatcher/_dispatcher-module';
 import { portForwardModule } from '/@/port-forward/_port-forward-module';
+import { subscriberModule } from '/@/subscriber/_subscriber_modules.js';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -56,6 +57,7 @@ export class InversifyBinding {
     await this.#container.load(managersModule);
     await this.#container.load(dispatchersModule);
     await this.#container.load(portForwardModule);
+    await this.#container.load(subscriberModule);
 
     return this.#container;
   }

@@ -21,18 +21,14 @@ import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { RESOURCE_EVENTS, type ResourceEventsOptions, type ResourceEventsInfo } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
 
 @injectable()
 export class ResourceEventsDispatcher
   extends AbsDispatcherObjectImpl<ResourceEventsOptions[], ResourceEventsInfo>
   implements DispatcherObject<ResourceEventsOptions[]>
 {
-  constructor(
-    @inject(RpcExtension) rpcExtension: RpcExtension,
-    @inject(ContextsManager) private manager: ContextsManager,
-  ) {
-    super(rpcExtension, RESOURCE_EVENTS);
+  constructor(@inject(ContextsManager) private manager: ContextsManager) {
+    super(RESOURCE_EVENTS);
   }
 
   getData(options: ResourceEventsOptions[]): ResourceEventsInfo {

@@ -16,8 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ContextHealth } from './kubernetes-contexts-healths';
+import { describe, expect, test, vi } from 'vitest';
+import { SystemApiImpl } from '/@/manager/system-api';
+import * as os from 'node:os';
 
-export interface ContextsHealthsInfo {
-  healths: ContextHealth[];
-}
+vi.mock(import('node:os'));
+
+describe('getPlatformName', async () => {
+  const systemApi = new SystemApiImpl();
+
+  test('should return value from os.platform', async () => {
+    // testing with a non-tested platform, to be sure that the value is not obtained from the system
+    vi.mocked(os.platform).mockReturnValue('sunos');
+    const platformName = await systemApi.getPlatformName();
+    expect(platformName).toBe('sunos');
+  });
+});

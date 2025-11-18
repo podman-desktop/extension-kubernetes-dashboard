@@ -25,8 +25,6 @@ import type { SubscribeApi } from './interface/subscribe-api';
 import type { SystemApi } from './interface/system-api';
 import type { ActiveResourcesCountInfo } from './model/active-resources-count-info';
 import type { AvailableContextsInfo } from './model/available-contexts-info';
-import type { ContextsHealthsInfo } from './model/contexts-healths-info';
-import type { ContextsPermissionsInfo } from './model/contexts-permissions-info';
 import type { CurrentContextInfo } from './model/current-context-info';
 import type { EndpointsInfo } from './model/endpoints-info';
 import type { KubernetesProvidersInfo } from './model/kubernetes-providers-info';
@@ -35,9 +33,13 @@ import type { PodTerminalChunk } from './model/pod-terminal-chunk';
 import type { PortForwardsInfo } from './model/port-forward-info';
 import type { ResourceDetailsInfo } from './model/resource-details-info';
 import type { ResourceEventsInfo } from './model/resource-events-info';
-import type { ResourcesCountInfo } from './model/resources-count-info';
 import type { UpdateResourceInfo } from './model/update-resource-info';
 import { createRpcChannel } from '@kubernetes-dashboard/rpc';
+import type {
+  ContextsHealthsInfo,
+  ContextsPermissionsInfo,
+  ResourcesCountInfo,
+} from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 // RPC channels (used by the webview to send requests to the extension)
 export const API_CONTEXTS = createRpcChannel<ContextsApi>('ContextsApi');

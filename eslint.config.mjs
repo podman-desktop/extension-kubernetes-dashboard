@@ -34,6 +34,7 @@ import svelte from 'eslint-plugin-svelte';
 import redundantUndefined from 'eslint-plugin-redundant-undefined';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import vitest from '@vitest/eslint-plugin';
+import betterTailwindcss from 'eslint-plugin-better-tailwindcss';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -82,6 +83,7 @@ export default [
       'no-null': fixupPluginRules(noNull),
       'redundant-undefined': fixupPluginRules(redundantUndefined),
       'simple-import-sort': fixupPluginRules(simpleImportSort),
+      'better-tailwindcss': fixupPluginRules(betterTailwindcss),
     },
     settings: {
       'import/resolver': {
@@ -235,6 +237,7 @@ export default [
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/ban-types': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
+      'better-tailwindcss/enforce-consistent-variable-syntax': 'error',
     },
   },
 

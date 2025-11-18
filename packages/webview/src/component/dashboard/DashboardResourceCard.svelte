@@ -3,12 +3,12 @@ import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { Tooltip } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 import KubernetesIcon from '/@/component/icons/KubernetesIcon.svelte';
-import type { ResourceCount } from '@kubernetes-dashboard/channels';
 import type { Unsubscriber } from 'svelte/store';
 import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { Navigator } from '/@/navigation/navigator';
+import type { ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 interface Props {
   type: string;
@@ -91,11 +91,11 @@ async function openLink(): Promise<void> {
 </script>
 
 <button
-  class="flex flex-col gap-4 p-4 bg-[var(--pd-content-card-carousel-card-bg)] hover:bg-[var(--pd-content-card-carousel-card-hover-bg)] rounded-md"
+  class="flex flex-col gap-4 p-4 bg-(--pd-content-card-carousel-card-bg) hover:bg-(--pd-content-card-carousel-card-hover-bg) rounded-md"
   class:opacity-60={!permitted}
   onclick={openLink}>
   <div class="text-start flex">
-    <span class="text-[var(--pd-invert-content-card-text)] font-semibold grow">{type}</span>
+    <span class="text-(--pd-invert-content-card-text) font-semibold grow">{type}</span>
     {#if !permitted}
       <span class="ml-1"
         ><Tooltip bottom={true} class="" tip={`${type} are not accessible`}
@@ -104,20 +104,20 @@ async function openLink(): Promise<void> {
     {/if}
   </div>
   <div class="grid {activeCount !== undefined ? 'grid-cols-3' : 'grid-cols-2'} gap-4 w-full grow items-end">
-    <div class="justify-self-center text-[var(--pd-button-primary-bg)]">
+    <div class="justify-self-center text-(--pd-button-primary-bg)">
       <KubernetesIcon kind={iconName} size="40" />
     </div>
     {#if activeCount !== undefined}
       <div class="flex flex-col">
-        <span class="text-[var(--pd-invert-content-card-text)]">Active</span>
-        <div class="text-2xl text-[var(--pd-invert-content-card-text)]" aria-label="{type} active count">
+        <span class="text-(--pd-invert-content-card-text)">Active</span>
+        <div class="text-2xl text-(--pd-invert-content-card-text)" aria-label="{type} active count">
           {#if permitted}{activeCount}{:else}-{/if}
         </div>
       </div>
     {/if}
     <div class="flex flex-col">
-      <span class="text-[var(--pd-invert-content-card-text)]">Total</span>
-      <div class="text-2xl text-[var(--pd-invert-content-card-text)]" aria-label="{type} count">
+      <span class="text-(--pd-invert-content-card-text)">Total</span>
+      <div class="text-2xl text-(--pd-invert-content-card-text)" aria-label="{type} count">
         {#if permitted}{count}{:else}-{/if}
       </div>
     </div>
