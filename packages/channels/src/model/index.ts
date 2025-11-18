@@ -41,4 +41,3 @@ export * from './target-ref';
 export * from './terminal-settings';
 export * from './update-resource-info';
 export * from './update-resource-options';
-
