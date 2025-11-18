@@ -1,138 +1,141 @@
 <script lang="ts">
-	import type { IDisposable, PodLogsOptions } from '@kubernetes-dashboard/channels';
-	import type { V1Pod } from '@kubernetes/client-node';
-	import { Button, EmptyScreen, Input } from '@podman-desktop/ui-svelte';
-	import type { Terminal } from '@xterm/xterm';
-	import { getContext, onDestroy, onMount, tick } from 'svelte';
-	import { SvelteMap } from 'svelte/reactivity';
-	import type { Unsubscriber } from 'svelte/store';
-	import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
-	import { ansi256Colours, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
-	import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
-	import { States } from '/@/state/states';
-	import { Streams } from '/@/stream/streams';
+import type { IDisposable, PodLogsOptions } from '@kubernetes-dashboard/channels';
+import type { V1Pod } from '@kubernetes/client-node';
+import { Button, EmptyScreen, Input } from '@podman-desktop/ui-svelte';
+import type { Terminal } from '@xterm/xterm';
+import { getContext, onDestroy, onMount, tick } from 'svelte';
+import { SvelteMap } from 'svelte/reactivity';
+import type { Unsubscriber } from 'svelte/store';
+import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
+import { ansi256Colours, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
+import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
+import { States } from '/@/state/states';
+import { Streams } from '/@/stream/streams';
 
-	interface Props {
-		object: V1Pod;
-	}
-	let { object }: Props = $props();
+interface Props {
+  object: V1Pod;
+}
+let { object }: Props = $props();
 
-  const states = getContext<States>(States);
-  const editorSettingsState = states.stateEditorSettingsInfoUI;
+const states = getContext<States>(States);
+const editorSettingsState = states.stateEditorSettingsInfoUI;
 
-	// Logs has been initialized
-	let noLogs = $state(true);
+// Logs has been initialized
+let noLogs = $state(true);
 
-	let logsTerminal = $state<Terminal>();
+let logsTerminal = $state<Terminal>();
 
-  // Log retrieval mode and options
-  let isStreaming = $state(true);
-  let previous = $state(false);
-  let tailLines = $state<number | undefined>(undefined);
-  let sinceSeconds = $state<number | undefined>(undefined);
-  let timestamps = $state(false);
-  let fontSize = $state(editorSettingsState.data?.fontSize ?? 10);
+// Log retrieval mode and options
+let isStreaming = $state(true);
+let previous = $state(false);
+let tailLines = $state<number | undefined>(undefined);
+let sinceSeconds = $state<number | undefined>(undefined);
+let timestamps = $state(false);
+let fontSize = $state(editorSettingsState.data?.fontSize ?? 10);
 
-  // Update fontSize when editor settings change
-  $effect(() => {
-    if (editorSettingsState.data?.fontSize !== undefined) {
-      fontSize = editorSettingsState.data.fontSize;
-    }
-  });
+// Update fontSize when editor settings change
+$effect(() => {
+  if (editorSettingsState.data?.fontSize !== undefined) {
+    fontSize = editorSettingsState.data.fontSize;
+  }
+});
 
-  let disposables: IDisposable[] = [];
-  const streams = getContext<Streams>(Streams);
+let disposables: IDisposable[] = [];
+const streams = getContext<Streams>(Streams);
 
-  // Create a map that will store the ANSI 256 colour for each container name
-  // if we run out of colours, we'll start from the beginning.
-  const colourizedContainerName = new SvelteMap<string, string>();
+// Create a map that will store the ANSI 256 colour for each container name
+// if we run out of colours, we'll start from the beginning.
+const colourizedContainerName = new SvelteMap<string, string>();
 
-  async function loadLogs() {
-    logsTerminal?.clear();
-    noLogs = true;
+async function loadLogs(): Promise<void> {
+  logsTerminal?.clear();
+  noLogs = true;
 
-    disposables.forEach(disposable => disposable.dispose());
-    disposables = [];
+  disposables.forEach(disposable => disposable.dispose());
+  disposables = [];
 
-    const containerCount = object.spec?.containers.length ?? 0;
+  const containerCount = object.spec?.containers.length ?? 0;
 
-    // Go through each name of pod.containers array and determine
-    // how much spacing is required for each name to be printed.
-    let maxNameLength = 0;
-    if (containerCount > 1) {
-      object.spec?.containers.forEach((container, index) => {
-        if (container.name.length > maxNameLength) {
-          maxNameLength = container.name.length;
-        }
-        const colour = ansi256Colours[index % ansi256Colours.length];
-        colourizedContainerName.set(container.name, colourizedANSIContainerName(container.name, colour));
-      });
-    }
-
-    const multiContainers =
-      containerCount > 1
-        ? (name: string, data: string, callback: (data: string) => void): void => {
-            const padding = ' '.repeat(maxNameLength - name.length);
-            const colouredName = colourizedContainerName.get(name);
-
-            // All lines are prefixed, except the last one if it's empty.
-            const lines = data
-              .split('\n')
-              .map((line, index, arr) =>
-                index < arr.length - 1 || line.length > 0 ? `${padding}${colouredName}|${line}` : line,
-              );
-            callback(lines.join('\n'));
-          }
-        : (_name: string, data: string, callback: (data: string) => void): void => {
-            callback(data);
-          };
-
-      const options: PodLogsOptions = {
-        stream: isStreaming,
-        previous,
-        tailLines,
-        sinceSeconds,
-        timestamps,
-      };
-
-      for (const containerName of object.spec?.containers.map(c => c.name) ?? []) {
-        disposables.push(
-          await streams.streamPodLogs.subscribe(
-            object.metadata?.name ?? '',
-            object.metadata?.namespace ?? '',
-            containerName,
-            options,
-            chunk => {
-              multiContainers(containerName, chunk.data, data => {
-                if (noLogs) {
-                  noLogs = false;
-                }
-                logsTerminal?.write(data + '\r');
-                tick().then(() => {
-                    window.dispatchEvent(new Event('resize'));
-                }).catch(console.error);
-              });
-            }),
-        );
+  // Go through each name of pod.containers array and determine
+  // how much spacing is required for each name to be printed.
+  let maxNameLength = 0;
+  if (containerCount > 1) {
+    object.spec?.containers.forEach((container, index) => {
+      if (container.name.length > maxNameLength) {
+        maxNameLength = container.name.length;
       }
+      const colour = ansi256Colours[index % ansi256Colours.length];
+      colourizedContainerName.set(container.name, colourizedANSIContainerName(container.name, colour));
+    });
   }
 
-  let unsubscribers: Unsubscriber[] = [];
+  const multiContainers =
+    containerCount > 1
+      ? (name: string, data: string, callback: (data: string) => void): void => {
+          const padding = ' '.repeat(maxNameLength - name.length);
+          const colouredName = colourizedContainerName.get(name);
 
-  onMount(async () => {
-    unsubscribers.push(editorSettingsState.subscribe());
-    await loadLogs();
-  });
+          // All lines are prefixed, except the last one if it's empty.
+          const lines = data
+            .split('\n')
+            .map((line, index, arr) =>
+              index < arr.length - 1 || line.length > 0 ? `${padding}${colouredName}|${line}` : line,
+            );
+          callback(lines.join('\n'));
+        }
+      : (_name: string, data: string, callback: (data: string) => void): void => {
+          callback(data);
+        };
 
-  onDestroy(() => {
-    unsubscribers.forEach(unsubscriber => unsubscriber());
-    disposables.forEach(disposable => disposable.dispose());
-    disposables = [];
-  });
+  const options: PodLogsOptions = {
+    stream: isStreaming,
+    previous,
+    tailLines,
+    sinceSeconds,
+    timestamps,
+  };
+
+  for (const containerName of object.spec?.containers.map(c => c.name) ?? []) {
+    disposables.push(
+      await streams.streamPodLogs.subscribe(
+        object.metadata?.name ?? '',
+        object.metadata?.namespace ?? '',
+        containerName,
+        options,
+        chunk => {
+          multiContainers(containerName, chunk.data, data => {
+            if (noLogs) {
+              noLogs = false;
+            }
+            logsTerminal?.write(data + '\r');
+            tick()
+              .then(() => {
+                window.dispatchEvent(new Event('resize'));
+              })
+              .catch(console.error);
+          });
+        },
+      ),
+    );
+  }
+}
+
+let unsubscribers: Unsubscriber[] = [];
+
+onMount(async () => {
+  unsubscribers.push(editorSettingsState.subscribe());
+  await loadLogs();
+});
+
+onDestroy(() => {
+  unsubscribers.forEach(unsubscriber => unsubscriber());
+  disposables.forEach(disposable => disposable.dispose());
+  disposables = [];
+});
 </script>
 
 <div class="flex flex-col h-full">
-  <div class="flex items-center gap-4 p-4 bg-[var(--pd-content-header-bg)] border-b border-[var(--pd-content-divider)]">
+  <div class="flex items-center gap-4 p-4 bg-(--pd-content-header-bg) border-b border-(--pd-content-divider)">
     <div class="flex items-center gap-2">
       <label class="flex items-center gap-2 cursor-pointer">
         <input type="radio" bind:group={isStreaming} value={true} class="cursor-pointer" />
@@ -151,24 +154,12 @@
 
     <label class="flex items-center gap-2">
       <span class="text-sm">Tail:</span>
-      <Input
-        type="number"
-        bind:value={tailLines}
-        placeholder="All"
-        class="w-24"
-        min="1"
-      />
+      <Input type="number" bind:value={tailLines} placeholder="All" class="w-24" min="1" />
     </label>
 
     <label class="flex items-center gap-2">
       <span class="text-sm">Since (seconds):</span>
-      <Input
-        type="number"
-        bind:value={sinceSeconds}
-        placeholder="All"
-        class="w-24"
-        min="1"
-      />
+      <Input type="number" bind:value={sinceSeconds} placeholder="All" class="w-24" min="1" />
     </label>
 
     <label class="flex items-center gap-2 cursor-pointer">
@@ -197,6 +188,12 @@
     class:invisible={noLogs === true}
     class:h-0={noLogs === true}
     class:flex-1={noLogs === false}>
-    <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn fontSize={fontSize} lineCount={tailLines} />
+    <TerminalWindow
+      class="h-full"
+      bind:terminal={logsTerminal}
+      convertEol
+      disableStdIn
+      fontSize={fontSize}
+      lineCount={tailLines} />
   </div>
 </div>

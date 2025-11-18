@@ -317,7 +317,7 @@ importers:
         specifier: ^3.33.0
         version: 3.33.1
       jsdom:
-        specifier: ^27.1.0
+        specifier: ^27.0.0
         version: 27.2.0
       micromark:
         specifier: ^4.0.2

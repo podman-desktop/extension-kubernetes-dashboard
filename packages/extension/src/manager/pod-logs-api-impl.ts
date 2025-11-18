@@ -36,7 +36,12 @@ export class PodLogsApiImpl implements PodLogsApi, IDisposable {
     @inject(RpcExtension) private rpcExtension: RpcExtension,
   ) {}
 
-  async streamPodLogs(podName: string, namespace: string, containerName: string, options?: PodLogsOptions): Promise<void> {
+  async streamPodLogs(
+    podName: string,
+    namespace: string,
+    containerName: string,
+    options?: PodLogsOptions,
+  ): Promise<void> {
     if (!this.contextsManager.currentContext) {
       throw new Error('No current context found');
     }

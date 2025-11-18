@@ -1,47 +1,47 @@
 <script lang="ts">
-  import '@xterm/xterm/css/xterm.css';
+import '@xterm/xterm/css/xterm.css';
 
-  import { FitAddon } from '@xterm/addon-fit';
-  import { Terminal } from '@xterm/xterm';
-  import { onDestroy, onMount } from 'svelte';
+import { FitAddon } from '@xterm/addon-fit';
+import { Terminal } from '@xterm/xterm';
+import { onDestroy, onMount } from 'svelte';
 
-  import { getTerminalTheme } from './terminal-theme';
-  import TerminalSearchControls from './TerminalSearchControls.svelte';
+import { getTerminalTheme } from './terminal-theme';
+import TerminalSearchControls from './TerminalSearchControls.svelte';
 
-  interface Props {
-    terminal?: Terminal;
-    convertEol?: boolean;
-    disableStdIn?: boolean;
-    screenReaderMode?: boolean;
-    showCursor?: boolean;
-    search?: boolean;
-    class?: string;
-    fontSize?: number;
-    lineCount?: number;
-  }
+interface Props {
+  terminal?: Terminal;
+  convertEol?: boolean;
+  disableStdIn?: boolean;
+  screenReaderMode?: boolean;
+  showCursor?: boolean;
+  search?: boolean;
+  class?: string;
+  fontSize?: number;
+  lineCount?: number;
+}
 
-  let {
-    terminal = $bindable(),
-    convertEol,
-    disableStdIn = true,
-    screenReaderMode,
-    showCursor = false,
-    search = false,
-    class: className,
-    fontSize = 10,
-    lineCount = 1000,
-  }: Props = $props();
+let {
+  terminal = $bindable(),
+  convertEol,
+  disableStdIn = true,
+  screenReaderMode,
+  showCursor = false,
+  search = false,
+  class: className,
+  fontSize = 10,
+  lineCount = 1000,
+}: Props = $props();
 
-  let logsXtermDiv: HTMLDivElement | undefined;
-  let resizeHandler: () => void;
-  let fitAddon: FitAddon;
+let logsXtermDiv: HTMLDivElement | undefined;
+let resizeHandler: () => void;
+let fitAddon: FitAddon;
 
-  async function refreshTerminal(): Promise<void> {
+async function refreshTerminal(): Promise<void> {
   // missing element, return
   if (!logsXtermDiv) {
     return;
   }
-  
+
   const lineHeight = 1; // TODO: get from configuration
 
   terminal = new Terminal({
@@ -52,7 +52,7 @@
     convertEol: convertEol,
     screenReaderMode: screenReaderMode,
     rightClickSelectsWord: true,
-    scrollback: lineCount
+    scrollback: lineCount,
   });
   fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
@@ -80,7 +80,7 @@ $effect(() => {
     }
     if (lineCount) {
       terminal.options.scrollback = lineCount;
-    }    
+    }
   }
 });
 

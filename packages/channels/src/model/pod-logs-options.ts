@@ -17,9 +17,9 @@
  ***********************************************************************/
 
 export interface PodLogsOptions {
-    stream?: boolean;
-    previous?: boolean;
-    tailLines?: number;
-    sinceSeconds?: number;
-    timestamps?: boolean;
+  stream?: boolean;
+  previous?: boolean;
+  tailLines?: number;
+  sinceSeconds?: number;
+  timestamps?: boolean;
 }

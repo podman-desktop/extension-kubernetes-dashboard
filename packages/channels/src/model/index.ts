@@ -41,4 +41,3 @@ export * from './resource-events-options';
 export * from './target-ref';
 export * from './update-resource-info';
 export * from './update-resource-options';
-

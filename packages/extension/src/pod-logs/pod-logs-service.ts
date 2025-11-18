@@ -33,7 +33,12 @@ export class PodLogsService {
     private readonly rpcExtension: RpcExtension,
   ) {}
 
-  async startStream(podName: string, namespace: string, containerName: string, options?: PodLogsOptions): Promise<void> {
+  async startStream(
+    podName: string,
+    namespace: string,
+    containerName: string,
+    options?: PodLogsOptions,
+  ): Promise<void> {
     const log = new Log(this.context.getKubeConfig());
 
     this.#logStream = new PassThrough();
@@ -52,14 +57,13 @@ export class PodLogsService {
         })
         .catch(console.error);
     });
-    this.#abortController = await log.log(namespace, podName, containerName, this.#logStream,
-      {
-        follow: options?.stream ?? true,
-        previous: options?.previous,
-        tailLines: options?.tailLines,
-        sinceSeconds: options?.sinceSeconds,
-        timestamps: options?.timestamps,
-      });
+    this.#abortController = await log.log(namespace, podName, containerName, this.#logStream, {
+      follow: options?.stream ?? true,
+      previous: options?.previous,
+      tailLines: options?.tailLines,
+      sinceSeconds: options?.sinceSeconds,
+      timestamps: options?.timestamps,
+    });
   }
 
   stopStream(): void {
