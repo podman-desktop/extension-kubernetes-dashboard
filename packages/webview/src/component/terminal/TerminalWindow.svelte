@@ -17,6 +17,7 @@ interface Props {
   search?: boolean;
   class?: string;
   fontSize?: number;
+  lineHeight?: number;
   lineCount?: number;
 }
 
@@ -29,6 +30,7 @@ let {
   search = false,
   class: className,
   fontSize = 10,
+  lineHeight = 1,
   lineCount = 1000,
 }: Props = $props();
 
@@ -41,8 +43,6 @@ async function refreshTerminal(): Promise<void> {
   if (!logsXtermDiv) {
     return;
   }
-
-  const lineHeight = 1; // TODO: get from configuration
 
   terminal = new Terminal({
     fontSize,

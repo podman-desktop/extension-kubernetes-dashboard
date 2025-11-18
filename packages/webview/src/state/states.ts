@@ -22,13 +22,13 @@ import { StateAvailableContextsInfo } from './available-contexts.svelte';
 import { StateContextsHealthsInfo } from './contexts-healths.svelte';
 import { StateContextsPermissionsInfo } from './contexts-permissions.svelte';
 import { StateCurrentContextInfo } from './current-context.svelte';
-import { StateEditorSettingsInfo } from './editor-settings.svelte';
 import { StateEndpointsInfo } from './endpoints.svelte';
 import { StateKubernetesProvidersInfo } from './kubernetes-providers.svelte';
 import { StatePortForwardsInfo } from './port-forwards.svelte';
 import { StateResourceDetailsInfo } from './resource-details.svelte';
 import { StateResourceEventsInfo } from './resource-events.svelte';
 import { StateResourcesCountInfo } from './resources-count.svelte';
+import { StateTerminalSettingsInfo } from './terminal-settings.svelte';
 import { StateUpdateResourceInfo } from './update-resource.svelte';
 
 @injectable()
@@ -103,11 +103,11 @@ export class States {
     return this._statePortForwardsInfoUI;
   }
 
-  @inject(StateEditorSettingsInfo)
-  private _stateEditorSettingsInfoUI: StateEditorSettingsInfo;
+  @inject(StateTerminalSettingsInfo)
+  private _stateTerminalSettingsInfoUI: StateTerminalSettingsInfo;
 
-  get stateEditorSettingsInfoUI(): StateEditorSettingsInfo {
-    return this._stateEditorSettingsInfoUI;
+  get stateTerminalSettingsInfoUI(): StateTerminalSettingsInfo {
+    return this._stateTerminalSettingsInfoUI;
   }
 
   @inject(StateEndpointsInfo)

@@ -18,23 +18,23 @@
 
 import { inject, injectable } from 'inversify';
 
-import { EDITOR_SETTINGS } from '@kubernetes-dashboard/channels';
+import { TERMINAL_SETTINGS } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
-import type { EditorSettings } from '@kubernetes-dashboard/channels';
+import type { TerminalSettings } from '@kubernetes-dashboard/channels';
 import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
 
-// Define a state for the EditorSettings
+// Define a state for the TerminalSettings
 @injectable()
-export class StateEditorSettingsInfo
-  extends AbsStateObjectImpl<EditorSettings, void>
-  implements StateObject<EditorSettings, void>
+export class StateTerminalSettingsInfo
+  extends AbsStateObjectImpl<TerminalSettings, void>
+  implements StateObject<TerminalSettings, void>
 {
   constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
     super(rpcBrowser);
   }
 
   async init(): Promise<void> {
-    await this.initChannel(EDITOR_SETTINGS);
+    await this.initChannel(TERMINAL_SETTINGS);
   }
 }

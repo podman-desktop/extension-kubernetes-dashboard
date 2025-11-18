@@ -18,7 +18,7 @@ interface Props {
 let { object }: Props = $props();
 
 const states = getContext<States>(States);
-const editorSettingsState = states.stateEditorSettingsInfoUI;
+const terminalSettingsState = states.stateTerminalSettingsInfoUI;
 
 // Logs has been initialized
 let noLogs = $state(true);
@@ -31,12 +31,14 @@ let previous = $state(false);
 let tailLines = $state<number | undefined>(undefined);
 let sinceSeconds = $state<number | undefined>(undefined);
 let timestamps = $state(false);
-let fontSize = $state(editorSettingsState.data?.fontSize ?? 10);
+let fontSize = $state(terminalSettingsState.data?.fontSize ?? 10);
+const lineHeight = terminalSettingsState.data?.lineHeight ?? 1;
+const lineCount = terminalSettingsState.data?.scrollback ?? 1000;
 
-// Update fontSize when editor settings change
+// Update fontSize when terminal settings change
 $effect(() => {
-  if (editorSettingsState.data?.fontSize !== undefined) {
-    fontSize = editorSettingsState.data.fontSize;
+  if (terminalSettingsState.data?.fontSize !== undefined) {
+    fontSize = terminalSettingsState.data.fontSize;
   }
 });
 
@@ -123,7 +125,7 @@ async function loadLogs(): Promise<void> {
 let unsubscribers: Unsubscriber[] = [];
 
 onMount(async () => {
-  unsubscribers.push(editorSettingsState.subscribe());
+  unsubscribers.push(terminalSettingsState.subscribe());
   await loadLogs();
 });
 
@@ -194,6 +196,7 @@ onDestroy(() => {
       convertEol
       disableStdIn
       fontSize={fontSize}
-      lineCount={tailLines} />
+      lineHeight={lineHeight}
+      lineCount={tailLines ?? lineCount} />
   </div>
 </div>

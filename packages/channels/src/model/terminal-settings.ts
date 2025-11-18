@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export interface EditorSettings {
+export interface TerminalSettings {
   fontSize: number;
+  lineHeight: number;
+  scrollback: number;
 }

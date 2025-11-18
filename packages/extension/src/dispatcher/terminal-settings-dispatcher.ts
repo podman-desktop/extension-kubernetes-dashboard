@@ -16,27 +16,31 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { EDITOR_SETTINGS, type EditorSettings } from '@kubernetes-dashboard/channels';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { TERMINAL_SETTINGS, type TerminalSettings } from '@kubernetes-dashboard/channels';
 import { configuration } from '@podman-desktop/api';
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import type { DispatcherObject } from '/@/dispatcher/util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from '/@/dispatcher/util/dispatcher-object';
 
 @injectable()
-export class EditorSettingsDispatcher
-  extends AbsDispatcherObjectImpl<void, EditorSettings>
+export class TerminalSettingsDispatcher
+  extends AbsDispatcherObjectImpl<void, TerminalSettings>
   implements DispatcherObject<void>
 {
-  constructor(@inject(RpcExtension) rpcExtension: RpcExtension) {
-    super(rpcExtension, EDITOR_SETTINGS);
+  constructor() {
+    super(TERMINAL_SETTINGS);
   }
 
-  getData(): EditorSettings {
+  getData(): TerminalSettings {
     //TODO probably would be nice to expose these keys in the podman-desktop api spec
-    const fontSize = configuration.getConfiguration('editor').get<number>('integrated.fontSize') ?? 10;
+    const terminalSettings = configuration.getConfiguration('terminal');
+    const fontSize = terminalSettings.get<number>('integrated.fontSize') ?? 10;
+    const lineHeight = terminalSettings.get<number>('integrated.lineHeight') ?? 1;
+    const scrollback = terminalSettings.get<number>('integrated.scrollback') ?? 1000;
     return {
       fontSize,
+      lineHeight,
+      scrollback,
     };
   }
 }

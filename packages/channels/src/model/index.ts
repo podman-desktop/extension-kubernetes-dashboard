@@ -22,7 +22,6 @@ export * from './context-resource-events';
 export * from './context-resources-details';
 export * from './context-resources-items';
 export * from './current-context-info';
-export * from './editor-settings';
 export * from './endpoint';
 export * from './endpoints-info';
 export * from './endpoints-options';
@@ -39,5 +38,7 @@ export * from './resource-details-options';
 export * from './resource-events-info';
 export * from './resource-events-options';
 export * from './target-ref';
+export * from './terminal-settings';
 export * from './update-resource-info';
 export * from './update-resource-options';
+

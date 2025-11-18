@@ -22,7 +22,6 @@ import {
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
-  EDITOR_SETTINGS,
   ENDPOINTS,
   KUBERNETES_PROVIDERS,
   KubernetesTroubleshootingInformation,
@@ -30,6 +29,7 @@ import {
   RESOURCE_DETAILS,
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
+  TERMINAL_SETTINGS,
   UPDATE_RESOURCE,
 } from '@kubernetes-dashboard/channels';
 
@@ -114,7 +114,7 @@ export class ContextsStatesDispatcher {
       await this.dispatch(KUBERNETES_PROVIDERS);
     });
 
-    this.dispatch(EDITOR_SETTINGS).catch(console.error);
+    this.dispatch(TERMINAL_SETTINGS).catch(console.error);
 
     this.#subscribers.forEach(subscriber => {
       subscriber.onSubscribe(channelName => this.dispatchByChannelName(subscriber, channelName));

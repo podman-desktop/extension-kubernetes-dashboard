@@ -22,7 +22,7 @@ import { AvailableContextsDispatcher } from './available-contexts-dispatcher';
 import { ContextsHealthsDispatcher } from './contexts-healths-dispatcher';
 import { ContextsPermissionsDispatcher } from './contexts-permissions-dispatcher';
 import { CurrentContextDispatcher } from './current-context-dispatcher';
-import { EditorSettingsDispatcher } from './editor-settings-dispatcher';
+import { TerminalSettingsDispatcher } from './terminal-settings-dispatcher';
 import { EndpointsDispatcher } from './endpoints-dispatcher';
 import { KubernetesProvidersDispatcher } from './kubernetes-providers-dispatcher';
 import { PortForwardsDispatcher } from './port-forwards-dispatcher';
@@ -51,8 +51,8 @@ const dispatchersModule = new ContainerModule(options => {
   options.bind<AvailableContextsDispatcher>(AvailableContextsDispatcher).toSelf().inSingletonScope();
   options.bind(DispatcherObject).toService(AvailableContextsDispatcher);
 
-  options.bind<EditorSettingsDispatcher>(EditorSettingsDispatcher).toSelf().inSingletonScope();
-  options.bind(DispatcherObject).toService(EditorSettingsDispatcher);
+  options.bind<TerminalSettingsDispatcher>(TerminalSettingsDispatcher).toSelf().inSingletonScope();
+  options.bind(DispatcherObject).toService(TerminalSettingsDispatcher);
 
   options.bind<UpdateResourceDispatcher>(UpdateResourceDispatcher).toSelf().inSingletonScope();
   options.bind(DispatcherObject).toService(UpdateResourceDispatcher);
