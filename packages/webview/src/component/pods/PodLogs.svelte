@@ -8,10 +8,10 @@ import { SvelteMap } from 'svelte/reactivity';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import { detectJsonLogs } from '/@/component/terminal/json-colorizer';
 import {
-  ansi256Colours,
-  colorizeJSON,
-  colorizeLogLevel,
-  colourizedANSIContainerName,
+    ansi256Colours,
+    colorizeJSON,
+    colorizeLogLevel,
+    colourizedANSIContainerName,
 } from '/@/component/terminal/terminal-colors';
 import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import { Streams } from '/@/stream/streams';
@@ -63,7 +63,7 @@ const colorizeAndFormatLogs = (data: string, containerName?: string, maxNameLeng
 
     // Apply colorization: JSON first (if detected/only a few lines of logs), then log levels
     lines =
-      isJsonFormat || true
+      isJsonFormat ?? true
         ? lines.map(line => colorizeLogLevel(colorizeJSON(line)))
         : lines.map(line => colorizeLogLevel(line));
   }
