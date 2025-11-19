@@ -38,26 +38,18 @@ const remote = getContext<Remote>(Remote);
 const systemApi = remote.getProxy(API_SYSTEM);
 let platformName = $state<string>();
 
-function copySelectionToClipboard(): boolean {
-  let copied = false;
+async function copySelectionToClipboard(): Promise<boolean> {
   const selection = terminal?.getSelection();
   if (selection) {
-    //We don't have permissions to the clipboard so instead we can use a text area with copy command to get around that
-    const textarea = document.createElement('textarea');
-    textarea.value = selection;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
     try {
-      document.execCommand('copy');
-      copied = true;
+      await systemApi.clipboardWriteText(selection);
+      return true;
     } catch (err) {
       console.error('Failed to copy:', err);
+      return false;
     }
-    document.body.removeChild(textarea);
   }
-  return copied;
+  return false;
 }
 
 async function refreshTerminal(): Promise<void> {
@@ -103,24 +95,28 @@ async function refreshTerminal(): Promise<void> {
     }
 
     if (isCopyShortcut) {
-      const handled = copySelectionToClipboard();
-      if (handled) {
-        terminal?.clearSelection();
-        event.preventDefault();
-        return false;
-      }
-    }
-    return true;
-  });
-
-  contextMenuHandler = (event: MouseEvent): boolean => {
-    const handled = copySelectionToClipboard();
-    if (handled) {
-      terminal?.clearSelection();
+      copySelectionToClipboard()
+        .then(handled => {
+          if (handled) {
+            terminal?.clearSelection();
+          }
+        })
+        .catch((err: unknown) => console.error('Failed to copy selection:', err));
       event.preventDefault();
       return false;
     }
     return true;
+  });
+
+  contextMenuHandler = (event: MouseEvent): void => {
+    copySelectionToClipboard()
+      .then(handled => {
+        if (handled) {
+          terminal?.clearSelection();
+        }
+      })
+      .catch((err: unknown) => console.error('Failed to copy selection:', err));
+    event.preventDefault();
   };
   logsXtermDiv.addEventListener('contextmenu', contextMenuHandler);
 
