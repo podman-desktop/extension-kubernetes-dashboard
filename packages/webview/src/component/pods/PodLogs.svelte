@@ -1,9 +1,11 @@
 <script lang="ts">
+import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 import type { IDisposable, PodLogsOptions } from '@kubernetes-dashboard/channels';
 import type { V1Pod } from '@kubernetes/client-node';
 import { Button, EmptyScreen, Input } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
 import { getContext, onDestroy, onMount, tick } from 'svelte';
+import Fa from 'svelte-fa';
 import { SvelteMap } from 'svelte/reactivity';
 import type { Unsubscriber } from 'svelte/store';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
@@ -25,15 +27,18 @@ let noLogs = $state(true);
 
 let logsTerminal = $state<Terminal>();
 
+const lineCount = terminalSettingsState.data?.scrollback ?? 1000;
+
 // Log retrieval mode and options
 let isStreaming = $state(true);
 let previous = $state(false);
-let tailLines = $state<number | undefined>(undefined);
+let tailLines = $state<number | undefined>(lineCount);
 let sinceSeconds = $state<number | undefined>(undefined);
 let timestamps = $state(false);
 let fontSize = $state(terminalSettingsState.data?.fontSize ?? 10);
-const lineHeight = terminalSettingsState.data?.lineHeight ?? 1;
-const lineCount = terminalSettingsState.data?.scrollback ?? 1000;
+let lineHeight = $state(terminalSettingsState.data?.lineHeight ?? 1);
+let wordWrap = $state(true);
+let settingsMenuOpen = $state(false);
 
 // Update fontSize when terminal settings change
 $effect(() => {
@@ -123,10 +128,24 @@ async function loadLogs(): Promise<void> {
 }
 
 let unsubscribers: Unsubscriber[] = [];
+let settingsMenuRef: HTMLDivElement | undefined;
 
 onMount(async () => {
   unsubscribers.push(terminalSettingsState.subscribe());
   await loadLogs();
+
+  // Close settings menu when clicking outside
+  const handleClickOutside = (event: MouseEvent): void => {
+    if (settingsMenuOpen && settingsMenuRef && !settingsMenuRef.contains(event.target as Node)) {
+      settingsMenuOpen = false;
+    }
+  };
+
+  window.addEventListener('click', handleClickOutside);
+
+  return (): void => {
+    window.removeEventListener('click', handleClickOutside);
+  };
 });
 
 onDestroy(() => {
@@ -169,14 +188,49 @@ onDestroy(() => {
       <span class="text-sm">Timestamps</span>
     </label>
 
-    <label class="flex items-center gap-2">
-      <span class="text-sm">Font Size:</span>
-      <Input type="number" bind:value={fontSize} class="w-20" min="8" max="24" />
-    </label>
-
-    <Button on:click={loadLogs} class="ml-auto">
-      {isStreaming ? 'Restart Stream' : 'Retrieve Logs'}
-    </Button>
+    <div class="ml-auto flex items-center gap-2">
+      <div class="relative" bind:this={settingsMenuRef}>
+        <button
+          class="p-2 hover:bg-(--pd-content-card-hover-bg) rounded"
+          onclick={(): boolean => (settingsMenuOpen = !settingsMenuOpen)}
+          aria-label="Terminal settings">
+          <Fa icon={faEllipsisV} />
+        </button>
+        {#if settingsMenuOpen}
+          <div
+            class="absolute right-0 mt-1 w-64 bg-(--pd-content-card-bg) border border-(--pd-content-divider) rounded shadow-lg z-10">
+            <div class="p-3 space-y-3">
+              <label class="flex items-center justify-between gap-2">
+                <span class="text-sm">Font Size:</span>
+                <input
+                  type="number"
+                  bind:value={fontSize}
+                  class="w-20 px-2 py-1 bg-(--pd-input-field-bg) text-(--pd-input-field-focused-text) border border-(--pd-input-field-stroke) rounded"
+                  min="8"
+                  max="24" />
+              </label>
+              <label class="flex items-center justify-between gap-2">
+                <span class="text-sm">Line Height:</span>
+                <input
+                  type="number"
+                  bind:value={lineHeight}
+                  class="w-20 px-2 py-1 bg-(--pd-input-field-bg) text-(--pd-input-field-focused-text) border border-(--pd-input-field-stroke) rounded"
+                  min="1"
+                  max="5"
+                  step="0.1" />
+              </label>
+              <label class="flex items-center justify-between gap-2 cursor-pointer">
+                <span class="text-sm">Word Wrap (Experimental):</span>
+                <input type="checkbox" bind:checked={wordWrap} class="cursor-pointer" />
+              </label>
+            </div>
+          </div>
+        {/if}
+      </div>
+      <Button on:click={loadLogs}>
+        {isStreaming ? 'Restart Stream' : 'Retrieve Logs'}
+      </Button>
+    </div>
   </div>
 
   <EmptyScreen
@@ -197,6 +251,7 @@ onDestroy(() => {
       disableStdIn
       fontSize={fontSize}
       lineHeight={lineHeight}
-      lineCount={tailLines ?? lineCount} />
+      lineCount={tailLines ?? lineCount}
+      wordWrap={wordWrap} />
   </div>
 </div>
