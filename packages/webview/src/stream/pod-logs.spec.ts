@@ -16,11 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Remote } from '/@/remote/remote';
-import { StreamPodLogs } from './pod-logs';
-import type { PodLogsApi, PodLogsChunk, IDisposable } from '@kubernetes-dashboard/channels';
+import type { IDisposable, PodLogsApi, PodLogsChunk } from '@kubernetes-dashboard/channels';
 import type { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import { beforeEach, expect, test, vi } from 'vitest';
+import { StreamPodLogs } from './pod-logs';
+import type { Remote } from '/@/remote/remote';
 
 const remoteMock = {
   getProxy: vi.fn(),
@@ -57,8 +57,8 @@ test('StreamPodLogs', async () => {
 
   const subscribeResult1 = await streamPodLogs.subscribe('podName', 'namespace', 'containerName1', callback1);
   const subscribeResult2 = await streamPodLogs.subscribe('podName', 'namespace', 'containerName2', callback2);
-  expect(podLogsApiMock.streamPodLogs).toHaveBeenCalledWith('podName', 'namespace', 'containerName1');
-  expect(podLogsApiMock.streamPodLogs).toHaveBeenCalledWith('podName', 'namespace', 'containerName2');
+  expect(podLogsApiMock.streamPodLogs).toHaveBeenCalledWith('podName', 'namespace', 'containerName1', undefined);
+  expect(podLogsApiMock.streamPodLogs).toHaveBeenCalledWith('podName', 'namespace', 'containerName2', undefined);
   expect(rpcBrowserMock.on).toHaveBeenCalledTimes(2);
   const chunkCallback1 = vi.mocked(rpcBrowserMock.on).mock.calls[0][1];
   const chunkCallback2 = vi.mocked(rpcBrowserMock.on).mock.calls[1][1];

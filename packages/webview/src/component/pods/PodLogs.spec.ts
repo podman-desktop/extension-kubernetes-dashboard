@@ -16,25 +16,34 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { render } from '@testing-library/svelte';
-import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_POD_LOGS, type PodLogsChunk, type PodLogsApi } from '@kubernetes-dashboard/channels';
-import { StreamsMocks } from '/@/tests/stream-mocks';
-import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
-import PodLogs from './PodLogs.svelte';
+import {
+  API_POD_LOGS,
+  type PodLogsApi,
+  type PodLogsChunk,
+  type TerminalSettings,
+} from '@kubernetes-dashboard/channels';
 import type { V1Pod } from '@kubernetes/client-node';
-import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
-import type { Terminal } from '@xterm/xterm';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
+import { render } from '@testing-library/svelte';
+import type { Terminal } from '@xterm/xterm';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import PodLogs from './PodLogs.svelte';
+import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
+import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
+import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
+import { RemoteMocks } from '/@/tests/remote-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
+import { StreamsMocks } from '/@/tests/stream-mocks';
 
 vi.mock(import('../terminal/TerminalWindow.svelte'));
 vi.mock(import('@podman-desktop/ui-svelte'));
 
 const remoteMocks = new RemoteMocks();
 const streamMocks = new StreamsMocks();
+const statesMocks = new StatesMocks();
 
 const streamPodLogsMock = new FakeStreamObject<PodLogsChunk>();
+const terminalSettingsMock = new FakeStateObject<TerminalSettings, void>();
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -43,6 +52,16 @@ beforeEach(() => {
 
   remoteMocks.reset();
   remoteMocks.mock(API_POD_LOGS, {} as unknown as PodLogsApi);
+
+  statesMocks.reset();
+  statesMocks.mock<TerminalSettings, void>('stateTerminalSettingsInfoUI', terminalSettingsMock);
+  terminalSettingsMock.setData({
+    fontSize: 12,
+    lineHeight: 1.2,
+    scrollback: 1000,
+  });
+  // Ensure subscribe returns an unsubscribe function after resetAllMocks
+  vi.mocked(terminalSettingsMock.subscribe).mockReturnValue(() => {});
 });
 
 describe('pod with one container', async () => {

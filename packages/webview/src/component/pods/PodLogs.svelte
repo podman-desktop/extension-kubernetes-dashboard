@@ -103,7 +103,6 @@ async function loadLogs(): Promise<void> {
         object.metadata?.name ?? '',
         object.metadata?.namespace ?? '',
         containerName,
-        options,
         chunk => {
           multiContainers(containerName, chunk.data, data => {
             if (noLogs) {
@@ -117,6 +116,7 @@ async function loadLogs(): Promise<void> {
               .catch(console.error);
           });
         },
+        options,
       ),
     );
   }

@@ -22,7 +22,7 @@ import {
   type IDisposable,
   type PodLogsApi,
   type PodLogsChunk,
-  type PodLogsOption,
+  type PodLogsOptions,
 } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import { inject } from 'inversify';
@@ -42,8 +42,8 @@ export class StreamPodLogs implements StreamObject<PodLogsChunk> {
     podName: string,
     namespace: string,
     containerName: string,
-    options: PodLogsOption,
     callback: (data: PodLogsChunk) => void,
+    options?: PodLogsOptions,
   ): Promise<IDisposable> {
     const disposable = this.rpcBrowser.on(POD_LOGS, chunk => {
       if (chunk.podName !== podName || chunk.namespace !== namespace || chunk.containerName !== containerName) {
