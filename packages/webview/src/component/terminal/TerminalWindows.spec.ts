@@ -34,6 +34,16 @@ vi.mock(import('@xterm/addon-fit'));
 
 vi.mock(import('@xterm/addon-search'));
 
+// Mock the Remote context
+const mockSystemApi = {
+  getPlatformName: vi.fn(),
+  clipboardWriteText: vi.fn(),
+};
+
+const mockRemote = {
+  getProxy: vi.fn().mockReturnValue(mockSystemApi),
+};
+
 const remoteMocks = new RemoteMocks();
 
 // Mock the Remote context
@@ -48,6 +58,10 @@ const mockRemote = {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  // Reset the mock implementations after resetAllMocks
+  mockSystemApi.getPlatformName.mockResolvedValue('linux');
+  mockSystemApi.clipboardWriteText.mockResolvedValue(undefined);
+  mockRemote.getProxy.mockReturnValue(mockSystemApi);
 
   remoteMocks.reset();
   remoteMocks.mock(API_SYSTEM, {
