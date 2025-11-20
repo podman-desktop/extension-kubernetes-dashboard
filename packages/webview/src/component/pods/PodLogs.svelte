@@ -1,24 +1,57 @@
 <script lang="ts">
+import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import type { IDisposable, PodLogsOptions } from '@kubernetes-dashboard/channels';
 import type { V1Pod } from '@kubernetes/client-node';
-import { getContext, onDestroy, onMount, tick } from 'svelte';
-import { Streams } from '/@/stream/streams';
-import type { IDisposable } from '@kubernetes-dashboard/channels';
-import { EmptyScreen } from '@podman-desktop/ui-svelte';
-import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
+import { Button, EmptyScreen, Input } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
-import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
+import { getContext, onDestroy, onMount, tick } from 'svelte';
+import Fa from 'svelte-fa';
 import { SvelteMap } from 'svelte/reactivity';
+import type { Unsubscriber } from 'svelte/store';
+import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import { ansi256Colours, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
+import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
+import { States } from '/@/state/states';
+import { Streams } from '/@/stream/streams';
 
 interface Props {
   object: V1Pod;
 }
 let { object }: Props = $props();
 
+const states = getContext<States>(States);
+const terminalSettingsState = states.stateTerminalSettingsInfoUI;
+
 // Logs has been initialized
 let noLogs = $state(true);
 
 let logsTerminal = $state<Terminal>();
+
+const lineCount = terminalSettingsState.data?.scrollback ?? 1000;
+const colorfulOutputCacheKey = 'podlogs.terminal.colorful-output';
+
+// Log retrieval mode and options
+let isStreaming = $state(true);
+let previous = $state(false);
+let tailLines = $state<number | undefined>(lineCount);
+let sinceSeconds = $state<number | undefined>(undefined);
+let timestamps = $state(false);
+let colorfulOutput = $state(localStorage.getItem(colorfulOutputCacheKey) !== 'false'); // Default to true
+let fontSize = $state(terminalSettingsState.data?.fontSize ?? 10);
+let lineHeight = $state(terminalSettingsState.data?.lineHeight ?? 1);
+let settingsMenuOpen = $state(false);
+
+// Save colorfulOutput to localStorage whenever it changes
+$effect(() => {
+  localStorage.setItem(colorfulOutputCacheKey, String(colorfulOutput));
+});
+
+// Update fontSize when terminal settings change
+$effect(() => {
+  if (terminalSettingsState.data?.fontSize !== undefined) {
+    fontSize = terminalSettingsState.data.fontSize;
+  }
+});
 
 let disposables: IDisposable[] = [];
 const streams = getContext<Streams>(Streams);
@@ -27,8 +60,12 @@ const streams = getContext<Streams>(Streams);
 // if we run out of colours, we'll start from the beginning.
 const colourizedContainerName = new SvelteMap<string, string>();
 
-onMount(async () => {
+async function loadLogs(): Promise<void> {
   logsTerminal?.clear();
+  noLogs = true;
+
+  disposables.forEach(disposable => disposable.dispose());
+  disposables = [];
 
   const containerCount = object.spec?.containers.length ?? 0;
 
@@ -55,13 +92,25 @@ onMount(async () => {
           const lines = data
             .split('\n')
             .map((line, index, arr) =>
-              index < arr.length - 1 || line.length > 0 ? `${padding}${colouredName}|${line}` : line,
+              index < arr.length - 1 || line.length > 0
+                ? colorfulOutput
+                  ? `${padding}${colouredName}|${line}`
+                  : `${padding}${name}|${line}`
+                : line,
             );
           callback(lines.join('\n'));
         }
       : (_name: string, data: string, callback: (data: string) => void): void => {
           callback(data);
         };
+
+  const options: PodLogsOptions = {
+    stream: isStreaming,
+    previous,
+    tailLines,
+    sinceSeconds,
+    timestamps,
+  };
 
   for (const containerName of object.spec?.containers.map(c => c.name) ?? []) {
     disposables.push(
@@ -82,27 +131,136 @@ onMount(async () => {
               .catch(console.error);
           });
         },
+        options,
       ),
     );
   }
+}
+
+let unsubscribers: Unsubscriber[] = [];
+let settingsMenuRef: HTMLDivElement | undefined;
+
+onMount(async () => {
+  unsubscribers.push(terminalSettingsState.subscribe());
+  await loadLogs();
+
+  // Close settings menu when clicking outside
+  const handleClickOutside = (event: MouseEvent): void => {
+    if (settingsMenuOpen && settingsMenuRef && !settingsMenuRef.contains(event.target as Node)) {
+      settingsMenuOpen = false;
+    }
+  };
+
+  window.addEventListener('click', handleClickOutside);
+
+  return (): void => {
+    window.removeEventListener('click', handleClickOutside);
+  };
 });
 
 onDestroy(() => {
+  unsubscribers.forEach(unsubscriber => unsubscriber());
   disposables.forEach(disposable => disposable.dispose());
   disposables = [];
 });
 </script>
 
-<EmptyScreen
-  icon={NoLogIcon}
-  title="No Log"
-  message="Log output of Pod {object.metadata?.name}"
-  hidden={noLogs === false} />
+<div class="flex flex-col h-full">
+  <div class="flex items-center gap-4 p-4 bg-(--pd-content-header-bg) border-b border-(--pd-content-divider)">
+    <div class="flex items-center gap-2">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" bind:group={isStreaming} value={true} class="cursor-pointer" />
+        <span class="text-sm">Stream</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" bind:group={isStreaming} value={false} class="cursor-pointer" />
+        <span class="text-sm">Retrieve</span>
+      </label>
+    </div>
 
-<div
-  class="min-w-full flex flex-col"
-  class:invisible={noLogs === true}
-  class:h-0={noLogs === true}
-  class:h-full={noLogs === false}>
-  <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn />
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" bind:checked={previous} class="cursor-pointer" />
+      <span class="text-sm">Previous</span>
+    </label>
+
+    <label class="flex items-center gap-2">
+      <span class="text-sm">Tail:</span>
+      <Input type="number" bind:value={tailLines} placeholder="All" class="w-24" min="1" />
+    </label>
+
+    <label class="flex items-center gap-2">
+      <span class="text-sm">Since (seconds):</span>
+      <Input type="number" bind:value={sinceSeconds} placeholder="All" class="w-24" min="1" />
+    </label>
+
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" bind:checked={timestamps} class="cursor-pointer" />
+      <span class="text-sm">Timestamps</span>
+    </label>
+
+    <div class="ml-auto flex items-center gap-2">
+      <div class="relative" bind:this={settingsMenuRef}>
+        <button
+          class="p-2 hover:bg-(--pd-content-card-hover-bg) rounded"
+          onclick={(): boolean => (settingsMenuOpen = !settingsMenuOpen)}
+          aria-label="Terminal settings">
+          <Fa icon={faEllipsisV} />
+        </button>
+        {#if settingsMenuOpen}
+          <div
+            class="absolute right-0 mt-1 w-64 bg-(--pd-content-card-bg) border border-(--pd-content-divider) rounded shadow-lg z-10">
+            <div class="p-3 space-y-3">
+              <label class="flex items-center justify-between gap-2">
+                <span class="text-sm">Font Size:</span>
+                <input
+                  type="number"
+                  bind:value={fontSize}
+                  class="w-20 px-2 py-1 bg-(--pd-input-field-bg) text-(--pd-input-field-focused-text) border border-(--pd-input-field-stroke) rounded"
+                  min="8"
+                  max="24" />
+              </label>
+              <label class="flex items-center justify-between gap-2">
+                <span class="text-sm">Line Height:</span>
+                <input
+                  type="number"
+                  bind:value={lineHeight}
+                  class="w-20 px-2 py-1 bg-(--pd-input-field-bg) text-(--pd-input-field-focused-text) border border-(--pd-input-field-stroke) rounded"
+                  min="1"
+                  max="5"
+                  step="0.1" />
+              </label>
+              <label class="flex items-center justify-between gap-2 cursor-pointer">
+                <span class="text-sm">Colorful Output:</span>
+                <input type="checkbox" bind:checked={colorfulOutput} class="cursor-pointer" />
+              </label>
+            </div>
+          </div>
+        {/if}
+      </div>
+      <Button on:click={loadLogs}>
+        {isStreaming ? 'Restart Stream' : 'Retrieve Logs'}
+      </Button>
+    </div>
+  </div>
+
+  <EmptyScreen
+    icon={NoLogIcon}
+    title="No Log"
+    message="Log output of Pod {object.metadata?.name}"
+    hidden={noLogs === false} />
+
+  <div
+    class="min-w-full flex flex-col overflow-hidden"
+    class:invisible={noLogs === true}
+    class:h-0={noLogs === true}
+    class:flex-1={noLogs === false}>
+    <TerminalWindow
+      class="h-full"
+      bind:terminal={logsTerminal}
+      convertEol
+      disableStdIn
+      fontSize={fontSize}
+      lineHeight={lineHeight}
+      lineCount={tailLines ?? lineCount} />
+  </div>
 </div>

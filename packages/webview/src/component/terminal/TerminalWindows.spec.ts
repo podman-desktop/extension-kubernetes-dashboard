@@ -31,8 +31,29 @@ vi.mock(import('@xterm/addon-fit'));
 
 vi.mock(import('@xterm/addon-search'));
 
+let mockTerminalInstance: Partial<Terminal>;
+
 beforeEach(() => {
   vi.resetAllMocks();
+
+  // Create a mock terminal instance with spies
+  const writeSpy = vi.fn();
+  const loadAddonSpy = vi.fn();
+
+  mockTerminalInstance = {
+    options: {},
+    dispose: vi.fn(),
+    loadAddon: loadAddonSpy,
+    write: writeSpy,
+    open: vi.fn(),
+  };
+
+  // Mock the Terminal constructor to return the mock instance
+  vi.mocked(Terminal).mockImplementation(() => mockTerminalInstance as Terminal);
+
+  // Also set up prototype mocks for tests that check Terminal.prototype
+  Terminal.prototype.write = writeSpy;
+  Terminal.prototype.loadAddon = loadAddonSpy;
 });
 
 afterEach(() => {
@@ -42,7 +63,11 @@ afterEach(() => {
 function createTerminalMock(): Terminal {
   return {
     ...writable(),
+    options: {},
     dispose: vi.fn(),
+    loadAddon: vi.fn(),
+    write: vi.fn(),
+    open: vi.fn(),
   } as unknown as Terminal;
 }
 

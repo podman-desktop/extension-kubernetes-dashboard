@@ -17,31 +17,32 @@
  ***********************************************************************/
 
 import {
-  KubernetesTroubleshootingInformation,
   ACTIVE_RESOURCES_COUNT,
   AVAILABLE_CONTEXTS,
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   CURRENT_CONTEXT,
   ENDPOINTS,
+  KUBERNETES_PROVIDERS,
+  KubernetesTroubleshootingInformation,
   PORT_FORWARDS,
   RESOURCE_DETAILS,
   RESOURCE_EVENTS,
   RESOURCES_COUNT,
+  TERMINAL_SETTINGS,
   UPDATE_RESOURCE,
-  KUBERNETES_PROVIDERS,
 } from '@kubernetes-dashboard/channels';
 
+import { RpcChannel } from '@kubernetes-dashboard/rpc';
+import { inject, injectable, multiInject } from 'inversify';
 import type { ContextHealthState } from './context-health-checker.js';
 import type { ContextPermissionResult } from './context-permissions-checker.js';
 import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsManager } from './contexts-manager.js';
-import { RpcChannel } from '@kubernetes-dashboard/rpc';
-import { inject, injectable, multiInject } from 'inversify';
 import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
-import { ChannelSubscriber } from '/@/subscriber/channel-subscriber.js';
-import { PortForwardServiceProvider } from '/@/port-forward/port-forward-service.js';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
+import { PortForwardServiceProvider } from '/@/port-forward/port-forward-service.js';
+import { ChannelSubscriber } from '/@/subscriber/channel-subscriber.js';
 import { StateSubscriber } from '/@/subscriber/state-subscriber.js';
 
 @injectable()
@@ -112,6 +113,8 @@ export class ContextsStatesDispatcher {
     this.kubernetesProvidersManager.onKubernetesProvidersChange(async () => {
       await this.dispatch(KUBERNETES_PROVIDERS);
     });
+
+    this.dispatch(TERMINAL_SETTINGS).catch(console.error);
 
     this.#subscribers.forEach(subscriber => {
       subscriber.onSubscribe(channelName => this.dispatchByChannelName(subscriber, channelName));

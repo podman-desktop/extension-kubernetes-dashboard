@@ -16,17 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const PodLogsApi = Symbol.for('PodLogsApi');
+import { inject, injectable } from 'inversify';
 
-export type PodLogsOptions = {
-  stream?: boolean;
-  previous?: boolean;
-  tailLines?: number;
-  sinceSeconds?: number;
-  timestamps?: boolean;
-};
+import { TERMINAL_SETTINGS } from '@kubernetes-dashboard/channels';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 
-export interface PodLogsApi {
-  streamPodLogs(podName: string, namespace: string, containerName: string, options?: PodLogsOptions): Promise<void>;
-  stopStreamPodLogs(podName: string, namespace: string, containerName: string): Promise<void>;
+import type { TerminalSettings } from '@kubernetes-dashboard/channels';
+import { AbsStateObjectImpl, type StateObject } from './util/state-object.svelte';
+
+// Define a state for the TerminalSettings
+@injectable()
+export class StateTerminalSettingsInfo
+  extends AbsStateObjectImpl<TerminalSettings, void>
+  implements StateObject<TerminalSettings, void>
+{
+  constructor(@inject(RpcBrowser) rpcBrowser: RpcBrowser) {
+    super(rpcBrowser);
+  }
+
+  async init(): Promise<void> {
+    await this.initChannel(TERMINAL_SETTINGS);
+  }
 }
