@@ -32,110 +32,95 @@ describe('JsonColorizer', () => {
 
   const colorizer = new JsonColorizer(colorScheme);
 
-  test('should colorize braces in yellow', () => {
-    const jsonLine = '{"name": "test"}';
+  test.each([
+    { jsonLine: '{"name": "test"}', open: '{', close: '}', desc: 'braces', strings: ['"name"', '"test"'] },
+    { jsonLine: '["item1", "item2"]', open: '[', close: ']', desc: 'brackets', strings: ['"item1"', '"item2"'] },
+    { jsonLine: '{}', open: '{', close: '}', desc: 'empty object', strings: [] },
+    { jsonLine: '[]', open: '[', close: ']', desc: 'empty array', strings: [] },
+  ])('should colorize $desc in yellow', ({ jsonLine, open, close, strings }) => {
     const result = colorizer.colorize(jsonLine);
 
-    // Braces should be yellow
+    expect(result).toContain(`\u001b[33m${open}\u001b[0m`);
+    expect(result).toContain(`\u001b[33m${close}\u001b[0m`);
+
+    strings.forEach(str => expect(result).toContain(str));
+  });
+
+  test.each([
+    {
+      jsonLine: '{"count": 42, "price": 19.99}',
+      type: 'number',
+      coloredValues: ['\u001b[32m42\u001b[0m', '\u001b[32m19.99\u001b[0m'],
+      keys: ['"count"', '"price"'],
+    },
+    {
+      jsonLine: '{"enabled": true, "active": false}',
+      type: 'boolean',
+      coloredValues: ['\u001b[35mtrue\u001b[0m', '\u001b[35mfalse\u001b[0m'],
+      keys: ['"enabled"', '"active"'],
+    },
+    {
+      jsonLine: '{"value": null}',
+      type: 'null',
+      coloredValues: ['\u001b[35mnull\u001b[0m'],
+      keys: ['"value"'],
+    },
+    {
+      jsonLine: '{"value": 0}',
+      type: 'zero',
+      coloredValues: ['\u001b[32m0\u001b[0m'],
+      keys: ['"value"'],
+    },
+    {
+      jsonLine: '{"value": 0.5}',
+      type: 'decimal',
+      coloredValues: ['\u001b[32m0.5\u001b[0m'],
+      keys: ['"value"'],
+    },
+    {
+      jsonLine: '{"temperature": -15, "balance": -99.99}',
+      type: 'negative number',
+      coloredValues: ['\u001b[32m-15\u001b[0m', '\u001b[32m-99.99\u001b[0m'],
+      keys: ['"temperature"', '"balance"'],
+    },
+  ])('should colorize JSON with $type values', ({ jsonLine, coloredValues, keys }) => {
+    const result = colorizer.colorize(jsonLine);
+
     expect(result).toContain('\u001b[33m{\u001b[0m');
     expect(result).toContain('\u001b[33m}\u001b[0m');
 
-    // Strings should not be colorized
-    expect(result).toContain('"name"');
-    expect(result).toContain('"test"');
+    coloredValues.forEach(value => expect(result).toContain(value));
+    keys.forEach(key => expect(result).toContain(key));
   });
 
-  test('should colorize brackets in yellow', () => {
-    const jsonLine = '["item1", "item2"]';
+  test.each([
+    {
+      jsonLine: '["item1", "item2", "item3"]',
+      type: 'strings',
+      expectedValues: ['"item1"', '"item2"', '"item3"'],
+    },
+    {
+      jsonLine: '[1, 2, 3, 4.5]',
+      type: 'numbers',
+      expectedValues: [
+        '\u001b[32m1\u001b[0m',
+        '\u001b[32m2\u001b[0m',
+        '\u001b[32m3\u001b[0m',
+        '\u001b[32m4.5\u001b[0m',
+      ],
+    },
+    {
+      jsonLine: '[true, false, true]',
+      type: 'booleans',
+      expectedValues: ['\u001b[35mtrue\u001b[0m', '\u001b[35mfalse\u001b[0m'],
+    },
+  ])('should colorize JSON array with $type', ({ jsonLine, expectedValues }) => {
     const result = colorizer.colorize(jsonLine);
 
-    // Brackets should be yellow
-    expect(result).toContain('\u001b[33m[\u001b[0m');
-    expect(result).toContain('\u001b[33m]\u001b[0m');
-  });
-
-  test('should colorize JSON with number values', () => {
-    const jsonLine = '{"count": 42, "price": 19.99}';
-    const result = colorizer.colorize(jsonLine);
-
-    // Braces should be yellow
-    expect(result).toContain('\u001b[33m{\u001b[0m');
-    expect(result).toContain('\u001b[33m}\u001b[0m');
-
-    // Numbers should be green
-    expect(result).toContain('\u001b[32m42\u001b[0m');
-    expect(result).toContain('\u001b[32m19.99\u001b[0m');
-
-    // Keys should not be colorized
-    expect(result).toContain('"count"');
-    expect(result).toContain('"price"');
-  });
-
-  test('should colorize JSON with boolean values', () => {
-    const jsonLine = '{"enabled": true, "active": false}';
-    const result = colorizer.colorize(jsonLine);
-
-    // Braces should be yellow
-    expect(result).toContain('\u001b[33m{\u001b[0m');
-    expect(result).toContain('\u001b[33m}\u001b[0m');
-
-    // Booleans should be magenta
-    expect(result).toContain('\u001b[35mtrue\u001b[0m');
-    expect(result).toContain('\u001b[35mfalse\u001b[0m');
-  });
-
-  test('should colorize JSON with null values', () => {
-    const jsonLine = '{"value": null}';
-    const result = colorizer.colorize(jsonLine);
-
-    // Braces should be yellow
-    expect(result).toContain('\u001b[33m{\u001b[0m');
-    expect(result).toContain('\u001b[33m}\u001b[0m');
-
-    // null should be magenta
-    expect(result).toContain('\u001b[35mnull\u001b[0m');
-  });
-
-  test('should colorize JSON array with strings', () => {
-    const jsonLine = '["item1", "item2", "item3"]';
-    const result = colorizer.colorize(jsonLine);
-
-    // Brackets should be yellow
     expect(result).toContain('\u001b[33m[\u001b[0m');
     expect(result).toContain('\u001b[33m]\u001b[0m');
 
-    // Strings should not be colorized
-    expect(result).toContain('"item1"');
-    expect(result).toContain('"item2"');
-    expect(result).toContain('"item3"');
-  });
-
-  test('should colorize JSON array with numbers', () => {
-    const jsonLine = '[1, 2, 3, 4.5]';
-    const result = colorizer.colorize(jsonLine);
-
-    // Brackets should be yellow
-    expect(result).toContain('\u001b[33m[\u001b[0m');
-    expect(result).toContain('\u001b[33m]\u001b[0m');
-
-    // Numbers in array should be green
-    expect(result).toContain('\u001b[32m1\u001b[0m');
-    expect(result).toContain('\u001b[32m2\u001b[0m');
-    expect(result).toContain('\u001b[32m3\u001b[0m');
-    expect(result).toContain('\u001b[32m4.5\u001b[0m');
-  });
-
-  test('should colorize JSON array with booleans', () => {
-    const jsonLine = '[true, false, true]';
-    const result = colorizer.colorize(jsonLine);
-
-    // Brackets should be yellow
-    expect(result).toContain('\u001b[33m[\u001b[0m');
-    expect(result).toContain('\u001b[33m]\u001b[0m');
-
-    // Booleans in array should be magenta
-    expect(result).toContain('\u001b[35mtrue\u001b[0m');
-    expect(result).toContain('\u001b[35mfalse\u001b[0m');
+    expectedValues.forEach(value => expect(result).toContain(value));
   });
 
   test('should colorize complex nested JSON', () => {
@@ -158,19 +143,6 @@ describe('JsonColorizer', () => {
     expect(result).toContain('"John"');
   });
 
-  test('should colorize JSON with negative numbers', () => {
-    const jsonLine = '{"temperature": -15, "balance": -99.99}';
-    const result = colorizer.colorize(jsonLine);
-
-    // Braces should be yellow
-    expect(result).toContain('\u001b[33m{\u001b[0m');
-    expect(result).toContain('\u001b[33m}\u001b[0m');
-
-    // Negative numbers should be green
-    expect(result).toContain('\u001b[32m-15\u001b[0m');
-    expect(result).toContain('\u001b[32m-99.99\u001b[0m');
-  });
-
   test('should colorize JSON log level format', () => {
     const jsonLine = '{"timestamp":"123","level":"information","message":"test"}';
     const result = colorizer.colorize(jsonLine);
@@ -186,24 +158,6 @@ describe('JsonColorizer', () => {
     expect(result).toContain('"123"');
     expect(result).toContain('"information"');
     expect(result).toContain('"test"');
-  });
-
-  test('should handle empty JSON object', () => {
-    const jsonLine = '{}';
-    const result = colorizer.colorize(jsonLine);
-
-    // Braces should be yellow
-    expect(result).toContain('\u001b[33m{\u001b[0m');
-    expect(result).toContain('\u001b[33m}\u001b[0m');
-  });
-
-  test('should handle empty JSON array', () => {
-    const jsonLine = '[]';
-    const result = colorizer.colorize(jsonLine);
-
-    // Brackets should be yellow
-    expect(result).toContain('\u001b[33m[\u001b[0m');
-    expect(result).toContain('\u001b[33m]\u001b[0m');
   });
 
   test('should colorize JSON with mixed types in array', () => {
@@ -257,30 +211,6 @@ describe('JsonColorizer', () => {
     // Strings should not be colorized
     expect(result).toContain('"key"');
     expect(result).toContain('"value"');
-  });
-
-  test('should handle zero as a number', () => {
-    const jsonLine = '{"value": 0}';
-    const result = colorizer.colorize(jsonLine);
-
-    // Braces should be yellow
-    expect(result).toContain('\u001b[33m{\u001b[0m');
-    expect(result).toContain('\u001b[33m}\u001b[0m');
-
-    // Zero should be green
-    expect(result).toContain('\u001b[32m0\u001b[0m');
-  });
-
-  test('should handle decimal numbers starting with dot', () => {
-    const jsonLine = '{"value": 0.5}';
-    const result = colorizer.colorize(jsonLine);
-
-    // Braces should be yellow
-    expect(result).toContain('\u001b[33m{\u001b[0m');
-    expect(result).toContain('\u001b[33m}\u001b[0m');
-
-    // Decimal should be green
-    expect(result).toContain('\u001b[32m0.5\u001b[0m');
   });
 });
 
@@ -401,39 +331,25 @@ describe('detectJsonLogs', () => {
     expect(detectJsonLogs(logs)).toBe(false);
   });
 
-  test('should detect exactly 80% threshold', () => {
+  test.each([
+    {
+      desc: 'exactly 80% threshold',
+      jsonCount: 8,
+      nonJsonCount: 2,
+      expected: true,
+    },
+    {
+      desc: 'just below 80% threshold',
+      jsonCount: 7,
+      nonJsonCount: 3,
+      expected: false,
+    },
+  ])('should detect $desc', ({ jsonCount, nonJsonCount, expected }) => {
     const logs = [
-      '{"valid":"json","line":1}',
-      '{"valid":"json","line":2}',
-      '{"valid":"json","line":3}',
-      '{"valid":"json","line":4}',
-      '{"valid":"json","line":5}',
-      '{"valid":"json","line":6}',
-      '{"valid":"json","line":7}',
-      '{"valid":"json","line":8}',
-      'Not JSON line 9',
-      'Not JSON line 10',
+      ...Array.from({ length: jsonCount }, (_, i) => `{"valid":"json","line":${i + 1}}`),
+      ...Array.from({ length: nonJsonCount }, (_, i) => `Not JSON line ${jsonCount + i + 1}`),
     ];
 
-    // 8 out of 10 = 80%
-    expect(detectJsonLogs(logs)).toBe(true);
-  });
-
-  test('should not detect just below 80% threshold', () => {
-    const logs = [
-      '{"valid":"json","line":1}',
-      '{"valid":"json","line":2}',
-      '{"valid":"json","line":3}',
-      '{"valid":"json","line":4}',
-      '{"valid":"json","line":5}',
-      '{"valid":"json","line":6}',
-      '{"valid":"json","line":7}',
-      'Not JSON line 8',
-      'Not JSON line 9',
-      'Not JSON line 10',
-    ];
-
-    // 7 out of 10 = 70%
-    expect(detectJsonLogs(logs)).toBe(false);
+    expect(detectJsonLogs(logs)).toBe(expected);
   });
 });

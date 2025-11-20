@@ -21,66 +21,24 @@ import { describe, expect, test } from 'vitest';
 import { colorizeJSON, colorizeLogLevel } from './terminal-colors.js';
 
 describe('colorizeLogLevel', () => {
-  test('should colorize INFO log level in cyan', () => {
-    const logLine = '[23:10:06 INF] Starting application';
+  test.each([
+    {
+      logLine: '[23:10:06 INF] Starting application',
+      color: '\u001b[36m',
+      message: 'Starting application',
+      level: 'INFO',
+    },
+    { logLine: '[DBG] Debug message', color: '\u001b[32m', message: 'Debug message', level: 'DEBUG' },
+    { logLine: '[ERROR] Something went wrong', color: '\u001b[31', message: 'Something went wrong', level: 'ERROR' },
+    { logLine: '[12:34:56 WARN] Warning message', color: '\u001b[33m', message: 'Warning message', level: 'WARN' },
+    { logLine: '[FATAL] Critical error', color: '\u001b[31m', message: 'Critical error', level: 'FATAL' },
+    { logLine: '[TRACE] Trace information', color: '\u001b[36;1m', message: 'Trace information', level: 'TRACE' },
+  ])('should colorize $level log level', ({ logLine, color, message }) => {
     const result = colorizeLogLevel(logLine);
 
-    // Should contain cyan ANSI code for INFO
-    expect(result).toContain('\u001b[36m');
-    // Should contain reset code
+    expect(result).toContain(color);
     expect(result).toContain('\u001b[0m');
-    // Should preserve the rest of the message
-    expect(result).toContain('Starting application');
-  });
-
-  test('should colorize DEBUG log level in cyan', () => {
-    const logLine = '[DBG] Debug message';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain green ANSI code for DEBUG
-    expect(result).toContain('\u001b[32m');
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Debug message');
-  });
-
-  test('should colorize ERROR log level in red', () => {
-    const logLine = '[ERROR] Something went wrong';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain bright red ANSI code for ERROR
-    expect(result).toContain('\u001b[31'); // Match both \u001b[31m and \u001b[31;1m
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Something went wrong');
-  });
-
-  test('should colorize WARN log level in yellow', () => {
-    const logLine = '[12:34:56 WARN] Warning message';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain yellow ANSI code for WARN
-    expect(result).toContain('\u001b[33m');
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Warning message');
-  });
-
-  test('should colorize FATAL log level in bright red', () => {
-    const logLine = '[FATAL] Critical error';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain red ANSI code for FATAL
-    expect(result).toContain('\u001b[31m');
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Critical error');
-  });
-
-  test('should colorize TRACE log level in magenta', () => {
-    const logLine = '[TRACE] Trace information';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain bright cyan ANSI code for TRACE
-    expect(result).toContain('\u001b[36;1m');
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Trace information');
+    expect(result).toContain(message);
   });
 
   test('should handle log line with Kubernetes timestamp prefix', () => {
@@ -94,27 +52,21 @@ describe('colorizeLogLevel', () => {
     expect(result).toContain('Server started');
   });
 
-  test('should handle case-insensitive log levels', () => {
-    const logLine1 = '[info] lowercase info';
-    const result1 = colorizeLogLevel(logLine1);
-    expect(result1).toContain('\u001b[36m');
-
-    const logLine2 = '[Info] Mixed case info';
-    const result2 = colorizeLogLevel(logLine2);
-    expect(result2).toContain('\u001b[36m');
+  test.each([
+    { input: '[info] lowercase info', level: 'lowercase' },
+    { input: '[Info] Mixed case info', level: 'mixed case' },
+  ])('should handle $level log levels', ({ input }) => {
+    const result = colorizeLogLevel(input);
+    expect(result).toContain('\u001b[36m');
   });
 
-  test('should handle abbreviated log levels', () => {
-    const testCases = [
-      { input: '[INF] Info message', color: '\u001b[36m' },
-      { input: '[WRN] Warning message', color: '\u001b[33m' },
-      { input: '[ERR] Error message', color: '\u001b[31' }, // Match both formats
-    ];
-
-    testCases.forEach(({ input, color }) => {
-      const result = colorizeLogLevel(input);
-      expect(result).toContain(color);
-    });
+  test.each([
+    { input: '[INF] Info message', color: '\u001b[36m', level: 'INF' },
+    { input: '[WRN] Warning message', color: '\u001b[33m', level: 'WRN' },
+    { input: '[ERR] Error message', color: '\u001b[31', level: 'ERR' },
+  ])('should handle abbreviated log level $level', ({ input, color }) => {
+    const result = colorizeLogLevel(input);
+    expect(result).toContain(color);
   });
 
   test('should handle log level in middle of line', () => {
@@ -145,18 +97,14 @@ describe('colorizeLogLevel', () => {
     expect(result).toBe(logLine);
   });
 
-  test('should handle full word log levels', () => {
-    const testCases = [
-      { input: '[DEBUG] Debug message', color: '\u001b[32m' },
-      { input: '[INFO] Info message', color: '\u001b[36m' },
-      { input: '[WARNING] Warning message', color: '\u001b[33m' },
-      { input: '[ERROR] Error message', color: '\u001b[31' }, // Match both formats
-    ];
-
-    testCases.forEach(({ input, color }) => {
-      const result = colorizeLogLevel(input);
-      expect(result).toContain(color);
-    });
+  test.each([
+    { input: '[DEBUG] Debug message', color: '\u001b[32m', level: 'DEBUG' },
+    { input: '[INFO] Info message', color: '\u001b[36m', level: 'INFO' },
+    { input: '[WARNING] Warning message', color: '\u001b[33m', level: 'WARNING' },
+    { input: '[ERROR] Error message', color: '\u001b[31', level: 'ERROR' },
+  ])('should handle full word log level $level', ({ input, color }) => {
+    const result = colorizeLogLevel(input);
+    expect(result).toContain(color);
   });
 
   test('should only colorize the first log level found', () => {
