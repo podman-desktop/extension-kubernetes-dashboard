@@ -28,6 +28,7 @@ let noLogs = $state(true);
 let logsTerminal = $state<Terminal>();
 
 const lineCount = terminalSettingsState.data?.scrollback ?? 1000;
+const colorfulOutputCacheKey = 'podlogs.terminal.colorful-output';
 
 // Log retrieval mode and options
 let isStreaming = $state(true);
@@ -35,10 +36,15 @@ let previous = $state(false);
 let tailLines = $state<number | undefined>(lineCount);
 let sinceSeconds = $state<number | undefined>(undefined);
 let timestamps = $state(false);
+let colorfulOutput = $state(localStorage.getItem(colorfulOutputCacheKey) !== 'false'); // Default to true
 let fontSize = $state(terminalSettingsState.data?.fontSize ?? 10);
 let lineHeight = $state(terminalSettingsState.data?.lineHeight ?? 1);
-let wordWrap = $state(true);
 let settingsMenuOpen = $state(false);
+
+// Save colorfulOutput to localStorage whenever it changes
+$effect(() => {
+  localStorage.setItem(colorfulOutputCacheKey, String(colorfulOutput));
+});
 
 // Update fontSize when terminal settings change
 $effect(() => {
@@ -86,7 +92,11 @@ async function loadLogs(): Promise<void> {
           const lines = data
             .split('\n')
             .map((line, index, arr) =>
-              index < arr.length - 1 || line.length > 0 ? `${padding}${colouredName}|${line}` : line,
+              index < arr.length - 1 || line.length > 0
+                ? colorfulOutput
+                  ? `${padding}${colouredName}|${line}`
+                  : `${padding}${name}|${line}`
+                : line,
             );
           callback(lines.join('\n'));
         }
@@ -220,8 +230,8 @@ onDestroy(() => {
                   step="0.1" />
               </label>
               <label class="flex items-center justify-between gap-2 cursor-pointer">
-                <span class="text-sm">Word Wrap (Experimental):</span>
-                <input type="checkbox" bind:checked={wordWrap} class="cursor-pointer" />
+                <span class="text-sm">Colorful Output:</span>
+                <input type="checkbox" bind:checked={colorfulOutput} class="cursor-pointer" />
               </label>
             </div>
           </div>
@@ -251,7 +261,6 @@ onDestroy(() => {
       disableStdIn
       fontSize={fontSize}
       lineHeight={lineHeight}
-      lineCount={tailLines ?? lineCount}
-      wordWrap={wordWrap} />
+      lineCount={tailLines ?? lineCount} />
   </div>
 </div>
