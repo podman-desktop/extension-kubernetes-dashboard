@@ -85,13 +85,13 @@ async function refreshTerminal(): Promise<void> {
 
     if (platformName === 'darwin') {
       // macOS: Cmd+C
-      isCopyShortcut = event.metaKey && event.key === 'c';
+      isCopyShortcut = event.metaKey && event.key.toLowerCase() === 'c';
     } else if (platformName === 'linux') {
       // Linux: Ctrl+Shift+C
-      isCopyShortcut = event.ctrlKey && event.shiftKey && event.key === 'C';
+      isCopyShortcut = event.ctrlKey && event.shiftKey && event.key.toUpperCase() === 'C';
     } else {
       // Windows: Ctrl+C
-      isCopyShortcut = event.ctrlKey && event.key === 'c';
+      isCopyShortcut = event.ctrlKey && event.key.toLowerCase() === 'c';
     }
 
     if (isCopyShortcut) {
