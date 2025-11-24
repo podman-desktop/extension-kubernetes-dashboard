@@ -16,17 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { POD_LOGS, type PodLogsOptions } from '@kubernetes-dashboard/channels';
+import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { Log } from '@kubernetes/client-node';
 import { injectable } from 'inversify';
 import { PassThrough } from 'node:stream';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
-import { POD_LOGS, type PodLogsOptions } from '@kubernetes-dashboard/channels';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context';
 
 @injectable()
 export class PodLogsService {
-  #abortController: AbortController;
-  #logStream: PassThrough;
+  #abortController: AbortController | undefined;
+  #logStream: PassThrough | undefined;
 
   constructor(
     private readonly context: KubeConfigSingleContext,
@@ -39,11 +39,20 @@ export class PodLogsService {
     containerName: string,
     options?: PodLogsOptions,
   ): Promise<void> {
+    // Clean up any existing stream first
+    if (this.#abortController) {
+      this.#abortController.abort();
+    }
+    if (this.#logStream) {
+      this.#logStream.destroy();
+    }
+
     const log = new Log(this.context.getKubeConfig());
 
-    this.#logStream = new PassThrough();
+    // Create a new stream for this specific request
+    const logStream = new PassThrough();
 
-    this.#logStream.on('data', (chunk: unknown) => {
+    logStream.on('data', (chunk: unknown) => {
       if (!Buffer.isBuffer(chunk)) {
         console.error('chunk is not a buffer', chunk);
         return;
@@ -57,16 +66,24 @@ export class PodLogsService {
         })
         .catch(console.error);
     });
-    this.#abortController = await log.log(namespace, podName, containerName, this.#logStream, {
+
+    const abortController = await log.log(namespace, podName, containerName, logStream, {
       follow: options?.stream ?? true,
       previous: options?.previous,
       tailLines: options?.tailLines,
       sinceSeconds: options?.sinceSeconds,
       timestamps: options?.timestamps,
     });
+
+    // Store references for cleanup
+    this.#abortController = abortController;
+    this.#logStream = logStream;
   }
 
   stopStream(): void {
-    this.#abortController.abort();
+    this.#abortController?.abort();
+    this.#logStream?.destroy();
+    this.#abortController = undefined;
+    this.#logStream = undefined;
   }
 }

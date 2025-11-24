@@ -1,10 +1,10 @@
 <script lang="ts">
-import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 import type { IDisposable, PodLogsOptions } from '@kubernetes-dashboard/channels';
 import type { V1Pod } from '@kubernetes/client-node';
-import { Button, EmptyScreen } from '@podman-desktop/ui-svelte';
+import { Button, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
-import { getContext, onDestroy, onMount, tick } from 'svelte';
+import { getContext, onDestroy, onMount } from 'svelte';
 import Fa from 'svelte-fa';
 import { SvelteMap } from 'svelte/reactivity';
 import type { Unsubscriber } from 'svelte/store';
@@ -27,7 +27,7 @@ let noLogs = $state(true);
 
 let logsTerminal = $state<Terminal>();
 
-const lineCount = terminalSettingsState.data?.scrollback ?? 1000;
+const lineCount = $derived(terminalSettingsState.data?.scrollback ?? 1000);
 const colorfulOutputCacheKey = 'podlogs.terminal.colorful-output';
 
 // Log retrieval mode and options
@@ -40,6 +40,13 @@ let colorfulOutput = $state(localStorage.getItem(colorfulOutputCacheKey) !== 'fa
 let fontSize = $state(terminalSettingsState.data?.fontSize ?? 10);
 let lineHeight = $state(terminalSettingsState.data?.lineHeight ?? 1);
 let settingsMenuOpen = $state(false);
+
+// Track loaded values to detect changes
+let loadedTailLines = $state<number | undefined>(lineCount);
+let loadedSinceSeconds = $state<number | undefined>(undefined);
+
+// Detect if tail/seconds have changed from loaded values
+const hasUnsyncedChanges = $derived(tailLines !== loadedTailLines || sinceSeconds !== loadedSinceSeconds);
 
 // Save colorfulOutput to localStorage whenever it changes
 $effect(() => {
@@ -64,6 +71,11 @@ $effect(() => {
   }
 });
 
+// Handler for settings that should trigger immediate reload
+function handleSettingChange(): void {
+  loadLogs().catch(console.error);
+}
+
 let disposables: IDisposable[] = [];
 const streams = getContext<Streams>(Streams);
 
@@ -71,12 +83,29 @@ const streams = getContext<Streams>(Streams);
 // if we run out of colours, we'll start from the beginning.
 const colourizedContainerName = new SvelteMap<string, string>();
 
+// Debounced resize handler, this will speed up initial log loading
+let resizeTimeout: ReturnType<typeof setTimeout> | undefined;
+function triggerResize(): void {
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout);
+  }
+  resizeTimeout = setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 50);
+}
+
 async function loadLogs(): Promise<void> {
+  // First, dispose of old subscriptions to stop any incoming data
+  disposables.forEach(disposable => disposable.dispose());
+  disposables = [];
+
+  // Now clear the terminal
   logsTerminal?.clear();
   noLogs = true;
 
-  disposables.forEach(disposable => disposable.dispose());
-  disposables = [];
+  // Update loaded values to current settings
+  loadedTailLines = tailLines;
+  loadedSinceSeconds = sinceSeconds;
 
   const containerCount = object.spec?.containers.length ?? 0;
 
@@ -104,11 +133,7 @@ async function loadLogs(): Promise<void> {
             .split('\n')
             .map(line => (colorfulOutput ? colorizeLogLevel(line) : line)) //todo when JSONColorize gets merged this will change
             .map((line, index, arr) =>
-              index < arr.length - 1 || line.length > 0
-                ? colorfulOutput
-                  ? `${padding}${colouredName}|${line}`
-                  : `${padding}${name}|${line}`
-                : line,
+              index < arr.length - 1 || line.length > 0 ? `${padding}${colouredName}|${line}` : line,
             );
           callback(lines.join('\n'));
         }
@@ -125,29 +150,25 @@ async function loadLogs(): Promise<void> {
     timestamps,
   };
 
-  for (const containerName of object.spec?.containers.map(c => c.name) ?? []) {
-    disposables.push(
-      await streams.streamPodLogs.subscribe(
-        object.metadata?.name ?? '',
-        object.metadata?.namespace ?? '',
-        containerName,
-        chunk => {
-          multiContainers(containerName, chunk.data, data => {
-            if (noLogs) {
-              noLogs = false;
-            }
-            logsTerminal?.write(data + '\r');
-            tick()
-              .then(() => {
-                window.dispatchEvent(new Event('resize'));
-              })
-              .catch(console.error);
-          });
-        },
-        options,
-      ),
+  const subscriptionPromises = (object.spec?.containers.map(c => c.name) ?? []).map(async containerName => {
+    return await streams.streamPodLogs.subscribe(
+      object.metadata?.name ?? '',
+      object.metadata?.namespace ?? '',
+      containerName,
+      chunk => {
+        multiContainers(containerName, chunk.data, data => {
+          if (noLogs) {
+            noLogs = false;
+          }
+          logsTerminal?.write(data + '\r', triggerResize);
+        });
+      },
+      options,
     );
-  }
+  });
+
+  const subscriptions = await Promise.all(subscriptionPromises);
+  disposables.push(...subscriptions);
 }
 
 let unsubscribers: Unsubscriber[] = [];
@@ -155,6 +176,7 @@ let settingsMenuRef: HTMLDivElement | undefined;
 
 onMount(() => {
   unsubscribers.push(terminalSettingsState.subscribe());
+  // Initial load since $effect.pre skips the first run
   loadLogs().catch(console.error);
 
   // Close settings menu when clicking outside
@@ -182,17 +204,27 @@ onDestroy(() => {
   <div class="flex items-center gap-4 p-4 bg-(--pd-content-header-bg) border-b border-(--pd-content-divider)">
     <div class="flex items-center gap-2">
       <label class="flex items-center gap-2 cursor-pointer">
-        <input type="radio" bind:group={isStreaming} value={true} class="cursor-pointer" />
+        <input
+          type="radio"
+          bind:group={isStreaming}
+          value={true}
+          class="cursor-pointer"
+          onchange={handleSettingChange} />
         <span class="text-sm">Stream</span>
       </label>
       <label class="flex items-center gap-2 cursor-pointer">
-        <input type="radio" bind:group={isStreaming} value={false} class="cursor-pointer" />
+        <input
+          type="radio"
+          bind:group={isStreaming}
+          value={false}
+          class="cursor-pointer"
+          onchange={handleSettingChange} />
         <span class="text-sm">Retrieve</span>
       </label>
     </div>
 
     <label class="flex items-center gap-2 cursor-pointer">
-      <input type="checkbox" bind:checked={previous} class="cursor-pointer" />
+      <input type="checkbox" bind:checked={previous} class="cursor-pointer" onchange={handleSettingChange} />
       <span class="text-sm">Previous</span>
     </label>
 
@@ -217,7 +249,7 @@ onDestroy(() => {
     </label>
 
     <label class="flex items-center gap-2 cursor-pointer">
-      <input type="checkbox" bind:checked={timestamps} class="cursor-pointer" />
+      <input type="checkbox" bind:checked={timestamps} class="cursor-pointer" onchange={handleSettingChange} />
       <span class="text-sm">Timestamps</span>
     </label>
 
@@ -262,15 +294,18 @@ onDestroy(() => {
       </div>
       <Button on:click={loadLogs}>
         {isStreaming ? 'Restart Stream' : 'Retrieve Logs'}
+        {#if hasUnsyncedChanges}
+          <Tooltip tip="Click to sync changes">
+            <Fa icon={faCircleInfo} class="text-(--pd-input-field-focused-text)" />
+          </Tooltip>
+        {/if}
       </Button>
     </div>
   </div>
 
-  <EmptyScreen
-    icon={NoLogIcon}
-    title="No Log"
-    message="Log output of Pod {object.metadata?.name}"
-    hidden={noLogs === false} />
+  {#if noLogs}
+    <EmptyScreen icon={NoLogIcon} title="No Log" message="Log output of Pod {object.metadata?.name}" />
+  {/if}
 
   <div
     class="min-w-full flex flex-col overflow-hidden"

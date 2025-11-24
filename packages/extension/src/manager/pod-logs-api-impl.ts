@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { inject, injectable } from 'inversify';
-import { IDisposable, PodLogsApi } from '@kubernetes-dashboard/channels';
-import { PodLogsService } from '/@/pod-logs/pod-logs-service';
-import { ContextsManager } from './contexts-manager';
-import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import type { PodLogsOptions } from '@kubernetes-dashboard/channels';
+import { IDisposable, PodLogsApi } from '@kubernetes-dashboard/channels';
+import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import { inject, injectable } from 'inversify';
+import { ContextsManager } from './contexts-manager';
+import { PodLogsService } from '/@/pod-logs/pod-logs-service';
 
 type PodLogsInstance = {
   counter: number;
@@ -45,15 +45,27 @@ export class PodLogsApiImpl implements PodLogsApi, IDisposable {
     if (!this.contextsManager.currentContext) {
       throw new Error('No current context found');
     }
-    const instance = this.#instances.get(this.getKey(podName, namespace, containerName)) ?? {
+
+    // Always stop and restart the stream to ensure fresh options are used
+    const key = this.getKey(podName, namespace, containerName);
+    const existingInstance = this.#instances.get(key);
+
+    if (existingInstance) {
+      // Stop the existing stream before starting a new one
+      existingInstance.service.stopStream();
+    }
+
+    const instance = existingInstance ?? {
       counter: 0,
       service: new PodLogsService(this.contextsManager.currentContext, this.rpcExtension),
     };
+
     instance.counter++;
-    if (instance.counter === 1) {
-      await instance.service.startStream(podName, namespace, containerName, options);
-    }
-    this.#instances.set(this.getKey(podName, namespace, containerName), instance);
+
+    // Always start the stream with the new options
+    await instance.service.startStream(podName, namespace, containerName, options);
+
+    this.#instances.set(key, instance);
   }
 
   async stopStreamPodLogs(podName: string, namespace: string, containerName: string): Promise<void> {
