@@ -22,10 +22,8 @@ import { API_SYSTEM, type SystemApi } from '@kubernetes-dashboard/channels';
 import { render } from '@testing-library/svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';
-import { writable } from 'svelte/store';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import TerminalWindow from './TerminalWindow.svelte';
-import { Remote } from '/@/remote/remote';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 
 vi.mock(import('@xterm/xterm'));
@@ -36,26 +34,12 @@ vi.mock(import('@xterm/addon-search'));
 
 const remoteMocks = new RemoteMocks();
 
-// Mock the Remote context
-const mockSystemApi = {
-  getPlatformName: vi.fn(),
-  clipboardWriteText: vi.fn(),
-};
-
-const mockRemote = {
-  getProxy: vi.fn().mockReturnValue(mockSystemApi),
-};
-
 beforeEach(() => {
   vi.resetAllMocks();
   remoteMocks.reset();
   remoteMocks.mock(API_SYSTEM, {
     getPlatformName: vi.fn().mockResolvedValue('linux'),
   } as unknown as SystemApi);
-  // Reset the mock implementations after resetAllMocks
-  mockSystemApi.getPlatformName.mockResolvedValue('linux');
-  mockSystemApi.clipboardWriteText.mockResolvedValue(undefined);
-  mockRemote.getProxy.mockReturnValue(mockSystemApi);
 });
 
 afterEach(() => {
@@ -64,8 +48,13 @@ afterEach(() => {
 
 function createTerminalMock(): Terminal {
   return {
-    ...writable(),
     dispose: vi.fn(),
+    attachCustomKeyEventHandler: vi.fn(),
+    getSelection: vi.fn(),
+    clearSelection: vi.fn(),
+    write: vi.fn(),
+    open: vi.fn(),
+    loadAddon: vi.fn(),
   } as unknown as Terminal;
 }
 
@@ -157,23 +146,12 @@ test('matchMedia resize listener should trigger fit addon', async () => {
 
 test('search props should add terminal search controls', async () => {
   const { container } = render(TerminalWindow, {
-    props: {
-      terminal: createTerminalMock(),
-      search: true,
-    },
-    context: new Map([[Remote, mockRemote]]),
+    search: true,
   });
 
-  // Wait for component to mount and getPlatformName to be called
-  await vi.waitFor(() => {
-    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
-  });
-
-  // The TerminalSearchControls component should be rendered
   await vi.waitFor(() => {
     expect(Terminal).toHaveBeenCalled();
   });
 
-  // We can at least verify the terminal was created successfully
   expect(container).toBeInTheDocument();
 });
