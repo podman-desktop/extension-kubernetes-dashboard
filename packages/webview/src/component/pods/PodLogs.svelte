@@ -27,7 +27,7 @@ let noLogs = $state(true);
 
 let logsTerminal = $state<Terminal>();
 
-const lineCount = $derived(terminalSettingsState.data?.scrollback ?? 1000);
+const lineCount = terminalSettingsState.data?.scrollback ?? 1000;
 const colorfulOutputCacheKey = 'podlogs.terminal.colorful-output';
 
 // Log retrieval mode and options
