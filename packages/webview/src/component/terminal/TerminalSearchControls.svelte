@@ -36,8 +36,9 @@ onMount(async () => {
 
   // Make sure the terminal doesn't intercept Cmd+F (Mac) or Ctrl+F (Windows/Linux)
   terminal.attachCustomKeyEventHandler((event: KeyboardEvent) => {
+    const eventKey = event.key.toLowerCase();
     const isFindShortcut =
-      platformName === 'darwin' ? event.metaKey && event.key === 'f' : event.ctrlKey && event.key === 'f';
+      platformName === 'darwin' ? event.metaKey && eventKey === 'f' : event.ctrlKey && eventKey === 'f';
 
     if (isFindShortcut && event.type === 'keydown') {
       event.preventDefault();
