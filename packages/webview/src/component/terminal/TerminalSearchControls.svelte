@@ -4,7 +4,7 @@ import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 import { Input } from '@podman-desktop/ui-svelte';
 import { SearchAddon } from '@xterm/addon-search';
 import type { Terminal } from '@xterm/xterm';
-import { getContext, onDestroy, onMount } from 'svelte';
+import { getContext, onDestroy, onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 import { Remote } from '/@/remote/remote';
 
@@ -26,6 +26,11 @@ let platformName = $state<string>();
 const remote = getContext<Remote>(Remote);
 const systemApi = remote.getProxy(API_SYSTEM);
 
+function isFindShortcut(event: KeyboardEvent): boolean {
+  const eventKey = event.key.toLowerCase();
+  return platformName === 'darwin' ? event.metaKey && eventKey === 'f' : event.ctrlKey && eventKey === 'f';
+}
+
 onMount(async () => {
   searchAddon = new SearchAddon();
   searchAddon.activate(terminal);
@@ -36,14 +41,12 @@ onMount(async () => {
 
   // Make sure the terminal doesn't intercept Cmd+F (Mac) or Ctrl+F (Windows/Linux)
   terminal.attachCustomKeyEventHandler((event: KeyboardEvent) => {
-    const eventKey = event.key.toLowerCase();
-    const isFindShortcut =
-      platformName === 'darwin' ? event.metaKey && eventKey === 'f' : event.ctrlKey && eventKey === 'f';
-
-    if (isFindShortcut && event.type === 'keydown') {
+    if (event.type === 'keydown' && isFindShortcut(event)) {
       event.preventDefault();
       showSearch = true;
-      setTimeout(() => input?.focus(), 0);
+      tick()
+        .then(() => input?.focus())
+        .catch(console.error);
       return false;
     }
     return true;
@@ -90,9 +93,7 @@ function onSearch(event: Event): void {
 }
 
 function onKeyUp(e: KeyboardEvent): void {
-  const isFindShortcut = platformName === 'darwin' ? e.metaKey && e.key === 'f' : e.ctrlKey && e.key === 'f';
-
-  if (isFindShortcut) {
+  if (isFindShortcut(e)) {
     e.preventDefault();
     showSearch = true;
     setTimeout(() => input?.focus(), 0);
