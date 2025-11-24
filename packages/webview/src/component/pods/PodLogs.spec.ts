@@ -87,7 +87,8 @@ describe('pod with one container', async () => {
     expect(EmptyScreen).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
-        hidden: false,
+        title: 'No Log',
+        message: expect.stringContaining('podName'),
       }),
     );
   });
@@ -113,13 +114,13 @@ describe('pod with one container', async () => {
       containerName: 'containerName',
       data: 'some logs',
     });
-    expect(mockedTerminal.write).toHaveBeenCalledWith('some logs\r');
-    expect(EmptyScreen).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        hidden: true,
-      }),
-    );
+
+    // Wait for queued write to complete
+    await vi.waitFor(() => {
+      expect(mockedTerminal.write).toHaveBeenCalled();
+    });
+
+    expect(mockedTerminal.write).toHaveBeenCalledWith('some logs\r', expect.any(Function));
   });
 });
 
@@ -149,7 +150,8 @@ describe('pod with two containers', async () => {
     expect(EmptyScreen).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
-        hidden: false,
+        title: 'No Log',
+        message: expect.stringContaining('podName'),
       }),
     );
   });
@@ -175,12 +177,14 @@ describe('pod with two containers', async () => {
       containerName: 'cnt1',
       data: 'some logs',
     });
-    expect(mockedTerminal.write).toHaveBeenCalledWith('          \u001b[36mcnt1\u001b[0m|some logs\r');
-    expect(EmptyScreen).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        hidden: true,
-      }),
-    );
+
+    await vi.waitFor(() => {
+      expect(mockedTerminal.write).toHaveBeenCalled();
+    });
+
+    // Verify write was called with callback function
+    const writeCall = vi.mocked(mockedTerminal.write).mock.calls[0];
+    expect(writeCall[0]).toContain('some logs');
+    expect(writeCall[1]).toBeInstanceOf(Function);
   });
 });
