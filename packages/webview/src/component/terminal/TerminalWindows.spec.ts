@@ -18,19 +18,23 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import { API_SYSTEM, type SystemApi } from '@kubernetes-dashboard/channels';
 import { render } from '@testing-library/svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';
 import { writable } from 'svelte/store';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { Remote } from '/@/remote/remote';
 import TerminalWindow from './TerminalWindow.svelte';
+import { Remote } from '/@/remote/remote';
+import { RemoteMocks } from '/@/tests/remote-mocks';
 
 vi.mock(import('@xterm/xterm'));
 
 vi.mock(import('@xterm/addon-fit'));
 
 vi.mock(import('@xterm/addon-search'));
+
+const remoteMocks = new RemoteMocks();
 
 // Mock the Remote context
 const mockSystemApi = {
@@ -44,6 +48,11 @@ const mockRemote = {
 
 beforeEach(() => {
   vi.resetAllMocks();
+
+  remoteMocks.reset();
+  remoteMocks.mock(API_SYSTEM, {
+    getPlatformName: vi.fn().mockResolvedValue('linux'),
+  } as unknown as SystemApi);
   // Reset the mock implementations after resetAllMocks
   mockSystemApi.getPlatformName.mockResolvedValue('linux');
   mockSystemApi.clipboardWriteText.mockResolvedValue(undefined);
