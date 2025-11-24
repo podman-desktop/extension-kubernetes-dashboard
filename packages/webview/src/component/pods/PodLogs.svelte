@@ -4,7 +4,7 @@ import type { IDisposable, PodLogsOptions } from '@kubernetes-dashboard/channels
 import type { V1Pod } from '@kubernetes/client-node';
 import { Button, EmptyScreen, Tooltip } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
-import { getContext, onDestroy, onMount } from 'svelte';
+import { getContext, onDestroy, onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
 import { SvelteMap } from 'svelte/reactivity';
 import type { Unsubscriber } from 'svelte/store';
@@ -27,13 +27,14 @@ let noLogs = $state(true);
 
 let logsTerminal = $state<Terminal>();
 
-const lineCount = terminalSettingsState.data?.scrollback ?? 1000;
+const initialLineCount = terminalSettingsState.data?.scrollback ?? 1000;
 const colorfulOutputCacheKey = 'podlogs.terminal.colorful-output';
 
 // Log retrieval mode and options
 let isStreaming = $state(true);
 let previous = $state(false);
-let tailLines = $state<number | undefined>(lineCount);
+let lineCount = $state(initialLineCount);
+let tailLines = $state<number | undefined>(initialLineCount);
 let sinceSeconds = $state<number | undefined>(undefined);
 let timestamps = $state(false);
 let colorfulOutput = $state(localStorage.getItem(colorfulOutputCacheKey) !== 'false'); // Default to true
@@ -42,7 +43,7 @@ let lineHeight = $state(terminalSettingsState.data?.lineHeight ?? 1);
 let settingsMenuOpen = $state(false);
 
 // Track loaded values to detect changes
-let loadedTailLines = $state<number | undefined>(lineCount);
+let loadedTailLines = $state<number | undefined>(initialLineCount);
 let loadedSinceSeconds = $state<number | undefined>(undefined);
 
 // Detect if tail/seconds have changed from loaded values
@@ -65,9 +66,12 @@ $effect(() => {
   if (data.lineHeight !== undefined) {
     lineHeight = data.lineHeight;
   }
-  if (data.scrollback !== undefined && tailLines === lineCount) {
-    //only update tailLines if the user didn't override it
-    tailLines = data.scrollback;
+  if (data.scrollback !== undefined) {
+    if (tailLines === lineCount) {
+      //only update tailLines if the user didn't override it
+      tailLines = data.scrollback;
+    }
+    lineCount = data.scrollback;
   }
 });
 
@@ -90,20 +94,21 @@ function triggerResize(): void {
     clearTimeout(resizeTimeout);
   }
   resizeTimeout = setTimeout(() => {
-    window.dispatchEvent(new Event('resize'));
+    tick()
+      .then(() => {
+        window.dispatchEvent(new Event('resize'));
+      })
+      .catch(console.error);
   }, 50);
 }
 
 async function loadLogs(): Promise<void> {
-  // First, dispose of old subscriptions to stop any incoming data
   disposables.forEach(disposable => disposable.dispose());
   disposables = [];
 
-  // Now clear the terminal
   logsTerminal?.clear();
   noLogs = true;
 
-  // Update loaded values to current settings
   loadedTailLines = tailLines;
   loadedSinceSeconds = sinceSeconds;
 
@@ -176,10 +181,9 @@ let settingsMenuRef: HTMLDivElement | undefined;
 
 onMount(() => {
   unsubscribers.push(terminalSettingsState.subscribe());
-  // Initial load since $effect.pre skips the first run
+
   loadLogs().catch(console.error);
 
-  // Close settings menu when clicking outside
   const handleClickOutside = (event: MouseEvent): void => {
     if (settingsMenuOpen && settingsMenuRef && !settingsMenuRef.contains(event.target as Node)) {
       settingsMenuOpen = false;
