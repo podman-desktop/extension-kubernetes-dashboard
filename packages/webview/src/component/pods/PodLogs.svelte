@@ -2,7 +2,7 @@
 import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 import type { IDisposable, PodLogsOptions } from '@kubernetes-dashboard/channels';
 import type { V1Pod } from '@kubernetes/client-node';
-import { Button, EmptyScreen, Input } from '@podman-desktop/ui-svelte';
+import { Button, EmptyScreen } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
 import { getContext, onDestroy, onMount, tick } from 'svelte';
 import Fa from 'svelte-fa';
@@ -48,8 +48,19 @@ $effect(() => {
 
 // Update fontSize when terminal settings change
 $effect(() => {
-  if (terminalSettingsState.data?.fontSize !== undefined) {
-    fontSize = terminalSettingsState.data.fontSize;
+  const data = terminalSettingsState.data;
+  if (!data) {
+    return;
+  }
+  if (data.fontSize !== undefined) {
+    fontSize = data.fontSize;
+  }
+  if (data.lineHeight !== undefined) {
+    lineHeight = data.lineHeight;
+  }
+  if (data.scrollback !== undefined && tailLines === lineCount) {
+    //only update tailLines if the user didn't override it
+    tailLines = data.scrollback;
   }
 });
 
@@ -91,7 +102,7 @@ async function loadLogs(): Promise<void> {
           // All lines are prefixed, except the last one if it's empty.
           const lines = data
             .split('\n')
-            .map(line => colorizeLogLevel(line))
+            .map(line => (colorfulOutput ? colorizeLogLevel(line) : line)) //todo when JSONColorize gets merged this will change
             .map((line, index, arr) =>
               index < arr.length - 1 || line.length > 0
                 ? colorfulOutput
@@ -102,7 +113,7 @@ async function loadLogs(): Promise<void> {
           callback(lines.join('\n'));
         }
       : (_name: string, data: string, callback: (data: string) => void): void => {
-          const lines = data.split('\n').map(line => colorizeLogLevel(line));
+          const lines = data.split('\n').map(line => (colorfulOutput ? colorizeLogLevel(line) : line)); //todo when JSONColorize gets merged this will change
           callback(lines.join('\n'));
         };
 
@@ -142,9 +153,9 @@ async function loadLogs(): Promise<void> {
 let unsubscribers: Unsubscriber[] = [];
 let settingsMenuRef: HTMLDivElement | undefined;
 
-onMount(async () => {
+onMount(() => {
   unsubscribers.push(terminalSettingsState.subscribe());
-  await loadLogs();
+  loadLogs().catch(console.error);
 
   // Close settings menu when clicking outside
   const handleClickOutside = (event: MouseEvent): void => {
@@ -187,12 +198,22 @@ onDestroy(() => {
 
     <label class="flex items-center gap-2">
       <span class="text-sm">Tail:</span>
-      <Input type="number" bind:value={tailLines} placeholder="All" class="w-24" min="1" />
+      <input
+        type="number"
+        bind:value={tailLines}
+        placeholder="All"
+        class="w-24 px-2 py-1 bg-(--pd-input-field-bg) text-(--pd-input-field-focused-text) border border-(--pd-input-field-stroke) rounded"
+        min="1" />
     </label>
 
     <label class="flex items-center gap-2">
       <span class="text-sm">Since (seconds):</span>
-      <Input type="number" bind:value={sinceSeconds} placeholder="All" class="w-24" min="1" />
+      <input
+        type="number"
+        bind:value={sinceSeconds}
+        placeholder="All"
+        class="w-24 px-2 py-1 bg-(--pd-input-field-bg) text-(--pd-input-field-focused-text) border border-(--pd-input-field-stroke) rounded"
+        min="1" />
     </label>
 
     <label class="flex items-center gap-2 cursor-pointer">

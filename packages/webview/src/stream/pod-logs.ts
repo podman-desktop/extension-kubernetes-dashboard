@@ -51,7 +51,15 @@ export class StreamPodLogs implements StreamObject<PodLogsChunk> {
       }
       callback(chunk);
     });
-    await this.#podLogsApi.streamPodLogs(podName, namespace, containerName, options);
+
+    try {
+      await this.#podLogsApi.streamPodLogs(podName, namespace, containerName, options);
+    } catch (err) {
+      // ensure we don't leak a listener when the stream fails to start
+      disposable.dispose();
+      throw err;
+    }
+
     return {
       dispose: () => {
         disposable.dispose();
