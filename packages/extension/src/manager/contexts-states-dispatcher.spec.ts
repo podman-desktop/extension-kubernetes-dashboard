@@ -20,19 +20,6 @@ import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import type { IDisposable } from '@kubernetes-dashboard/channels';
 
-import type { ContextHealthState } from './context-health-checker.js';
-import type { ContextPermissionResult } from './context-permissions-checker.js';
-import type { DispatcherEvent } from './contexts-dispatcher.js';
-import { ContextsManager } from './contexts-manager.js';
-import { ContextsStatesDispatcher } from './contexts-states-dispatcher.js';
-import type { RpcExtension } from '@kubernetes-dashboard/rpc';
-import type { ExtensionContext, TelemetryLogger } from '@podman-desktop/api';
-import type { Container } from 'inversify';
-import { InversifyBinding } from '/@/inject/inversify-binding.js';
-import { ResourcesCountDispatcher } from '/@/dispatcher/resources-count-dispatcher.js';
-import { ActiveResourcesCountDispatcher } from '/@/dispatcher/active-resources-count-dispatcher.js';
-import { ContextsHealthsDispatcher } from '/@/dispatcher/contexts-healths-dispatcher.js';
-import { ContextsPermissionsDispatcher } from '/@/dispatcher/contexts-permissions-dispatcher.js';
 import {
   ACTIVE_RESOURCES_COUNT,
   AVAILABLE_CONTEXTS,
@@ -46,6 +33,19 @@ import {
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
 } from '@kubernetes-dashboard/channels';
+import type { RpcExtension } from '@kubernetes-dashboard/rpc';
+import type { ExtensionContext, TelemetryLogger } from '@podman-desktop/api';
+import type { Container } from 'inversify';
+import type { ContextHealthState } from './context-health-checker.js';
+import type { ContextPermissionResult } from './context-permissions-checker.js';
+import type { DispatcherEvent } from './contexts-dispatcher.js';
+import { ContextsManager } from './contexts-manager.js';
+import { ContextsStatesDispatcher } from './contexts-states-dispatcher.js';
+import { ActiveResourcesCountDispatcher } from '/@/dispatcher/active-resources-count-dispatcher.js';
+import { ContextsHealthsDispatcher } from '/@/dispatcher/contexts-healths-dispatcher.js';
+import { ContextsPermissionsDispatcher } from '/@/dispatcher/contexts-permissions-dispatcher.js';
+import { ResourcesCountDispatcher } from '/@/dispatcher/resources-count-dispatcher.js';
+import { InversifyBinding } from '/@/inject/inversify-binding.js';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber.js';
 
@@ -109,28 +109,33 @@ beforeEach(() => {
   dispatcher = container.get<ContextsStatesDispatcher>(ContextsStatesDispatcher);
 });
 
+// Number of times TERMINAL_SETTINGS is dispatched when init() is called twice (once per init)
+const terminalSettingsCount = 2;
+
 test('ContextsStatesDispatcher should call updateHealthStates when onContextHealthStateChange event is fired', async () => {
   const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(dispatcherSpy).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'TerminalSettings' }));
 
   vi.mocked(contextsManagerMock.onContextHealthStateChange).mockImplementation(
     f => f({} as ContextHealthState) as IDisposable,
   );
   dispatcher.init();
-  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledTimes(terminalSettingsCount + 1); // TERMINAL_SETTINGS from both inits + CONTEXTS_HEALTHS
   expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_HEALTHS);
 });
 
 test('ContextsStatesDispatcher should call updateHealthStates, updateResourcesCount and updateActiveResourcesCount when onOfflineChange event is fired', async () => {
   const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(dispatcherSpy).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'TerminalSettings' }));
 
   vi.mocked(contextsManagerMock.onOfflineChange).mockImplementation(f => f() as IDisposable);
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(dispatcherSpy).toHaveBeenCalledTimes(3);
+    expect(dispatcherSpy).toHaveBeenCalledTimes(terminalSettingsCount + 3); // 2x TERMINAL_SETTINGS + 3 from offline change
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining(CONTEXTS_HEALTHS));
   expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining(RESOURCES_COUNT));
@@ -140,25 +145,27 @@ test('ContextsStatesDispatcher should call updateHealthStates, updateResourcesCo
 test('ContextsStatesDispatcher should call updatePermissions when onContextPermissionResult event is fired', () => {
   const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(dispatcherSpy).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'TerminalSettings' }));
 
   vi.mocked(contextsManagerMock.onContextPermissionResult).mockImplementation(
     f => f({} as ContextPermissionResult) as IDisposable,
   );
   dispatcher.init();
-  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledTimes(terminalSettingsCount + 1); // 2x TERMINAL_SETTINGS + CONTEXTS_PERMISSIONS
   expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_PERMISSIONS);
 });
 
 test('ContextsStatesDispatcher should call updateHealthStates and updatePermissions when onContextDelete event is fired', async () => {
   const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(dispatcherSpy).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'TerminalSettings' }));
 
   vi.mocked(contextsManagerMock.onContextDelete).mockImplementation(f => f({} as DispatcherEvent) as IDisposable);
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(dispatcherSpy).toHaveBeenCalledTimes(3);
+    expect(dispatcherSpy).toHaveBeenCalledTimes(terminalSettingsCount + 3); // 2x TERMINAL_SETTINGS + 3 from context delete
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_HEALTHS);
   expect(dispatcherSpy).toHaveBeenCalledWith(CONTEXTS_PERMISSIONS);
@@ -168,12 +175,13 @@ test('ContextsStatesDispatcher should call updateHealthStates and updatePermissi
 test('ContextsStatesDispatcher should dispatchavailable contexts when onContextAdd event is fired', async () => {
   const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(dispatcherSpy).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'TerminalSettings' }));
 
   vi.mocked(contextsManagerMock.onContextAdd).mockImplementation(f => f({} as DispatcherEvent) as IDisposable);
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(dispatcherSpy).toHaveBeenCalledTimes(1);
+    expect(dispatcherSpy).toHaveBeenCalledTimes(terminalSettingsCount + 1); // 2x TERMINAL_SETTINGS + AVAILABLE_CONTEXTS
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(AVAILABLE_CONTEXTS);
 });
@@ -181,14 +189,15 @@ test('ContextsStatesDispatcher should dispatchavailable contexts when onContextA
 test('ContextsStatesDispatcher should call updateResource and updateActiveResourcesCount when onResourceUpdated event is fired', async () => {
   const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(dispatcherSpy).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'TerminalSettings' }));
 
   vi.mocked(contextsManagerMock.onResourceUpdated).mockImplementation(
     f => f({ contextName: 'context1', resourceName: 'res1' }) as IDisposable,
   );
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(dispatcherSpy).toHaveBeenCalledTimes(4);
+    expect(dispatcherSpy).toHaveBeenCalledTimes(terminalSettingsCount + 4); // 2x TERMINAL_SETTINGS + 4 from resource updated
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(UPDATE_RESOURCE);
   expect(dispatcherSpy).toHaveBeenCalledWith(RESOURCE_DETAILS);
@@ -199,12 +208,13 @@ test('ContextsStatesDispatcher should call updateResource and updateActiveResour
 test('ContextsStatesDispatcher should dispatch CURRENT_CONTEXT when onCurrentContextChange event is fired', async () => {
   const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(dispatcherSpy).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'TerminalSettings' }));
 
   vi.mocked(contextsManagerMock.onCurrentContextChange).mockImplementation(f => f() as IDisposable);
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(dispatcherSpy).toHaveBeenCalledTimes(1);
+    expect(dispatcherSpy).toHaveBeenCalledTimes(terminalSettingsCount + 2); // 2x TERMINAL_SETTINGS + CURRENT_CONTEXT + UPDATE_RESOURCE
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(CURRENT_CONTEXT);
 });
@@ -220,12 +230,13 @@ test('dispatchByChannelName is called when onSubscribe emits an event', async ()
 test('ContextsStatesDispatcher should dispatch ENDPOINTS when onEndpointsChange event is fired', async () => {
   const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(dispatcherSpy).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'TerminalSettings' }));
 
   vi.mocked(contextsManagerMock.onEndpointsChange).mockImplementation(f => f() as IDisposable);
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(dispatcherSpy).toHaveBeenCalledTimes(1);
+    expect(dispatcherSpy).toHaveBeenCalledTimes(terminalSettingsCount + 1); // 2x TERMINAL_SETTINGS + ENDPOINTS
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(ENDPOINTS);
 });
@@ -233,12 +244,13 @@ test('ContextsStatesDispatcher should dispatch ENDPOINTS when onEndpointsChange 
 test('ContextsStatesDispatcher should dispatch KUBERNETES_PROVIDERS when onKubernetesProvidersChange event is fired', async () => {
   const dispatcherSpy = vi.spyOn(dispatcher, 'dispatch').mockResolvedValue();
   dispatcher.init();
-  expect(dispatcherSpy).not.toHaveBeenCalled();
+  expect(dispatcherSpy).toHaveBeenCalledOnce();
+  expect(dispatcherSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'TerminalSettings' }));
 
   vi.mocked(kubernetesProvidersManagerMock.onKubernetesProvidersChange).mockImplementation(f => f() as IDisposable);
   dispatcher.init();
   await vi.waitFor(() => {
-    expect(dispatcherSpy).toHaveBeenCalledTimes(1);
+    expect(dispatcherSpy).toHaveBeenCalledTimes(terminalSettingsCount + 1); // 2x TERMINAL_SETTINGS + KUBERNETES_PROVIDERS
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(KUBERNETES_PROVIDERS);
 });

@@ -22,7 +22,6 @@ import { API_SYSTEM, type SystemApi } from '@kubernetes-dashboard/channels';
 import { render } from '@testing-library/svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';
-import { writable } from 'svelte/store';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import TerminalWindow from './TerminalWindow.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
@@ -43,6 +42,9 @@ beforeEach(() => {
   // Create a mock terminal instance with spies
   const writeSpy = vi.fn();
   const loadAddonSpy = vi.fn();
+  const attachCustomKeyEventHandlerSpy = vi.fn();
+  const getSelectionSpy = vi.fn();
+  const clearSelectionSpy = vi.fn();
 
   mockTerminalInstance = {
     options: {},
@@ -50,6 +52,9 @@ beforeEach(() => {
     loadAddon: loadAddonSpy,
     write: writeSpy,
     open: vi.fn(),
+    attachCustomKeyEventHandler: attachCustomKeyEventHandlerSpy,
+    getSelection: getSelectionSpy,
+    clearSelection: clearSelectionSpy,
   };
 
   // Mock the Terminal constructor to return the mock instance
@@ -71,12 +76,14 @@ afterEach(() => {
 
 function createTerminalMock(): Terminal {
   return {
-    ...writable(),
     options: {},
     dispose: vi.fn(),
-    loadAddon: vi.fn(),
+    attachCustomKeyEventHandler: vi.fn(),
+    getSelection: vi.fn(),
+    clearSelection: vi.fn(),
     write: vi.fn(),
     open: vi.fn(),
+    loadAddon: vi.fn(),
   } as unknown as Terminal;
 }
 
@@ -142,19 +149,22 @@ test('addon fit should be loaded on mount', async () => {
 
 test('matchMedia resize listener should trigger fit addon', async () => {
   // spy the event listener
-  vi.spyOn(window, 'addEventListener');
+  const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
 
   render(TerminalWindow, {
     terminal: createTerminalMock(),
   });
 
+  // Wait for component to mount and Terminal to be created
+  await vi.waitFor(() => {
+    expect(Terminal).toHaveBeenCalled();
+  });
+
+  // Find the resize event listener
   const listener: () => void = await vi.waitFor(() => {
-    expect(window.addEventListener).toHaveBeenCalled();
-    const call = vi.mocked(window.addEventListener).mock.calls;
-    expect(call).toHaveLength(1);
-    expect(call[0][0]).toBe('resize');
-    expect(call[0][1]).toBeInstanceOf(Function);
-    return call[0][1] as unknown as () => void;
+    const resizeListeners = addEventListenerSpy.mock.calls.filter(call => call[0] === 'resize');
+    expect(resizeListeners.length).toBeGreaterThan(0);
+    return resizeListeners[0][1] as unknown as () => void;
   });
 
   // reset fit calls count
