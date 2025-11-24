@@ -47,8 +47,8 @@ const LOG_LEVEL_COLORS: Record<string, string> = {
   WARN: '\u001b[33m',
   WARNING: '\u001b[33m',
   ERR: '\u001b[31;1m', // bright red
-  ERROR: '\u001b[31m;1m',
-  FATAL: '\u001b[31m', // bright red
+  ERROR: '\u001b[31;1m',
+  FATAL: '\u001b[31m', // red
 };
 
 // Function that takes the container name and ANSI colour and encapsulates the name in the colour,

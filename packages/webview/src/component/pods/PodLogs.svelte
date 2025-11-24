@@ -8,10 +8,10 @@ import { SvelteMap } from 'svelte/reactivity';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import { detectJsonLogs } from '/@/component/terminal/json-colorizer';
 import {
-  ansi256Colours,
-  colorizeJSON,
-  colorizeLogLevel,
-  colourizedANSIContainerName,
+    ansi256Colours,
+    colorizeJSON,
+    colorizeLogLevel,
+    colourizedANSIContainerName,
 } from '/@/component/terminal/terminal-colors';
 import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import { Streams } from '/@/stream/streams';
@@ -26,7 +26,7 @@ let noLogs = $state(true);
 
 // Track if logs are JSON format (auto-detected from first 10 lines)
 let isJsonFormat = $state<boolean | undefined>(undefined);
-// TODO once we have a toolbar in logs we can add a checkbox/hamburger menu for this setting
+// TODO once we have a toolbar in logs we can add a kebab menu for this setting
 let shouldColorizeLogs = $state<boolean>(true);
 let logBuffer: string[] = [];
 
