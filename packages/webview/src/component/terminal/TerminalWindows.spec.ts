@@ -18,12 +18,14 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import { API_SYSTEM, type SystemApi } from '@kubernetes-dashboard/channels';
 import { render } from '@testing-library/svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';
 import { writable } from 'svelte/store';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import TerminalWindow from './TerminalWindow.svelte';
+import { RemoteMocks } from '/@/tests/remote-mocks';
 
 vi.mock(import('@xterm/xterm'));
 
@@ -32,6 +34,8 @@ vi.mock(import('@xterm/addon-fit'));
 vi.mock(import('@xterm/addon-search'));
 
 let mockTerminalInstance: Partial<Terminal>;
+
+const remoteMocks = new RemoteMocks();
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -54,6 +58,11 @@ beforeEach(() => {
   // Also set up prototype mocks for tests that check Terminal.prototype
   Terminal.prototype.write = writeSpy;
   Terminal.prototype.loadAddon = loadAddonSpy;
+
+  remoteMocks.reset();
+  remoteMocks.mock(API_SYSTEM, {
+    getPlatformName: vi.fn().mockResolvedValue('linux'),
+  } as unknown as SystemApi);
 });
 
 afterEach(() => {

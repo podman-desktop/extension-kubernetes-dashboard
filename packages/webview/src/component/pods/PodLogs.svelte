@@ -9,7 +9,7 @@ import Fa from 'svelte-fa';
 import { SvelteMap } from 'svelte/reactivity';
 import type { Unsubscriber } from 'svelte/store';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
-import { ansi256Colours, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
+import { ansi256Colours, colorizeLogLevel, colourizedANSIContainerName } from '/@/component/terminal/terminal-colors';
 import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import { States } from '/@/state/states';
 import { Streams } from '/@/stream/streams';
@@ -91,6 +91,7 @@ async function loadLogs(): Promise<void> {
           // All lines are prefixed, except the last one if it's empty.
           const lines = data
             .split('\n')
+            .map(line => colorizeLogLevel(line))
             .map((line, index, arr) =>
               index < arr.length - 1 || line.length > 0
                 ? colorfulOutput
@@ -101,7 +102,8 @@ async function loadLogs(): Promise<void> {
           callback(lines.join('\n'));
         }
       : (_name: string, data: string, callback: (data: string) => void): void => {
-          callback(data);
+          const lines = data.split('\n').map(line => colorizeLogLevel(line));
+          callback(lines.join('\n'));
         };
 
   const options: PodLogsOptions = {

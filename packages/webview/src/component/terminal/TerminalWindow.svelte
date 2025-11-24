@@ -1,9 +1,11 @@
 <script lang="ts">
 import '@xterm/xterm/css/xterm.css';
 
+import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';
-import { onDestroy, onMount } from 'svelte';
+import { getContext, onDestroy, onMount } from 'svelte';
+import { Remote } from '/@/remote/remote';
 
 import { getTerminalTheme } from './terminal-theme';
 import TerminalSearchControls from './TerminalSearchControls.svelte';
@@ -37,6 +39,25 @@ let {
 let logsXtermDiv: HTMLDivElement | undefined;
 let resizeHandler: () => void;
 let fitAddon: FitAddon;
+let contextMenuHandler: (event: MouseEvent) => void;
+
+const remote = getContext<Remote>(Remote);
+const systemApi = remote.getProxy(API_SYSTEM);
+let platformName = $state<string>();
+
+async function copySelectionToClipboard(): Promise<boolean> {
+  const selection = terminal?.getSelection();
+  if (selection) {
+    try {
+      await systemApi.clipboardWriteText(selection);
+      return true;
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      return false;
+    }
+  }
+  return false;
+}
 
 async function refreshTerminal(): Promise<void> {
   // missing element, return
@@ -62,6 +83,47 @@ async function refreshTerminal(): Promise<void> {
     // disable cursor
     terminal.write('\x1b[?25l');
   }
+
+  //copy behavior
+  terminal.attachCustomKeyEventHandler((event: KeyboardEvent): boolean => {
+    let isCopyShortcut = false;
+
+    if (platformName === 'darwin') {
+      // macOS: Cmd+C
+      isCopyShortcut = event.metaKey && event.key.toLowerCase() === 'c';
+    } else if (platformName === 'linux') {
+      // Linux: Ctrl+Shift+C
+      isCopyShortcut = event.ctrlKey && event.shiftKey && event.key.toUpperCase() === 'C';
+    } else {
+      // Windows: Ctrl+C
+      isCopyShortcut = event.ctrlKey && event.key.toLowerCase() === 'c';
+    }
+
+    if (isCopyShortcut) {
+      copySelectionToClipboard()
+        .then(handled => {
+          if (handled) {
+            terminal?.clearSelection();
+          }
+        })
+        .catch((err: unknown) => console.error('Failed to copy selection:', err));
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  });
+
+  contextMenuHandler = (event: MouseEvent): void => {
+    copySelectionToClipboard()
+      .then(handled => {
+        if (handled) {
+          terminal?.clearSelection();
+        }
+      })
+      .catch((err: unknown) => console.error('Failed to copy selection:', err));
+    event.preventDefault();
+  };
+  logsXtermDiv.addEventListener('contextmenu', contextMenuHandler);
 
   // call fit addon each time we resize the window
   resizeHandler = (): void => {
@@ -89,11 +151,13 @@ $effect(() => {
 });
 
 onMount(async () => {
+  platformName = await systemApi.getPlatformName();
   await refreshTerminal();
 });
 
 onDestroy(() => {
   window.removeEventListener('resize', resizeHandler);
+  logsXtermDiv?.removeEventListener('contextmenu', contextMenuHandler);
   terminal?.dispose();
 });
 </script>
