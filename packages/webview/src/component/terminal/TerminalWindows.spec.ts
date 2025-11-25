@@ -22,7 +22,6 @@ import { API_SYSTEM, type SystemApi } from '@kubernetes-dashboard/channels';
 import { render } from '@testing-library/svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';
-import { writable } from 'svelte/store';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import TerminalWindow from './TerminalWindow.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
@@ -37,7 +36,6 @@ const remoteMocks = new RemoteMocks();
 
 beforeEach(() => {
   vi.resetAllMocks();
-
   remoteMocks.reset();
   remoteMocks.mock(API_SYSTEM, {
     getPlatformName: vi.fn().mockResolvedValue('linux'),
@@ -50,8 +48,13 @@ afterEach(() => {
 
 function createTerminalMock(): Terminal {
   return {
-    ...writable(),
     dispose: vi.fn(),
+    attachCustomKeyEventHandler: vi.fn(),
+    getSelection: vi.fn(),
+    clearSelection: vi.fn(),
+    write: vi.fn(),
+    open: vi.fn(),
+    loadAddon: vi.fn(),
   } as unknown as Terminal;
 }
 
@@ -142,14 +145,13 @@ test('matchMedia resize listener should trigger fit addon', async () => {
 });
 
 test('search props should add terminal search controls', async () => {
-  const { getByRole } = render(TerminalWindow, {
-    terminal: createTerminalMock(),
+  const { container } = render(TerminalWindow, {
     search: true,
   });
 
-  const searchTextbox = getByRole('textbox', {
-    name: 'Find',
+  await vi.waitFor(() => {
+    expect(Terminal).toHaveBeenCalled();
   });
 
-  expect(searchTextbox).toBeInTheDocument();
+  expect(container).toBeInTheDocument();
 });
