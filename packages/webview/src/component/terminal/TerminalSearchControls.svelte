@@ -68,7 +68,7 @@ function onKeyPressed(event: KeyboardEvent): void {
   } else if (event.key === 'Escape') {
     event.preventDefault();
     event.stopPropagation();
-    showSearch = false;
+    closeSearch();
   }
 }
 

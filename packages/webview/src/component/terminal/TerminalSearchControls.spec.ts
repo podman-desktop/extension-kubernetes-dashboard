@@ -36,6 +36,9 @@ const TerminalMock: Terminal = {
   attachCustomKeyEventHandler: vi.fn(),
 } as unknown as Terminal;
 
+// Capture the key handler so we can call it in tests
+let capturedKeyHandler: ((event: KeyboardEvent) => boolean) | undefined;
+
 // Mock the Remote context
 const mockSystemApi = {
   getPlatformName: vi.fn(),
@@ -48,11 +51,16 @@ const mockRemote = {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  capturedKeyHandler = undefined;
   // Reset the mock implementation
   mockSystemApi.getPlatformName.mockResolvedValue('linux');
   mockSystemApi.clipboardWriteText.mockResolvedValue(undefined);
   // Ensure getProxy still returns mockSystemApi after reset
   mockRemote.getProxy.mockReturnValue(mockSystemApi);
+  // Capture the key handler when attachCustomKeyEventHandler is called
+  vi.mocked(TerminalMock.attachCustomKeyEventHandler).mockImplementation(handler => {
+    capturedKeyHandler = handler;
+  });
 });
 
 test('search addon should be loaded to the terminal', async () => {
@@ -96,13 +104,17 @@ test('input should call findNext on search addon', async () => {
   // Wait for component to mount
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(capturedKeyHandler).toBeDefined();
   });
 
-  // Trigger Ctrl+F to show search
-  await fireEvent.keyUp(container, {
+  // Trigger Ctrl+F via the captured key handler
+  capturedKeyHandler!({
+    type: 'keydown',
     ctrlKey: true,
+    metaKey: false,
     key: 'f',
-  });
+    preventDefault: vi.fn(),
+  } as unknown as KeyboardEvent);
 
   // Wait for search to be visible
   await vi.waitFor(() => {
@@ -132,13 +144,17 @@ test('key Enter should call findNext with incremental', async () => {
   // Wait for component to mount
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(capturedKeyHandler).toBeDefined();
   });
 
-  // Trigger Ctrl+F to show search
-  await fireEvent.keyUp(container, {
+  // Trigger Ctrl+F via the captured key handler
+  capturedKeyHandler!({
+    type: 'keydown',
     ctrlKey: true,
+    metaKey: false,
     key: 'f',
-  });
+    preventDefault: vi.fn(),
+  } as unknown as KeyboardEvent);
 
   // Wait for search to be visible
   await vi.waitFor(() => {
@@ -168,13 +184,17 @@ test('arrow down should call findNext', async () => {
   // Wait for component to mount
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(capturedKeyHandler).toBeDefined();
   });
 
-  // Trigger Ctrl+F to show search
-  await fireEvent.keyUp(container, {
+  // Trigger Ctrl+F via the captured key handler
+  capturedKeyHandler!({
+    type: 'keydown',
     ctrlKey: true,
+    metaKey: false,
     key: 'f',
-  });
+    preventDefault: vi.fn(),
+  } as unknown as KeyboardEvent);
 
   // Wait for search to be visible and enter search term
   const searchInput = await vi.waitFor(() => {
@@ -209,13 +229,17 @@ test('arrow up should call findPrevious', async () => {
   // Wait for component to mount
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(capturedKeyHandler).toBeDefined();
   });
 
-  // Trigger Ctrl+F to show search
-  await fireEvent.keyUp(container, {
+  // Trigger Ctrl+F via the captured key handler
+  capturedKeyHandler!({
+    type: 'keydown',
     ctrlKey: true,
+    metaKey: false,
     key: 'f',
-  });
+    preventDefault: vi.fn(),
+  } as unknown as KeyboardEvent);
 
   // Wait for search to be visible and enter search term
   const searchInput = await vi.waitFor(() => {
@@ -249,16 +273,111 @@ test('ctrl+F should focus input', async () => {
   // Wait for component to mount
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(capturedKeyHandler).toBeDefined();
   });
 
-  await fireEvent.keyUp(container, {
+  // Trigger Ctrl+F via the captured key handler
+  capturedKeyHandler!({
+    type: 'keydown',
     ctrlKey: true,
+    metaKey: false,
     key: 'f',
-  });
+    preventDefault: vi.fn(),
+  } as unknown as KeyboardEvent);
 
   // Wait for showSearch to become true
   await vi.waitFor(() => {
     const input = container.querySelector('input[aria-label="Find"]') as HTMLInputElement;
     expect(input).toBeInTheDocument();
+  });
+});
+
+test('Escape key should close search via terminal key handler', async () => {
+  const { container } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+
+  // Wait for component to mount
+  await vi.waitFor(() => {
+    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(capturedKeyHandler).toBeDefined();
+  });
+
+  // First open the search with Ctrl+F
+  capturedKeyHandler!({
+    type: 'keydown',
+    ctrlKey: true,
+    metaKey: false,
+    key: 'f',
+    preventDefault: vi.fn(),
+  } as unknown as KeyboardEvent);
+
+  // Wait for search to be visible
+  await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]');
+    expect(input).toBeInTheDocument();
+  });
+
+  // Now press Escape via the terminal key handler
+  const preventDefaultMock = vi.fn();
+  const result = capturedKeyHandler!({
+    type: 'keydown',
+    ctrlKey: false,
+    metaKey: false,
+    key: 'Escape',
+    preventDefault: preventDefaultMock,
+  } as unknown as KeyboardEvent);
+
+  // Should return false to prevent terminal from handling it
+  expect(result).toBe(false);
+  expect(preventDefaultMock).toHaveBeenCalled();
+
+  // Wait for search to be hidden
+  await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]');
+    expect(input).not.toBeInTheDocument();
+  });
+});
+
+test('Close button should close search', async () => {
+  const { container } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+
+  // Wait for component to mount
+  await vi.waitFor(() => {
+    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(capturedKeyHandler).toBeDefined();
+  });
+
+  // First open the search with Ctrl+F
+  capturedKeyHandler!({
+    type: 'keydown',
+    ctrlKey: true,
+    metaKey: false,
+    key: 'f',
+    preventDefault: vi.fn(),
+  } as unknown as KeyboardEvent);
+
+  // Wait for search to be visible
+  await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]');
+    expect(input).toBeInTheDocument();
+  });
+
+  // Click the close button
+  const closeBtn = container.querySelector('button[aria-label="Close Search"]') as HTMLButtonElement;
+  await fireEvent.click(closeBtn);
+
+  // Wait for search to be hidden
+  await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]');
+    expect(input).not.toBeInTheDocument();
   });
 });
