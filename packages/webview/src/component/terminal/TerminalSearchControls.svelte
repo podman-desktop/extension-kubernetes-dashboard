@@ -48,6 +48,10 @@ onMount(async () => {
         .then(() => input?.focus())
         .catch(console.error);
       return false;
+    } else if (event.type === 'keydown' && event.key === 'Escape' && showSearch) {
+      event.preventDefault();
+      closeSearch();
+      return false;
     }
     return true;
   });
@@ -59,8 +63,11 @@ onDestroy(() => {
 
 function onKeyPressed(event: KeyboardEvent): void {
   if (event.key === 'Enter') {
+    event.preventDefault();
     onSearchNext(true);
   } else if (event.key === 'Escape') {
+    event.preventDefault();
+    event.stopPropagation();
     showSearch = false;
   }
 }
@@ -92,24 +99,11 @@ function onSearch(event: Event): void {
   }
 }
 
-function onKeyUp(e: KeyboardEvent): void {
-  if (isFindShortcut(e)) {
-    e.preventDefault();
-    showSearch = true;
-    setTimeout(() => input?.focus(), 0);
-  } else if (e.key === 'Escape' && showSearch) {
-    e.preventDefault();
-    closeSearch();
-  }
-}
-
 function closeSearch(): void {
   showSearch = false;
   searchTerm = '';
 }
 </script>
-
-<svelte:window on:keyup|preventDefault={onKeyUp} />
 
 {#if showSearch}
   <div
