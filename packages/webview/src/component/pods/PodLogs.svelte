@@ -172,8 +172,14 @@ async function loadLogs(): Promise<void> {
     );
   });
 
-  const subscriptions = await Promise.all(subscriptionPromises);
-  disposables.push(...subscriptions);
+  const results = await Promise.allSettled(subscriptionPromises);
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      disposables.push(result.value);
+    } else {
+      console.error('Failed to subscribe to container logs:', result.reason);
+    }
+  }
 }
 
 let unsubscribers: Unsubscriber[] = [];
@@ -198,6 +204,9 @@ onMount(() => {
 });
 
 onDestroy(() => {
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout);
+  }
   unsubscribers.forEach(unsubscriber => unsubscriber());
   disposables.forEach(disposable => disposable.dispose());
   disposables = [];
@@ -296,7 +305,7 @@ onDestroy(() => {
           </div>
         {/if}
       </div>
-      <Button on:click={loadLogs}>
+      <Button onclick={loadLogs}>
         {isStreaming ? 'Restart Stream' : 'Retrieve Logs'}
         {#if hasUnsyncedChanges}
           <Tooltip tip="Click to sync changes">
