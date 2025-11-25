@@ -35,20 +35,38 @@ let logsTerminal = $state<Terminal>();
 let disposables: IDisposable[] = [];
 const streams = getContext<Streams>(Streams);
 
-// Create a map that will store the ANSI 256 colour for each container name
+// Map that will store the ANSI 256 colour for each container name
 // if we run out of colours, we'll start from the beginning.
-const colourizedContainerName = new SvelteMap<string, string>();
+const prefixColourMap = new SvelteMap<string, string>();
+
+const addLogPrefix = (lines: string[], prefix: string, prefixLength: number): void => {
+  if (prefix) {
+    let padding = '';
+    if (prefixLength > 0) {
+      //make prefix fit into prefixLength by adding spaces
+      padding = ' '.repeat(prefixLength - prefix.length);
+    }
+
+    const colouredName = prefixColourMap.get(prefix);
+
+    lines.forEach((line, index) => {
+      if (index < lines.length - 1 || line.length > 0) {
+        lines[index] = `${padding}${colouredName}|${line}`;
+      }
+    });
+  }
+};
 
 /**
  * Colorizes and formats log lines with optional container prefix.
  * Applies log level colorization and JSON colorization (if detected).
  *
  * @param data - Raw log data from stream
- * @param containerName - Name of the container (for multi-container pods)
- * @param maxNameLength - Maximum container name length for padding (0 for single container)
+ * @param prefix - Log line prefix (for multi-container pods)
+ * @param maxPrefixLength - Length to normalize prefix with (0 for single container)
  * @returns Formatted and colorized log lines
  */
-const colorizeAndFormatLogs = (data: string, containerName?: string, maxNameLength: number = 0): string => {
+const colorizeAndFormatLogs = (data: string, prefix?: string, maxPrefixLength: number = 0): string => {
   let lines = data.split('\n');
 
   if (shouldColorizeLogs) {
@@ -69,65 +87,67 @@ const colorizeAndFormatLogs = (data: string, containerName?: string, maxNameLeng
   }
 
   // Add container prefix for multi-container pods
-  if (containerName && maxNameLength > 0) {
-    const padding = ' '.repeat(maxNameLength - containerName.length);
-    const colouredName = colourizedContainerName.get(containerName);
-    // All lines are prefixed, except the last one if it's empty
-    return lines
-      .map((line, index, arr) =>
-        index < arr.length - 1 || line.length > 0 ? `${padding}${colouredName}|${line}` : line,
-      )
-      .join('\n');
-  }
+  addLogPrefix(lines, prefix ?? '', maxPrefixLength);
 
   return lines.join('\n');
+};
+
+/**
+ * Calculates the maximum container name length for padding prefixes in multi-container
+ * pods so that log lines align correctly.
+ *
+ * @returns Max container name length for prefix padding
+ */
+const calculatePrefixLength = (): number => {
+  let maxNameLength = 0;
+  object.spec?.containers.forEach(container => {
+    if (container.name.length > maxNameLength) {
+      maxNameLength = container.name.length;
+    }
+  });
+  return maxNameLength;
+};
+
+/**
+ * Calculates the maximum container name length for padding prefixes in multi-container
+ * pods so that log lines align correctly.
+ *
+ * @returns Max container name length for prefix padding
+ */
+const setupPrefixColours = (): void => {
+  object.spec?.containers.forEach((container, index) => {
+    const colour = ansi256Colours[index % ansi256Colours.length];
+    prefixColourMap.set(container.name, colourizedANSIContainerName(container.name, colour));
+  });
 };
 
 onMount(async () => {
   logsTerminal?.clear();
 
-  const containerCount = object.spec?.containers.length ?? 0;
-
-  // Go through each name of pod.containers array and determine
-  // how much spacing is required for each name to be printed.
   let maxNameLength = 0;
-  if (containerCount > 1) {
-    object.spec?.containers.forEach((container, index) => {
-      if (container.name.length > maxNameLength) {
-        maxNameLength = container.name.length;
-      }
-      const colour = ansi256Colours[index % ansi256Colours.length];
-      colourizedContainerName.set(container.name, colourizedANSIContainerName(container.name, colour));
-    });
+  if (object.spec?.containers.length ?? 0 > 1) {
+    maxNameLength = calculatePrefixLength();
+    setupPrefixColours();
   }
 
-  const processLogData = (containerName: string, data: string, callback: (data: string) => void): void => {
-    const formattedLogs = colorizeAndFormatLogs(
-      data,
-      containerCount > 1 ? containerName : undefined,
-      containerCount > 1 ? maxNameLength : 0,
-    );
-    callback(formattedLogs);
-  };
-
   for (const containerName of object.spec?.containers.map(c => c.name) ?? []) {
+    const logLinePrefix = maxNameLength > 0 ? containerName : undefined;
     disposables.push(
       await streams.streamPodLogs.subscribe(
         object.metadata?.name ?? '',
         object.metadata?.namespace ?? '',
         containerName,
         chunk => {
-          processLogData(containerName, chunk.data, data => {
-            if (noLogs) {
-              noLogs = false;
-            }
-            logsTerminal?.write(data + '\r');
-            tick()
-              .then(() => {
-                window.dispatchEvent(new Event('resize'));
-              })
-              .catch(console.error);
-          });
+          const formattedLogs = colorizeAndFormatLogs(chunk.data, logLinePrefix, maxNameLength);
+          if (noLogs) {
+            noLogs = false;
+          }
+          logsTerminal?.write(formattedLogs + '\r');
+          tick()
+            .then(() => {
+              window.dispatchEvent(new Event('resize'));
+            })
+            .catch(console.error);
         },
       ),
     );
