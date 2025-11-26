@@ -8,10 +8,10 @@ import { SvelteMap } from 'svelte/reactivity';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import { detectJsonLogs } from '/@/component/terminal/json-colorizer';
 import {
-    ansi256Colours,
-    colorizeJSON,
-    colorizeLogLevel,
-    colourizedANSIContainerName,
+  ansi256Colours,
+  colorizeJSON,
+  colorizeLogLevel,
+  colourizedANSIContainerName,
 } from '/@/component/terminal/terminal-colors';
 import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import { Streams } from '/@/stream/streams';
@@ -40,21 +40,19 @@ const streams = getContext<Streams>(Streams);
 const prefixColourMap = new SvelteMap<string, string>();
 
 const addLogPrefix = (lines: string[], prefix: string, prefixLength: number): void => {
-  if (prefix) {
-    let padding = '';
-    if (prefixLength > 0) {
-      //make prefix fit into prefixLength by adding spaces
-      padding = ' '.repeat(prefixLength - prefix.length);
-    }
-
-    const colouredName = prefixColourMap.get(prefix);
-
-    lines.forEach((line, index) => {
-      if (index < lines.length - 1 || line.length > 0) {
-        lines[index] = `${padding}${colouredName}|${line}`;
-      }
-    });
+  if (!prefix || (lines?.length ?? 0) == 0) {
+    return;
   }
+
+  const safePadding = Math.max(0, prefixLength - prefix.length);
+  const padding = safePadding > 0 ? ' '.repeat(safePadding) : '';
+  const mappedPrefix = prefixColourMap.get(prefix) ?? prefix;
+
+  lines.forEach((line, index) => {
+    if (index < lines.length - 1 || line.length > 0) {
+      lines[index] = `${padding}${mappedPrefix}|${line}`;
+    }
+  });
 };
 
 /**
@@ -109,9 +107,9 @@ const calculatePrefixLength = (): number => {
 };
 
 /**
-+ * Sets up ANSI color mappings for container name prefixes in multi-container pods.
-+ * Cycles through available colors using modulo when there are more containers than colors.
- */
+  + * Sets up ANSI color mappings for container name prefixes in multi-container pods.
+  + * Cycles through available colors using modulo when there are more containers than colors.
+  */
 const setupPrefixColours = (): void => {
   object.spec?.containers.forEach((container, index) => {
     const colour = ansi256Colours[index % ansi256Colours.length];
