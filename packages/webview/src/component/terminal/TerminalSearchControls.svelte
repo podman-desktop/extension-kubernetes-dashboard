@@ -31,11 +31,20 @@ function isFindShortcut(event: KeyboardEvent): boolean {
   return platformName === 'darwin' ? event.metaKey && eventKey === 'f' : event.ctrlKey && eventKey === 'f';
 }
 
+function focusInput(): void {
+  tick()
+    .then(() => input?.focus())
+    .catch(console.error);
+}
+
 onMount(async () => {
   searchAddon = new SearchAddon();
   searchAddon.activate(terminal);
 
   platformName = await systemApi.getPlatformName();
+
+  // Use capture phase to intercept events before they reach other handlers
+  window.addEventListener('keydown', onGlobalKeyDown, { capture: true });
 
   // TODO onDidChangeResults doesn't seem to be working even if i add decorations...
 
@@ -44,12 +53,12 @@ onMount(async () => {
     if (event.type === 'keydown' && isFindShortcut(event)) {
       event.preventDefault();
       showSearch = true;
-      tick()
-        .then(() => input?.focus())
-        .catch(console.error);
+      focusInput();
       return false;
     } else if (event.type === 'keydown' && event.key === 'Escape' && showSearch) {
+      // If search is open and Escape is pressed, close the search not the main window
       event.preventDefault();
+      event.stopPropagation();
       closeSearch();
       return false;
     }
@@ -58,6 +67,7 @@ onMount(async () => {
 });
 
 onDestroy(() => {
+  window.removeEventListener('keydown', onGlobalKeyDown, { capture: true });
   searchAddon?.dispose();
 });
 
@@ -65,10 +75,6 @@ function onKeyPressed(event: KeyboardEvent): void {
   if (event.key === 'Enter') {
     event.preventDefault();
     onSearchNext(true);
-  } else if (event.key === 'Escape') {
-    event.preventDefault();
-    event.stopPropagation();
-    closeSearch();
   }
 }
 
@@ -96,6 +102,19 @@ function onSearch(event: Event): void {
     onSearchNext(true);
   } else {
     hasMatches = false;
+  }
+}
+
+function onGlobalKeyDown(e: KeyboardEvent): void {
+  if (isFindShortcut(e)) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    showSearch = true;
+    focusInput();
+  } else if (e.key === 'Escape' && showSearch) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    closeSearch();
   }
 }
 

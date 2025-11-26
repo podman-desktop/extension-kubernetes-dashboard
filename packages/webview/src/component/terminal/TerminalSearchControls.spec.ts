@@ -22,12 +22,16 @@ import { fireEvent, render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { SearchAddon } from '@xterm/addon-search';
 import type { Terminal } from '@xterm/xterm';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { tick } from 'svelte';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Remote } from '/@/remote/remote';
 
 import TerminalSearchControls from './TerminalSearchControls.svelte';
 
 vi.mock(import('@xterm/addon-search'));
+
+// Store the window's keydown handler for testing
+let windowKeyDownHandler: ((event: KeyboardEvent) => void) | undefined;
 
 const TerminalMock: Terminal = {
   onWriteParsed: vi.fn(),
@@ -35,9 +39,6 @@ const TerminalMock: Terminal = {
   dispose: vi.fn(),
   attachCustomKeyEventHandler: vi.fn(),
 } as unknown as Terminal;
-
-// Capture the key handler so we can call it in tests
-let capturedKeyHandler: ((event: KeyboardEvent) => boolean) | undefined;
 
 // Mock the Remote context
 const mockSystemApi = {
@@ -49,27 +50,81 @@ const mockRemote = {
   getProxy: vi.fn().mockReturnValue(mockSystemApi),
 };
 
+// Mock window.addEventListener to capture the handler
+const originalAddEventListener = window.addEventListener.bind(window);
+const originalRemoveEventListener = window.removeEventListener.bind(window);
+
+let unmountFn: (() => void) | undefined;
+
 beforeEach(() => {
   vi.resetAllMocks();
-  capturedKeyHandler = undefined;
+  windowKeyDownHandler = undefined;
+
   // Reset the mock implementation
   mockSystemApi.getPlatformName.mockResolvedValue('linux');
   mockSystemApi.clipboardWriteText.mockResolvedValue(undefined);
   // Ensure getProxy still returns mockSystemApi after reset
   mockRemote.getProxy.mockReturnValue(mockSystemApi);
-  // Capture the key handler when attachCustomKeyEventHandler is called
-  vi.mocked(TerminalMock.attachCustomKeyEventHandler).mockImplementation(handler => {
-    capturedKeyHandler = handler;
+
+  // Capture window event listener
+  vi.spyOn(window, 'addEventListener').mockImplementation((type, listener, options) => {
+    if (type === 'keydown') {
+      windowKeyDownHandler = listener as (event: KeyboardEvent) => void;
+    }
+    return originalAddEventListener(type, listener, options);
+  });
+
+  vi.spyOn(window, 'removeEventListener').mockImplementation((type, listener, options) => {
+    if (type === 'keydown') {
+      windowKeyDownHandler = undefined;
+    }
+    return originalRemoveEventListener(type, listener, options);
   });
 });
 
+afterEach(() => {
+  // Clean up component to remove window event listeners
+  unmountFn?.();
+  unmountFn = undefined;
+  vi.restoreAllMocks();
+});
+
+// Helper to create a mock KeyboardEvent
+function createKeyboardEvent(key: string, options: Partial<KeyboardEventInit> = {}): KeyboardEvent {
+  return new KeyboardEvent('keydown', {
+    key,
+    bubbles: true,
+    cancelable: true,
+    ...options,
+  });
+}
+
+// Helper to trigger search open via the captured window handler
+async function openSearchViaKeyboard(): Promise<void> {
+  if (windowKeyDownHandler) {
+    const event = createKeyboardEvent('f', { ctrlKey: true });
+    windowKeyDownHandler(event);
+    await tick();
+  }
+}
+
+// Helper to trigger search close via Escape
+async function closeSearchViaEscape(): Promise<void> {
+  if (windowKeyDownHandler) {
+    const event = createKeyboardEvent('Escape');
+    windowKeyDownHandler(event);
+    await tick();
+  }
+}
+
 test('search addon should be loaded to the terminal', async () => {
-  render(TerminalSearchControls, {
+  const { unmount } = render(TerminalSearchControls, {
     props: {
       terminal: TerminalMock,
     },
     context: new Map([[Remote, mockRemote]]),
   });
+  unmountFn = unmount;
 
   await vi.waitFor(() => {
     expect(SearchAddon.prototype.activate).toHaveBeenCalledOnce();
@@ -85,6 +140,10 @@ test('search addon should be disposed on component destroy', async () => {
     context: new Map([[Remote, mockRemote]]),
   });
 
+  await vi.waitFor(() => {
+    expect(SearchAddon.prototype.activate).toHaveBeenCalled();
+  });
+
   unmount();
 
   await vi.waitFor(() => {
@@ -94,27 +153,22 @@ test('search addon should be disposed on component destroy', async () => {
 
 test('input should call findNext on search addon', async () => {
   const user = userEvent.setup();
-  const { container } = render(TerminalSearchControls, {
+  const { container, unmount } = render(TerminalSearchControls, {
     props: {
       terminal: TerminalMock,
     },
     context: new Map([[Remote, mockRemote]]),
   });
+  unmountFn = unmount;
 
-  // Wait for component to mount
+  // Wait for component to mount and window handler to be set
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
-    expect(capturedKeyHandler).toBeDefined();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  // Trigger Ctrl+F via the captured key handler
-  capturedKeyHandler!({
-    type: 'keydown',
-    ctrlKey: true,
-    metaKey: false,
-    key: 'f',
-    preventDefault: vi.fn(),
-  } as unknown as KeyboardEvent);
+  // Trigger Ctrl+F to show search
+  await openSearchViaKeyboard();
 
   // Wait for search to be visible
   await vi.waitFor(() => {
@@ -134,27 +188,22 @@ test('input should call findNext on search addon', async () => {
 
 test('key Enter should call findNext with incremental', async () => {
   const user = userEvent.setup();
-  const { container } = render(TerminalSearchControls, {
+  const { container, unmount } = render(TerminalSearchControls, {
     props: {
       terminal: TerminalMock,
     },
     context: new Map([[Remote, mockRemote]]),
   });
+  unmountFn = unmount;
 
-  // Wait for component to mount
+  // Wait for component to mount and window handler to be set
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
-    expect(capturedKeyHandler).toBeDefined();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  // Trigger Ctrl+F via the captured key handler
-  capturedKeyHandler!({
-    type: 'keydown',
-    ctrlKey: true,
-    metaKey: false,
-    key: 'f',
-    preventDefault: vi.fn(),
-  } as unknown as KeyboardEvent);
+  // Trigger Ctrl+F to show search
+  await openSearchViaKeyboard();
 
   // Wait for search to be visible
   await vi.waitFor(() => {
@@ -172,29 +221,24 @@ test('key Enter should call findNext with incremental', async () => {
   });
 });
 
-test('arrow down should call findNext', async () => {
+test('next match button should call findNext', async () => {
   const user = userEvent.setup();
-  const { container } = render(TerminalSearchControls, {
+  const { container, unmount } = render(TerminalSearchControls, {
     props: {
       terminal: TerminalMock,
     },
     context: new Map([[Remote, mockRemote]]),
   });
+  unmountFn = unmount;
 
-  // Wait for component to mount
+  // Wait for component to mount and window handler to be set
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
-    expect(capturedKeyHandler).toBeDefined();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  // Trigger Ctrl+F via the captured key handler
-  capturedKeyHandler!({
-    type: 'keydown',
-    ctrlKey: true,
-    metaKey: false,
-    key: 'f',
-    preventDefault: vi.fn(),
-  } as unknown as KeyboardEvent);
+  // Trigger Ctrl+F to show search
+  await openSearchViaKeyboard();
 
   // Wait for search to be visible and enter search term
   const searchInput = await vi.waitFor(() => {
@@ -217,29 +261,24 @@ test('arrow down should call findNext', async () => {
   });
 });
 
-test('arrow up should call findPrevious', async () => {
+test('previous match button should call findPrevious', async () => {
   const user = userEvent.setup();
-  const { container } = render(TerminalSearchControls, {
+  const { container, unmount } = render(TerminalSearchControls, {
     props: {
       terminal: TerminalMock,
     },
     context: new Map([[Remote, mockRemote]]),
   });
+  unmountFn = unmount;
 
-  // Wait for component to mount
+  // Wait for component to mount and window handler to be set
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
-    expect(capturedKeyHandler).toBeDefined();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  // Trigger Ctrl+F via the captured key handler
-  capturedKeyHandler!({
-    type: 'keydown',
-    ctrlKey: true,
-    metaKey: false,
-    key: 'f',
-    preventDefault: vi.fn(),
-  } as unknown as KeyboardEvent);
+  // Trigger Ctrl+F to show search
+  await openSearchViaKeyboard();
 
   // Wait for search to be visible and enter search term
   const searchInput = await vi.waitFor(() => {
@@ -262,28 +301,22 @@ test('arrow up should call findPrevious', async () => {
   });
 });
 
-test('ctrl+F should focus input', async () => {
-  const { container } = render(TerminalSearchControls, {
+test('ctrl+F should show search and focus input', async () => {
+  const { container, unmount } = render(TerminalSearchControls, {
     props: {
       terminal: TerminalMock,
     },
     context: new Map([[Remote, mockRemote]]),
   });
+  unmountFn = unmount;
 
-  // Wait for component to mount
+  // Wait for component to mount and window handler to be set
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
-    expect(capturedKeyHandler).toBeDefined();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  // Trigger Ctrl+F via the captured key handler
-  capturedKeyHandler!({
-    type: 'keydown',
-    ctrlKey: true,
-    metaKey: false,
-    key: 'f',
-    preventDefault: vi.fn(),
-  } as unknown as KeyboardEvent);
+  await openSearchViaKeyboard();
 
   // Wait for showSearch to become true
   await vi.waitFor(() => {
@@ -292,28 +325,23 @@ test('ctrl+F should focus input', async () => {
   });
 });
 
-test('Escape key should close search via terminal key handler', async () => {
-  const { container } = render(TerminalSearchControls, {
+test('escape should close search when open', async () => {
+  const { container, unmount } = render(TerminalSearchControls, {
     props: {
       terminal: TerminalMock,
     },
     context: new Map([[Remote, mockRemote]]),
   });
+  unmountFn = unmount;
 
-  // Wait for component to mount
+  // Wait for component to mount and window handler to be set
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
-    expect(capturedKeyHandler).toBeDefined();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  // First open the search with Ctrl+F
-  capturedKeyHandler!({
-    type: 'keydown',
-    ctrlKey: true,
-    metaKey: false,
-    key: 'f',
-    preventDefault: vi.fn(),
-  } as unknown as KeyboardEvent);
+  // Open search
+  await openSearchViaKeyboard();
 
   // Wait for search to be visible
   await vi.waitFor(() => {
@@ -321,19 +349,8 @@ test('Escape key should close search via terminal key handler', async () => {
     expect(input).toBeInTheDocument();
   });
 
-  // Now press Escape via the terminal key handler
-  const preventDefaultMock = vi.fn();
-  const result = capturedKeyHandler!({
-    type: 'keydown',
-    ctrlKey: false,
-    metaKey: false,
-    key: 'Escape',
-    preventDefault: preventDefaultMock,
-  } as unknown as KeyboardEvent);
-
-  // Should return false to prevent terminal from handling it
-  expect(result).toBe(false);
-  expect(preventDefaultMock).toHaveBeenCalled();
+  // Close search with Escape
+  await closeSearchViaEscape();
 
   // Wait for search to be hidden
   await vi.waitFor(() => {
@@ -342,28 +359,23 @@ test('Escape key should close search via terminal key handler', async () => {
   });
 });
 
-test('Close button should close search', async () => {
-  const { container } = render(TerminalSearchControls, {
+test('close button should close search', async () => {
+  const { container, unmount } = render(TerminalSearchControls, {
     props: {
       terminal: TerminalMock,
     },
     context: new Map([[Remote, mockRemote]]),
   });
+  unmountFn = unmount;
 
-  // Wait for component to mount
+  // Wait for component to mount and window handler to be set
   await vi.waitFor(() => {
     expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
-    expect(capturedKeyHandler).toBeDefined();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  // First open the search with Ctrl+F
-  capturedKeyHandler!({
-    type: 'keydown',
-    ctrlKey: true,
-    metaKey: false,
-    key: 'f',
-    preventDefault: vi.fn(),
-  } as unknown as KeyboardEvent);
+  // Open search
+  await openSearchViaKeyboard();
 
   // Wait for search to be visible
   await vi.waitFor(() => {
@@ -371,7 +383,7 @@ test('Close button should close search', async () => {
     expect(input).toBeInTheDocument();
   });
 
-  // Click the close button
+  // Click close button
   const closeBtn = container.querySelector('button[aria-label="Close Search"]') as HTMLButtonElement;
   await fireEvent.click(closeBtn);
 
