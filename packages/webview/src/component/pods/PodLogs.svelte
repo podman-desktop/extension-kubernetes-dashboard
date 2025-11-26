@@ -8,10 +8,10 @@ import { SvelteMap } from 'svelte/reactivity';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import { detectJsonLogs } from '/@/component/terminal/json-colorizer';
 import {
-  ansi256Colours,
-  colorizeJSON,
-  colorizeLogLevel,
-  colourizedANSIContainerName,
+    ansi256Colours,
+    colorizeJSON,
+    colorizeLogLevel,
+    colourizedANSIContainerName,
 } from '/@/component/terminal/terminal-colors';
 import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import { Streams } from '/@/stream/streams';
@@ -109,10 +109,8 @@ const calculatePrefixLength = (): number => {
 };
 
 /**
- * Calculates the maximum container name length for padding prefixes in multi-container
- * pods so that log lines align correctly.
- *
- * @returns Max container name length for prefix padding
++ * Sets up ANSI color mappings for container name prefixes in multi-container pods.
++ * Cycles through available colors using modulo when there are more containers than colors.
  */
 const setupPrefixColours = (): void => {
   object.spec?.containers.forEach((container, index) => {
