@@ -107,9 +107,9 @@ const calculatePrefixLength = (): number => {
 };
 
 /**
-  + * Sets up ANSI color mappings for container name prefixes in multi-container pods.
-  + * Cycles through available colors using modulo when there are more containers than colors.
-  */
+ * Sets up ANSI color mappings for container name prefixes in multi-container pods.
+ * Cycles through available colors using modulo when there are more containers than colors.
+ */
 const setupPrefixColours = (): void => {
   object.spec?.containers.forEach((container, index) => {
     const colour = ansi256Colours[index % ansi256Colours.length];
