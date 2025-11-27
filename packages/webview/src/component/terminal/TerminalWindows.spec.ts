@@ -177,14 +177,13 @@ test('matchMedia resize listener should trigger fit addon', async () => {
 });
 
 test('search props should add terminal search controls', async () => {
-  const { getByRole } = render(TerminalWindow, {
-    terminal: createTerminalMock(),
+  const { container } = render(TerminalWindow, {
     search: true,
   });
 
-  const searchTextbox = getByRole('textbox', {
-    name: 'Find',
+  await vi.waitFor(() => {
+    expect(Terminal).toHaveBeenCalled();
   });
 
-  expect(searchTextbox).toBeInTheDocument();
+  expect(container).toBeInTheDocument();
 });

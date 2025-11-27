@@ -332,6 +332,7 @@ onDestroy(() => {
       disableStdIn
       fontSize={fontSize}
       lineHeight={lineHeight}
-      lineCount={tailLines ?? lineCount} />
+      lineCount={tailLines ?? lineCount}
+      search />
   </div>
 </div>

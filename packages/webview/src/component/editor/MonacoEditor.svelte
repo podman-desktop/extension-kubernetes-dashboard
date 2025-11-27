@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onDestroy, onMount } from 'svelte';
-import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import type { HTMLAttributes } from 'svelte/elements';
 import { MonacoManager } from './monaco';
 

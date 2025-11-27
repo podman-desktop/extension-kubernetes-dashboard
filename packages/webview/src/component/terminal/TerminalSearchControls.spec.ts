@@ -22,34 +22,126 @@ import { fireEvent, render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { SearchAddon } from '@xterm/addon-search';
 import type { Terminal } from '@xterm/xterm';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { tick } from 'svelte';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { Remote } from '/@/remote/remote';
 
 import TerminalSearchControls from './TerminalSearchControls.svelte';
 
 vi.mock(import('@xterm/addon-search'));
 
+// Store the window's keydown handler for testing
+let windowKeyDownHandler: ((event: KeyboardEvent) => void) | undefined;
+
 const TerminalMock: Terminal = {
   onWriteParsed: vi.fn(),
   onResize: vi.fn(),
   dispose: vi.fn(),
+  attachCustomKeyEventHandler: vi.fn(),
 } as unknown as Terminal;
+
+// Mock the Remote context
+const mockSystemApi = {
+  getPlatformName: vi.fn(),
+  clipboardWriteText: vi.fn(),
+};
+
+const mockRemote = {
+  getProxy: vi.fn().mockReturnValue(mockSystemApi),
+};
+
+// Mock window.addEventListener to capture the handler
+const originalAddEventListener = window.addEventListener.bind(window);
+const originalRemoveEventListener = window.removeEventListener.bind(window);
+
+let unmountFn: (() => void) | undefined;
 
 beforeEach(() => {
   vi.resetAllMocks();
-});
+  windowKeyDownHandler = undefined;
 
-test('search addon should be loaded to the terminal', () => {
-  render(TerminalSearchControls, {
-    terminal: TerminalMock,
+  // Reset the mock implementation
+  mockSystemApi.getPlatformName.mockResolvedValue('linux');
+  mockSystemApi.clipboardWriteText.mockResolvedValue(undefined);
+  // Ensure getProxy still returns mockSystemApi after reset
+  mockRemote.getProxy.mockReturnValue(mockSystemApi);
+
+  // Capture window event listener
+  vi.spyOn(window, 'addEventListener').mockImplementation((type, listener, options) => {
+    if (type === 'keydown') {
+      windowKeyDownHandler = listener as (event: KeyboardEvent) => void;
+    }
+    return originalAddEventListener(type, listener, options);
   });
 
-  expect(SearchAddon.prototype.activate).toHaveBeenCalledOnce();
-  expect(SearchAddon.prototype.activate).toHaveBeenCalledWith(TerminalMock);
+  vi.spyOn(window, 'removeEventListener').mockImplementation((type, listener, options) => {
+    if (type === 'keydown') {
+      windowKeyDownHandler = undefined;
+    }
+    return originalRemoveEventListener(type, listener, options);
+  });
+});
+
+afterEach(() => {
+  // Clean up component to remove window event listeners
+  unmountFn?.();
+  unmountFn = undefined;
+  vi.restoreAllMocks();
+});
+
+// Helper to create a mock KeyboardEvent
+function createKeyboardEvent(key: string, options: Partial<KeyboardEventInit> = {}): KeyboardEvent {
+  return new KeyboardEvent('keydown', {
+    key,
+    bubbles: true,
+    cancelable: true,
+    ...options,
+  });
+}
+
+// Helper to trigger search open via the captured window handler
+async function openSearchViaKeyboard(): Promise<void> {
+  if (windowKeyDownHandler) {
+    const event = createKeyboardEvent('f', { ctrlKey: true });
+    windowKeyDownHandler(event);
+    await tick();
+  }
+}
+
+// Helper to trigger search close via Escape
+async function closeSearchViaEscape(): Promise<void> {
+  if (windowKeyDownHandler) {
+    const event = createKeyboardEvent('Escape');
+    windowKeyDownHandler(event);
+    await tick();
+  }
+}
+
+test('search addon should be loaded to the terminal', async () => {
+  const { unmount } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+  unmountFn = unmount;
+
+  await vi.waitFor(() => {
+    expect(SearchAddon.prototype.activate).toHaveBeenCalledOnce();
+    expect(SearchAddon.prototype.activate).toHaveBeenCalledWith(TerminalMock);
+  });
 });
 
 test('search addon should be disposed on component destroy', async () => {
   const { unmount } = render(TerminalSearchControls, {
-    terminal: TerminalMock,
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+
+  await vi.waitFor(() => {
+    expect(SearchAddon.prototype.activate).toHaveBeenCalled();
   });
 
   unmount();
@@ -61,35 +153,65 @@ test('search addon should be disposed on component destroy', async () => {
 
 test('input should call findNext on search addon', async () => {
   const user = userEvent.setup();
-  const { getByRole } = render(TerminalSearchControls, {
-    terminal: TerminalMock,
+  const { container, unmount } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+  unmountFn = unmount;
+
+  // Wait for component to mount and window handler to be set
+  await vi.waitFor(() => {
+    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  const searchTextbox = getByRole('textbox', {
-    name: 'Find',
+  // Trigger Ctrl+F to show search
+  await openSearchViaKeyboard();
+
+  // Wait for search to be visible
+  await vi.waitFor(() => {
+    const searchTextbox = container.querySelector('input[aria-label="Find"]');
+    expect(searchTextbox).toBeInTheDocument();
   });
 
-  expect(searchTextbox).toBeInTheDocument();
+  const searchTextbox = container.querySelector('input[aria-label="Find"]') as HTMLInputElement;
   await user.type(searchTextbox, 'hello');
 
   await vi.waitFor(() => {
     expect(SearchAddon.prototype.findNext).toHaveBeenCalledWith('hello', {
-      incremental: false,
+      incremental: true,
     });
   });
 });
 
 test('key Enter should call findNext with incremental', async () => {
   const user = userEvent.setup();
-  const { getByRole } = render(TerminalSearchControls, {
-    terminal: TerminalMock,
+  const { container, unmount } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+  unmountFn = unmount;
+
+  // Wait for component to mount and window handler to be set
+  await vi.waitFor(() => {
+    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  const searchTextbox = getByRole('textbox', {
-    name: 'Find',
+  // Trigger Ctrl+F to show search
+  await openSearchViaKeyboard();
+
+  // Wait for search to be visible
+  await vi.waitFor(() => {
+    const searchTextbox = container.querySelector('input[aria-label="Find"]');
+    expect(searchTextbox).toBeInTheDocument();
   });
 
-  expect(searchTextbox).toBeInTheDocument();
+  const searchTextbox = container.querySelector('input[aria-label="Find"]') as HTMLInputElement;
   await user.type(searchTextbox, 'hello{Enter}');
 
   await vi.waitFor(() => {
@@ -99,61 +221,175 @@ test('key Enter should call findNext with incremental', async () => {
   });
 });
 
-test('arrow down should call findNext', async () => {
-  const { getByRole } = render(TerminalSearchControls, {
-    terminal: TerminalMock,
+test('next match button should call findNext', async () => {
+  const user = userEvent.setup();
+  const { container, unmount } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+  unmountFn = unmount;
+
+  // Wait for component to mount and window handler to be set
+  await vi.waitFor(() => {
+    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  const upBtn = getByRole('button', {
-    name: 'Next Match',
+  // Trigger Ctrl+F to show search
+  await openSearchViaKeyboard();
+
+  // Wait for search to be visible and enter search term
+  const searchInput = await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]') as HTMLInputElement;
+    expect(input).toBeInTheDocument();
+    return input;
   });
 
-  expect(upBtn).toBeInTheDocument();
-  await fireEvent.click(upBtn);
+  // Type search term
+  await user.type(searchInput, 'test');
+
+  // Find and click the next button
+  const nextBtn = container.querySelector('button[aria-label="Next Match"]') as HTMLButtonElement;
+  await fireEvent.click(nextBtn);
 
   await vi.waitFor(() => {
-    expect(SearchAddon.prototype.findNext).toHaveBeenCalledWith('', {
+    expect(SearchAddon.prototype.findNext).toHaveBeenCalledWith('test', {
       incremental: true,
     });
   });
 });
 
-test('arrow up should call findPrevious', async () => {
-  const { getByRole } = render(TerminalSearchControls, {
-    terminal: TerminalMock,
+test('previous match button should call findPrevious', async () => {
+  const user = userEvent.setup();
+  const { container, unmount } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+  unmountFn = unmount;
+
+  // Wait for component to mount and window handler to be set
+  await vi.waitFor(() => {
+    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(windowKeyDownHandler).toBeDefined();
   });
 
-  const upBtn = getByRole('button', {
-    name: 'Previous Match',
+  // Trigger Ctrl+F to show search
+  await openSearchViaKeyboard();
+
+  // Wait for search to be visible and enter search term
+  const searchInput = await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]') as HTMLInputElement;
+    expect(input).toBeInTheDocument();
+    return input;
   });
 
-  expect(upBtn).toBeInTheDocument();
-  await fireEvent.click(upBtn);
+  // Type search term
+  await user.type(searchInput, 'test');
+
+  // Find and click the previous button
+  const prevBtn = container.querySelector('button[aria-label="Previous Match"]') as HTMLButtonElement;
+  await fireEvent.click(prevBtn);
 
   await vi.waitFor(() => {
-    expect(SearchAddon.prototype.findPrevious).toHaveBeenCalledWith('', {
+    expect(SearchAddon.prototype.findPrevious).toHaveBeenCalledWith('test', {
       incremental: true,
     });
   });
 });
 
-test('ctrl+F should focus input', async () => {
-  const { getByRole, container } = render(TerminalSearchControls, {
-    terminal: TerminalMock,
+test('ctrl+F should show search and focus input', async () => {
+  const { container, unmount } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
   });
+  unmountFn = unmount;
 
-  const searchTextbox: HTMLInputElement = getByRole('textbox', {
-    name: 'Find',
-  }) as HTMLInputElement;
-
-  const focusSpy = vi.spyOn(searchTextbox, 'focus');
-
-  await fireEvent.keyUp(container, {
-    ctrlKey: true,
-    key: 'f',
-  });
-
+  // Wait for component to mount and window handler to be set
   await vi.waitFor(() => {
-    expect(focusSpy).toHaveBeenCalled();
+    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(windowKeyDownHandler).toBeDefined();
+  });
+
+  await openSearchViaKeyboard();
+
+  // Wait for showSearch to become true
+  await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]') as HTMLInputElement;
+    expect(input).toBeInTheDocument();
+  });
+});
+
+test('escape should close search when open', async () => {
+  const { container, unmount } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+  unmountFn = unmount;
+
+  // Wait for component to mount and window handler to be set
+  await vi.waitFor(() => {
+    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(windowKeyDownHandler).toBeDefined();
+  });
+
+  // Open search
+  await openSearchViaKeyboard();
+
+  // Wait for search to be visible
+  await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]');
+    expect(input).toBeInTheDocument();
+  });
+
+  // Close search with Escape
+  await closeSearchViaEscape();
+
+  // Wait for search to be hidden
+  await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]');
+    expect(input).not.toBeInTheDocument();
+  });
+});
+
+test('close button should close search', async () => {
+  const { container, unmount } = render(TerminalSearchControls, {
+    props: {
+      terminal: TerminalMock,
+    },
+    context: new Map([[Remote, mockRemote]]),
+  });
+  unmountFn = unmount;
+
+  // Wait for component to mount and window handler to be set
+  await vi.waitFor(() => {
+    expect(mockSystemApi.getPlatformName).toHaveBeenCalled();
+    expect(windowKeyDownHandler).toBeDefined();
+  });
+
+  // Open search
+  await openSearchViaKeyboard();
+
+  // Wait for search to be visible
+  await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]');
+    expect(input).toBeInTheDocument();
+  });
+
+  // Click close button
+  const closeBtn = container.querySelector('button[aria-label="Close Search"]') as HTMLButtonElement;
+  await fireEvent.click(closeBtn);
+
+  // Wait for search to be hidden
+  await vi.waitFor(() => {
+    const input = container.querySelector('input[aria-label="Find"]');
+    expect(input).not.toBeInTheDocument();
   });
 });

@@ -52,7 +52,7 @@
     "humanize-duration": "^3.33.0",
     "jsdom": "^27.2.0",
     "micromark": "^4.0.2",
-    "monaco-editor": "^0.54.0",
+    "monaco-editor": "^0.55.1",
     "prettier": "^3.6.1",
     "prettier-plugin-svelte": "^3.3.3",
     "reflect-metadata": "^0.2.2",
