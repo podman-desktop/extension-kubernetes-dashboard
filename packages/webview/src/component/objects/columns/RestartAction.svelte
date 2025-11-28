@@ -14,7 +14,8 @@ let { object }: ObjectProps = $props();
 const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);
 
-async function restartKubernetesObject(obj: KubernetesNamespacedObjectUI): Promise<void> {
+async function restartKubernetesObject(): Promise<void> {
+  const obj = object as KubernetesNamespacedObjectUI;
   await contextsApi.restartObject(obj.kind, obj.name, obj.namespace);
 }
 </script>
@@ -22,5 +23,5 @@ async function restartKubernetesObject(obj: KubernetesNamespacedObjectUI): Promi
 <IconButton
   enabled={object.status !== 'DELETING'}
   title={`Restart ${object.kind}`}
-  onClick={(): Promise<void> => restartKubernetesObject(object as KubernetesNamespacedObjectUI)}
+  onClick={restartKubernetesObject}
   icon={faRotate} />

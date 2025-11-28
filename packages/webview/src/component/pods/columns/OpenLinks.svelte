@@ -59,7 +59,7 @@ async function openEndpoint(endpoint: Endpoint): Promise<void> {
   {#each filterEndpoints(endpoints.data?.endpoints) as endpoint, index (index)}
     <IconButton
       title={`Open ${endpoint.inputName}`}
-      onClick={(): Promise<void> => openEndpoint(endpoint)}
+      onClick={openEndpoint.bind(undefined, endpoint)}
       icon={faExternalLinkSquareAlt} />
   {/each}
 {/if}

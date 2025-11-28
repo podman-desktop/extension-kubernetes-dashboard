@@ -12,6 +12,10 @@ const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);
 
 let { availableContexts }: Props = $props();
+
+async function setCurrentContext(context: string): Promise<void> {
+  return contextsApi.setCurrentContext(context);
+}
 </script>
 
 <div class="mt-8 flex justify-center overflow-auto">
@@ -27,7 +31,7 @@ let { availableContexts }: Props = $props();
       Available contexts:
       {#if availableContexts}
         {#each availableContexts as context, index (index)}
-          <Link on:click={(): Promise<void> => contextsApi.setCurrentContext(context)}>{context}</Link
+          <Link on:click={setCurrentContext.bind(undefined, context)}>{context}</Link
           >{#if index < availableContexts.length - 1},
           {/if}
         {/each}
