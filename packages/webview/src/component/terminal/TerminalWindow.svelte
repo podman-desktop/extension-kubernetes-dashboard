@@ -18,6 +18,9 @@ interface Props {
   showCursor?: boolean;
   search?: boolean;
   class?: string;
+  fontSize?: number;
+  lineHeight?: number;
+  lineCount?: number;
 }
 
 let {
@@ -28,10 +31,14 @@ let {
   showCursor = false,
   search = false,
   class: className,
+  fontSize = 10,
+  lineHeight = 1,
+  lineCount = 1000,
 }: Props = $props();
 
 let logsXtermDiv: HTMLDivElement | undefined;
 let resizeHandler: () => void;
+let fitAddon: FitAddon;
 let contextMenuHandler: (event: MouseEvent) => void;
 
 const remote = getContext<Remote>(Remote);
@@ -57,9 +64,6 @@ async function refreshTerminal(): Promise<void> {
   if (!logsXtermDiv) {
     return;
   }
-  // grab font size
-  const fontSize = 10; // TODO: get from configuration
-  const lineHeight = 1; // TODO: get from configuration
 
   terminal = new Terminal({
     fontSize,
@@ -69,8 +73,9 @@ async function refreshTerminal(): Promise<void> {
     convertEol: convertEol,
     screenReaderMode: screenReaderMode,
     rightClickSelectsWord: true,
+    scrollback: lineCount,
   });
-  const fitAddon = new FitAddon();
+  fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
 
   terminal.open(logsXtermDiv);
@@ -129,6 +134,22 @@ async function refreshTerminal(): Promise<void> {
   fitAddon.fit();
 }
 
+$effect(() => {
+  if (terminal) {
+    if (fontSize) {
+      terminal.options.fontSize = fontSize;
+      fitAddon?.fit();
+    }
+    if (lineHeight) {
+      terminal.options.lineHeight = lineHeight;
+      fitAddon?.fit();
+    }
+    if (lineCount) {
+      terminal.options.scrollback = lineCount;
+    }
+  }
+});
+
 onMount(async () => {
   platformName = await systemApi.getPlatformName();
   await refreshTerminal();
@@ -146,7 +167,7 @@ onDestroy(() => {
 {/if}
 
 <div
-  class="{className} overflow-hidden p-[5px] pr-0 bg-(--pd-terminal-background)"
+  class="{className} overflow-hidden p-[5px] pr-0 bg-(--pd-terminal-background) h-full w-full"
   role="term"
   bind:this={logsXtermDiv}>
 </div>

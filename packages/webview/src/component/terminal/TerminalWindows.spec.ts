@@ -32,10 +32,38 @@ vi.mock(import('@xterm/addon-fit'));
 
 vi.mock(import('@xterm/addon-search'));
 
+let mockTerminalInstance: Partial<Terminal>;
+
 const remoteMocks = new RemoteMocks();
 
 beforeEach(() => {
   vi.resetAllMocks();
+
+  // Create a mock terminal instance with spies
+  const writeSpy = vi.fn();
+  const loadAddonSpy = vi.fn();
+  const attachCustomKeyEventHandlerSpy = vi.fn();
+  const getSelectionSpy = vi.fn();
+  const clearSelectionSpy = vi.fn();
+
+  mockTerminalInstance = {
+    options: {},
+    dispose: vi.fn(),
+    loadAddon: loadAddonSpy,
+    write: writeSpy,
+    open: vi.fn(),
+    attachCustomKeyEventHandler: attachCustomKeyEventHandlerSpy,
+    getSelection: getSelectionSpy,
+    clearSelection: clearSelectionSpy,
+  };
+
+  // Mock the Terminal constructor to return the mock instance
+  vi.mocked(Terminal).mockImplementation(() => mockTerminalInstance as Terminal);
+
+  // Also set up prototype mocks for tests that check Terminal.prototype
+  Terminal.prototype.write = writeSpy;
+  Terminal.prototype.loadAddon = loadAddonSpy;
+
   remoteMocks.reset();
   remoteMocks.mock(API_SYSTEM, {
     getPlatformName: vi.fn().mockResolvedValue('linux'),
@@ -48,6 +76,7 @@ afterEach(() => {
 
 function createTerminalMock(): Terminal {
   return {
+    options: {},
     dispose: vi.fn(),
     attachCustomKeyEventHandler: vi.fn(),
     getSelection: vi.fn(),
@@ -120,19 +149,22 @@ test('addon fit should be loaded on mount', async () => {
 
 test('matchMedia resize listener should trigger fit addon', async () => {
   // spy the event listener
-  vi.spyOn(window, 'addEventListener');
+  const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
 
   render(TerminalWindow, {
     terminal: createTerminalMock(),
   });
 
+  // Wait for component to mount and Terminal to be created
+  await vi.waitFor(() => {
+    expect(Terminal).toHaveBeenCalled();
+  });
+
+  // Find the resize event listener
   const listener: () => void = await vi.waitFor(() => {
-    expect(window.addEventListener).toHaveBeenCalled();
-    const call = vi.mocked(window.addEventListener).mock.calls;
-    expect(call).toHaveLength(1);
-    expect(call[0][0]).toBe('resize');
-    expect(call[0][1]).toBeInstanceOf(Function);
-    return call[0][1] as unknown as () => void;
+    const resizeListeners = addEventListenerSpy.mock.calls.filter(call => call[0] === 'resize');
+    expect(resizeListeners.length).toBeGreaterThan(0);
+    return resizeListeners[0][1] as unknown as () => void;
   });
 
   // reset fit calls count
