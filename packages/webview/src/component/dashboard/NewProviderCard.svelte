@@ -15,6 +15,10 @@ const markdownText = `
 Install a new Kubernetes provider via extension. Navigate to extensions by pressing the button, install the ones you prefer and they will show up here.
       
 More information: [creating a kube cluster](https://podman-desktop.io/docs/kubernetes/creating-a-kube-cluster)`;
+
+async function navigateToExtensionsCatalog(): Promise<void> {
+  return navigationApi.navigateToExtensionsCatalog('category:kubernetes keyword:provider not:installed');
+}
 </script>
 
 <div class="rounded-xl p-5 text-left border border-dotted border-(--pd-content-divider)">
@@ -29,9 +33,7 @@ More information: [creating a kube cluster](https://podman-desktop.io/docs/kuber
 
   <Button
     type="secondary"
-    on:click={async (): Promise<void> => {
-      await navigationApi.navigateToExtensionsCatalog('category:kubernetes keyword:provider not:installed');
-    }}
+    on:click={navigateToExtensionsCatalog}
     class="flex items-center"
     aria-label="See available extensions">
     <Fa icon={faPuzzlePiece} size="1.2x" class="mr-1" />

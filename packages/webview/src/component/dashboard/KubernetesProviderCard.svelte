@@ -17,7 +17,7 @@ let { provider }: Props = $props();
 const remote = getContext<Remote>(Remote);
 const navigationApi = remote.getProxy(API_NAVIGATION);
 
-async function createNew(provider: KubernetesProvider): Promise<void> {
+async function createNew(): Promise<void> {
   return navigationApi.navigateToProviderNewConnection(provider.id);
 }
 </script>
@@ -36,7 +36,7 @@ async function createNew(provider: KubernetesProvider): Promise<void> {
 
   <Button
     type="primary"
-    on:click={(): Promise<void> => createNew(provider)}
+    on:click={createNew}
     class="flex items-center"
     aria-label={provider.creationButtonTitle ?? 'Create new'}>
     <Fa icon={faPlusCircle} size="1.2x" class="mr-1" />

@@ -15,6 +15,10 @@ let { spec }: Props = $props();
 
 const remote = getContext<Remote>(Remote);
 const systemApi = remote.getProxy(API_SYSTEM);
+
+async function openExternal(link: string): Promise<boolean> {
+  return systemApi.openExternal(link);
+}
 </script>
 
 <tr>
@@ -73,7 +77,7 @@ const systemApi = remote.getProxy(API_SYSTEM);
     <Cell>Link</Cell>
     <Cell>
       {@const link = `${spec.tls ? 'https' : 'http'}://${spec.host}${spec.path ?? ''}`}
-      <Link on:click={(): Promise<boolean> => systemApi.openExternal(link)}>
+      <Link on:click={openExternal.bind(undefined, link)}>
         {link}
       </Link>
     </Cell>

@@ -7,7 +7,6 @@ import type { ObjectProps } from './object-props';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
 import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
-import type { KubernetesObjectUI } from '/@/component/objects/KubernetesObjectUI';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 
@@ -19,12 +18,12 @@ const contextsApi = remote.getProxy(API_CONTEXTS);
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const objectHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
 
-async function deleteKubernetesObject(obj: KubernetesObjectUI): Promise<void> {
-  obj.status = 'DELETING';
-  if (objectHelper.isNamespaced(obj)) {
-    await contextsApi.deleteObject(obj.kind, obj.name, obj.namespace);
+async function deleteKubernetesObject(): Promise<void> {
+  object.status = 'DELETING';
+  if (objectHelper.isNamespaced(object)) {
+    await contextsApi.deleteObject(object.kind, object.name, object.namespace);
   } else {
-    await contextsApi.deleteObject(obj.kind, obj.name);
+    await contextsApi.deleteObject(object.kind, object.name);
   }
 }
 </script>
@@ -32,5 +31,5 @@ async function deleteKubernetesObject(obj: KubernetesObjectUI): Promise<void> {
 <IconButton
   enabled={object.status !== 'DELETING'}
   title={`Delete ${object.kind}`}
-  onClick={(): Promise<void> => deleteKubernetesObject(object)}
+  onClick={deleteKubernetesObject}
   icon={faTrash} />
