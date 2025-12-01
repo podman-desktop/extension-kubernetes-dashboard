@@ -1,0 +1,209 @@
+#
+# Copyright (C) 2025 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: e2e-tests
+
+on:
+  pull_request:
+    types: [labeled, synchronize, opened, ready_for_review, reopened]
+
+jobs:
+  # Dedicated step to build the extension image
+  build-container:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'ci/e2e') }}
+    name: Build Extension Image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build Image and Extract Files
+        id: build-image
+        run: |
+          podman build -t local_image -f build/Containerfile ./
+          CONTAINER_ID=$(podman create localhost/local_image --entrypoint "")
+          mkdir -p output/plugins
+          podman export $CONTAINER_ID | tar -x -C output/plugins/
+          podman rm -f $CONTAINER_ID
+          podman rmi -f localhost/local_image:latest
+      - name: Upload Extension Image Artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: extension-plugin
+          path: output/plugins/
+
+  e2e-pr-check:
+    name: e2e tests smoke / ${{ matrix.os }}
+    needs: build-container
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-2022, ubuntu-24.04 ]
+    env:
+      SKIP_INSTALLATION: true
+      EXTENSION_PREINSTALLED: true
+      PODMAN_DESKTOP_ARGS: ${{ github.workspace }}/podman-desktop
+      # by default playwright cache browsers binaries in ~/.cache/ms-playwright on Linux and %USERPROFILE%\AppData\Local\ms-playwright on Windows
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/podman-desktop/pw-browsers
+    steps:
+      - uses: actions/checkout@v6
+
+      # ==============================================
+      # Installing Podman
+      # ==============================================
+      - name: Install podman to 5.x
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo Installing Podman
+          curl --output .\podman-setup.exe  -L https://github.com/containers/podman/releases/download/v5.3.2/podman-5.3.2-setup.exe
+          # Start the installer and wait for it to complete
+          Start-Process -FilePath .\podman-setup.exe -ArgumentList "/install", "/passive", "/norestart", "/log podman-logs.txt" -Wait
+          # Check the logs for debugging purposes
+          Get-Content podman-logs.txt
+
+      # Init Podman Machine
+      - name: Init Podman Machine (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo "Adding Podman to PATH"
+          $env:PATH += ";C:\Program Files\RedHat\Podman"
+           podman --version
+          podman machine init --now
+
+      # Update Podman linux
+      - name: Update podman to 5.x
+        if: runner.os == 'Linux'
+        run: |
+          echo "ubuntu version from kubic repository to install podman we need (v5)"
+          ubuntu_version='23.10'
+          echo "Add unstable kubic repo into list of available sources and get the repo key"
+          sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
+          curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/Release.key" | sudo apt-key add -
+          echo "Updating all dependencies..."
+          sudo apt-get update -qq
+          echo "install necessary dependencies for criu package which is not part of ${ubuntu_version}"
+          sudo apt-get install -qq libprotobuf32t64 python3-protobuf libnet1
+          echo "install criu manually from static location"
+          curl -sLO http://archive.ubuntu.com/ubuntu/pool/universe/c/criu/criu_3.16.1-2_amd64.deb && sudo dpkg -i criu_3.16.1-2_amd64.deb
+          echo "installing/update podman package..."
+          sudo apt-get -qq -y install podman || { echo "Start fallback steps for podman nightly installation from a static mirror" && \
+            sudo sh -c "echo 'deb http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list" && \
+            curl -L "http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/Release.key" | sudo apt-key add - && \
+            sudo apt-get update && \
+            sudo apt-get -y install podman; }
+          podman version
+
+      - name: Revert unprivileged user namespace restrictions in Ubuntu 24.04
+        if: runner.os == 'Linux'
+        run: |
+          # allow unprivileged user namespace
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Set cgroup_manager to 'cgroupfs' instead of systemd
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p ~/.config/containers
+          cat <<EOT >> ~/.config/containers/containers.conf
+          [engine]
+          cgroup_manager="cgroupfs"
+          EOT
+          podman info
+
+      # ==============================================
+      # Installing Podman Desktop
+      # ==============================================
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      # Install Node.js
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      # Install npm packages for extension
+      - name: Execute pnpm in Extension
+        run: pnpm install
+
+      # Extract @podman-desktop/api version used (and store to $GITHUB_OUTPUT)
+      - name: Extract @podman-desktop/api version
+        id: pd-api-version
+        shell: bash
+        run: |
+          # Using pnpm list to get the resolved version (E.g. getting 1.15.0 when ^1.15.0)
+          export PD_VERSION=$(pnpm list -C packages/extension/ --json | jq -r '.[0].devDependencies."@podman-desktop/api".version')
+          echo "PD_VERSION=$PD_VERSION" >> $GITHUB_OUTPUT
+          echo "Using @podman-desktop/api $PD_VERSION"
+
+      # Check cache for existing podman-desktop
+      - name: Cache Podman Desktop
+        id: cache-pd
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/podman-desktop
+          key: pd-${{ steps.pd-api-version.outputs.PD_VERSION }}-${{ runner.os }}
+
+      # Download Podman Desktop repository based on version defined in package.json
+      - name: Download Podman Desktop
+        if: steps.cache-pd.outputs.cache-hit != 'true'
+        shell: bash
+        env:
+          PD_VERSION: ${{ steps.pd-api-version.outputs.PD_VERSION }}
+        run: |
+          echo "Downloading PD desktop to ${{ github.workspace }}/podman-desktop"
+          # Stable release are available podman-desktop/podman-desktop
+          # Prerelease are available under podman-desktop/prereleases
+          if [[ "$PD_VERSION" =~ - ]]; then
+            curl -sL "https://github.com/podman-desktop/prereleases/archive/refs/tags/v$PD_VERSION.tar.gz" | tar xvz
+          else
+            curl -sL "https://github.com/podman-desktop/podman-desktop/archive/refs/tags/v$PD_VERSION.tar.gz" | tar xvz
+          fi
+          # Move the extracted folder to the podman-desktop folder
+          mv podman-desktop-$PD_VERSION/ podman-desktop/
+
+      # Install and build podman-desktop
+      - name: Install pnpm deps and build Podman Desktop
+        if: steps.cache-pd.outputs.cache-hit != 'true'
+        shell: bash
+        working-directory: ${{ github.workspace }}/podman-desktop
+        run: |
+          pnpm install
+          pnpm test:e2e:build
+
+      # Install the extension
+      - name: Download Extension Plugin
+        uses: actions/download-artifact@v6
+        with:
+          name: extension-plugin
+          path: tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins/
+
+      - name: Run E2E Smoke tests
+        shell: bash
+        run: pnpm test:e2e:smoke
+        env:
+          NODE_OPTIONS: --no-experimental-strip-types
+
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: e2e-pr-check-${{ matrix.os }}
+          path: |
+            tests/playwright/output/
+            tests/playwright/tests/

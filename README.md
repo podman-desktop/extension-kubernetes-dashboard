@@ -59,3 +59,9 @@ You can now make changes to the sources. The project is composed of two parts, w
 > Note that when you only change code in the webview part, the webview is built, and the result is included in the extension, which triggers the rebuild of the extension.
 
 After each change, you may have to restart the extension from the `Extensions > Local Extensions` page.
+
+## Running e2e tests
+
+### On the CI
+
+When creating a PR on the GitHub repository, the e2e tests are not executed by default. To run the e2e tests, you need to add the `ci/e2e` label to the PR.
