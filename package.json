@@ -23,6 +23,8 @@
     "test:webview": "vitest run --project webview --passWithNoTests",
     "test:channels": "vitest run --project channels --passWithNoTests",
     "test": "pnpm run test:extension && pnpm run test:webview && pnpm run test:channels",
+    "test:e2e": "cd tests/playwright && npm run test:e2e",
+    "test:e2e:smoke": "cd tests/playwright && npm run test:e2e:smoke",
     "typecheck:rpc": "tsc --noEmit --project packages/rpc",
     "typecheck:channels": "tsc --noEmit --project packages/channels",
     "typecheck:webview": "tsc --noEmit --project packages/webview",
