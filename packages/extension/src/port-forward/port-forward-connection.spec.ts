@@ -215,7 +215,7 @@ describe('PortForwardConnectionService', () => {
   });
 
   test('should throw an error for unsupported workload kind', async () => {
-    await expect(service.getWorkloadResource('UNSUPPORTED_KIND' as never, 'test', 'default')).rejects.toThrow(
+    await expect(service.getWorkloadResource('UNSUPPORTED_KIND' as never, 'test', 'default')).rejects.toThrowError(
       `Workload kind 'UNSUPPORTED_KIND' currently not supported.`,
     );
   });
@@ -436,7 +436,7 @@ describe('PortForwardConnectionService', () => {
     });
 
     test('should throw an error for unsupported workload kind', async () => {
-      await expect(service.getWorkloadResource('UNSUPPORTED_KIND' as never, 'test', 'default')).rejects.toThrow(
+      await expect(service.getWorkloadResource('UNSUPPORTED_KIND' as never, 'test', 'default')).rejects.toThrowError(
         `Workload kind 'UNSUPPORTED_KIND' currently not supported.`,
       );
     });
@@ -534,7 +534,7 @@ describe('PortForwardConnectionService', () => {
       const invalidResource = { kind: 'InvalidKind' };
       const forward = { localPort: 3000, remotePort: 80 };
 
-      await expect(service.getForwardingSetup(invalidResource as never, forward)).rejects.toThrow(
+      await expect(service.getForwardingSetup(invalidResource as never, forward)).rejects.toThrowError(
         'Found invalid resource type.',
       );
     });
@@ -623,7 +623,7 @@ describe('PortForwardConnectionService', () => {
 
       vi.spyOn(service, 'performForward').mockRejectedValueOnce(new Error('Failed to forward port'));
 
-      await expect(service.startForward(forwardConfig)).rejects.toThrow('Failed to forward port');
+      await expect(service.startForward(forwardConfig)).rejects.toThrowError('Failed to forward port');
 
       expect(service.performForward).toHaveBeenCalledTimes(1);
     });
