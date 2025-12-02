@@ -356,7 +356,7 @@ importers:
   tests/playwright:
     devDependencies:
       '@playwright/test':
-        specifier: ^1.51.1
+        specifier: ^1.57.0
         version: 1.57.0
       '@podman-desktop/tests-playwright':
         specifier: ^1.23.1
