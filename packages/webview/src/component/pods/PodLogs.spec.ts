@@ -196,6 +196,69 @@ describe('PodLogs', () => {
       expect(writtenLog).toContain('\u001b[33m{\u001b[0m'); // yellow brace
       expect(writtenLog).toContain('\u001b[32m42\u001b[0m'); // green number
     });
+
+    test('should handle malformed JSON gracefully', () => {
+      const pod = createPod(['containerName']);
+      const mockedTerminal = createMockTerminal();
+      setupTerminalMock(mockedTerminal);
+
+      render(PodLogs, { object: pod });
+
+      streamPodLogsMock.sendData({
+        podName: 'podName',
+        namespace: 'namespace',
+        containerName: 'containerName',
+        data: '{"level":"info"', // incomplete JSON
+      });
+
+      const writtenLog = vi.mocked(mockedTerminal.write).mock.calls[0][0] as string;
+      // Should still output the log without crashing - may have ANSI codes but text preserved
+      expect(writtenLog).toContain('level');
+      expect(writtenLog).toContain('info');
+    });
+
+    test.each([
+      { level: 'error:', color: '\u001b[31;1m', desc: 'error (bright red)' },
+      { level: 'warn:', color: '\u001b[33m', desc: 'warn (yellow)' },
+      { level: 'debug:', color: '\u001b[32m', desc: 'debug (green)' },
+    ])('should colorize $desc log level', ({ level, color }) => {
+      const pod = createPod(['containerName']);
+      const mockedTerminal = createMockTerminal();
+      setupTerminalMock(mockedTerminal);
+
+      render(PodLogs, { object: pod });
+
+      streamPodLogsMock.sendData({
+        podName: 'podName',
+        namespace: 'namespace',
+        containerName: 'containerName',
+        data: `${level} Some message`,
+      });
+
+      const writtenLog = vi.mocked(mockedTerminal.write).mock.calls[0][0] as string;
+      expect(writtenLog).toContain(color);
+      expect(writtenLog).toContain('\u001b[0m');
+    });
+
+    test('should pad shorter container names to align with longest', () => {
+      const pod = createPod(['a', 'longername']);
+      const mockedTerminal = createMockTerminal();
+      setupTerminalMock(mockedTerminal);
+
+      render(PodLogs, { object: pod });
+
+      streamPodLogsMock.sendData({
+        podName: 'podName',
+        namespace: 'namespace',
+        containerName: 'a',
+        data: 'short name log',
+      });
+
+      const writtenLog = vi.mocked(mockedTerminal.write).mock.calls[0][0] as string;
+      // 'a' should be padded with spaces to match 'longername' length (10 chars)
+      // Format: <padding><colored-name>|<log>
+      expect(writtenLog).toContain('\u001b[36ma\u001b[0m|short name log');
+    });
   });
 
   describe('terminal initialization', () => {
@@ -212,24 +275,46 @@ describe('PodLogs', () => {
   });
 
   describe('multi-container prefix colors', () => {
-    test('should apply colored prefixes for each container', () => {
+    test('should apply colored prefixes for each container', async () => {
       const pod = createPod(['container1', 'container2', 'container3']);
       const mockedTerminal = createMockTerminal();
       setupTerminalMock(mockedTerminal);
 
       render(PodLogs, { object: pod });
 
+      // Wait for all 3 container subscriptions to be set up (async onMount)
+      await streamPodLogsMock.waitForSubscriptions(3);
+
       // Send log from first container
       streamPodLogsMock.sendData({
         podName: 'podName',
         namespace: 'namespace',
         containerName: 'container1',
-        data: 'log message',
+        data: 'log from container1',
+      });
+
+      // Send log from second container
+      streamPodLogsMock.sendData({
+        podName: 'podName',
+        namespace: 'namespace',
+        containerName: 'container2',
+        data: 'log from container2',
+      });
+
+      // Send log from third container
+      streamPodLogsMock.sendData({
+        podName: 'podName',
+        namespace: 'namespace',
+        containerName: 'container3',
+        data: 'log from container3',
       });
 
       const calls = vi.mocked(mockedTerminal.write).mock.calls;
-      // First container should have cyan prefix
-      expect(calls[0][0]).toContain('\u001b[36mcontainer1\u001b[0m|');
+      // Each container should have a colored prefix with pipe separator
+      // Colors cycle: cyan, yellow, green
+      expect(calls[0][0]).toContain('\u001b[36mcontainer1\u001b[0m|log from container1');
+      expect(calls[1][0]).toContain('\u001b[33mcontainer2\u001b[0m|log from container2');
+      expect(calls[2][0]).toContain('\u001b[32mcontainer3\u001b[0m|log from container3');
     });
   });
 });
