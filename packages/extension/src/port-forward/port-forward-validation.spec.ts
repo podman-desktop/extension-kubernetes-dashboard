@@ -42,7 +42,7 @@ describe('ForwardConfigRequirements', () => {
     const requirements = new ForwardConfigRequirements(portChecker);
     const invalidConfig = { ...validConfig, name: '' };
 
-    await expect(requirements.checkRuntimeRequirements(invalidConfig)).rejects.toThrow(
+    await expect(requirements.checkRuntimeRequirements(invalidConfig)).rejects.toThrowError(
       'Found empty resource (Pod, Deployment or Service) name.',
     );
   });
@@ -52,14 +52,14 @@ describe('ForwardConfigRequirements', () => {
     const requirements = new ForwardConfigRequirements(portChecker);
     const invalidConfig = { ...validConfig, namespace: '' };
 
-    await expect(requirements.checkRuntimeRequirements(invalidConfig)).rejects.toThrow('Found empty namespace.');
+    await expect(requirements.checkRuntimeRequirements(invalidConfig)).rejects.toThrowError('Found empty namespace.');
   });
 
   test('should fail if port is not available', async () => {
     const portChecker = vi.fn().mockRejectedValue(new Error('Port is already in use.'));
     const requirements = new ForwardConfigRequirements(portChecker);
 
-    await expect(requirements.checkRuntimeRequirements(validConfig)).rejects.toThrow();
+    await expect(requirements.checkRuntimeRequirements(validConfig)).rejects.toThrowError();
   });
 
   test('should propagate port check failures', async () => {
@@ -70,6 +70,8 @@ describe('ForwardConfigRequirements', () => {
       forward: { localPort: 8080, remotePort: 80 },
     };
 
-    await expect(requirements.checkRuntimeRequirements(multiPortConfig)).rejects.toThrow('Port 8081 is not available');
+    await expect(requirements.checkRuntimeRequirements(multiPortConfig)).rejects.toThrowError(
+      'Port 8081 is not available',
+    );
   });
 });
