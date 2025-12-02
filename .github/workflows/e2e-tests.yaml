@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-2022, ubuntu-24.04 ]
+        os: [ windows-2025, ubuntu-24.04 ]
     env:
       SKIP_INSTALLATION: true
       EXTENSION_PREINSTALLED: true
@@ -64,65 +64,16 @@ jobs:
       # ==============================================
       # Installing Podman
       # ==============================================
-      - name: Install podman to 5.x
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          echo Installing Podman
-          curl --output .\podman-setup.exe  -L https://github.com/containers/podman/releases/download/v5.3.2/podman-5.3.2-setup.exe
-          # Start the installer and wait for it to complete
-          Start-Process -FilePath .\podman-setup.exe -ArgumentList "/install", "/passive", "/norestart", "/log podman-logs.txt" -Wait
-          # Check the logs for debugging purposes
-          Get-Content podman-logs.txt
-
-      # Init Podman Machine
-      - name: Init Podman Machine (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          echo "Adding Podman to PATH"
-          $env:PATH += ";C:\Program Files\RedHat\Podman"
-           podman --version
-          podman machine init --now
-
-      # Update Podman linux
-      - name: Update podman to 5.x
-        if: runner.os == 'Linux'
-        run: |
-          echo "ubuntu version from kubic repository to install podman we need (v5)"
-          ubuntu_version='23.10'
-          echo "Add unstable kubic repo into list of available sources and get the repo key"
-          sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
-          curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/Release.key" | sudo apt-key add -
-          echo "Updating all dependencies..."
-          sudo apt-get update -qq
-          echo "install necessary dependencies for criu package which is not part of ${ubuntu_version}"
-          sudo apt-get install -qq libprotobuf32t64 python3-protobuf libnet1
-          echo "install criu manually from static location"
-          curl -sLO http://archive.ubuntu.com/ubuntu/pool/universe/c/criu/criu_3.16.1-2_amd64.deb && sudo dpkg -i criu_3.16.1-2_amd64.deb
-          echo "installing/update podman package..."
-          sudo apt-get -qq -y install podman || { echo "Start fallback steps for podman nightly installation from a static mirror" && \
-            sudo sh -c "echo 'deb http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list" && \
-            curl -L "http://ftp.lysator.liu.se/pub/opensuse/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/Release.key" | sudo apt-key add - && \
-            sudo apt-get update && \
-            sudo apt-get -y install podman; }
-          podman version
+      - name: Install Podman v5 using external action
+        uses: redhat-actions/podman-install@15cb93f5a6b78a758fd8f4d1cecbf6651d4bcea3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Revert unprivileged user namespace restrictions in Ubuntu 24.04
         if: runner.os == 'Linux'
         run: |
           # allow unprivileged user namespace
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-
-      - name: Set cgroup_manager to 'cgroupfs' instead of systemd
-        if: runner.os == 'Linux'
-        run: |
-          mkdir -p ~/.config/containers
-          cat <<EOT >> ~/.config/containers/containers.conf
-          [engine]
-          cgroup_manager="cgroupfs"
-          EOT
-          podman info
 
       # ==============================================
       # Installing Podman Desktop
