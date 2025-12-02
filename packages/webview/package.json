@@ -52,7 +52,7 @@
     "jsdom": "^27.1.0",
     "micromark": "^4.0.2",
     "monaco-editor": "^0.55.1",
-    "prettier": "^3.7.1",
+    "prettier": "^3.7.3",
     "prettier-plugin-svelte": "^3.3.3",
     "reflect-metadata": "^0.2.2",
     "svelte": "^5",
