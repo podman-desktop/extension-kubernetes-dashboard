@@ -70,7 +70,7 @@ describe('PreferenceFolderBasedStorage', () => {
     const storage = new PreferenceFolderBasedStorage(baseDirectory);
     storage['initialized'] = true;
 
-    await expect(storage.initStorage()).rejects.toThrow('Storage has already been initialized.');
+    await expect(storage.initStorage()).rejects.toThrowError('Storage has already been initialized.');
   });
 
   test('should return storage path if initialized', () => {
@@ -83,7 +83,7 @@ describe('PreferenceFolderBasedStorage', () => {
 
   test('should throw error if storage is not initialized when getting path', () => {
     const storage = new PreferenceFolderBasedStorage(baseDirectory);
-    expect(() => storage.getStoragePath()).toThrow('Storage has not been initialized yet.');
+    expect(() => storage.getStoragePath()).toThrowError('Storage has not been initialized yet.');
   });
 
   test('should return true if storage is initialized', () => {
@@ -102,7 +102,7 @@ describe('PreferenceFolderBasedStorage', () => {
     const mkdirMock = vi.spyOn(fs, 'mkdir').mockResolvedValue(undefined);
     const accessMock = vi.spyOn(fs, 'access').mockRejectedValue(new Error('EACCES'));
 
-    await expect(storage.initStorage()).rejects.toThrow('EACCES');
+    await expect(storage.initStorage()).rejects.toThrowError('EACCES');
     expect(mkdirMock).toHaveBeenCalledWith(baseDirectory, { recursive: true });
     expect(accessMock).toHaveBeenCalledWith(`${baseDirectory}${path.sep}port-forwards.json`);
   });
@@ -111,7 +111,7 @@ describe('PreferenceFolderBasedStorage', () => {
     const storage = new PreferenceFolderBasedStorage(baseDirectory);
     const mkdirMock = vi.spyOn(fs, 'mkdir').mockRejectedValue(new Error('EACCES'));
 
-    await expect(storage.initStorage()).rejects.toThrow('EACCES');
+    await expect(storage.initStorage()).rejects.toThrowError('EACCES');
     expect(mkdirMock).toHaveBeenCalledWith(baseDirectory, { recursive: true });
   });
 });
@@ -194,13 +194,15 @@ describe('FileBasedConfigStorage', () => {
     const storage = new TestFileBasedConfigStorage(mockFileStorage, 'test-key');
     storage['configs'] = [sampleConfig];
 
-    expect(() => storage._createForward(sampleConfig)).toThrow('Found existed forward configuration with the same id.');
+    expect(() => storage._createForward(sampleConfig)).toThrowError(
+      'Found existed forward configuration with the same id.',
+    );
   });
 
   test('should throw an error if deleting a non-existing forward configuration', () => {
     const storage = new TestFileBasedConfigStorage(mockFileStorage, 'test-key');
 
-    expect(() => storage._deleteForward(sampleConfig)).toThrow(
+    expect(() => storage._deleteForward(sampleConfig)).toThrowError(
       `Forward configuration with id ${sampleConfig.id} not found.`,
     );
   });
@@ -209,7 +211,7 @@ describe('FileBasedConfigStorage', () => {
     const storage = new TestFileBasedConfigStorage(mockFileStorage, 'test-key');
     const newConfig = { ...sampleConfig, displayName: 'new-display-name' };
 
-    expect(() => storage._updateForward(sampleConfig, newConfig)).toThrow(
+    expect(() => storage._updateForward(sampleConfig, newConfig)).toThrowError(
       `Forward configuration with id ${sampleConfig.id} not found.`,
     );
   });
@@ -291,13 +293,15 @@ describe('MemoryBasedConfigStorage', () => {
     const storage = new MemoryBasedStorage();
     storage['configs'] = [sampleConfig];
 
-    expect(() => storage.createForward(sampleConfig)).toThrow('Found existed forward configuration with the same id.');
+    expect(() => storage.createForward(sampleConfig)).toThrowError(
+      'Found existed forward configuration with the same id.',
+    );
   });
 
   test('should throw an error if deleting a non-existing forward configuration', () => {
     const storage = new MemoryBasedStorage();
 
-    expect(() => storage.deleteForward(sampleConfig)).toThrow(
+    expect(() => storage.deleteForward(sampleConfig)).toThrowError(
       `Forward configuration with id ${sampleConfig.id} not found.`,
     );
   });
@@ -306,7 +310,7 @@ describe('MemoryBasedConfigStorage', () => {
     const storage = new MemoryBasedStorage();
     const newConfig: ForwardConfig = { ...sampleConfig, namespace: 'new-ns' };
 
-    expect(() => storage.updateForward(sampleConfig, newConfig)).toThrow(
+    expect(() => storage.updateForward(sampleConfig, newConfig)).toThrowError(
       `Forward configuration with id ${sampleConfig.id} not found.`,
     );
   });
