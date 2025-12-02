@@ -21,7 +21,7 @@ WORKDIR /opt/app-root/extension-source
 
 # copy source code
 COPY --chown=1001:root *.ts /opt/app-root/extension-source/
-COPY --chown=1001:root pnpm-workspace.yaml /opt/app-root/extension-source/pnpm-workspace.yaml
+COPY --chown=1001:root pnpm-workspace.yaml /opt/app-root/extension-source/
 COPY --chown=1001:root pnpm-lock.yaml /opt/app-root/extension-source/
 COPY --chown=1001:root .gitignore /opt/app-root/extension-source/
 COPY --chown=1001:root package.json /opt/app-root/extension-source/
