@@ -255,9 +255,8 @@ describe('PodLogs', () => {
       });
 
       const writtenLog = vi.mocked(mockedTerminal.write).mock.calls[0][0] as string;
-      // 'a' should be padded with spaces to match 'longername' length (10 chars)
-      // Format: <padding><colored-name>|<log>
-      expect(writtenLog).toContain('\u001b[36ma\u001b[0m|short name log');
+      const nineSpaces = '         '; // 9 spaces to pad 'a' to length of 'longername'
+      expect(writtenLog).equals(nineSpaces + '\u001b[36ma\u001b[0m|short name log\r');
     });
   });
 
