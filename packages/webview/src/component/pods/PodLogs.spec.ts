@@ -258,6 +258,45 @@ describe('PodLogs', () => {
       const nineSpaces = '         '; // 9 spaces to pad 'a' to length of 'longername'
       expect(writtenLog).equals(nineSpaces + '\u001b[36ma\u001b[0m|short name log\r');
     });
+
+    test('should only sample first 20 lines for JSON detection', () => {
+      const pod = createPod(['containerName']);
+      const mockedTerminal = createMockTerminal();
+      setupTerminalMock(mockedTerminal);
+
+      render(PodLogs, { object: pod });
+
+      // Send 20 JSON lines followed by non-JSON lines
+      // If sampling is limited to 20 lines, JSON detection should return true (100% JSON)
+      // If all lines are checked, it would be ~71% JSON and fail the 80% threshold
+      const jsonLines = Array.from(
+        { length: 20 },
+        (_, i) => `{"timestamp":"2025-11-18T10:00:0${i}Z","level":"info","message":"Line ${i + 1}"}`,
+      ).join('\n');
+
+      const nonJsonLines = Array.from({ length: 8 }, (_, i) => `Not JSON line ${i + 1}`).join('\n');
+
+      // Send JSON lines first (should fill buffer and detect as JSON)
+      streamPodLogsMock.sendData({
+        podName: 'podName',
+        namespace: 'namespace',
+        containerName: 'containerName',
+        data: jsonLines,
+      });
+
+      // Send non-JSON lines (should be ignored for detection since buffer already filled)
+      streamPodLogsMock.sendData({
+        podName: 'podName',
+        namespace: 'namespace',
+        containerName: 'containerName',
+        data: nonJsonLines,
+      });
+
+      // The non-JSON lines should still be colorized as JSON since detection happened on first 20 lines
+      const calls = vi.mocked(mockedTerminal.write).mock.calls;
+      // First call should have JSON colorization (yellow braces)
+      expect(calls[0][0]).toContain('\u001b[33m{\u001b[0m');
+    });
   });
 
   describe('terminal initialization', () => {

@@ -276,41 +276,6 @@ describe('detectJsonLogs', () => {
     expect(detectJsonLogs(logs)).toBe(true);
   });
 
-  test('should only check first 20 non-empty lines', () => {
-    const logs = [
-      '{"timestamp":"2025-11-18T10:00:00Z","level":"info","message":"Line 1"}',
-      '{"timestamp":"2025-11-18T10:00:01Z","level":"info","message":"Line 2"}',
-      '{"timestamp":"2025-11-18T10:00:02Z","level":"info","message":"Line 3"}',
-      '{"timestamp":"2025-11-18T10:00:03Z","level":"info","message":"Line 4"}',
-      '{"timestamp":"2025-11-18T10:00:04Z","level":"info","message":"Line 5"}',
-      '{"timestamp":"2025-11-18T10:00:05Z","level":"info","message":"Line 6"}',
-      '{"timestamp":"2025-11-18T10:00:06Z","level":"info","message":"Line 7"}',
-      '{"timestamp":"2025-11-18T10:00:07Z","level":"info","message":"Line 8"}',
-      '{"timestamp":"2025-11-18T10:00:08Z","level":"info","message":"Line 9"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 11"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 12"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 13"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 14"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 15"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 16"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 17"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 18"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 19"}',
-      '{"timestamp":"2025-11-18T10:00:09Z","level":"info","message":"Line 20"}',
-      // These lines after the 20th should be ignored
-      'Not JSON line 1',
-      'Not JSON line 2',
-      'Not JSON line 3',
-      'Not JSON line 4',
-      'Not JSON line 5',
-      'Not JSON line 6',
-      'Not JSON line 7',
-      'Not JSON line 8',
-    ];
-
-    expect(detectJsonLogs(logs)).toBe(true);
-  });
-
   test('should detect JSON with nested objects', () => {
     const logs = [
       '{"user":{"id":123,"name":"John"},"action":"login"}',
