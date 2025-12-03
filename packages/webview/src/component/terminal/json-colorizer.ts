@@ -221,28 +221,32 @@ export function isValidJSON(line: string): boolean {
   const trimmed = line.trim();
   if (!trimmed) return false;
 
-  // Check for basic JSON structure: has { and } and contains key-value patterns
-  const hasBraces = trimmed.includes('{') && trimmed.includes('}');
-  if (!hasBraces) return false;
+  // Find positions of braces
+  const openBrace = trimmed.indexOf('{');
+  const closeBrace = trimmed.lastIndexOf('}');
+
+  // Must have both braces and { must come before }
+  if (openBrace === -1 || closeBrace === -1 || openBrace >= closeBrace) return false;
+
+  // Extract content between braces and check for key-value pair pattern
+  const contentBetweenBraces = trimmed.substring(openBrace + 1, closeBrace);
 
   // Look for key-value pair pattern: "key": value or "key":value
   const kvpPattern = /"[^"]+"\s*:\s*[^,}]+/;
-  return kvpPattern.test(trimmed);
+  return kvpPattern.test(contentBetweenBraces);
 }
 
 /**
  * Detects if log lines are predominantly JSON format.
- * Checks the first 10 non-empty lines and returns true if at least 80% are valid JSON.
  *
  * @param lines - Array of log lines to analyze
  * @returns true if logs should be treated as JSON format
  */
 export function detectJsonLogs(lines: string[]): boolean {
-  const samplesToCheck = 10;
   const threshold = 0.8; // 80%
 
-  // Filter out empty lines and take first 10
-  const nonEmptyLines = lines.filter(line => line.trim().length > 0).slice(0, samplesToCheck);
+  // Filter out empty lines
+  const nonEmptyLines = lines.filter(line => line.trim().length > 0);
 
   // Need at least a few lines to make a determination
   if (nonEmptyLines.length === 0) return false;

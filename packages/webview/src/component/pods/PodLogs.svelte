@@ -24,6 +24,8 @@ let { object }: Props = $props();
 // Logs has been initialized
 let noLogs = $state(true);
 
+const jsonColorizeSampleSize = 20;
+
 // Track if logs are JSON format (auto-detected from first 10 lines)
 let isJsonFormat = $state<boolean | undefined>(undefined);
 // TODO once we have a toolbar in logs we can add a kebab menu for this setting
@@ -68,18 +70,18 @@ const colorizeAndFormatLogs = (data: string, prefix?: string, maxPrefixLength: n
   let lines = data.split('\n');
 
   if (shouldColorizeLogs) {
-    // Auto-detect JSON format from first batch of logs
-    if (isJsonFormat === undefined) {
-      logBuffer.push(...lines.filter(l => l.trim()));
-      if (logBuffer.length >= 10) {
+    // Auto-detect JSON format from first batch of logs, keep checking until we have at least the sample size line count then we can determine from those
+    if (isJsonFormat === undefined || logBuffer.length < jsonColorizeSampleSize) {
+      logBuffer.push(...lines.filter(l => l.trim()).slice(0, jsonColorizeSampleSize));
+      if (logBuffer.length > 0) {
         isJsonFormat = detectJsonLogs(logBuffer);
         logBuffer = []; // Clear buffer after detection
       }
     }
 
-    // Apply colorization: JSON first (if detected/only a few lines of logs), then log levels
+    // Apply colorization: JSON first, then log levels
     lines =
-      (isJsonFormat ?? true)
+      (isJsonFormat ?? false)
         ? lines.map(line => colorizeLogLevel(colorizeJSON(line)))
         : lines.map(line => colorizeLogLevel(line));
   }
