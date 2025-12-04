@@ -31,7 +31,6 @@ let isJsonFormat = $state<boolean | undefined>(undefined);
 // TODO once we have a toolbar in logs we can add a kebab menu for this setting
 let shouldColorizeLogs = $state<boolean>(true);
 let logBuffer: string[] = [];
-let processedLineCount = 0;
 
 let logsTerminal = $state<Terminal>();
 
@@ -70,12 +69,10 @@ const colorizeAndFormatLogs = (data: string, prefix?: string, maxPrefixLength: n
     lines = data.split('\n');
 
     // Auto-detect JSON format from first batch of logs, keep checking until we have processed enough lines to determine if the log is most likely formatted in JSON
-    if (processedLineCount < jsonColorizeSampleSize) {
+    if (logBuffer.length < jsonColorizeSampleSize) {
       logBuffer.push(...lines.filter(l => l.trim()).slice(0, jsonColorizeSampleSize));
       if (logBuffer.length > 0) {
-        processedLineCount += logBuffer.length;
         isJsonFormat = detectJsonLogs(logBuffer);
-        logBuffer = []; // Clear buffer after detection
       }
     }
 
