@@ -31,6 +31,7 @@ let isJsonFormat = $state<boolean | undefined>(undefined);
 // TODO once we have a toolbar in logs we can add a kebab menu for this setting
 let shouldColorizeLogs = $state<boolean>(true);
 let logBuffer: string[] = [];
+let processedLineCount = 0;
 
 let logsTerminal = $state<Terminal>();
 
@@ -42,10 +43,6 @@ const streams = getContext<Streams>(Streams);
 const prefixColourMap = new SvelteMap<string, string>();
 
 const addLogPrefix = (lines: string[], prefix: string, prefixLength: number): void => {
-  if (!prefix || (lines?.length ?? 0) == 0) {
-    return;
-  }
-
   const safePadding = Math.max(0, prefixLength - prefix.length);
   const padding = safePadding > 0 ? ' '.repeat(safePadding) : '';
   const mappedPrefix = prefixColourMap.get(prefix) ?? prefix;
@@ -67,27 +64,38 @@ const addLogPrefix = (lines: string[], prefix: string, prefixLength: number): vo
  * @returns Formatted and colorized log lines
  */
 const colorizeAndFormatLogs = (data: string, prefix?: string, maxPrefixLength: number = 0): string => {
-  let lines = data.split('\n');
+  let lines: string[] = [];
 
   if (shouldColorizeLogs) {
-    // Auto-detect JSON format from first batch of logs, keep checking until we have at least the sample size line count then we can determine from those
-    if (isJsonFormat === undefined || logBuffer.length < jsonColorizeSampleSize) {
+    lines = data.split('\n');
+
+    // Auto-detect JSON format from first batch of logs, keep checking until we have processed enough lines to determine if the log is most likely formatted in JSON
+    if (processedLineCount < jsonColorizeSampleSize) {
       logBuffer.push(...lines.filter(l => l.trim()).slice(0, jsonColorizeSampleSize));
       if (logBuffer.length > 0) {
+        processedLineCount += logBuffer.length;
         isJsonFormat = detectJsonLogs(logBuffer);
         logBuffer = []; // Clear buffer after detection
       }
     }
 
     // Apply colorization: JSON first, then log levels
-    lines =
-      (isJsonFormat ?? false)
-        ? lines.map(line => colorizeLogLevel(colorizeJSON(line)))
-        : lines.map(line => colorizeLogLevel(line));
+    lines = isJsonFormat
+      ? lines.map(line => colorizeLogLevel(colorizeJSON(line)))
+      : lines.map(line => colorizeLogLevel(line));
   }
 
   // Add container prefix for multi-container pods
-  addLogPrefix(lines, prefix ?? '', maxPrefixLength);
+  if (prefix) {
+    if (lines.length === 0) {
+      lines = data.split('\n');
+    }
+    addLogPrefix(lines, prefix, maxPrefixLength);
+  }
+
+  if (lines.length === 0) {
+    return data;
+  }
 
   return lines.join('\n');
 };
