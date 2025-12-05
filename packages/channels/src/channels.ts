@@ -16,6 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { createRpcChannel } from '@kubernetes-dashboard/rpc';
+import type {
+  ContextsHealthsInfo,
+  ContextsPermissionsInfo,
+  ResourcesCountInfo,
+} from '@podman-desktop/kubernetes-dashboard-extension-api';
 import type { ContextsApi } from './interface/contexts-api';
 import type { NavigationApi } from './interface/navigation-api';
 import type { PodLogsApi } from './interface/pod-logs-api';
@@ -33,13 +39,8 @@ import type { PodTerminalChunk } from './model/pod-terminal-chunk';
 import type { PortForwardsInfo } from './model/port-forward-info';
 import type { ResourceDetailsInfo } from './model/resource-details-info';
 import type { ResourceEventsInfo } from './model/resource-events-info';
+import type { TerminalSettings } from './model/terminal-settings';
 import type { UpdateResourceInfo } from './model/update-resource-info';
-import { createRpcChannel } from '@kubernetes-dashboard/rpc';
-import type {
-  ContextsHealthsInfo,
-  ContextsPermissionsInfo,
-  ResourcesCountInfo,
-} from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 // RPC channels (used by the webview to send requests to the extension)
 export const API_CONTEXTS = createRpcChannel<ContextsApi>('ContextsApi');
@@ -68,3 +69,5 @@ export const POD_LOGS = createRpcChannel<PodLogsChunk>('PodLogs');
 
 export const API_POD_TERMINALS = createRpcChannel<PodTerminalsApi>('PodTerminalsApi');
 export const POD_TERMINAL_DATA = createRpcChannel<PodTerminalChunk>('PodTerminalData');
+
+export const TERMINAL_SETTINGS = createRpcChannel<TerminalSettings>('TerminalSettings');

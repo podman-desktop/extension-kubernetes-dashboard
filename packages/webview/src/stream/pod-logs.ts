@@ -16,17 +16,18 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { inject } from 'inversify';
-import { Remote } from '/@/remote/remote';
 import {
   API_POD_LOGS,
   POD_LOGS,
+  type IDisposable,
   type PodLogsApi,
   type PodLogsChunk,
-  type IDisposable,
+  type PodLogsOptions,
 } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
+import { inject } from 'inversify';
 import type { StreamObject } from './util/stream-object';
+import { Remote } from '/@/remote/remote';
 
 export class StreamPodLogs implements StreamObject<PodLogsChunk> {
   #podLogsApi: PodLogsApi;
@@ -42,6 +43,7 @@ export class StreamPodLogs implements StreamObject<PodLogsChunk> {
     namespace: string,
     containerName: string,
     callback: (data: PodLogsChunk) => void,
+    options?: PodLogsOptions,
   ): Promise<IDisposable> {
     const disposable = this.rpcBrowser.on(POD_LOGS, chunk => {
       if (chunk.podName !== podName || chunk.namespace !== namespace || chunk.containerName !== containerName) {
@@ -49,7 +51,15 @@ export class StreamPodLogs implements StreamObject<PodLogsChunk> {
       }
       callback(chunk);
     });
-    await this.#podLogsApi.streamPodLogs(podName, namespace, containerName);
+
+    try {
+      await this.#podLogsApi.streamPodLogs(podName, namespace, containerName, options);
+    } catch (err) {
+      // ensure we don't leak a listener when the stream fails to start
+      disposable.dispose();
+      throw err;
+    }
+
     return {
       dispose: () => {
         disposable.dispose();

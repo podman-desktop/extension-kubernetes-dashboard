@@ -26,6 +26,7 @@
   "devDependencies": {
     "@kubernetes-dashboard/channels": "workspace:*",
     "@kubernetes-dashboard/rpc": "workspace:*",
+    "@kubernetes/client-node": "^1.4.0",
     "@fortawesome/fontawesome-free": "^7.0.0",
     "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@fortawesome/free-regular-svg-icons": "^7.0.1",
@@ -49,7 +50,7 @@
     "@xterm/addon-serialize": "^0.13.0",
     "@xterm/xterm": "^5.5.0",
     "humanize-duration": "^3.33.0",
-    "jsdom": "^27.1.0",
+    "jsdom": "^27.2.0",
     "micromark": "^4.0.2",
     "monaco-editor": "^0.55.1",
     "prettier": "^3.7.4",
