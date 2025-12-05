@@ -73,6 +73,9 @@ beforeEach(() => {
 
   remoteMocks.reset();
   remoteMocks.mock(API_POD_LOGS, {} as unknown as PodLogsApi);
+
+  // Clear localStorage to ensure clean state for colorfulOutputType tests
+  localStorage.removeItem('podlogs.terminal.colorful-output');
 });
 
 describe('PodLogs', () => {
@@ -84,10 +87,12 @@ describe('PodLogs', () => {
       const pod = createPod(containers);
       render(PodLogs, { object: pod });
 
+      // EmptyScreen is now conditionally rendered (not hidden via prop)
       expect(EmptyScreen).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
-          hidden: false,
+          title: 'No Log',
+          message: `Log output of Pod ${pod.metadata?.name}`,
         }),
       );
     });
@@ -99,6 +104,10 @@ describe('PodLogs', () => {
 
       render(PodLogs, { object: pod });
 
+      // EmptyScreen is rendered initially
+      expect(EmptyScreen).toHaveBeenCalled();
+      const initialCallCount = vi.mocked(EmptyScreen).mock.calls.length;
+
       streamPodLogsMock.sendData({
         podName: 'podName',
         namespace: 'namespace',
@@ -106,12 +115,9 @@ describe('PodLogs', () => {
         data: 'some logs',
       });
 
-      expect(EmptyScreen).toHaveBeenLastCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          hidden: true,
-        }),
-      );
+      // EmptyScreen should not be called again after logs are received
+      // (it's conditionally rendered with {#if noLogs})
+      expect(vi.mocked(EmptyScreen).mock.calls.length).toBe(initialCallCount);
     });
   });
 
@@ -176,10 +182,13 @@ describe('PodLogs', () => {
       expect(writtenLog).toContain('Application started');
     });
 
-    test('should apply JSON colorization when JSON logs detected', () => {
+    test('should apply JSON colorization when colorfulOutputType is FULL', () => {
       const pod = createPod(['containerName']);
       const mockedTerminal = createMockTerminal();
       setupTerminalMock(mockedTerminal);
+
+      // Set localStorage to FULL mode for JSON colorization
+      localStorage.setItem('podlogs.terminal.colorful-output', 'full');
 
       render(PodLogs, { object: pod });
 
@@ -259,24 +268,22 @@ describe('PodLogs', () => {
       expect(writtenLog).equals(nineSpaces + '\u001b[36ma\u001b[0m|short name log\r');
     });
 
-    test('should only sample first 20 lines for JSON detection', () => {
+    test('should apply FULL colorization when set, regardless of content', () => {
       const pod = createPod(['containerName']);
       const mockedTerminal = createMockTerminal();
       setupTerminalMock(mockedTerminal);
 
+      // Set localStorage to FULL mode
+      localStorage.setItem('podlogs.terminal.colorful-output', 'full');
+
       render(PodLogs, { object: pod });
 
-      // Send 20 JSON lines followed by non-JSON lines
-      // If sampling is limited to 20 lines, JSON detection should return true (100% JSON)
-      // If all lines are checked, it would be ~71% JSON and fail the 80% threshold
+      // Send JSON lines
       const jsonLines = Array.from(
         { length: 20 },
         (_, i) => `{"timestamp":"2025-11-18T10:00:0${i}Z","level":"info","message":"Line ${i + 1}"}`,
       ).join('\n');
 
-      const nonJsonLines = Array.from({ length: 8 }, (_, i) => `Not JSON line ${i + 1}`).join('\n');
-
-      // Send JSON lines first (should fill buffer and detect as JSON)
       streamPodLogsMock.sendData({
         podName: 'podName',
         namespace: 'namespace',
@@ -284,18 +291,32 @@ describe('PodLogs', () => {
         data: jsonLines,
       });
 
-      // Send non-JSON lines (should be ignored for detection since buffer already filled)
+      const calls = vi.mocked(mockedTerminal.write).mock.calls;
+      // First call should have JSON colorization (yellow braces)
+      expect(calls[0][0]).toContain('\u001b[33m{\u001b[0m');
+    });
+
+    test('should not colorize when colorfulOutputType is NONE', () => {
+      const pod = createPod(['containerName']);
+      const mockedTerminal = createMockTerminal();
+      setupTerminalMock(mockedTerminal);
+
+      // Set localStorage to NONE mode
+      localStorage.setItem('podlogs.terminal.colorful-output', 'none');
+
+      render(PodLogs, { object: pod });
+
       streamPodLogsMock.sendData({
         podName: 'podName',
         namespace: 'namespace',
         containerName: 'containerName',
-        data: nonJsonLines,
+        data: 'error: Something went wrong',
       });
 
-      // The non-JSON lines should still be colorized as JSON since detection happened on first 20 lines
-      const calls = vi.mocked(mockedTerminal.write).mock.calls;
-      // First call should have JSON colorization (yellow braces)
-      expect(calls[0][0]).toContain('\u001b[33m{\u001b[0m');
+      const writtenLog = vi.mocked(mockedTerminal.write).mock.calls[0][0] as string;
+      // Should NOT contain ANSI color codes
+      expect(writtenLog).not.toContain('\u001b[');
+      expect(writtenLog).toContain('error: Something went wrong');
     });
   });
 
