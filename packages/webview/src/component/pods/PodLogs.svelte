@@ -25,10 +25,9 @@ interface Props {
 let { object }: Props = $props();
 
 const jsonColorizeSampleSize = 20;
-const colorfulOutputCacheKey = 'podlogs.terminal.colorful-output';
 
 let noLogs = $state(true);
-let colorfulOutputType = $state(localStorage.getItem(colorfulOutputCacheKey) ?? undefined);
+let colorfulOutputType = $state(undefined);
 let jsonDetected = $state(false);
 let settingsMenuOpen = $state(false);
 let logsTerminal = $state<Terminal>();
@@ -42,14 +41,6 @@ const streams = getContext<Streams>(Streams);
 // Map that will store the ANSI 256 colour for each container name
 // if we run out of colours, we'll start from the beginning.
 const prefixColourMap = new SvelteMap<string, string>();
-
-$effect(() => {
-  if (colorfulOutputType === undefined) {
-    localStorage.removeItem(colorfulOutputCacheKey);
-  } else {
-    localStorage.setItem(colorfulOutputCacheKey, colorfulOutputType);
-  }
-});
 
 // Trigger resize when logs appear so terminal can recalculate its size
 $effect(() => {
