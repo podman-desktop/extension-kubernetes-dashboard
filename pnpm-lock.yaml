@@ -359,8 +359,8 @@ importers:
         specifier: ^1.57.0
         version: 1.57.0
       '@podman-desktop/tests-playwright':
-        specifier: ^1.23.1
-        version: 1.23.1
+        specifier: ^1.24.1
+        version: 1.24.1
       '@types/node':
         specifier: ^24
         version: 24.10.1
@@ -928,8 +928,8 @@ packages:
   '@podman-desktop/api@1.24.1':
     resolution: {integrity: sha512-tTl0LVbpyMUIgeAZ4Sx24A9U5Lg0tTCaBfq+K9ZtGe1OQTcNb1YqMm7Yyj4vKl2QTrLx6W0hkwbgpEcxsIyyRQ==}
 
-  '@podman-desktop/tests-playwright@1.23.1':
-    resolution: {integrity: sha512-ZurtyNGE9zHGP/6ni0kdB/P7/7mBmowzGcGOTViW+IN2gTUsCZqPHTmwI+6WNEzQpiqXWZAT9cGSnIPUsasfaw==}
+  '@podman-desktop/tests-playwright@1.24.1':
+    resolution: {integrity: sha512-tieqdji7WxNQCTv1f+ELMKhXdGzc1lUkNbp10BxNm/5RLKsNW1Ln0HvUcLWcILSYbJHEJ2PyR1P+Pm5nwRwFFQ==}
 
   '@podman-desktop/ui-svelte@1.24.1':
     resolution: {integrity: sha512-WsytdkRM18+09JZ4KF7z4LzuFN3M7cMa6VTmFQXGHIKyFXiY+akOBNlSjTV6KWJxf0FIELw6ksKFuPbq4rLccw==}
@@ -4863,7 +4863,7 @@ snapshots:
 
   '@podman-desktop/api@1.24.1': {}
 
-  '@podman-desktop/tests-playwright@1.23.1': {}
+  '@podman-desktop/tests-playwright@1.24.1': {}
 
   '@podman-desktop/ui-svelte@1.24.1(svelte-fa@4.0.4(svelte@5.45.8))(svelte@5.45.8)':
     dependencies:
