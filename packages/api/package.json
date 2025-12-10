@@ -4,7 +4,6 @@
   "description": "API for Kubernetes Dashboard extension",
   "repository": "https://github.com/podman-desktop/extension-kubernetes-dashboard",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
     "provenance": true,
     "access": "public"
   },
