@@ -19,7 +19,7 @@
 import { API_POD_LOGS, type PodLogsApi, type PodLogsChunk } from '@kubernetes-dashboard/channels';
 import type { V1Pod } from '@kubernetes/client-node';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
-import { render } from '@testing-library/svelte';
+import { fireEvent, render } from '@testing-library/svelte';
 import type { Terminal } from '@xterm/xterm';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import PodLogs from './PodLogs.svelte';
@@ -73,9 +73,6 @@ beforeEach(() => {
 
   remoteMocks.reset();
   remoteMocks.mock(API_POD_LOGS, {} as unknown as PodLogsApi);
-
-  // Clear localStorage to ensure clean state for colorfulOutputType tests
-  localStorage.removeItem('podlogs.terminal.colorful-output');
 });
 
 describe('PodLogs', () => {
@@ -268,15 +265,18 @@ describe('PodLogs', () => {
       expect(writtenLog).equals(nineSpaces + '\u001b[36ma\u001b[0m|short name log\r');
     });
 
-    test('should apply FULL colorization when set, regardless of content', () => {
+    test('should apply FULL colorization when set, regardless of content', async () => {
       const pod = createPod(['containerName']);
       const mockedTerminal = createMockTerminal();
       setupTerminalMock(mockedTerminal);
 
-      // Set localStorage to FULL mode
-      localStorage.setItem('podlogs.terminal.colorful-output', 'full');
+      const { container } = render(PodLogs, { object: pod });
 
-      render(PodLogs, { object: pod });
+      // Open settings menu and select FULL colorization
+      const settingsButton = container.querySelector('button[name="terminal-settings-button"]') as HTMLButtonElement;
+      await fireEvent.click(settingsButton);
+      const select = container.querySelector('select[name="colorful-output"]') as HTMLSelectElement;
+      await fireEvent.change(select, { target: { value: 'full' } });
 
       // Send JSON lines
       const jsonLines = Array.from(
@@ -296,15 +296,18 @@ describe('PodLogs', () => {
       expect(calls[0][0]).toContain('\u001b[33m{\u001b[0m');
     });
 
-    test('should not colorize when colorfulOutputType is NONE', () => {
+    test('should not colorize when colorfulOutputType is NONE', async () => {
       const pod = createPod(['containerName']);
       const mockedTerminal = createMockTerminal();
       setupTerminalMock(mockedTerminal);
 
-      // Set localStorage to NONE mode
-      localStorage.setItem('podlogs.terminal.colorful-output', 'none');
+      const { container } = render(PodLogs, { object: pod });
 
-      render(PodLogs, { object: pod });
+      // Open settings menu and select NONE colorization
+      const settingsButton = container.querySelector('button[name="terminal-settings-button"]') as HTMLButtonElement;
+      await fireEvent.click(settingsButton);
+      const select = container.querySelector('select[name="colorful-output"]') as HTMLSelectElement;
+      await fireEvent.change(select, { target: { value: 'none' } });
 
       streamPodLogsMock.sendData({
         podName: 'podName',

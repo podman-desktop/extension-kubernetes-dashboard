@@ -204,6 +204,7 @@ onDestroy(() => {
         <button
           class="p-2 hover:bg-(--pd-content-card-hover-bg) rounded"
           onclick={(): boolean => (settingsMenuOpen = !settingsMenuOpen)}
+          name="terminal-settings-button"
           aria-label="Terminal settings">
           <Fa icon={faEllipsisV} />
         </button>
@@ -216,6 +217,7 @@ onDestroy(() => {
                 <select
                   bind:value={colorfulOutputType}
                   onchange={handleSettingChange}
+                  name="colorful-output"
                   class="bg-(--pd-content-card-bg) border border-(--pd-input-field-stroke) rounded px-2 py-1 text-sm cursor-pointer text-(--pd-content-text)">
                   <option value={undefined} class="bg-(--pd-content-card-bg)">Auto</option>
                   <option value={ColorOutputType.NONE} class="bg-(--pd-content-card-bg)">None</option>
