@@ -266,8 +266,8 @@ importers:
         specifier: 1.24.1
         version: 1.24.1(svelte-fa@4.0.4(svelte@5.45.8))(svelte@5.45.8)
       '@podman-desktop/webview-api':
-        specifier: 1.24.1
-        version: 1.24.1
+        specifier: 1.24.2
+        version: 1.24.2
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6
         version: 6.2.1(svelte@5.45.8)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2))
@@ -937,8 +937,8 @@ packages:
       svelte: ^4.0.0 || ^5.0.0
       svelte-fa: ^4.0.0
 
-  '@podman-desktop/webview-api@1.24.1':
-    resolution: {integrity: sha512-KPCMecAUbZaramr32xr3dZBf+MVRFSvQuyXwFcsuYpvlFd+O2UAhMOIdfQPGJeEOCa3/4bsW/rJ6vCk3zUK5jg==}
+  '@podman-desktop/webview-api@1.24.2':
+    resolution: {integrity: sha512-tJruAIiORT9HdTFpsCeBp/L+T2G1OSb4VS4T8GTvZ2cOPiQ7uc9JqDu8Qoml1ztXw6XMIdVz01fnd1ySDteq9A==}
 
   '@rollup/pluginutils@5.3.0':
     resolution: {integrity: sha512-5EdhGZtnu3V88ces7s53hhfK5KSASnJZv8Lulpc04cWO3REESroJXg73DFsOmgbU2BhwV0E20bu2IDZb3VKW4Q==}
@@ -4877,7 +4877,7 @@ snapshots:
       svelte: 5.45.8
       svelte-fa: 4.0.4(svelte@5.45.8)
 
-  '@podman-desktop/webview-api@1.24.1': {}
+  '@podman-desktop/webview-api@1.24.2': {}
 
   '@rollup/pluginutils@5.3.0(rollup@4.53.3)':
     dependencies:
