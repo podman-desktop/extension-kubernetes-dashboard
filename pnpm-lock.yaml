@@ -263,8 +263,8 @@ importers:
         specifier: workspace:*
         version: link:../api
       '@podman-desktop/ui-svelte':
-        specifier: 1.24.1
-        version: 1.24.1(svelte-fa@4.0.4(svelte@5.45.8))(svelte@5.45.8)
+        specifier: 1.24.2
+        version: 1.24.2(svelte-fa@4.0.4(svelte@5.45.8))(svelte@5.45.8)
       '@podman-desktop/webview-api':
         specifier: 1.24.2
         version: 1.24.2
@@ -931,8 +931,8 @@ packages:
   '@podman-desktop/tests-playwright@1.23.1':
     resolution: {integrity: sha512-ZurtyNGE9zHGP/6ni0kdB/P7/7mBmowzGcGOTViW+IN2gTUsCZqPHTmwI+6WNEzQpiqXWZAT9cGSnIPUsasfaw==}
 
-  '@podman-desktop/ui-svelte@1.24.1':
-    resolution: {integrity: sha512-WsytdkRM18+09JZ4KF7z4LzuFN3M7cMa6VTmFQXGHIKyFXiY+akOBNlSjTV6KWJxf0FIELw6ksKFuPbq4rLccw==}
+  '@podman-desktop/ui-svelte@1.24.2':
+    resolution: {integrity: sha512-HsDc0VVCbwHZGlgTScCThLVdRQaYt/coL/+PrTjsbhwb4ECr41f4xfR+QZBuxbjowJurrUzpxgagfO1//U008Q==}
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0
       svelte-fa: ^4.0.0
@@ -4865,7 +4865,7 @@ snapshots:
 
   '@podman-desktop/tests-playwright@1.23.1': {}
 
-  '@podman-desktop/ui-svelte@1.24.1(svelte-fa@4.0.4(svelte@5.45.8))(svelte@5.45.8)':
+  '@podman-desktop/ui-svelte@1.24.2(svelte-fa@4.0.4(svelte@5.45.8))(svelte@5.45.8)':
     dependencies:
       '@floating-ui/dom': 1.7.4
       '@fortawesome/fontawesome-free': 7.1.0
