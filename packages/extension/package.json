@@ -39,7 +39,7 @@
     "memfs": "^4.50.0",
     "prettier": "^3.7.4",
     "typescript": "5.9.3",
-    "vite": "^7.2",
+    "vite": "^7.3",
     "vitest": "^3.1",
     "isomorphic-ws": "^5.0.0",
     "@types/ws": "^8.18.0",
