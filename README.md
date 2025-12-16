@@ -64,4 +64,4 @@ After each change, you may have to restart the extension from the `Extensions > 
 
 ### On the CI
 
-When creating a PR on the GitHub repository, the e2e tests are not executed by default. To run the e2e tests, you need to add the `ci/e2e` label to the PR.
+When creating a PR on the GitHub repository, the e2e tests are not executed by default. To run the e2e tests, you need to add the `area/ci/e2e` label to the PR.
