@@ -17,12 +17,7 @@
  ***********************************************************************/
 
 import type { ExtensionsPage } from '@podman-desktop/tests-playwright';
-import {
-  expect as playExpect,
-  test,
-  RunnerOptions,
-  waitForPodmanMachineStartup,
-} from '@podman-desktop/tests-playwright';
+import { expect as playExpect, test, RunnerOptions } from '@podman-desktop/tests-playwright';
 import { KubernetesDashboardDetailsPage } from './model/kd-details-page';
 
 const EXTENSION_OCI_IMAGE =
@@ -53,12 +48,11 @@ test.use({
   }),
 });
 
-test.beforeAll(async ({ runner, welcomePage, page }) => {
+test.beforeAll(async ({ runner, welcomePage }) => {
   test.setTimeout(80_000);
 
   runner.setVideoAndTraceName('kubernetes-dashboard-e2e');
   await welcomePage.handleWelcomePage(true);
-  await waitForPodmanMachineStartup(page, 80_000); // default is 30s let's increase that to 80s
 });
 
 test.afterAll(async ({ runner }) => {
