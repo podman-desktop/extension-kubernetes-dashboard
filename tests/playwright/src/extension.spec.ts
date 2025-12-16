@@ -17,8 +17,20 @@
  ***********************************************************************/
 
 import type { ExtensionsPage } from '@podman-desktop/tests-playwright';
-import { expect as playExpect, test, RunnerOptions } from '@podman-desktop/tests-playwright';
-import { KubernetesDashboardDetailsPage } from './model/kd-details-page';
+import {
+  expect as playExpect,
+  test,
+  RunnerOptions,
+  PreferencesPage,
+  StatusBar,
+} from '@podman-desktop/tests-playwright';
+import { KubernetesDashboardDetailsPage } from './model/pages/kd-details-page';
+import { handleWebview } from './utils/webviewHandler';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import * as fs from 'node:fs';
+import { KubernetesBar } from './model/pages/navigation';
+import { KubernetesResources } from './model/core/types';
 
 const EXTENSION_OCI_IMAGE =
   process.env.EXTENSION_OCI_IMAGE ?? 'ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest';
@@ -26,6 +38,9 @@ const EXTENSION_PREINSTALLED: boolean = process.env.EXTENSION_PREINSTALLED === '
 const CATALOG_EXTENSION_LABEL: string = 'redhat.kubernetes-dashboard';
 const CATALOG_EXTENSION_NAME: string = 'Kubernetes Dashboard';
 const CATALOG_STATUS_ACTIVE: string = 'ACTIVE';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 test.use({
   runnerOptions: new RunnerOptions({
@@ -38,7 +53,6 @@ test.use({
         'podman-desktop.compose',
         'podman-desktop.docker',
         'podman-desktop.kind',
-        'podman-desktop.kube-context',
         'podman-desktop.kubectl-cli',
         'podman-desktop.lima',
         'podman-desktop.minikube',
@@ -103,5 +117,95 @@ test.describe.serial(`Extension installation and verification`, { tag: '@smoke' 
       }
       await playExpect(errorTab, `Error Tab was present with stackTrace: ${stackTrace}`).not.toBeVisible();
     });
+  });
+});
+
+test.describe.serial(`Extension usage`, () => {
+  let navigation: KubernetesBar;
+
+  test('Load kubeconfig file in Preferences for an empty envtest cluster', async ({ page, navigationBar }) => {
+    // copy testing kubeconfig file to the expected location
+    const kubeConfigPathSrc = path.resolve(__dirname, '..', '..', 'resources', 'envtest-kubeconfig');
+    const kubeConfigPathDst = path.resolve(__dirname, '..', 'tests', 'playwright', 'resources', 'kube-config');
+    fs.mkdirSync(path.dirname(kubeConfigPathDst), { recursive: true });
+    fs.copyFileSync(kubeConfigPathSrc, kubeConfigPathDst);
+
+    // open preferences page
+    const settingsBar = await navigationBar.openSettings();
+    await settingsBar.expandPreferencesTab();
+    const preferencesPage = await settingsBar.openTabPage(PreferencesPage);
+    await playExpect(preferencesPage.heading).toBeVisible();
+
+    await preferencesPage.selectKubeFile(kubeConfigPathDst);
+
+    const statusbar = new StatusBar(page);
+    await statusbar.validateKubernetesContext('envtest');
+  });
+
+  test('Open Extension webview and verify the dashboard is connected', async ({ runner, page, navigationBar }) => {
+    // open the webview
+    const [, webview] = await handleWebview(runner, page, navigationBar);
+
+    navigation = new KubernetesBar(webview);
+    await playExpect(navigation.title).toBeVisible();
+
+    const dashboardPage = await navigation.openKubernetesDashboardPage();
+    const status = await dashboardPage.getStatus();
+    playExpect(status).toContain('Connected');
+  });
+
+  test('go to nodes page', async () => {
+    const nodesPage = await navigation.openTabPage(KubernetesResources.Nodes);
+    await playExpect(nodesPage.heading).toBeVisible();
+  });
+
+  test('go to namespaces page', async () => {
+    const namespacesPage = await navigation.openTabPage(KubernetesResources.Namespaces);
+    await playExpect(namespacesPage.heading).toBeVisible();
+  });
+
+  test('go to deployments page', async () => {
+    const deploymentsPage = await navigation.openTabPage(KubernetesResources.Deployments);
+    await playExpect(deploymentsPage.heading).toBeVisible();
+  });
+
+  test('go to pods page', async () => {
+    const podsPage = await navigation.openTabPage(KubernetesResources.Pods);
+    await playExpect(podsPage.heading).toBeVisible();
+  });
+
+  test('go to services page', async () => {
+    const servicesPage = await navigation.openTabPage(KubernetesResources.Services);
+    await playExpect(servicesPage.heading).toBeVisible();
+  });
+
+  test('go to ingresses & routes page', async () => {
+    const ingresssRoutesPage = await navigation.openTabPage(KubernetesResources.IngeressesRoutes);
+    await playExpect(ingresssRoutesPage.heading).toBeVisible();
+  });
+
+  test('go to pvc page', async () => {
+    const pvcPage = await navigation.openTabPage(KubernetesResources.PVCs);
+    await playExpect(pvcPage.heading).toBeVisible();
+  });
+
+  test('go to configmaps & secrets page', async () => {
+    const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
+    await playExpect(configMapsSecretsPage.heading).toBeVisible();
+  });
+
+  test('go to jobs page', async () => {
+    const jobsPage = await navigation.openTabPage(KubernetesResources.Jobs);
+    await playExpect(jobsPage.heading).toBeVisible();
+  });
+
+  test('go to cronjobs page', async () => {
+    const cronjobsPage = await navigation.openTabPage(KubernetesResources.Cronjobs);
+    await playExpect(cronjobsPage.heading).toBeVisible();
+  });
+
+  test('go to port forwarding page', async () => {
+    const portForwardingPage = await navigation.openPortForwardingPage();
+    await playExpect(portForwardingPage.heading).toBeVisible();
   });
 });
