@@ -1,0 +1,160 @@
+#
+# Copyright (C) 2025 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: e2e-tests
+
+on:
+  pull_request:
+    types: [labeled, synchronize, opened, ready_for_review, reopened]
+
+jobs:
+  # Dedicated step to build the extension image
+  build-container:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci/e2e') }}
+    name: Build Extension Image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Build Image and Extract Files
+        id: build-image
+        run: |
+          podman build -t local_image -f build/Containerfile ./
+          CONTAINER_ID=$(podman create localhost/local_image --entrypoint "")
+          mkdir -p output/plugins
+          podman export $CONTAINER_ID | tar -x -C output/plugins/
+          podman rm -f $CONTAINER_ID
+          podman rmi -f localhost/local_image:latest
+      - name: Upload Extension Image Artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: extension-plugin
+          path: output/plugins/
+
+  e2e-pr-check:
+    name: e2e tests smoke / ${{ matrix.os }}
+    needs: build-container
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-2025, ubuntu-24.04 ]
+    env:
+      SKIP_INSTALLATION: true
+      EXTENSION_PREINSTALLED: true
+      PODMAN_DESKTOP_ARGS: ${{ github.workspace }}/podman-desktop
+      # by default playwright cache browsers binaries in ~/.cache/ms-playwright on Linux and %USERPROFILE%\AppData\Local\ms-playwright on Windows
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/podman-desktop/pw-browsers
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      # ==============================================
+      # Installing Podman
+      # ==============================================
+      - name: Install Podman v5 using external action
+        uses: redhat-actions/podman-install@15cb93f5a6b78a758fd8f4d1cecbf6651d4bcea3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Revert unprivileged user namespace restrictions in Ubuntu 24.04
+        if: runner.os == 'Linux'
+        run: |
+          # allow unprivileged user namespace
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      # ==============================================
+      # Installing Podman Desktop
+      # ==============================================
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        name: Install pnpm
+        with:
+          run_install: false
+
+      # Install Node.js
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      # Install npm packages for extension
+      - name: Execute pnpm in Extension
+        run: pnpm install
+
+      # Extract @podman-desktop/api version used (and store to $GITHUB_OUTPUT)
+      - name: Extract @podman-desktop/api version
+        id: pd-api-version
+        shell: bash
+        run: |
+          # Using pnpm list to get the resolved version (E.g. getting 1.15.0 when ^1.15.0)
+          export PD_VERSION=$(pnpm list -C packages/extension/ --json | jq -r '.[0].devDependencies."@podman-desktop/api".version')
+          echo "PD_VERSION=$PD_VERSION" >> $GITHUB_OUTPUT
+          echo "Using @podman-desktop/api $PD_VERSION"
+
+      # Check cache for existing podman-desktop
+      - name: Cache Podman Desktop
+        id: cache-pd
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: ${{ github.workspace }}/podman-desktop
+          key: pd-${{ steps.pd-api-version.outputs.PD_VERSION }}-${{ runner.os }}
+
+      # If not cached, download Podman Desktop repository based on version defined in package.json
+      - name: Download Podman Desktop
+        if: steps.cache-pd.outputs.cache-hit != 'true'
+        shell: bash
+        env:
+          PD_VERSION: ${{ steps.pd-api-version.outputs.PD_VERSION }}
+        run: |
+          echo "Downloading PD desktop to ${{ github.workspace }}/podman-desktop"
+          # Stable release are available podman-desktop/podman-desktop
+          # Prerelease are available under podman-desktop/prereleases
+          if [[ "$PD_VERSION" =~ - ]]; then
+            curl -sL "https://github.com/podman-desktop/prereleases/archive/refs/tags/v$PD_VERSION.tar.gz" | tar xvz
+          else
+            curl -sL "https://github.com/podman-desktop/podman-desktop/archive/refs/tags/v$PD_VERSION.tar.gz" | tar xvz
+          fi
+          # Move the extracted folder to the podman-desktop folder
+          mv podman-desktop-$PD_VERSION/ podman-desktop/
+
+      # Install and build podman-desktop
+      - name: If not cached, install pnpm deps and build Podman Desktop
+        if: steps.cache-pd.outputs.cache-hit != 'true'
+        shell: bash
+        working-directory: ${{ github.workspace }}/podman-desktop
+        run: |
+          pnpm install
+          pnpm test:e2e:build
+
+      # Install the extension
+      - name: Download Extension Plugin
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: extension-plugin
+          path: tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins/
+
+      - name: Run E2E Smoke tests
+        shell: bash
+        run: pnpm test:e2e:smoke
+        env:
+          NODE_OPTIONS: --no-experimental-strip-types
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: always()
+        with:
+          name: e2e-pr-check-${{ matrix.os }}
+          path: |
+            tests/playwright/output/
+            tests/playwright/tests/
