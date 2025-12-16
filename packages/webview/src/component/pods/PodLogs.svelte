@@ -213,7 +213,7 @@ onDestroy(() => {
             class="absolute right-0 mt-1 w-64 bg-(--pd-content-card-bg) border border-(--pd-content-divider) rounded shadow-lg z-10">
             <div class="p-3 space-y-3">
               <label class="flex items-center justify-between gap-2">
-                <span class="text-sm">Colorful Output:</span>
+                <span class="text-sm">Colourize Logs</span>
                 <select
                   bind:value={colorfulOutputType}
                   onchange={handleSettingChange}
