@@ -24,7 +24,7 @@ on:
 jobs:
   # Dedicated step to build the extension image
   build-container:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'ci/e2e') }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci/e2e') }}
     name: Build Extension Image
     runs-on: ubuntu-24.04
     steps:
@@ -111,7 +111,7 @@ jobs:
           path: ${{ github.workspace }}/podman-desktop
           key: pd-${{ steps.pd-api-version.outputs.PD_VERSION }}-${{ runner.os }}
 
-      # Download Podman Desktop repository based on version defined in package.json
+      # If not cached, download Podman Desktop repository based on version defined in package.json
       - name: Download Podman Desktop
         if: steps.cache-pd.outputs.cache-hit != 'true'
         shell: bash
@@ -130,7 +130,7 @@ jobs:
           mv podman-desktop-$PD_VERSION/ podman-desktop/
 
       # Install and build podman-desktop
-      - name: Install pnpm deps and build Podman Desktop
+      - name: If not cached, install pnpm deps and build Podman Desktop
         if: steps.cache-pd.outputs.cache-hit != 'true'
         shell: bash
         working-directory: ${{ github.workspace }}/podman-desktop
