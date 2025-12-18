@@ -138,7 +138,7 @@ jobs:
           path: tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins/
 
       # Run envtest cluster
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
         with:
           go-version: '1.25'
 
@@ -189,10 +189,10 @@ jobs:
         env:
           ENVTEST_START_PID: ${{ steps.run-envtest.outputs.ENVTEST_START_PID }}
         shell: bash
+        # These commands are working on both Linux and Windows, change carefully
         run: |
-          kill $ENVTEST_START_PID
-          # give some time for the cluster to be stopped gracefully
-          sleep 3
+          kill ${ENVTEST_START_PID}
+          timeout 10s bash -c "while ps | grep envtest-start > /dev/null; do sleep 1; done"
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
