@@ -137,11 +137,62 @@ jobs:
           name: extension-plugin
           path: tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins/
 
+      # Run envtest cluster
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version: '1.25'
+
+      - name: install envtest-start and setup-envtest binaries
+        shell: bash
+        run: |
+          go install github.com/feloy/envtest-start@563d135d56015062c35bd20f8c14ab5fcbee38ae
+          go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
+
+      - name: install envtest with latest kubernetes version with setup-envtest
+        id: setup-envtest
+        shell: bash
+        run: |
+          export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)
+          echo "KUBEBUILDER_ASSETS=$KUBEBUILDER_ASSETS" >> $GITHUB_OUTPUT
+
+      - name: run envtest-start to start the envtest cluster
+        id: run-envtest
+        env:
+          KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
+        shell: bash
+        run: |
+          KUBECONFIG=${{ runner.temp }}/envtest-kubeconfig
+          envtest-start $KUBECONFIG &
+          ENVTEST_START_PID=$!
+          echo "ENVTEST_START_PID=$ENVTEST_START_PID" >> $GITHUB_OUTPUT
+          echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_OUTPUT
+
+      - name: check cluster is accessible, should show a service named "kubernetes"
+        env:
+          KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
+          KUBECONFIG: ${{ steps.run-envtest.outputs.KUBECONFIG }}
+        shell: bash
+        run: |
+          $KUBEBUILDER_ASSETS/kubectl get all | grep "service/kubernetes"
+
+      # Run tests
       - name: Run E2E Smoke tests
         shell: bash
         run: pnpm test:e2e:smoke
         env:
           NODE_OPTIONS: --no-experimental-strip-types
+          KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
+          KUBECONFIG: ${{ steps.run-envtest.outputs.KUBECONFIG }}
+
+      - name: stop envtest cluster
+        if: always()
+        env:
+          ENVTEST_START_PID: ${{ steps.run-envtest.outputs.ENVTEST_START_PID }}
+        shell: bash
+        # These commands are working on both Linux and Windows, change carefully
+        run: |
+          kill ${ENVTEST_START_PID}
+          timeout 10s bash -c "while ps | grep envtest-start > /dev/null; do sleep 1; done"
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
