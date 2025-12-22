@@ -16,15 +16,24 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { PodHelper } from './pod-helper';
-import { PodLogsHelper } from '/@/component/pods/pod-logs-helper';
+import type { V1Container } from '@kubernetes/client-node';
+import { colorizeLogLevel } from '/@/component/terminal/terminal-colors';
 import { MultiContainersLogsHelper } from '/@/component/pods/multi-container-logs-helper';
+import { inject, injectable } from 'inversify';
 
-const podsModule = new ContainerModule(options => {
-  options.bind<PodHelper>(PodHelper).toSelf().inSingletonScope();
-  options.bind<PodLogsHelper>(PodLogsHelper).toSelf().inSingletonScope();
-  options.bind<MultiContainersLogsHelper>(MultiContainersLogsHelper).toSelf().inSingletonScope();
-});
+@injectable()
+export class PodLogsHelper {
+  constructor(@inject(MultiContainersLogsHelper) private multiContainersLogsHelper: MultiContainersLogsHelper) {}
 
-export { podsModule };
+  init(containers: V1Container[]): void {
+    this.multiContainersLogsHelper.init(containers);
+  }
+
+  transformPodLogs(containerName: string, data: string): string {
+    const colorizedContent = data
+      .split('\n')
+      .map(line => colorizeLogLevel(line))
+      .join('\n');
+    return this.multiContainersLogsHelper.transform(containerName, colorizedContent);
+  }
+}
