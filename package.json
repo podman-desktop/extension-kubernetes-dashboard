@@ -52,7 +52,7 @@
     "eslint-plugin-redundant-undefined": "^1.0.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-sonarjs": "^3.0.2",
-    "eslint-plugin-svelte": "^3.12.3",
+    "eslint-plugin-svelte": "^3.14.0",
     "eslint-plugin-unicorn": "^62.0.0",
     "node-gyp": "^12.0.0",
     "prettier": "^3.7.4",
