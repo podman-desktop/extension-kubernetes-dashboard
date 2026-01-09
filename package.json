@@ -6,7 +6,7 @@
   "publisher": "redhat",
   "private": true,
   "engines": {
-    "node": ">=22.0.0",
+    "node": ">=24.0.0",
     "npm": ">=11.0.0"
   },
   "scripts": {
