@@ -108,7 +108,7 @@ test('dispatch is not called several times during throttle timeout', async () =>
   await dispatcher.dispatch(subscriber);
 
   vi.advanceTimersByTime(110);
-  // only othe latest call from the second burst is done
+  // only the latest call from the second burst is done
   expect(subscriber.dispatch).toHaveBeenCalledTimes(2);
   expect(subscriber.dispatch).toHaveBeenCalledWith(expect.anything(), { value: 3 });
   expect(subscriber.dispatch).toHaveBeenCalledWith(expect.anything(), { value: 6 });
