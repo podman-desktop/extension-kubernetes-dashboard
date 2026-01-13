@@ -38,7 +38,7 @@ import type { DispatcherEvent } from './contexts-dispatcher.js';
 import { ContextsManager } from './contexts-manager.js';
 import { RpcChannel } from '@kubernetes-dashboard/rpc';
 import { inject, injectable, multiInject } from 'inversify';
-import { DispatcherObject } from '/@/dispatcher/util/dispatcher-object.js';
+import { DispatcherObject, AbsDispatcherObjectImpl } from '/@/dispatcher/util/dispatcher-object.js';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber.js';
 import { PortForwardServiceProvider } from '/@/port-forward/port-forward-service.js';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
@@ -121,6 +121,22 @@ export class ContextsStatesDispatcher {
   addSubscriber(subscriber: StateSubscriber): void {
     this.#subscribers.push(subscriber);
     subscriber.onSubscribe(channelName => this.dispatchByChannelName(subscriber, channelName));
+  }
+
+  /**
+   * Remove a subscriber and clean up its timers from all dispatchers.
+   * Should be called when a subscriber is disposed.
+   */
+  removeSubscriber(subscriber: StateSubscriber): void {
+    // Clean up timers for this subscriber in all dispatchers
+    for (const dispatcher of this.#dispatchers.values()) {
+      if (dispatcher instanceof AbsDispatcherObjectImpl) {
+        dispatcher.cleanupSubscriber(subscriber);
+      }
+    }
+
+    // Remove from subscribers array
+    this.#subscribers = this.#subscribers.filter(s => s !== subscriber);
   }
 
   // TODO replace this with an event

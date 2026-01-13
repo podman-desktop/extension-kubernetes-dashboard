@@ -25,14 +25,18 @@ export interface DispatcherObject<T> {
   dispatch(subscriber: StateSubscriber, options?: T): Promise<void>;
 }
 
+interface SubscriberTimers {
+  debounceTimer?: NodeJS.Timeout;
+  throttleTimer?: NodeJS.Timeout;
+}
+
 // Allow to receive event for a given object
 export abstract class AbsDispatcherObjectImpl<T, U> implements DispatcherObject<T> {
   #channel: RpcChannel<U>;
 
   #debounceTimeout: number;
   #throttleTimeout: number;
-  #debounceTimer: NodeJS.Timeout | undefined;
-  #throttleTimer: NodeJS.Timeout | undefined;
+  #subscriberTimers: Map<StateSubscriber, SubscriberTimers> = new Map();
 
   constructor(channel: RpcChannel<U>) {
     this.#channel = channel;
@@ -49,32 +53,64 @@ export abstract class AbsDispatcherObjectImpl<T, U> implements DispatcherObject<
       return subscriber.dispatch(this.#channel, this.getData(options));
     };
 
-    if (this.#debounceTimer) {
-      clearTimeout(this.#debounceTimer);
-      this.#debounceTimer = undefined;
+    // Get or create timer entry for this subscriber
+    let timers = this.#subscriberTimers.get(subscriber);
+    if (!timers) {
+      timers = {};
+      this.#subscriberTimers.set(subscriber, timers);
     }
-    this.#debounceTimer = setTimeout(() => {
-      if (this.#throttleTimer) {
-        clearTimeout(this.#throttleTimer);
-        this.#throttleTimer = undefined;
+
+    // Clear existing debounce timer for this subscriber
+    if (timers.debounceTimer) {
+      clearTimeout(timers.debounceTimer);
+      timers.debounceTimer = undefined;
+    }
+
+    // Set new debounce timer for this subscriber
+    timers.debounceTimer = setTimeout(() => {
+      if (timers.throttleTimer) {
+        clearTimeout(timers.throttleTimer);
+        timers.throttleTimer = undefined;
       }
       doDispatch()
         .catch(console.error)
         .finally(() => {
-          clearTimeout(this.#debounceTimer);
-          this.#debounceTimer = undefined;
+          if (timers.debounceTimer) {
+            clearTimeout(timers.debounceTimer);
+            timers.debounceTimer = undefined;
+          }
         });
     }, this.#debounceTimeout);
 
-    if (!this.#throttleTimer && this.#throttleTimeout > 0) {
-      this.#throttleTimer = setTimeout(() => {
+    // Set throttle timer for this subscriber (if not already set)
+    if (!timers.throttleTimer && this.#throttleTimeout > 0) {
+      timers.throttleTimer = setTimeout(() => {
         doDispatch()
           .catch(console.error)
           .finally(() => {
-            clearTimeout(this.#throttleTimer);
-            this.#throttleTimer = undefined;
+            if (timers.throttleTimer) {
+              clearTimeout(timers.throttleTimer);
+              timers.throttleTimer = undefined;
+            }
           });
       }, this.#throttleTimeout);
+    }
+  }
+
+  /**
+   * Clean up timers for a specific subscriber.
+   * Should be called when a subscriber is removed or disposed.
+   */
+  cleanupSubscriber(subscriber: StateSubscriber): void {
+    const timers = this.#subscriberTimers.get(subscriber);
+    if (timers) {
+      if (timers.debounceTimer) {
+        clearTimeout(timers.debounceTimer);
+      }
+      if (timers.throttleTimer) {
+        clearTimeout(timers.throttleTimer);
+      }
+      this.#subscriberTimers.delete(subscriber);
     }
   }
 

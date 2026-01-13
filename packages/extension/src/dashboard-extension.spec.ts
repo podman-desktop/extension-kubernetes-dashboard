@@ -69,6 +69,7 @@ beforeEach(() => {
   contextsStatesDispatcherMock = {
     init: vi.fn(),
     addSubscriber: vi.fn(),
+    removeSubscriber: vi.fn(),
   } as unknown as ContextsStatesDispatcher;
   vi.mocked(ContextsStatesDispatcher).mockReturnValue(contextsStatesDispatcherMock);
 
@@ -138,6 +139,7 @@ test('activate should return a KubernetesDashboardExtensionApi', async () => {
   const apiSubscriber = vi.mocked(contextsStatesDispatcherMock.addSubscriber).mock.lastCall?.[0];
 
   subscriber.dispose();
+  expect(contextsStatesDispatcherMock.removeSubscriber).toHaveBeenCalled();
   expect(apiSubscriber).toBeDefined();
   expect((apiSubscriber as ApiSubscriber).dispose).toHaveBeenCalledOnce();
 });
