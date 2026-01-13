@@ -147,6 +147,7 @@ export class DashboardExtension {
             return subscriber.subscribe(RESOURCES_COUNT, undefined, listener);
           },
           dispose: () => {
+            this.#contextsStatesDispatcher.removeSubscriber(subscriber);
             subscriber.dispose();
           },
         } as KubernetesDashboardSubscriber;
