@@ -2,7 +2,7 @@
   "name": "kubernetes-dashboard",
   "displayName": "Kubernetes Dashboard",
   "description": "Podman Desktop extension allowing to monitor resources from Kubernetes clusters",
-  "version": "0.3.0-next",
+  "version": "0.3.0",
   "icon": "icon.png",
   "publisher": "redhat",
   "license": "Apache-2.0",
