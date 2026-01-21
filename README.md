@@ -8,6 +8,8 @@ The Kubernetes Dashboard detects your Kubeconfig file, and connects to the curre
 Any change of Kubernetes context (either from Podman Desktop or by editing the Kubeconfig file with another tool) 
 is detected by the dashboard, which disconnects from the previous current context and connects to the new one.
 
+## Resources
+
 A Dashboard page provides a synthetic view of the main resources present in the Kubernetes context: 
 - non-namespaced resources: nodes and namespaces, 
 - namespaced resources: workloads (deployments, pods, jobs, cronjobs), services (services, ingresses, routes) and configuration and storage (persistent volume claims, configmaps, secrets).
@@ -24,6 +26,16 @@ For Pods, you also have access to:
 - a terminal on each container running in the pod. 
 
 You can switch the namespace you want to explore from the Dashboard page or from any list of namespaced resources. The extension will disconnect from the previous namespace and connect to the new one.
+
+## Port forwardings
+
+From the Summary page of Deployments, Pods and Services, you can create port forwardings on exposed ports.
+
+A dedicated page lists the existing port forwardings, from which you can visit each port forward in your browser, and manage them (delete).
+
+## Permissions
+
+The Kubernetes Dashboard checks Read permissions on each resource, and indicates in the Dashboard and in the pages listing the resources if the current user does not have read access on a resource.
 
 # Installation
 
