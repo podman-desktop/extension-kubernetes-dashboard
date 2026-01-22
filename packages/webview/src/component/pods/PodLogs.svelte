@@ -37,14 +37,14 @@ onMount(async () => {
   podLogsHelper.init(containers);
   logsTerminal?.clear();
 
-  for (const containerName of containers.map(c => c.name)) {
+  for (const name of containers.map(c => c.name)) {
     disposables.push(
       await streams.streamPodLogs.subscribe(
         object.metadata?.name ?? '',
         object.metadata?.namespace ?? '',
-        containerName,
+        name,
         chunk => {
-          const data = podLogsHelper.transformPodLogs(containerName, chunk.data);
+          const data = podLogsHelper.transformPodLogs(name, chunk.data);
           if (noLogs !== false) {
             noLogs = false;
           }
