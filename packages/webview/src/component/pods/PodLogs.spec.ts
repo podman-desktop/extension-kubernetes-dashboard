@@ -26,7 +26,7 @@ import type { V1Pod } from '@kubernetes/client-node';
 import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import type { Terminal } from '@xterm/xterm';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { PodLogsHelper } from '/@/component/pods/pod-logs-helper';
 
@@ -41,6 +41,7 @@ const streamPodLogsMock = new FakeStreamObject<PodLogsChunk>();
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.useFakeTimers();
   streamMocks.reset();
   streamMocks.mock<PodLogsChunk>('streamPodLogs', streamPodLogsMock);
 
@@ -49,6 +50,10 @@ beforeEach(() => {
 
   dependencyMocks.reset();
   dependencyMocks.mock(PodLogsHelper);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('pod with one container', async () => {
@@ -71,12 +76,8 @@ describe('pod with one container', async () => {
 
   test('display No Log with no logs', async () => {
     render(PodLogs, { object: pod });
-    expect(EmptyScreen).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        hidden: false,
-      }),
-    );
+    await vi.advanceTimersByTimeAsync(1_100);
+    expect(EmptyScreen).toHaveBeenCalled();
   });
 
   test('write received logs to the terminal', async () => {
@@ -94,6 +95,8 @@ describe('pod with one container', async () => {
     expect(mockedTerminal.clear).toHaveBeenCalled();
     expect(TerminalWindow).toHaveBeenCalled();
 
+    expect(streamPodLogsMock.subscriptionCount).toBe(1);
+
     vi.mocked(dependencyMocks.get(PodLogsHelper).transformPodLogs).mockReturnValue('some logs');
 
     streamPodLogsMock.sendData({
@@ -103,12 +106,8 @@ describe('pod with one container', async () => {
       data: 'some logs',
     });
     expect(mockedTerminal.write).toHaveBeenCalledWith('some logs\r');
-    expect(EmptyScreen).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        hidden: true,
-      }),
-    );
+    await vi.advanceTimersByTimeAsync(1_100);
+    expect(EmptyScreen).not.toHaveBeenCalled();
   });
 });
 
@@ -135,12 +134,8 @@ describe('pod with two containers', async () => {
 
   test('display No Log with no logs', async () => {
     render(PodLogs, { object: pod });
-    expect(EmptyScreen).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        hidden: false,
-      }),
-    );
+    await vi.advanceTimersByTimeAsync(1_100);
+    expect(EmptyScreen).toHaveBeenCalled();
   });
 
   test('write received logs to the terminal', async () => {
@@ -169,11 +164,67 @@ describe('pod with two containers', async () => {
       data: 'some logs',
     });
     expect(mockedTerminal.write).toHaveBeenCalledWith('          \u001b[36mcnt1\u001b[0m|some logs\r');
-    expect(EmptyScreen).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        hidden: true,
-      }),
-    );
+    await vi.advanceTimersByTimeAsync(1_100);
+    expect(EmptyScreen).not.toHaveBeenCalled();
+
+    expect(streamPodLogsMock.subscriptionCount).toBe(2);
+  });
+});
+
+describe('pod with two containers, one container selected', async () => {
+  let pod: V1Pod;
+  beforeEach(() => {
+    pod = {
+      metadata: {
+        name: 'podName',
+        namespace: 'namespace',
+      },
+      spec: {
+        containers: [
+          {
+            name: 'cnt1',
+          },
+          {
+            name: 'containerName2',
+          },
+        ],
+      },
+    } as V1Pod;
+  });
+
+  test('display No Log with no logs', async () => {
+    render(PodLogs, { object: pod, containerName: 'cnt1' });
+    await vi.advanceTimersByTimeAsync(1_100);
+    expect(EmptyScreen).toHaveBeenCalled();
+  });
+
+  test('write received logs to the terminal', async () => {
+    const mockedTerminal: Terminal = {
+      write: vi.fn(),
+      dispose: vi.fn(),
+      clear: vi.fn(),
+    } as unknown as Terminal;
+    vi.mocked(TerminalWindow).mockImplementation((_, props) => {
+      props.terminal = mockedTerminal;
+      return {};
+    });
+    render(PodLogs, { object: pod, containerName: 'cnt1' });
+    expect(mockedTerminal.write).not.toHaveBeenCalledWith();
+    expect(mockedTerminal.clear).toHaveBeenCalled();
+    expect(TerminalWindow).toHaveBeenCalled();
+
+    vi.mocked(dependencyMocks.get(PodLogsHelper).transformPodLogs).mockReturnValue('some logs');
+
+    streamPodLogsMock.sendData({
+      podName: 'podName',
+      namespace: 'namespace',
+      containerName: 'cnt1',
+      data: 'some logs',
+    });
+    expect(mockedTerminal.write).toHaveBeenCalledWith('some logs\r');
+    await vi.advanceTimersByTimeAsync(1_100);
+    expect(EmptyScreen).not.toHaveBeenCalled();
+
+    expect(streamPodLogsMock.subscriptionCount).toBe(1);
   });
 });
