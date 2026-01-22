@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,63 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { StreamObject } from './stream-object';
 import { type IDisposable } from '@kubernetes-dashboard/channels';
+import { SvelteMap } from 'svelte/reactivity';
+import type { StreamObject } from './stream-object';
 
 /**
- * Fake StreamObject for tests
+ * Fake StreamObject for tests.
+ * Supports multiple subscriptions keyed by podName/namespace/containerName.
  */
 export class FakeStreamObject<T> implements StreamObject<T> {
-  #callback: (data: T) => void;
+  #callbacks = new SvelteMap<string, (data: T) => void>();
+
   async subscribe(
     podName: string,
     namespace: string,
     containerName: string,
     callback: (data: T) => void,
   ): Promise<IDisposable> {
-    this.#callback = callback;
-    return { dispose: () => {} } as IDisposable;
+    const key = `${podName}/${namespace}/${containerName}`;
+    this.#callbacks.set(key, callback);
+    return {
+      dispose: () => {
+        this.#callbacks.delete(key);
+      },
+    } as IDisposable;
   }
 
-  sendData(data: T): void {
-    this.#callback(data);
+  /**
+   * Send data to the callback registered for the matching podName/namespace/containerName.
+   * The data object must have these properties to route correctly.
+   */
+  sendData(data: T & { podName?: string; namespace?: string; containerName?: string }): void {
+    const key = `${data.podName}/${data.namespace}/${data.containerName}`;
+    const callback = this.#callbacks.get(key);
+    if (callback) {
+      callback(data);
+    }
+  }
+
+  /**
+   * Returns the number of active subscriptions.
+   * Useful for tests to verify subscriptions are set up.
+   */
+  get subscriptionCount(): number {
+    return this.#callbacks.size;
+  }
+
+  /**
+   * Wait for a specific number of subscriptions to be registered.
+   * Useful for tests that need to wait for async onMount to complete.
+   */
+  async waitForSubscriptions(count: number, timeoutMs: number = 1000): Promise<void> {
+    const start = Date.now();
+    while (this.#callbacks.size < count) {
+      if (Date.now() - start > timeoutMs) {
+        throw new Error(`Timeout waiting for ${count} subscriptions. Current: ${this.#callbacks.size}`);
+      }
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
   }
 }

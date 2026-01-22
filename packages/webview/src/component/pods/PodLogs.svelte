@@ -12,11 +12,13 @@ import { DependencyAccessor } from '/@/inject/dependency-accessor';
 
 interface Props {
   object: V1Pod;
+  // undefined means logs for all containers are displayed
+  containerName?: string;
 }
-let { object }: Props = $props();
+let { object, containerName }: Props = $props();
 
 // Logs has been initialized
-let noLogs = $state(true);
+let noLogs = $state<boolean>();
 
 let logsTerminal = $state<Terminal>();
 
@@ -26,19 +28,24 @@ const streams = getContext<Streams>(Streams);
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const podLogsHelper = dependencyAccessor.get<PodLogsHelper>(PodLogsHelper);
 
+// This component is not reactive, it must be unmounted and mounted again when the container name changes
+// using the #key directive
 onMount(async () => {
-  podLogsHelper.init(object.spec?.containers ?? []);
+  const containers =
+    (containerName ? object.spec?.containers.filter(c => c.name === containerName) : object.spec?.containers) ?? [];
+
+  podLogsHelper.init(containers);
   logsTerminal?.clear();
 
-  for (const containerName of object.spec?.containers.map(c => c.name) ?? []) {
+  for (const name of containers.map(c => c.name)) {
     disposables.push(
       await streams.streamPodLogs.subscribe(
         object.metadata?.name ?? '',
         object.metadata?.namespace ?? '',
-        containerName,
+        name,
         chunk => {
-          const data = podLogsHelper.transformPodLogs(containerName, chunk.data);
-          if (noLogs) {
+          const data = podLogsHelper.transformPodLogs(name, chunk.data);
+          if (noLogs !== false) {
             noLogs = false;
           }
           logsTerminal?.write(data + '\r');
@@ -51,6 +58,10 @@ onMount(async () => {
       ),
     );
   }
+  // there is no wait to be sure there is no logs, except to wait a few moment
+  setTimeout(() => {
+    noLogs ??= true;
+  }, 1_000);
 });
 
 onDestroy(() => {
@@ -59,16 +70,10 @@ onDestroy(() => {
 });
 </script>
 
-<EmptyScreen
-  icon={NoLogIcon}
-  title="No Log"
-  message="Log output of Pod {object.metadata?.name}"
-  hidden={noLogs === false} />
-
-<div
-  class="min-w-full flex flex-col"
-  class:invisible={noLogs === true}
-  class:h-0={noLogs === true}
-  class:h-full={noLogs === false}>
-  <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn search />
-</div>
+{#if noLogs === true}
+  <EmptyScreen class="min-w-full" icon={NoLogIcon} title="No Log" message="Log output of Pod {object.metadata?.name}" />
+{:else}
+  <div class="h-full min-w-full flex flex-col">
+    <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn search />
+  </div>
+{/if}
