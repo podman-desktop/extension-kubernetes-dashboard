@@ -14,8 +14,9 @@ interface Props {
   object: V1Pod;
   // undefined means logs for all containers are displayed
   containerName?: string;
+  colorizer: string;
 }
-let { object, containerName }: Props = $props();
+let { object, containerName, colorizer }: Props = $props();
 
 // Logs has been initialized
 let noLogs = $state<boolean>();
@@ -28,13 +29,13 @@ const streams = getContext<Streams>(Streams);
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const podLogsHelper = dependencyAccessor.get<PodLogsHelper>(PodLogsHelper);
 
-// This component is not reactive, it must be unmounted and mounted again when the container name changes
+// This component is not reactive, it must be unmounted and mounted again when options change
 // using the #key directive
 onMount(async () => {
   const containers =
     (containerName ? object.spec?.containers.filter(c => c.name === containerName) : object.spec?.containers) ?? [];
 
-  podLogsHelper.init(containers);
+  podLogsHelper.init(containers, colorizer);
   logsTerminal?.clear();
 
   for (const name of containers.map(c => c.name)) {

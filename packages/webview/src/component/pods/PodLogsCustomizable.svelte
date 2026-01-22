@@ -3,11 +3,17 @@ import type { V1Pod } from '@kubernetes/client-node';
 import { Dropdown, EmptyScreen } from '@podman-desktop/ui-svelte';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import PodLogs from '/@/component/pods/PodLogs.svelte';
+import { getContext } from 'svelte';
+import { DependencyAccessor } from '/@/inject/dependency-accessor';
+import { PodLogsHelper } from '/@/component/pods/pod-logs-helper';
 
 interface Props {
   object: V1Pod;
 }
 let { object }: Props = $props();
+
+const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
+const podLogsHelper = dependencyAccessor.get<PodLogsHelper>(PodLogsHelper);
 
 const runningContainers = $derived(object.status?.containerStatuses?.filter(status => status.state?.running) ?? []);
 
@@ -21,28 +27,38 @@ let containerSelection = $derived([
     value: container.name,
   })),
 ]);
+
+let selectedColorizer = $state<string>(podLogsHelper.getColorizers()[0]);
+let colorizerSelection = podLogsHelper.getColorizers().map(colorizer => ({ label: colorizer, value: colorizer }));
 </script>
 
 {#if runningContainers.length > 0}
   <div class="flex grow flex-col h-full w-full">
-    {#if runningContainers.length > 1}
-      <div class="flex p-2 h-[40px] w-full">
-        <div class="w-full">
+    <div class="flex flex-row p-2 h-[40px] gap-2">
+      {#if runningContainers.length > 1}
+        <div class="w-48">
           <Dropdown
             ariaLabel="Select container"
-            class="w-48"
             name="container"
             bind:value={selectedContainerName}
             options={containerSelection}>
           </Dropdown>
         </div>
+      {/if}
+      <div class="w-48">
+        <Dropdown
+          ariaLabel="Select colorization"
+          name="colorizer"
+          bind:value={selectedColorizer}
+          options={colorizerSelection}>
+        </Dropdown>
       </div>
-    {/if}
+    </div>
 
     <div class="flex w-full h-full min-h-0">
-      {#key selectedContainerName}
+      {#key [selectedContainerName, selectedColorizer]}
         {#if selectedContainerName !== undefined}
-          <PodLogs object={object} containerName={selectedContainerName} />
+          <PodLogs object={object} containerName={selectedContainerName} colorizer={selectedColorizer} />
         {/if}
       {/key}
     </div>

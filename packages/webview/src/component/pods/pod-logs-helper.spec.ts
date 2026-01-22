@@ -28,11 +28,24 @@ test('should colorize content and container name', () => {
   // we are just testing one case of log level, to be sure the helper is called, the rest is tested in the specs of logs level colorization.
   const multiContainersLogsHelper = new MultiContainersLogsHelper();
   const helper = new PodLogsHelper(multiContainersLogsHelper);
-  helper.init([{ name: 'cnt1' }, { name: 'container2' }]);
+  helper.init([{ name: 'cnt1' }, { name: 'container2' }], 'log level colors');
 
   const result1 = helper.transformPodLogs('cnt1', 'line before\n[ERROR] some logs\nline after\n');
   expect(result1).toEqual(`      \u001b[36mcnt1\u001b[0m|line before
       \u001b[36mcnt1\u001b[0m|\u001b[31;1m[ERROR]\u001b[0m some logs
+      \u001b[36mcnt1\u001b[0m|line after
+`);
+});
+
+test('should colorize container name but no content', () => {
+  // we are just testing one case of log level, to be sure the helper is called, the rest is tested in the specs of logs level colorization.
+  const multiContainersLogsHelper = new MultiContainersLogsHelper();
+  const helper = new PodLogsHelper(multiContainersLogsHelper);
+  helper.init([{ name: 'cnt1' }, { name: 'container2' }], 'no colors');
+
+  const result1 = helper.transformPodLogs('cnt1', 'line before\n[ERROR] some logs\nline after\n');
+  expect(result1).toEqual(`      \u001b[36mcnt1\u001b[0m|line before
+      \u001b[36mcnt1\u001b[0m|[ERROR] some logs
       \u001b[36mcnt1\u001b[0m|line after
 `);
 });

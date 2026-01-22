@@ -25,15 +25,29 @@ import { inject, injectable } from 'inversify';
 export class PodLogsHelper {
   constructor(@inject(MultiContainersLogsHelper) private multiContainersLogsHelper: MultiContainersLogsHelper) {}
 
-  init(containers: V1Container[]): void {
+  #colorizerFunction: (data: string) => string;
+  #colorizerFunctions: Record<string, (data: string) => string> = {
+    'log level colors': colorizeLogLevel,
+    'no colors': (data: string) => data,
+  };
+
+  init(containers: V1Container[], colorizer: string): void {
+    if (!this.#colorizerFunctions[colorizer]) {
+      throw new Error(`Invalid colorizer: ${colorizer}`);
+    }
+    this.#colorizerFunction = this.#colorizerFunctions[colorizer];
     this.multiContainersLogsHelper.init(containers);
   }
 
   transformPodLogs(containerName: string, data: string): string {
     const colorizedContent = data
       .split('\n')
-      .map(line => colorizeLogLevel(line))
+      .map(line => this.#colorizerFunction(line))
       .join('\n');
     return this.multiContainersLogsHelper.transform(containerName, colorizedContent);
+  }
+
+  getColorizers(): string[] {
+    return Object.keys(this.#colorizerFunctions);
   }
 }
