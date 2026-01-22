@@ -10,6 +10,11 @@
     "podman-desktop": ">=1.18.0"
   },
   "main": "./dist/main.js",
+  "contributes": {
+    "features": [
+      "kubernetes-dashboard"
+    ]
+  },
   "scripts": {
     "build": "vite build",
     "test": "vitest run --coverage",
