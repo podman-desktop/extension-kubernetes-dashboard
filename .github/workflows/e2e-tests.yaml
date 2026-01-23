@@ -161,8 +161,8 @@ jobs:
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
         shell: bash
         run: |
-          KUBECONFIG=${{ runner.temp }}/envtest-kubeconfig
-          envtest-start $KUBECONFIG &
+          KUBECONFIG='${{ runner.temp }}/envtest-kubeconfig'
+          envtest-start "$KUBECONFIG" &
           ENVTEST_START_PID=$!
           echo "ENVTEST_START_PID=$ENVTEST_START_PID" >> $GITHUB_OUTPUT
           echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_OUTPUT
@@ -170,7 +170,7 @@ jobs:
       - name: check cluster is accessible, should show a service named "kubernetes"
         env:
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
-          KUBECONFIG: ${{ steps.run-envtest.outputs.KUBECONFIG }}
+          KUBECONFIG: '${{ steps.run-envtest.outputs.KUBECONFIG }}'
         shell: bash
         run: |
           $KUBEBUILDER_ASSETS/kubectl get all | grep "service/kubernetes"
