@@ -23,7 +23,7 @@ export enum KubernetesResources {
   Services = 'Services',
   IngeressesRoutes = 'Ingresses & Routes',
   PVCs = 'Persistent Volume Claims',
-  ConfigMapsSecrets = 'ConfigMaps and Secrets', // TODO fixme, change with &
+  ConfigMapsSecrets = 'ConfigMaps and Secrets', // TODO change with &
   PortForwarding = 'Port Forwarding',
   Pods = 'Pods',
   Cronjobs = 'CronJobs',

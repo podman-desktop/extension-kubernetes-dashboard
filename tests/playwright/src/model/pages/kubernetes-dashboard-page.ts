@@ -19,7 +19,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 
-import { KubernetesResources } from '../core/types';
+import { KubernetesResources } from '/@/model/core/types';
 import { MainPage } from '@podman-desktop/tests-playwright';
 
 export class KubernetesDashboardPage extends MainPage {
@@ -80,7 +80,7 @@ export class KubernetesDashboardPage extends MainPage {
   }
 
   async getStatus(): Promise<string> {
-    return (await this.statusIndicator.textContent()) || '';
+    return (await this.statusIndicator.textContent()) ?? '';
   }
 
   private namespaceLocatorByName(name: string): Locator {

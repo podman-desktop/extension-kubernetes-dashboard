@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import { KubernetesResources } from '../core/types';
+import type { KubernetesResources } from '/@/model/core/types';
 import { KubernetesResourcePage } from './kubernetes-resource-page';
 import { KubernetesDashboardPage } from './kubernetes-dashboard-page';
 import { PortForwardingPage } from './port-forwarding-page';

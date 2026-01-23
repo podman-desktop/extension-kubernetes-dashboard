@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import test, { expect as playExpect, type Locator, type Page } from '@playwright/test';
+import { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
-import { KubernetesResourceAttributes, KubernetesResources } from '../core/types';
+import { KubernetesResourceAttributes, type KubernetesResources } from '/@/model/core/types';
 import { MainPage } from '@podman-desktop/tests-playwright';
 
 export class KubernetesResourcePage extends MainPage {
