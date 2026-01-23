@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ export * from './kubernetes-providers-info';
 export * from './kubernetes-troubleshooting';
 export * from './openshift-types';
 export * from './pod-logs-chunk';
+export * from './pod-logs-options';
 export * from './pod-terminal-chunk';
 export * from './port-forward-info';
 export * from './port-forward';
