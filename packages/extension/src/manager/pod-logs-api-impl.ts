@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import { IDisposable, PodLogsApi } from '@kubernetes-dashboard/channels';
 import { PodLogsService } from '/@/pod-logs/pod-logs-service';
 import { ContextsManager } from './contexts-manager';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
+import type { PodLogsOptions } from '@kubernetes-dashboard/channels';
 
 type PodLogsInstance = {
   counter: number;
@@ -35,7 +36,12 @@ export class PodLogsApiImpl implements PodLogsApi, IDisposable {
     @inject(RpcExtension) private rpcExtension: RpcExtension,
   ) {}
 
-  async streamPodLogs(podName: string, namespace: string, containerName: string): Promise<void> {
+  async streamPodLogs(
+    podName: string,
+    namespace: string,
+    containerName: string,
+    options?: PodLogsOptions,
+  ): Promise<void> {
     if (!this.contextsManager.currentContext) {
       throw new Error('No current context found');
     }
@@ -45,7 +51,7 @@ export class PodLogsApiImpl implements PodLogsApi, IDisposable {
     };
     instance.counter++;
     if (instance.counter === 1) {
-      await instance.service.startStream(podName, namespace, containerName);
+      await instance.service.startStream(podName, namespace, containerName, options);
     }
     this.#instances.set(this.getKey(podName, namespace, containerName), instance);
   }

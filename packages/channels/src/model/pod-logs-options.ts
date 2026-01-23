@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 - 2026 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { PodLogsOptions } from '/@/model';
-
-export const PodLogsApi = Symbol.for('PodLogsApi');
-
-export interface PodLogsApi {
-  streamPodLogs(podName: string, namespace: string, containerName: string, options?: PodLogsOptions): Promise<void>;
-  stopStreamPodLogs(podName: string, namespace: string, containerName: string): Promise<void>;
+export interface PodLogsOptions {
+  follow?: boolean;
+  previous?: boolean;
+  tailLines?: number;
+  sinceSeconds?: number;
+  timestamps?: boolean;
 }
