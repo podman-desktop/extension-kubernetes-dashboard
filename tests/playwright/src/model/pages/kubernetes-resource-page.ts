@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ export class KubernetesResourcePage extends MainPage {
     return (await this.getRowByName(resourceName, false)) as Locator;
   }
 
-  async geAttributeByRow(row: Locator, attributeName: string, resourceType: KubernetesResources): Promise<Locator> {
+  async getAttributeByRow(row: Locator, attributeName: string, resourceType: KubernetesResources): Promise<Locator> {
     const attributes = KubernetesResourceAttributes[resourceType];
     const attrIndex = attributes.indexOf(attributeName) + 1;
     return row.getByRole('cell').nth(attrIndex);

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ export class KubernetesDashboardPage extends MainPage {
     this.podsMetricsButton = this.metricsLocatorByName(KubernetesResources.Pods);
     this.deploymentsMetricsButton = this.metricsLocatorByName(KubernetesResources.Deployments);
     this.servicesMetricsButton = this.metricsLocatorByName(KubernetesResources.Services);
-    this.ingressesMetricsButton = this.metricsLocatorByName(KubernetesResources.IngeressesRoutes);
+    this.ingressesMetricsButton = this.metricsLocatorByName(KubernetesResources.IngressesRoutes);
     this.pvcsMetricsButton = this.metricsLocatorByName(KubernetesResources.PVCs);
     this.configMapsMetricsButton = this.metricsLocatorByName(KubernetesResources.ConfigMapsSecrets);
     this.jobsMetricsButton = this.metricsLocatorByName(KubernetesResources.Jobs);

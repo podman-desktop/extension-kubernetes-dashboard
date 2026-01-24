@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,7 +180,7 @@ test.describe.serial(`Extension usage`, () => {
   });
 
   test('go to ingresses & routes page', async () => {
-    const ingresssRoutesPage = await navigation.openTabPage(KubernetesResources.IngeressesRoutes);
+    const ingresssRoutesPage = await navigation.openTabPage(KubernetesResources.IngressesRoutes);
     await playExpect(ingresssRoutesPage.heading).toBeVisible();
   });
 

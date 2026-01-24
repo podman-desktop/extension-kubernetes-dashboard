@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2025 Red Hat, Inc.
+# Copyright (C) 2025 - 2026 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -179,7 +179,7 @@ jobs:
       - name: Run E2E Smoke tests
         shell: bash
         run: |
-          cp ${KUBECONFIG} ./tests/resources/envtest-kubeconfig
+          cp "${KUBECONFIG}" ./tests/resources/envtest-kubeconfig
           pnpm test:e2e:smoke
         env:
           NODE_OPTIONS: --no-experimental-strip-types
