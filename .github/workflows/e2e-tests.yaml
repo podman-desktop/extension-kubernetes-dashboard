@@ -184,8 +184,8 @@ jobs:
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
           KUBECONFIG: ${{ steps.run-envtest.outputs.KUBECONFIG }}
 
-      - name: stop envtest cluster
-        if: always()
+      - name: stop envtest cluster on non-macOS
+        if: always() && runner.os != 'macOS'
         env:
           ENVTEST_START_PID: ${{ steps.run-envtest.outputs.ENVTEST_START_PID }}
         shell: bash
@@ -193,6 +193,15 @@ jobs:
         run: |
           kill ${ENVTEST_START_PID}
           timeout 10s bash -c "while ps | grep envtest-start > /dev/null; do sleep 1; done"
+
+      - name: stop envtest cluster on macOS
+        if: always() && runner.os == 'macOS'
+        env:
+          ENVTEST_START_PID: ${{ steps.run-envtest.outputs.ENVTEST_START_PID }}
+        shell: bash
+        run: |
+          kill ${ENVTEST_START_PID}
+          gtimeout 10s bash -c "while ps | grep envtest-start > /dev/null; do sleep 1; done"
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
