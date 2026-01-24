@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-2025, ubuntu-24.04 ]
+        os: [ windows-2025, ubuntu-24.04, macos-26 ]
     env:
       SKIP_INSTALLATION: true
       EXTENSION_PREINSTALLED: true
@@ -173,7 +173,7 @@ jobs:
           KUBECONFIG: ${{ steps.run-envtest.outputs.KUBECONFIG }}
         shell: bash
         run: |
-          $KUBEBUILDER_ASSETS/kubectl get all | grep "service/kubernetes"
+          "$KUBEBUILDER_ASSETS/kubectl" get all | grep "service/kubernetes"
 
       # Run tests
       - name: Run E2E Smoke tests
