@@ -49,7 +49,7 @@ jobs:
       releaseId: ${{ steps.create_release.outputs.id}}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ github.event.inputs.branch }}
           token: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
@@ -85,7 +85,7 @@ jobs:
           git push origin ${{ steps.TAG_UTIL.outputs.githubTag }}
       - name: Create Release
         id: create_release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # v1.20.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -133,7 +133,7 @@ jobs:
     needs: tag
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ needs.tag.outputs.githubTag }}
 
@@ -144,7 +144,7 @@ jobs:
 
       - name: build builder image
         id: builder-image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 #v2.13
         with:
           image: podman-desktop-extension-kubernetes-dashboard-builder
           tags: latest ${{ needs.tag.outputs.extVersion }}
@@ -155,7 +155,7 @@ jobs:
           oci: true
 
       - name: Log in to ghcr.io
-        uses: redhat-actions/podman-login@v1
+        uses: redhat-actions/podman-login@4934294ad0449894bcd1e9f191899d7292469603 # v1.7
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -163,14 +163,14 @@ jobs:
 
       - name: publish builder to ghcr.io
         id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c #v2.8
         with:
           image: ${{ steps.builder-image.outputs.image }}
           tags: ${{ steps.builder-image.outputs.tags }}
           registry: ghcr.io/${{ github.repository_owner }}
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         with:
           subject-name: ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard-builder
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
@@ -184,7 +184,7 @@ jobs:
     needs: [builder-image, tag]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ needs.tag.outputs.githubTag }}
 
@@ -195,7 +195,7 @@ jobs:
 
       - name: build extension image
         id: extension-image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 #v2.13
         with:
           image: podman-desktop-extension-kubernetes-dashboard
           tags: latest ${{ needs.tag.outputs.extVersion }}
@@ -206,7 +206,7 @@ jobs:
           oci: true
 
       - name: Log in to ghcr.io
-        uses: redhat-actions/podman-login@v1
+        uses: redhat-actions/podman-login@4934294ad0449894bcd1e9f191899d7292469603 # v1.7
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -214,14 +214,14 @@ jobs:
 
       - name: publish extension to ghcr.io
         id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c #v2.8
         with:
           image: ${{ steps.extension-image.outputs.image }}
           tags: ${{ steps.extension-image.outputs.tags }}
           registry: ghcr.io/${{ github.repository_owner }}
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         with:
           subject-name: ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
@@ -236,7 +236,7 @@ jobs:
         run: echo the release id is ${{ needs.tag.outputs.releaseId}}
 
       - name: Publish release
-        uses: StuYarrow/publish-release@v1.1.2
+        uses: StuYarrow/publish-release@01f2a1365bacd77bad861873a7fdf274ab49eefd # v1.1.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
