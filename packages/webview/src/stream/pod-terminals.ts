@@ -23,7 +23,7 @@ import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import { type IDisposable, type PodTerminalsApi, type PodTerminalChunk } from '@kubernetes-dashboard/channels';
 import type { StreamObject } from './util/stream-object';
 
-export class StreamPodTerminals implements StreamObject<PodTerminalChunk> {
+export class StreamPodTerminals implements StreamObject<PodTerminalChunk, void> {
   #podTerminalsApi: PodTerminalsApi;
 
   constructor(
@@ -36,6 +36,7 @@ export class StreamPodTerminals implements StreamObject<PodTerminalChunk> {
     podName: string,
     namespace: string,
     containerName: string,
+    options: void,
     callback: (data: PodTerminalChunk) => void,
   ): Promise<IDisposable> {
     const disposable = this.rpcBrowser.on(POD_TERMINAL_DATA, chunk => {

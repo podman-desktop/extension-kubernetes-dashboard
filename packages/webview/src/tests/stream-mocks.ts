@@ -27,12 +27,12 @@ import type { StreamObject } from '/@/stream/util/stream-object';
  *
  * ```
  *  const streamMocks = new StreamsMocks();
- *  const streamPodTerminalsMock = new FakeStreamObject<PodTerminalChunk>();
+ *  const streamPodTerminalsMock = new FakeStreamObject<PodTerminalChunk, Options>();
  *
  *  beforeEach(() => {
  *    vi.resetAllMocks();
  *    streamMocks.reset();
- *    streamMocks.mock<PodTerminalChunk>('streamPodTerminals', streamPodTerminalsMock);
+ *    streamMocks.mock<PodTerminalChunk, Options>('streamPodTerminals', streamPodTerminalsMock);
  *  });
  *
  *  test('test with states', () => {
@@ -49,7 +49,7 @@ import type { StreamObject } from '/@/stream/util/stream-object';
  * ```
  */
 export class StreamsMocks {
-  #streamsMocks: Map<string, StreamObject<unknown>> = new Map();
+  #streamsMocks: Map<string, StreamObject<unknown, unknown>> = new Map();
   #streamsProperties = Object.getOwnPropertyNames(Streams.prototype).filter(property => property !== 'constructor');
 
   reset(): void {
@@ -68,7 +68,7 @@ export class StreamsMocks {
     });
   }
 
-  public mock<T>(identifier: string, streamObject: StreamObject<T>): void {
+  public mock<T, U>(identifier: string, streamObject: StreamObject<T, U>): void {
     assert(
       this.#streamsProperties.includes(identifier),
       `${identifier} is not a known property of Streams. Must be one of ${this.#streamsProperties.join(', ')}`,
