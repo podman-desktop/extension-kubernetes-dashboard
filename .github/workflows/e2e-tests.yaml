@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-2025, ubuntu-24.04 ]
+        os: [ windows-2025, ubuntu-24.04, macos-26 ]
     env:
       SKIP_INSTALLATION: true
       EXTENSION_PREINSTALLED: true
@@ -173,7 +173,7 @@ jobs:
           KUBECONFIG: ${{ steps.run-envtest.outputs.KUBECONFIG }}
         shell: bash
         run: |
-          $KUBEBUILDER_ASSETS/kubectl get all | grep "service/kubernetes"
+          "$KUBEBUILDER_ASSETS/kubectl" get all | grep "service/kubernetes"
 
       # Run tests
       - name: Run E2E Smoke tests
@@ -184,8 +184,8 @@ jobs:
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
           KUBECONFIG: ${{ steps.run-envtest.outputs.KUBECONFIG }}
 
-      - name: stop envtest cluster
-        if: always()
+      - name: stop envtest cluster on non-macOS
+        if: always() && runner.os != 'macOS'
         env:
           ENVTEST_START_PID: ${{ steps.run-envtest.outputs.ENVTEST_START_PID }}
         shell: bash
@@ -193,6 +193,16 @@ jobs:
         run: |
           kill ${ENVTEST_START_PID}
           timeout 10s bash -c "while ps | grep envtest-start > /dev/null; do sleep 1; done"
+
+      - name: stop envtest cluster on macOS
+        if: always() && runner.os == 'macOS'
+        env:
+          ENVTEST_START_PID: ${{ steps.run-envtest.outputs.ENVTEST_START_PID }}
+        shell: bash
+        run: |
+          kill ${ENVTEST_START_PID}
+          brew install coreutils
+          gtimeout 10s bash -c "while ps | grep envtest-start > /dev/null; do sleep 1; done"
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
