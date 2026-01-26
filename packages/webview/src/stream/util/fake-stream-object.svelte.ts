@@ -24,13 +24,14 @@ import type { StreamObject } from './stream-object';
  * Fake StreamObject for tests.
  * Supports multiple subscriptions keyed by podName/namespace/containerName.
  */
-export class FakeStreamObject<T> implements StreamObject<T> {
+export class FakeStreamObject<T, U> implements StreamObject<T, U> {
   #callbacks = new SvelteMap<string, (data: T) => void>();
 
   async subscribe(
     podName: string,
     namespace: string,
     containerName: string,
+    options: U,
     callback: (data: T) => void,
   ): Promise<IDisposable> {
     const key = `${podName}/${namespace}/${containerName}`;

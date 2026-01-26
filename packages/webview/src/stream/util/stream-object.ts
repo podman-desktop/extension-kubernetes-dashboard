@@ -19,11 +19,12 @@
 import type { IDisposable } from '@kubernetes-dashboard/channels';
 
 export const StateObject = Symbol.for('StreamObject');
-export interface StreamObject<T> {
+export interface StreamObject<T, U> {
   subscribe(
     podName: string,
     namespace: string,
     containerName: string,
+    options: U,
     callback: (data: T) => void,
   ): Promise<IDisposable>;
 }

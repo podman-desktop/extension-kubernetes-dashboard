@@ -44,6 +44,7 @@ onMount(async () => {
         object.metadata?.name ?? '',
         object.metadata?.namespace ?? '',
         name,
+        undefined,
         chunk => {
           const data = podLogsHelper.transformPodLogs(name, chunk.data);
           if (noLogs !== false) {

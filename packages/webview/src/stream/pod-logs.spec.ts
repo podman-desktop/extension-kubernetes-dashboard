@@ -55,8 +55,8 @@ test('StreamPodLogs', async () => {
   const callback1: (chunk: PodLogsChunk) => void = vi.fn();
   const callback2: (chunk: PodLogsChunk) => void = vi.fn();
 
-  const subscribeResult1 = await streamPodLogs.subscribe('podName', 'namespace', 'containerName1', callback1);
-  const subscribeResult2 = await streamPodLogs.subscribe('podName', 'namespace', 'containerName2', callback2);
+  const subscribeResult1 = await streamPodLogs.subscribe('podName', 'namespace', 'containerName1', undefined, callback1);
+  const subscribeResult2 = await streamPodLogs.subscribe('podName', 'namespace', 'containerName2', undefined, callback2);
   expect(podLogsApiMock.streamPodLogs).toHaveBeenCalledWith('podName', 'namespace', 'containerName1');
   expect(podLogsApiMock.streamPodLogs).toHaveBeenCalledWith('podName', 'namespace', 'containerName2');
   expect(rpcBrowserMock.on).toHaveBeenCalledTimes(2);

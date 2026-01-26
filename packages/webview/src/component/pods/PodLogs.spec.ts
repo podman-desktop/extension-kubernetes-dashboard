@@ -37,13 +37,13 @@ const remoteMocks = new RemoteMocks();
 const streamMocks = new StreamsMocks();
 const dependencyMocks = new DependencyMocks();
 
-const streamPodLogsMock = new FakeStreamObject<PodLogsChunk>();
+const streamPodLogsMock = new FakeStreamObject<PodLogsChunk, void>();
 
 beforeEach(() => {
   vi.resetAllMocks();
   vi.useFakeTimers();
   streamMocks.reset();
-  streamMocks.mock<PodLogsChunk>('streamPodLogs', streamPodLogsMock);
+  streamMocks.mock<PodLogsChunk, void>('streamPodLogs', streamPodLogsMock);
 
   remoteMocks.reset();
   remoteMocks.mock(API_POD_LOGS, {} as unknown as PodLogsApi);

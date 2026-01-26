@@ -43,7 +43,7 @@ vi.mock(import('@xterm/xterm'));
 const remoteMocks = new RemoteMocks();
 const streamMocks = new StreamsMocks();
 
-const streamPodTerminalsMock = new FakeStreamObject<PodTerminalChunk>();
+const streamPodTerminalsMock = new FakeStreamObject<PodTerminalChunk, void>();
 
 const terminalMock = {
   write: vi.fn(),
@@ -65,7 +65,7 @@ beforeEach(() => {
   vi.mocked(Terminal).mockReturnValue(terminalMock);
   vi.mocked(terminalMock.onData).mockReturnValue({ dispose: () => {} } as IDisposable);
   streamMocks.reset();
-  streamMocks.mock<PodTerminalChunk>('streamPodTerminals', streamPodTerminalsMock);
+  streamMocks.mock<PodTerminalChunk, void>('streamPodTerminals', streamPodTerminalsMock);
 
   remoteMocks.reset();
   remoteMocks.mock(API_POD_TERMINALS, {
