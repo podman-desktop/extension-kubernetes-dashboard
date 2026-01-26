@@ -24,6 +24,8 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, test, vi } from 'vitest';
 import PodLogsCustomizable from '/@/component/pods/PodLogsCustomizable.svelte';
 import PodLogs from '/@/component/pods/PodLogs.svelte';
+import { DependencyMocks } from '/@/tests/dependency-mocks';
+import { PodLogsHelper } from '/@/component/pods/pod-logs-helper';
 
 vi.mock(import('./PodLogs.svelte'));
 
@@ -54,8 +56,13 @@ const fakePodNoContainerRunning: V1Pod = {
   },
 } as V1Pod;
 
+const dependencyMocks = new DependencyMocks();
+
 beforeEach(() => {
   vi.resetAllMocks();
+  dependencyMocks.reset();
+  dependencyMocks.mock(PodLogsHelper);
+  vi.mocked(dependencyMocks.get(PodLogsHelper).getColorizers).mockReturnValue(['colorizer 1', 'colorizer 2']);
 });
 
 test('renders with no container running', () => {
@@ -65,22 +72,48 @@ test('renders with no container running', () => {
 
 test('renders with 2 containers running', async () => {
   render(PodLogsCustomizable, { object: fakePod2containersRunning });
-  const dropdown = screen.getByLabelText('Select container');
-  const dropdownButton = within(dropdown).getByText('All containers');
+  const containerDropdown = screen.getByLabelText('Select container');
+  const colorizerDropdown = screen.getByLabelText('Select colorization');
+  const containerDropdownButton = within(containerDropdown).getByText('All containers');
+  const colorizerDropdownButton = within(colorizerDropdown).getByText('colorizer 1');
   expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
     object: fakePod2containersRunning,
     containerName: '',
+    colorizer: 'colorizer 1',
   });
-  await userEvent.click(dropdownButton);
-  const container2 = within(dropdown).getByText('container2');
+
+  await userEvent.click(containerDropdownButton);
+  const container2 = within(containerDropdown).getByText('container2');
   await userEvent.click(container2);
   expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
     object: fakePod2containersRunning,
     containerName: 'container2',
+    colorizer: 'colorizer 1',
+  });
+
+  await userEvent.click(colorizerDropdownButton);
+  const colorizer2 = within(colorizerDropdown).getByText('colorizer 2');
+  await userEvent.click(colorizer2);
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod2containersRunning,
+    containerName: 'container2',
+    colorizer: 'colorizer 2',
   });
 });
 
-test('renders with 1 container running', () => {
+test('renders with 1 container running', async () => {
   render(PodLogsCustomizable, { object: fakePod1containerRunning });
   expect(screen.queryByText('container1')).not.toBeInTheDocument();
+
+  const colorizerDropdown = screen.getByLabelText('Select colorization');
+  const colorizerDropdownButton = within(colorizerDropdown).getByText('colorizer 1');
+
+  await userEvent.click(colorizerDropdownButton);
+  const colorizer2 = within(colorizerDropdown).getByText('colorizer 2');
+  await userEvent.click(colorizer2);
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod1containerRunning,
+    containerName: '',
+    colorizer: 'colorizer 2',
+  });
 });
