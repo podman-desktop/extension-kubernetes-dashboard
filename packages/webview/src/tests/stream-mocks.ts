@@ -27,12 +27,12 @@ import type { StreamObject } from '/@/stream/util/stream-object';
  *
  * ```
  *  const streamMocks = new StreamsMocks();
- *  const streamPodTerminalsMock = new FakeStreamObject<PodTerminalChunk, Options>();
+ *  const streamPodTerminalsMock = new FakeStreamObject<PodTerminalChunk, void>();
  *
  *  beforeEach(() => {
  *    vi.resetAllMocks();
  *    streamMocks.reset();
- *    streamMocks.mock<PodTerminalChunk, Options>('streamPodTerminals', streamPodTerminalsMock);
+ *    streamMocks.mock<PodTerminalChunk, void>('streamPodTerminals', streamPodTerminalsMock);
  *  });
  *
  *  test('test with states', () => {

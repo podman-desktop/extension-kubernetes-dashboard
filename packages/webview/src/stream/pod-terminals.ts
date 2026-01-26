@@ -36,7 +36,7 @@ export class StreamPodTerminals implements StreamObject<PodTerminalChunk, void> 
     podName: string,
     namespace: string,
     containerName: string,
-    options: void,
+    _: void,
     callback: (data: PodTerminalChunk) => void,
   ): Promise<IDisposable> {
     const disposable = this.rpcBrowser.on(POD_TERMINAL_DATA, chunk => {
