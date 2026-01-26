@@ -36,7 +36,7 @@ jobs:
       builder_required: ${{ steps.check.outputs.builder_required }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 2 # Ensure we have at least one previous commit for diff check
 
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
 
@@ -67,7 +67,7 @@ jobs:
 
       - name: build builder image
         id: builder-image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 #v2.13
         with:
           image: podman-desktop-extension-kubernetes-dashboard-builder
           tags: next ${{ github.sha }}
@@ -78,7 +78,7 @@ jobs:
           oci: true
 
       - name: Log in to ghcr.io
-        uses: redhat-actions/podman-login@v1
+        uses: redhat-actions/podman-login@4934294ad0449894bcd1e9f191899d7292469603 # v1.7
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -86,14 +86,14 @@ jobs:
 
       - name: publish builder to ghcr.io
         id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c #v2.8
         with:
           image: ${{ steps.builder-image.outputs.image }}
           tags: ${{ steps.builder-image.outputs.tags }}
           registry: ghcr.io/${{ github.repository_owner }}
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         with:
           subject-name: ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard-builder
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
@@ -107,7 +107,7 @@ jobs:
     needs: builder-image
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
 
@@ -118,7 +118,7 @@ jobs:
 
       - name: build extension image
         id: extension-image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 #v2.13
         with:
           image: podman-desktop-extension-kubernetes-dashboard
           tags: next ${{ github.sha }}
@@ -129,7 +129,7 @@ jobs:
           oci: true
 
       - name: Log in to ghcr.io
-        uses: redhat-actions/podman-login@v1
+        uses: redhat-actions/podman-login@4934294ad0449894bcd1e9f191899d7292469603 # v1.7
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -137,14 +137,14 @@ jobs:
 
       - name: publish extension to ghcr.io
         id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c #v2.8
         with:
           image: ${{ steps.extension-image.outputs.image }}
           tags: ${{ steps.extension-image.outputs.tags }}
           registry: ghcr.io/${{ github.repository_owner }}
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         with:
           subject-name: ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
