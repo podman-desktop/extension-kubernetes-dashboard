@@ -27,10 +27,10 @@ The project uses **pnpm workspaces** with the following packages:
 
 ## Key Technologies
 
-- **TypeScript 5.9.3**: Strict type checking enabled
-- **Svelte 5.48.0**: Modern reactive framework (runes-based)
-- **Vite 7.3.1**: Build tool and dev server
-- **pnpm 10.20.0**: Package manager
+- **TypeScript 5**: Strict type checking enabled
+- **Svelte 5**: Modern reactive framework (runes-based)
+- **Vite 7**: Build tool and dev server
+- **pnpm**: Package manager
 - **Node.js >=24.0.0**: Runtime requirement
 - **Vitest**: Unit testing framework
 - **Playwright**: E2E testing
