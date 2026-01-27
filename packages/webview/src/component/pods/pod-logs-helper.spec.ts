@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,4 +48,25 @@ test('should colorize container name but no content', () => {
       \u001b[36mcnt1\u001b[0m|[ERROR] some logs
       \u001b[36mcnt1\u001b[0m|line after
 `);
+});
+
+test('should resolve undefined as default colorizer', () => {
+  const multiContainersLogsHelper = new MultiContainersLogsHelper();
+  const helper = new PodLogsHelper(multiContainersLogsHelper);
+  const result = helper.resolveColorizer();
+  expect(result).toEqual('log level colors');
+});
+
+test('should resolve unknown colorizer as default colorizer', () => {
+  const multiContainersLogsHelper = new MultiContainersLogsHelper();
+  const helper = new PodLogsHelper(multiContainersLogsHelper);
+  const result = helper.resolveColorizer('unknown colorizer');
+  expect(result).toEqual('log level colors');
+});
+
+test('should resolve known colorizer as itself', () => {
+  const multiContainersLogsHelper = new MultiContainersLogsHelper();
+  const helper = new PodLogsHelper(multiContainersLogsHelper);
+  const result = helper.resolveColorizer('no colors');
+  expect(result).toEqual('no colors');
 });

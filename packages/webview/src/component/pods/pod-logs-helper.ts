@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,5 +49,13 @@ export class PodLogsHelper {
 
   getColorizers(): string[] {
     return Object.keys(this.#colorizerFunctions);
+  }
+
+  // returns colorizer if found, otherwise returns default colorizer
+  resolveColorizer(colorizer?: string): string {
+    if (!colorizer || !this.#colorizerFunctions[colorizer]) {
+      return this.getColorizers()[0];
+    }
+    return colorizer;
   }
 }
