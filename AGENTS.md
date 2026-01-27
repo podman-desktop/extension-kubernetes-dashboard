@@ -35,6 +35,7 @@ The project uses **pnpm workspaces** with the following packages:
 - **Vitest**: Unit testing framework
 - **Playwright**: E2E testing
 - **Inversify**: Dependency injection container
+- **Svelte Components**: via `@podman-desktop/ui-svelte`
 - **Tailwind CSS**: Styling (via `@podman-desktop/ui-svelte`)
 
 ## Coding Standards
@@ -160,7 +161,7 @@ export interface StreamObject<T, U> {
 
 1. Determine if it needs extension-side code (Kubernetes API access)
 2. Create RPC methods if needed
-3. Implement webview UI
+3. Implement webview UI using components from Podman Desktop UI library (`@podman-desktop/ui-svelte`)
 4. Add proper error handling
 5. Write tests
 6. Update documentation if needed
