@@ -50,6 +50,7 @@ import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
 import type {
+  ConnectOptions,
   ContextsHealthsInfo,
   ContextsPermissionsInfo,
   KubernetesDashboardExtensionApi,
@@ -151,6 +152,11 @@ export class DashboardExtension {
             subscriber.dispose();
           },
         } as KubernetesDashboardSubscriber;
+      },
+      contexts: {
+        connect: (contextName: string, options?: ConnectOptions) => {
+          return this.#contextsManager.refreshContextState(contextName, options);
+        },
       },
     } as KubernetesDashboardExtensionApi;
   }

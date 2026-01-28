@@ -124,4 +124,29 @@ export interface KubernetesDashboardExtensionApi {
    * The subscriber is used to subscribe to the events emitted by the Kubernetes Dashboard extension.
    */
   getSubscriber(): KubernetesDashboardSubscriber;
+
+  readonly contexts: typeof contexts;
+}
+
+/**
+ * Options for the connect operation.
+ */
+export interface ConnectOptions {
+  /**
+   * The resources (pods, deployments, etc) to connect to. By default, connects to all resources managed by the Dashboard extension.
+   */
+  resources?: string[];
+}
+
+/**
+ * Namespace for Kubernetes contexts operations.
+ */
+export namespace contexts {
+  /**
+   * Connects to a Kubernetes context.
+   *
+   * @param contextName - The name of the context to connect to.
+   * @param options - The options for the connect operation.
+   */
+  export function connect(contextName: string, options?: ConnectOptions): Promise<void>;
 }

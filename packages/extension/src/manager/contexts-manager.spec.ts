@@ -35,6 +35,7 @@ import type { ResourceFactory } from '/@/resources/resource-factory.js';
 import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
 import type { CacheUpdatedEvent, ObjectDeletedEvent, ResourceInformer } from '/@/types/resource-informer.js';
 import { vol } from 'memfs';
+import type { ConnectOptions } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 const resource4DeleteObjectMock = vi.fn();
 const resource4SearchBySelectorMock = vi.fn();
@@ -43,6 +44,14 @@ const resource4RestartObjectMock = vi.fn();
 const resource5ReadObjectMock = vi.fn();
 
 const createdResource1InformerMock = {
+  onCacheUpdated: vi.fn(),
+  onOffline: vi.fn(),
+  onObjectDeleted: vi.fn(),
+  start: vi.fn(),
+  dispose: vi.fn(),
+} as unknown as ResourceInformer<KubernetesObject>;
+
+const createdResource1bInformerMock = {
   onCacheUpdated: vi.fn(),
   onOffline: vi.fn(),
   onObjectDeleted: vi.fn(),
@@ -78,6 +87,28 @@ class TestContextsManager extends ContextsManager {
         .setInformer({
           createInformer: (_kubeconfig: KubeConfigSingleContext): ResourceInformer<KubernetesObject> => {
             return createdResource1InformerMock;
+          },
+        })
+        .setIsActive((resource: KubernetesObject): boolean => {
+          return 'activeField' in resource && resource.activeField === true;
+        }),
+      new ResourceFactoryBase({
+        kind: 'Resource1b',
+        resource: 'resource1b',
+      })
+        .setPermissions({
+          isNamespaced: true,
+          permissionsRequests: [
+            {
+              group: '*',
+              resource: '*',
+              verb: 'watch',
+            },
+          ],
+        })
+        .setInformer({
+          createInformer: (_kubeconfig: KubeConfigSingleContext): ResourceInformer<KubernetesObject> => {
+            return createdResource1bInformerMock;
           },
         })
         .setIsActive((resource: KubernetesObject): boolean => {
@@ -189,8 +220,12 @@ class TestContextsManager extends ContextsManager {
     ];
   }
 
-  public override async startMonitoring(config: KubeConfigSingleContext, contextName: string): Promise<void> {
-    return super.startMonitoring(config, contextName);
+  public override async startMonitoring(
+    config: KubeConfigSingleContext,
+    contextName: string,
+    options?: ConnectOptions,
+  ): Promise<void> {
+    return super.startMonitoring(config, contextName, options);
   }
 
   public override stopMonitoring(contextName: string): void {
@@ -1791,5 +1826,61 @@ describe.each([
     const manager = new TestContextsManager();
     const result = manager.getPluralized(count, kind);
     expect(result).toEqual(message);
+  });
+});
+
+describe('startMonitoring is called with limited resources', async () => {
+  const healthCheckerMock = {
+    start: vi.fn(),
+    dispose: vi.fn(),
+    onStateChange: vi.fn(),
+    onReachable: vi.fn(),
+  } as unknown as ContextHealthChecker;
+  const permissionsCheckerMock = {
+    start: vi.fn(),
+    dispose: vi.fn(),
+    onPermissionResult: vi.fn(),
+    isForContext: vi.fn(),
+  } as unknown as ContextPermissionsChecker;
+  let manager: TestContextsManager;
+  let kc: KubeConfig;
+
+  beforeEach(async () => {
+    vi.mocked(ContextHealthChecker).mockReturnValue(healthCheckerMock);
+    vi.mocked(ContextPermissionsChecker).mockReturnValue(permissionsCheckerMock);
+
+    kc = new KubeConfig();
+    kc.loadFromOptions(kcWithContext1asDefault);
+    manager = new TestContextsManager();
+    vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+
+    await manager.startMonitoring(new KubeConfigSingleContext(kc, context1), 'ctx1', { resources: ['resource1b'] });
+  });
+
+  test('stopMonitoring is called on same context', () => {
+    expect(manager.stopMonitoring).toHaveBeenCalledWith('ctx1');
+  });
+
+  test('informers are started for limited resources only', () => {
+    expect(healthCheckerMock.onReachable).toHaveBeenCalledOnce();
+    const healthCheckCallback = vi.mocked(healthCheckerMock.onReachable).mock.calls[0][0];
+    expect(healthCheckCallback).toBeDefined();
+    healthCheckCallback!({
+      kubeConfig: new KubeConfigSingleContext(kc, context1),
+      contextName: 'ctx1',
+      checking: false,
+      reachable: true,
+    });
+    expect(permissionsCheckerMock.onPermissionResult).toHaveBeenCalledTimes(2);
+    const permissionCallback = vi.mocked(permissionsCheckerMock.onPermissionResult).mock.calls[1][0];
+    expect(permissionCallback).toBeDefined();
+    permissionCallback!({
+      kubeConfig: new KubeConfigSingleContext(kc, context1),
+      resources: ['resource1', 'resource2', 'resource1b'],
+      permitted: true,
+      attrs: {},
+    });
+    expect(createdResource1InformerMock.start).not.toHaveBeenCalled();
+    expect(createdResource1bInformerMock.start).toHaveBeenCalledOnce();
   });
 });

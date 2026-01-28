@@ -35,6 +35,7 @@ import type {
   Endpoint,
   V1Route,
   KubernetesTroubleshootingInformation,
+  ContextsApi,
 } from '@kubernetes-dashboard/channels';
 import { kubernetes, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
@@ -74,7 +75,7 @@ import { NamespacesResourceFactory } from '/@/resources/namespaces-resource-fact
 import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
-import { ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 const DEFAULT_NAMESPACE = 'default';
@@ -89,7 +90,7 @@ const FIELD_MANAGER = 'kubernetes-dashboard';
  * ContextsManager exposes the current state of the health checkers, permission checkers and informers.
  */
 @injectable()
-export class ContextsManager {
+export class ContextsManager implements ContextsApi {
   #resourceFactoryHandler: ResourceFactoryHandler;
   #dispatcher: ContextsDispatcher;
   #healthCheckers: Map<string, ContextHealthChecker>;
@@ -303,10 +304,10 @@ export class ContextsManager {
     this.#onContextDelete.dispose();
   }
 
-  async refreshContextState(contextName: string): Promise<void> {
+  async refreshContextState(contextName: string, connectOptions?: ConnectOptions): Promise<void> {
     try {
       const config = this.#dispatcher.getKubeConfigSingleContext(contextName);
-      await this.startMonitoring(config, contextName);
+      await this.startMonitoring(config, contextName, connectOptions);
     } catch (e: unknown) {
       console.warn(`unable to refresh context ${contextName}`, String(e));
     }
@@ -358,7 +359,11 @@ export class ContextsManager {
     return this.#healthCheckers.has(contextName);
   }
 
-  protected async startMonitoring(config: KubeConfigSingleContext, contextName: string): Promise<void> {
+  protected async startMonitoring(
+    config: KubeConfigSingleContext,
+    contextName: string,
+    connectOptions?: ConnectOptions,
+  ): Promise<void> {
     this.stopMonitoring(contextName);
 
     // register and start health checker
@@ -392,6 +397,9 @@ export class ContextsManager {
             return;
           }
           for (const resource of event.resources) {
+            if (connectOptions?.resources && !connectOptions.resources.includes(resource)) {
+              continue;
+            }
             const contextName = event.kubeConfig.getKubeConfig().currentContext;
             const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resource);
             if (!factory) {
