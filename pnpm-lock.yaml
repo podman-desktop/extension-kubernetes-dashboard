@@ -40,8 +40,8 @@ importers:
         specifier: ^9.1.2
         version: 9.2.1
       cronstrue:
-        specifier: ^3.3.0
-        version: 3.9.0
+        specifier: ^3.11.0
+        version: 3.11.0
       eslint:
         specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
@@ -223,8 +223,8 @@ importers:
   packages/webview:
     dependencies:
       cronstrue:
-        specifier: ^3.3.0
-        version: 3.9.0
+        specifier: ^3.11.0
+        version: 3.11.0
       inversify:
         specifier: ^7.11.0
         version: 7.11.0(reflect-metadata@0.2.2)
@@ -2069,8 +2069,8 @@ packages:
   core-js-compat@3.46.0:
     resolution: {integrity: sha512-p9hObIIEENxSV8xIu+V68JjSeARg6UVMG5mR+JEUguG3sI6MsiS1njz2jHmyJDvA+8jX/sytkBHup6kxhM9law==}
 
-  cronstrue@3.9.0:
-    resolution: {integrity: sha512-T3S35zmD0Ai2B4ko6+mEM+k9C6tipe2nB9RLiGT6QL2Wn0Vsn2cCZAC8Oeuf4CaE00GZWVdpYitbpWCNlIWqdA==}
+  cronstrue@3.11.0:
+    resolution: {integrity: sha512-nXST7NEkjPF6loOTJtCwbLHB6cOVR5Ofuq/VZ4UGsZw/0HTvxy6mRCrDHOJ4xoLPcuS3ooruBLyUk3INaidKwg==}
     hasBin: true
 
   cross-spawn@7.0.6:
@@ -6119,7 +6119,7 @@ snapshots:
     dependencies:
       browserslist: 4.28.1
 
-  cronstrue@3.9.0: {}
+  cronstrue@3.11.0: {}
 
   cross-spawn@7.0.6:
     dependencies:
