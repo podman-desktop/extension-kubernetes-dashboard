@@ -135,5 +135,6 @@ test('renders with 1 container running with colors annotation', async () => {
     object: fakePod1containerRunning,
     containerName: '',
     colorizer: 'colorizer 2',
+    timestamps: false,
   });
 });
