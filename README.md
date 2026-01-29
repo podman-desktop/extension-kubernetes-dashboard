@@ -37,6 +37,16 @@ A dedicated page lists the existing port forwardings, from which you can visit e
 
 The Kubernetes Dashboard checks Read permissions on each resource, and indicates in the Dashboard and in the pages listing the resources if the current user does not have read access on a resource.
 
+## Annotations
+
+The user interface supports configuration using annotations on resources. The following annotations are supported:
+
+### On Pods
+- `kubernetes-dashboard.podman-desktop.io/logs-colors: "log level colors"`  
+Colorize logs levels (by default)
+- `kubernetes-dashboard.podman-desktop.io/logs-colors: "no colors"`  
+Disable colorization of logs
+
 # Installation
 
 ## Install latest release

@@ -26,6 +26,7 @@ import PodLogsCustomizable from '/@/component/pods/PodLogsCustomizable.svelte';
 import PodLogs from '/@/component/pods/PodLogs.svelte';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { PodLogsHelper } from '/@/component/pods/pod-logs-helper';
+import { Annotations } from '/@/annotations/annotations';
 
 vi.mock(import('./PodLogs.svelte'));
 
@@ -63,6 +64,8 @@ beforeEach(() => {
   dependencyMocks.reset();
   dependencyMocks.mock(PodLogsHelper);
   vi.mocked(dependencyMocks.get(PodLogsHelper).getColorizers).mockReturnValue(['colorizer 1', 'colorizer 2']);
+  dependencyMocks.mock(Annotations);
+  vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({});
 });
 
 test('renders with no container running', () => {
@@ -119,5 +122,18 @@ test('renders with 1 container running', async () => {
     containerName: '',
     colorizer: 'colorizer 2',
     timestamps: false,
+  });
+});
+
+test('renders with 1 container running with colors annotation', async () => {
+  vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({ 'logs-colors': 'colorizer 2' });
+  vi.mocked(dependencyMocks.get(PodLogsHelper).resolveColorizer).mockImplementation(s => s ?? 'colorizer 1');
+
+  render(PodLogsCustomizable, { object: fakePod1containerRunning });
+
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod1containerRunning,
+    containerName: '',
+    colorizer: 'colorizer 2',
   });
 });

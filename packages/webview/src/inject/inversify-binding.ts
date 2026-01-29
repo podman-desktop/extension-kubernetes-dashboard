@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import { jobsModule } from '/@/component/jobs/_jobs-module';
 import { cronjobsModule } from '/@/component/cronjobs/_cronjobs-module';
 import { podsModule } from '/@/component/pods/_pods-module';
 import { streamsModule } from '/@/stream/stream-module';
+import { annotationsModule } from '/@/annotations/_annotations-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -70,6 +71,7 @@ export class InversifyBinding {
     await this.#container.load(jobsModule);
     await this.#container.load(cronjobsModule);
     await this.#container.load(podsModule);
+    await this.#container.load(annotationsModule);
 
     return this.#container;
   }

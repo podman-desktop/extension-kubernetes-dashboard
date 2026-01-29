@@ -6,6 +6,7 @@ import PodLogs from '/@/component/pods/PodLogs.svelte';
 import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { PodLogsHelper } from '/@/component/pods/pod-logs-helper';
+import { Annotations } from '/@/annotations/annotations';
 
 interface Props {
   object: V1Pod;
@@ -14,8 +15,11 @@ let { object }: Props = $props();
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const podLogsHelper = dependencyAccessor.get<PodLogsHelper>(PodLogsHelper);
+const annotations = dependencyAccessor.get<Annotations>(Annotations);
 
 const runningContainers = $derived(object.status?.containerStatuses?.filter(status => status.state?.running) ?? []);
+
+const colorsAnnotations = $derived(annotations.getAnnotations(object.metadata, { key: 'logs-colors' }));
 
 // If no container is selected, logs for all containers are displayed
 let selectedContainerName = $state<string>('');
@@ -29,7 +33,7 @@ let containerSelection = $derived([
   })),
 ]);
 
-let selectedColorizer = $state<string>(podLogsHelper.getColorizers()[0]);
+let selectedColorizer = $derived<string>(podLogsHelper.resolveColorizer(colorsAnnotations['logs-colors']));
 let colorizerSelection = podLogsHelper.getColorizers().map(colorizer => ({ label: colorizer, value: colorizer }));
 </script>
 
