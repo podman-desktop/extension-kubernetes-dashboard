@@ -3,7 +3,7 @@
   "displayName": "Mono repository for Kubernetes Dashboard extension for Podman Desktop",
   "description": "Root repository",
   "version": "0.4.0-next",
-  "publisher": "redhat",
+  "publisher": "podman-desktop",
   "private": true,
   "engines": {
     "node": ">=24.0.0",

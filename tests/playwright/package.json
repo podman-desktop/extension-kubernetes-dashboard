@@ -7,7 +7,7 @@
     "test:e2e": "npm run test:e2e:setup playwright test src/",
     "test:e2e:smoke": "npm run test:e2e:setup playwright test src/ --grep @smoke"
   },
-  "publisher": "redhat",
+  "publisher": "podman-desktop",
   "license": "Apache-2.0",
   "devDependencies": {
     "@playwright/test": "^1.58.0",

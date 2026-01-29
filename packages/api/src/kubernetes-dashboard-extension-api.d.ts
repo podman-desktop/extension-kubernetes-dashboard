@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ export interface KubernetesDashboardSubscriber {
  *
  * export async function activate(extensionContext: ExtensionContext): Promise<void> {
  *   const didChangeSubscription = extensionApi.extensions.onDidChange(() => {
- *    const api = extensionApi.extensions.getExtension<KubernetesDashboardExtensionApi>('redhat.kubernetes-dashboard')?.exports;
+ *    const api = extensionApi.extensions.getExtension<KubernetesDashboardExtensionApi>('podman-desktop.kubernetes-dashboard')?.exports;
  *    if (api) {
  *      const subscriber = api.getSubscriber();
  *      // dispose the subscriber when the extension is deactivated
