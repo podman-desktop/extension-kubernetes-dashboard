@@ -20,10 +20,11 @@ const annotations = dependencyAccessor.get<Annotations>(Annotations);
 const runningContainers = $derived(object.status?.containerStatuses?.filter(status => status.state?.running) ?? []);
 
 const colorsAnnotations = $derived(annotations.getAnnotations(object.metadata, { key: 'logs-colors' }));
+const timestampsAnnotations = $derived(annotations.getAnnotations(object.metadata, { key: 'logs-timestamps' }));
 
 // If no container is selected, logs for all containers are displayed
 let selectedContainerName = $state<string>('');
-let selectedTimestamps = $state<boolean>(false);
+let selectedTimestamps = $derived<boolean>(timestampsAnnotations['logs-timestamps'] === 'true');
 
 let containerSelection = $derived([
   { label: 'All containers', value: '' },
