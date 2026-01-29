@@ -117,7 +117,7 @@ The project uses **Inversify** for DI. When adding new services:
 1. Define interfaces for services
 2. Create implementations with `@injectable()` decorator
 3. Bind in the appropriate binding file (`inversify-binding.ts`)
-4. Inject dependencies via constructor
+4. Inject dependencies via constructor or via property
 
 ### Stream Objects
 
