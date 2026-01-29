@@ -24,11 +24,12 @@ import {
   type PodLogsApi,
   type PodLogsChunk,
   type IDisposable,
+  type PodLogsOptions,
 } from '@kubernetes-dashboard/channels';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import type { StreamObject } from './util/stream-object';
 
-export class StreamPodLogs implements StreamObject<PodLogsChunk, void> {
+export class StreamPodLogs implements StreamObject<PodLogsChunk, PodLogsOptions> {
   #podLogsApi: PodLogsApi;
 
   constructor(
@@ -41,7 +42,7 @@ export class StreamPodLogs implements StreamObject<PodLogsChunk, void> {
     podName: string,
     namespace: string,
     containerName: string,
-    options: void,
+    options: PodLogsOptions,
     callback: (data: PodLogsChunk) => void,
   ): Promise<IDisposable> {
     const disposable = this.rpcBrowser.on(POD_LOGS, chunk => {
@@ -50,7 +51,7 @@ export class StreamPodLogs implements StreamObject<PodLogsChunk, void> {
       }
       callback(chunk);
     });
-    await this.#podLogsApi.streamPodLogs(podName, namespace, containerName);
+    await this.#podLogsApi.streamPodLogs(podName, namespace, containerName, options);
     return {
       dispose: () => {
         disposable.dispose();

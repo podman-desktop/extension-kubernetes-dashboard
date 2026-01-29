@@ -15,8 +15,9 @@ interface Props {
   // undefined means logs for all containers are displayed
   containerName?: string;
   colorizer: string;
+  timestamps: boolean;
 }
-let { object, containerName, colorizer }: Props = $props();
+let { object, containerName, colorizer, timestamps }: Props = $props();
 
 // Logs has been initialized
 let noLogs = $state<boolean>();
@@ -44,7 +45,7 @@ onMount(async () => {
         object.metadata?.name ?? '',
         object.metadata?.namespace ?? '',
         name,
-        undefined,
+        { timestamps },
         chunk => {
           const data = podLogsHelper.transformPodLogs(name, chunk.data);
           if (noLogs !== false) {

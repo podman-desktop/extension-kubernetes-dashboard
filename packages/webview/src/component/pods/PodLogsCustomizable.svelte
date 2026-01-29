@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { V1Pod } from '@kubernetes/client-node';
-import { Dropdown, EmptyScreen } from '@podman-desktop/ui-svelte';
+import { Checkbox, Dropdown, EmptyScreen } from '@podman-desktop/ui-svelte';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import PodLogs from '/@/component/pods/PodLogs.svelte';
 import { getContext } from 'svelte';
@@ -19,6 +19,7 @@ const runningContainers = $derived(object.status?.containerStatuses?.filter(stat
 
 // If no container is selected, logs for all containers are displayed
 let selectedContainerName = $state<string>('');
+let selectedTimestamps = $state<boolean>(false);
 
 let containerSelection = $derived([
   { label: 'All containers', value: '' },
@@ -53,12 +54,20 @@ let colorizerSelection = podLogsHelper.getColorizers().map(colorizer => ({ label
           options={colorizerSelection}>
         </Dropdown>
       </div>
+      <div class="w-48">
+        <Checkbox class="pt-2" name="timestamps" title="Show timestamps" bind:checked={selectedTimestamps}
+          >Show timestamps</Checkbox>
+      </div>
     </div>
 
     <div class="flex w-full h-full min-h-0">
-      {#key [selectedContainerName, selectedColorizer]}
+      {#key [selectedContainerName, selectedColorizer, selectedTimestamps]}
         {#if selectedContainerName !== undefined}
-          <PodLogs object={object} containerName={selectedContainerName} colorizer={selectedColorizer} />
+          <PodLogs
+            object={object}
+            containerName={selectedContainerName}
+            colorizer={selectedColorizer}
+            timestamps={selectedTimestamps} />
         {/if}
       {/key}
     </div>

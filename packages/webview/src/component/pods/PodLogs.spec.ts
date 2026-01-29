@@ -18,7 +18,7 @@
 
 import { render } from '@testing-library/svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_POD_LOGS, type PodLogsChunk, type PodLogsApi } from '@kubernetes-dashboard/channels';
+import { API_POD_LOGS, type PodLogsChunk, type PodLogsApi, type PodLogsOptions } from '@kubernetes-dashboard/channels';
 import { StreamsMocks } from '/@/tests/stream-mocks';
 import { FakeStreamObject } from '/@/stream/util/fake-stream-object.svelte';
 import PodLogs from './PodLogs.svelte';
@@ -37,13 +37,13 @@ const remoteMocks = new RemoteMocks();
 const streamMocks = new StreamsMocks();
 const dependencyMocks = new DependencyMocks();
 
-const streamPodLogsMock = new FakeStreamObject<PodLogsChunk, void>();
+const streamPodLogsMock = new FakeStreamObject<PodLogsChunk, PodLogsOptions>();
 
 beforeEach(() => {
   vi.resetAllMocks();
   vi.useFakeTimers();
   streamMocks.reset();
-  streamMocks.mock<PodLogsChunk, void>('streamPodLogs', streamPodLogsMock);
+  streamMocks.mock<PodLogsChunk, PodLogsOptions>('streamPodLogs', streamPodLogsMock);
 
   remoteMocks.reset();
   remoteMocks.mock(API_POD_LOGS, {} as unknown as PodLogsApi);
@@ -75,7 +75,7 @@ describe('pod with one container', async () => {
   });
 
   test('display No Log with no logs', async () => {
-    render(PodLogs, { object: pod, colorizer: 'no colors' });
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false });
     await vi.advanceTimersByTimeAsync(1_100);
     expect(EmptyScreen).toHaveBeenCalled();
   });
@@ -90,7 +90,7 @@ describe('pod with one container', async () => {
       props.terminal = mockedTerminal;
       return {};
     });
-    render(PodLogs, { object: pod, colorizer: 'no colors' });
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false });
     expect(mockedTerminal.write).not.toHaveBeenCalledWith();
     expect(mockedTerminal.clear).toHaveBeenCalled();
     expect(TerminalWindow).toHaveBeenCalled();
@@ -133,7 +133,7 @@ describe('pod with two containers', async () => {
   });
 
   test('display No Log with no logs', async () => {
-    render(PodLogs, { object: pod, colorizer: 'no colors' });
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false });
     await vi.advanceTimersByTimeAsync(1_100);
     expect(EmptyScreen).toHaveBeenCalled();
   });
@@ -148,7 +148,7 @@ describe('pod with two containers', async () => {
       props.terminal = mockedTerminal;
       return {};
     });
-    render(PodLogs, { object: pod, colorizer: 'no colors' });
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false });
     expect(mockedTerminal.write).not.toHaveBeenCalledWith();
     expect(mockedTerminal.clear).toHaveBeenCalled();
     expect(TerminalWindow).toHaveBeenCalled();
@@ -193,7 +193,7 @@ describe('pod with two containers, one container selected', async () => {
   });
 
   test('display No Log with no logs', async () => {
-    render(PodLogs, { object: pod, containerName: 'cnt1', colorizer: 'no colors' });
+    render(PodLogs, { object: pod, containerName: 'cnt1', colorizer: 'no colors', timestamps: false });
     await vi.advanceTimersByTimeAsync(1_100);
     expect(EmptyScreen).toHaveBeenCalled();
   });
@@ -208,7 +208,7 @@ describe('pod with two containers, one container selected', async () => {
       props.terminal = mockedTerminal;
       return {};
     });
-    render(PodLogs, { object: pod, containerName: 'cnt1', colorizer: 'no colors' });
+    render(PodLogs, { object: pod, containerName: 'cnt1', colorizer: 'no colors', timestamps: false });
     expect(mockedTerminal.write).not.toHaveBeenCalledWith();
     expect(mockedTerminal.clear).toHaveBeenCalled();
     expect(TerminalWindow).toHaveBeenCalled();

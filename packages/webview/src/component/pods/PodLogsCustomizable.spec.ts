@@ -80,6 +80,7 @@ test('renders with 2 containers running', async () => {
     object: fakePod2containersRunning,
     containerName: '',
     colorizer: 'colorizer 1',
+    timestamps: false,
   });
 
   await userEvent.click(containerDropdownButton);
@@ -89,6 +90,7 @@ test('renders with 2 containers running', async () => {
     object: fakePod2containersRunning,
     containerName: 'container2',
     colorizer: 'colorizer 1',
+    timestamps: false,
   });
 
   await userEvent.click(colorizerDropdownButton);
@@ -98,6 +100,7 @@ test('renders with 2 containers running', async () => {
     object: fakePod2containersRunning,
     containerName: 'container2',
     colorizer: 'colorizer 2',
+    timestamps: false,
   });
 });
 
@@ -115,5 +118,6 @@ test('renders with 1 container running', async () => {
     object: fakePod1containerRunning,
     containerName: '',
     colorizer: 'colorizer 2',
+    timestamps: false,
   });
 });
