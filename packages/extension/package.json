@@ -4,7 +4,7 @@
   "description": "Podman Desktop extension allowing to monitor resources from Kubernetes clusters",
   "version": "0.4.0-next",
   "icon": "icon.png",
-  "publisher": "redhat",
+  "publisher": "podman-desktop",
   "license": "Apache-2.0",
   "engines": {
     "podman-desktop": ">=1.18.0"

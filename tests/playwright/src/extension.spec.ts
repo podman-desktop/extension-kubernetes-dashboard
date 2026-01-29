@@ -23,7 +23,7 @@ import { KubernetesDashboardDetailsPage } from './model/kd-details-page';
 const EXTENSION_OCI_IMAGE =
   process.env.EXTENSION_OCI_IMAGE ?? 'ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest';
 const EXTENSION_PREINSTALLED: boolean = process.env.EXTENSION_PREINSTALLED === 'true';
-const CATALOG_EXTENSION_LABEL: string = 'redhat.kubernetes-dashboard';
+const CATALOG_EXTENSION_LABEL: string = 'podman-desktop.kubernetes-dashboard';
 const CATALOG_EXTENSION_NAME: string = 'Kubernetes Dashboard';
 const CATALOG_STATUS_ACTIVE: string = 'ACTIVE';
 

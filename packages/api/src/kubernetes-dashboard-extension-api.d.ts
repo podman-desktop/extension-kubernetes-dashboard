@@ -103,7 +103,7 @@ export interface KubernetesDashboardSubscriber {
  *
  * export async function activate(extensionContext: ExtensionContext): Promise<void> {
  *   const didChangeSubscription = extensionApi.extensions.onDidChange(() => {
- *    const api = extensionApi.extensions.getExtension<KubernetesDashboardExtensionApi>('redhat.kubernetes-dashboard')?.exports;
+ *    const api = extensionApi.extensions.getExtension<KubernetesDashboardExtensionApi>('podman-desktop.kubernetes-dashboard')?.exports;
  *    if (api) {
  *      const subscriber = api.getSubscriber();
  *      // dispose the subscriber when the extension is deactivated
