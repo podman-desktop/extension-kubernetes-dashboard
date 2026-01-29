@@ -135,5 +135,26 @@ test('renders with 1 container running with colors annotation', async () => {
     object: fakePod1containerRunning,
     containerName: '',
     colorizer: 'colorizer 2',
+    timestamps: false,
+  });
+});
+
+test('renders with 1 container running with timestamps annotation', async () => {
+  vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({ 'logs-timestamps': 'true' });
+
+  render(PodLogsCustomizable, { object: fakePod1containerRunning });
+  expect(screen.queryByText('container1')).not.toBeInTheDocument();
+
+  const colorizerDropdown = screen.getByLabelText('Select colorization');
+  const colorizerDropdownButton = within(colorizerDropdown).getByText('colorizer 1');
+
+  await userEvent.click(colorizerDropdownButton);
+  const colorizer2 = within(colorizerDropdown).getByText('colorizer 2');
+  await userEvent.click(colorizer2);
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod1containerRunning,
+    containerName: '',
+    colorizer: 'colorizer 2',
+    timestamps: true,
   });
 });
