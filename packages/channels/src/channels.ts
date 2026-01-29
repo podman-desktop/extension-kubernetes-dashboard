@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import type { PortForwardsInfo } from './model/port-forward-info';
 import type { ResourceDetailsInfo } from './model/resource-details-info';
 import type { ResourceEventsInfo } from './model/resource-events-info';
 import type { UpdateResourceInfo } from './model/update-resource-info';
+import type { TelemetryApi } from '/@/interface/telemetry-api';
 import { createRpcChannel } from '@kubernetes-dashboard/rpc';
 import type {
   ContextsHealthsInfo,
@@ -47,6 +48,7 @@ export const API_SUBSCRIBE = createRpcChannel<SubscribeApi>('SubscribeApi');
 export const API_SYSTEM = createRpcChannel<SystemApi>('SystemApi');
 export const API_PORT_FORWARD = createRpcChannel<PortForwardApi>('PortForwardApi');
 export const API_NAVIGATION = createRpcChannel<NavigationApi>('NavigationApi');
+export const API_TELEMETRY = createRpcChannel<TelemetryApi>('TelemetryApi');
 
 // Broadcast events (sent by extension and received by the webview)
 export const RESOURCES_COUNT = createRpcChannel<ResourcesCountInfo>('ResourcesCount');

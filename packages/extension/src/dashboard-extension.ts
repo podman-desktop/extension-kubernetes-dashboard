@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import {
   API_PORT_FORWARD,
   API_SUBSCRIBE,
   API_SYSTEM,
+  API_TELEMETRY,
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   IDisposable,
@@ -58,6 +59,7 @@ import type {
   ResourcesCountInfo,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { ApiSubscriber } from '/@/subscriber/api-subscriber';
+import { TelemetryApiImpl } from './manager/telemetry-api';
 
 export class DashboardExtension {
   #container: Container | undefined;
@@ -75,6 +77,7 @@ export class DashboardExtension {
   #navigationApiImpl: NavigationApiImpl;
   #kubernetesProvidersManager: KubernetesProvidersManager;
   #webviewSubscriber: ChannelSubscriber;
+  #telemetryApiImpl: TelemetryApiImpl;
 
   constructor(readonly extensionContext: ExtensionContext) {
     this.#extensionContext = extensionContext;
@@ -104,6 +107,7 @@ export class DashboardExtension {
     this.#navigationApiImpl = await this.#container.getAsync(NavigationApiImpl);
     this.#kubernetesProvidersManager = await this.#container.getAsync(KubernetesProvidersManager);
     this.#webviewSubscriber = await this.#container.getAsync(ChannelSubscriber);
+    this.#telemetryApiImpl = await this.#container.getAsync(TelemetryApiImpl);
 
     this.#kubernetesProvidersManager.init();
 
@@ -118,6 +122,7 @@ export class DashboardExtension {
     rpcExtension.registerInstance(API_POD_LOGS, this.#podLogsApiImpl);
     rpcExtension.registerInstance(API_POD_TERMINALS, this.#podTerminalsApiImpl);
     rpcExtension.registerInstance(API_NAVIGATION, this.#navigationApiImpl);
+    rpcExtension.registerInstance(API_TELEMETRY, this.#telemetryApiImpl);
 
     await this.listenMonitoring();
     await this.startMonitoring();

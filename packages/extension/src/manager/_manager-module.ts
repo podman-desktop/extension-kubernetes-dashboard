@@ -27,6 +27,7 @@ import { IDisposable } from '@kubernetes-dashboard/channels';
 import { PodTerminalsApiImpl } from './pod-terminals-api-impl';
 import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
+import { TelemetryApiImpl } from './telemetry-api';
 
 const managersModule = new ContainerModule(options => {
   options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
@@ -37,6 +38,7 @@ const managersModule = new ContainerModule(options => {
   options.bind<PodTerminalsApiImpl>(PodTerminalsApiImpl).toSelf().inSingletonScope();
   options.bind<NavigationApiImpl>(NavigationApiImpl).toSelf().inSingletonScope();
   options.bind<KubernetesProvidersManager>(KubernetesProvidersManager).toSelf().inSingletonScope();
+  options.bind<TelemetryApiImpl>(TelemetryApiImpl).toSelf().inSingletonScope();
 
   // Bind IDisposable to services which need to clear data/stop connection/etc when the panel is left
   // (the onDestroy are not called from components when the panel is left, which may introduce memory leaks if not disposed here)

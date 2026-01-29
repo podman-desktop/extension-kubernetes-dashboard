@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type ContextsApi } from './contexts-api';
-import { type PodLogsApi } from './pod-logs-api';
-import { type PodTerminalsApi } from './pod-terminals-api';
-import { type DeletePortForwardOptions, type PortForwardApi } from './port-forward-api';
-import { type SubscribeApi } from './subscribe-api';
-import { type SystemApi } from './system-api';
-import { type NavigationApi } from './navigation-api';
-import { type TelemetryApi } from './telemetry-api';
+export const TelemetryApi = Symbol.for('TelemetryApi');
 
-export type {
-  ContextsApi,
-  PodLogsApi,
-  PodTerminalsApi,
-  PortForwardApi,
-  SubscribeApi,
-  SystemApi,
-  DeletePortForwardOptions,
-  NavigationApi,
-  TelemetryApi,
-};
+export interface TelemetryApi {
+  track(event: string, eventProperties?: Record<string, unknown>): Promise<void>;
+}
