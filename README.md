@@ -46,6 +46,8 @@ The user interface supports configuration using annotations on resources. The fo
 Colorize logs levels (by default)
 - `kubernetes-dashboard.podman-desktop.io/logs-colors: "no colors"`  
 Disable colorization of logs
+- `kubernetes-dashboard.podman-desktop.io/logs-timestamps: "true"`  
+Prefix the logs of the pod's containers with timestamps.
 
 # Installation
 
