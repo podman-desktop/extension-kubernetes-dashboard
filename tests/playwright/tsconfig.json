@@ -7,6 +7,9 @@
     "preserveValueImports": false,
     "skipLibCheck": false,
     "baseUrl": ".",
+    "paths": {
+      "/@/*": ["./src/*"]
+    },
   },
   "include": ["src/**/*.ts", "playwright.config.ts"],
   "exclude": ["node_modules/**", "output/**", "tests/**"]
