@@ -19,12 +19,14 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { render } from '@testing-library/svelte';
-import type {
-  CurrentContextInfo,
-  ResourceDetailsOptions,
-  ResourceDetailsInfo,
-  ResourceEventsInfo,
-  ResourceEventsOptions,
+import {
+  type CurrentContextInfo,
+  type ResourceDetailsOptions,
+  type ResourceDetailsInfo,
+  type ResourceEventsInfo,
+  type ResourceEventsOptions,
+  API_TELEMETRY,
+  type TelemetryApi,
 } from '@kubernetes-dashboard/channels';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
@@ -34,11 +36,13 @@ import NodeDetailsSummary from '/@/component/nodes/NodeDetailsSummary.svelte';
 import * as svelte from 'svelte';
 import { router } from 'tinro';
 import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
+import { RemoteMocks } from '/@/tests/remote-mocks';
 
 vi.mock(import('/@/component/nodes/NodeDetailsSummary.svelte'));
 
 const dependencyMocks = new DependencyMocks();
 const statesMocks = new StatesMocks();
+const remoteMocks = new RemoteMocks();
 
 let resourceDetailsMock: FakeStateObject<ResourceDetailsInfo, ResourceDetailsOptions>;
 let resourceEventsMock: FakeStateObject<ResourceEventsInfo, ResourceEventsOptions>;
@@ -61,6 +65,11 @@ beforeEach(() => {
   statesMocks.mock<ResourceDetailsInfo, ResourceDetailsOptions>('stateResourceDetailsInfoUI', resourceDetailsMock);
   statesMocks.mock<ResourceEventsInfo, ResourceEventsOptions>('stateResourceEventsInfoUI', resourceEventsMock);
   statesMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
+
+  remoteMocks.reset();
+  remoteMocks.mock(API_TELEMETRY, {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as TelemetryApi);
 });
 
 test('resource exists', async () => {
@@ -124,6 +133,7 @@ test('resource exists', async () => {
       events: [],
     });
   });
+  expect(remoteMocks.get(API_TELEMETRY).track).toHaveBeenCalledWith('details.node');
 });
 
 test('resource and events exist', async () => {

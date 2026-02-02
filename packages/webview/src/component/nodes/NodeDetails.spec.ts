@@ -22,12 +22,14 @@ import NodeDetails from './NodeDetails.svelte';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type {
-  ResourceDetailsInfo,
-  ResourceDetailsOptions,
-  ResourceEventsInfo,
-  ResourceEventsOptions,
-  CurrentContextInfo,
+import {
+  type ResourceDetailsInfo,
+  type ResourceDetailsOptions,
+  type ResourceEventsInfo,
+  type ResourceEventsOptions,
+  type CurrentContextInfo,
+  type TelemetryApi,
+  API_TELEMETRY,
 } from '@kubernetes-dashboard/channels';
 import { NodeHelper } from './node-helper';
 import { Navigator } from '/@/navigation/navigator';
@@ -37,10 +39,12 @@ import type { NodeUI } from './NodeUI';
 import * as svelte from 'svelte';
 import NodeDetailsSummary from '/@/component/nodes/NodeDetailsSummary.svelte';
 import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
+import { RemoteMocks } from '/@/tests/remote-mocks';
 
 vi.mock(import('./NodeDetailsSummary.svelte'));
 const dependencyMocks = new DependencyMocks();
 const statesMocks = new StatesMocks();
+const remoteMocks = new RemoteMocks();
 
 let resourceDetailsMock: FakeStateObject<ResourceDetailsInfo, ResourceDetailsOptions>;
 let resourceEventsMock: FakeStateObject<ResourceEventsInfo, ResourceEventsOptions>;
@@ -64,6 +68,11 @@ beforeEach(() => {
   statesMocks.mock<ResourceDetailsInfo, ResourceDetailsOptions>('stateResourceDetailsInfoUI', resourceDetailsMock);
   statesMocks.mock<ResourceEventsInfo, ResourceEventsOptions>('stateResourceEventsInfoUI', resourceEventsMock);
   statesMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
+
+  remoteMocks.reset();
+  remoteMocks.mock(API_TELEMETRY, {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as TelemetryApi);
 });
 
 vi.mock(import('/@/component/nodes/NodeDetailsSummary.svelte'));
