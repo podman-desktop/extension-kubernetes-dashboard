@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,13 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import NoContextPage from './NoContextPage.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import { API_NAVIGATION, type KubernetesProvidersInfo, type NavigationApi } from '@kubernetes-dashboard/channels';
+import {
+  API_NAVIGATION,
+  API_TELEMETRY,
+  type KubernetesProvidersInfo,
+  type NavigationApi,
+  type TelemetryApi,
+} from '@kubernetes-dashboard/channels';
 import KubeIcon from '/@/component/icons/KubeIcon.svelte';
 import KubernetesProviderCard from '/@/component/dashboard/KubernetesProviderCard.svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -47,6 +53,10 @@ beforeEach(() => {
   remoteMocks.mock(API_NAVIGATION, {
     navigateToExtensionsCatalog: vi.fn(),
   } as unknown as NavigationApi);
+
+  remoteMocks.mock(API_TELEMETRY, {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as TelemetryApi);
 });
 
 test('should render the Kubernetes icon', () => {

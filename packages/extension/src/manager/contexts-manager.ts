@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 - 2025 Red Hat, Inc.
+ * Copyright (C) 2024 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,7 +133,7 @@ export class ContextsManager implements ContextsApi {
   onEndpointsChange: Event<void> = this.#onEndpointsChange.event;
 
   @inject(TelemetryLoggerSymbol)
-  readonly telemetryLogger: TelemetryLogger;
+  protected telemetryLogger: TelemetryLogger;
 
   constructor() {
     this.#currentKubeConfig = new KubeConfig();
@@ -518,6 +518,7 @@ export class ContextsManager implements ContextsApi {
     try {
       const result = await handler.deleteObject(this.currentContext, name, ns);
       this.handleResult(result, `deletion of ${kind} ${name}`);
+      this.telemetryLogger.logUsage(`delete.${kind.toLowerCase()}`);
     } catch (error: unknown) {
       this.handleApiException(error, `deletion of ${kind} ${name}`);
     }
@@ -662,6 +663,7 @@ export class ContextsManager implements ContextsApi {
       users: this.#currentKubeConfig.users,
       currentContext: this.#currentKubeConfig.currentContext,
     });
+    this.telemetryLogger.logUsage('set.namespace');
     await this.update(newConfig);
   }
 

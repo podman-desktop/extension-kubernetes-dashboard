@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 - 2025 Red Hat, Inc.
+ * Copyright (C) 2024 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 import type { Cluster, CoreV1Event, KubernetesObject, ObjectCache, V1Status } from '@kubernetes/client-node';
 import { ApiException, KubeConfig } from '@kubernetes/client-node';
-import { type Uri, Disposable } from '@podman-desktop/api';
+import { type Uri, Disposable, type TelemetryLogger } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
 import { kubernetes, window } from '@podman-desktop/api';
 
@@ -67,7 +67,15 @@ const createdEventInformerMock = {
   dispose: vi.fn(),
 } as unknown as ResourceInformer<CoreV1Event>;
 
+const telemetryLoggerMock = {
+  logUsage: vi.fn(),
+} as unknown as TelemetryLogger;
+
 class TestContextsManager extends ContextsManager {
+  constructor() {
+    super();
+    this.telemetryLogger = telemetryLoggerMock;
+  }
   override getResourceFactories(): ResourceFactory[] {
     return [
       new ResourceFactoryBase({
@@ -1883,4 +1891,58 @@ describe('startMonitoring is called with limited resources', async () => {
     expect(createdResource1InformerMock.start).not.toHaveBeenCalled();
     expect(createdResource1bInformerMock.start).toHaveBeenCalledOnce();
   });
+});
+
+describe('refreshContextState is called with limited resources', async () => {
+  let manager: TestContextsManager;
+
+  beforeEach(async () => {
+    manager = new TestContextsManager();
+    await manager.refreshContextState('ctx1', { resources: ['resource1b'] });
+  });
+
+  test('telemetry is sent', () => {
+    expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('refreshContextState.connectOptions.resources', {
+      resources: ['resource1b'],
+    });
+  });
+});
+
+describe('refreshContextState is called without limited resources', async () => {
+  let manager: TestContextsManager;
+
+  beforeEach(async () => {
+    manager = new TestContextsManager();
+    await manager.refreshContextState('ctx1');
+  });
+
+  test('telemetry is not sent', () => {
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalled();
+  });
+});
+
+describe('setCurrentNamespace is called', async () => {
+  let manager: TestContextsManager;
+
+  beforeEach(async () => {
+    manager = new TestContextsManager();
+    await manager.setCurrentNamespace('ns1');
+  });
+
+  test('telemetry is sent', () => {
+    expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('set.namespace');
+  });
+});
+
+test('deleteObject sends telemetry', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  resource4DeleteObjectMock.mockReturnValue(undefined);
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  await manager.deleteObject('Resource4', 'resource-name');
+  expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('delete.resource4');
 });

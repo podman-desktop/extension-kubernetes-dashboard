@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { API_NAVIGATION, type KubernetesProvider } from '@kubernetes-dashboard/channels';
+import { API_NAVIGATION, API_TELEMETRY, type KubernetesProvider } from '@kubernetes-dashboard/channels';
 import { Button } from '@podman-desktop/ui-svelte';
 import Fa from 'svelte-fa';
 import IconImage from '/@/component/icons/IconImage.svelte';
@@ -16,8 +16,10 @@ let { provider }: Props = $props();
 
 const remote = getContext<Remote>(Remote);
 const navigationApi = remote.getProxy(API_NAVIGATION);
+const telemetryApi = remote.getProxy(API_TELEMETRY);
 
 async function createNew(): Promise<void> {
+  telemetryApi.track('nocontext.createNew', { provider: provider.id }).catch(console.warn);
   return navigationApi.navigateToProviderNewConnection(provider.id);
 }
 </script>
