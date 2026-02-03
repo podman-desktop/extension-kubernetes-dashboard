@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,21 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import KubernetesDashboardResourceCard from './DashboardResourceCard.svelte';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import type { CurrentContextInfo, ActiveResourcesCountInfo } from '@kubernetes-dashboard/channels';
+import {
+  type CurrentContextInfo,
+  type ActiveResourcesCountInfo,
+  type TelemetryApi,
+  API_TELEMETRY,
+} from '@kubernetes-dashboard/channels';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { Navigator } from '/@/navigation/navigator';
 import type { ContextsPermissionsInfo, ResourcesCountInfo } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { RemoteMocks } from '/@/tests/remote-mocks';
 
 const statesMocks = new StatesMocks();
 const dependencyMocks = new DependencyMocks();
+const remoteMocks = new RemoteMocks();
 
 let currentContextMock: FakeStateObject<CurrentContextInfo, void>;
 let activeResourcesCountMock: FakeStateObject<ActiveResourcesCountInfo, void>;
@@ -54,6 +61,11 @@ beforeEach(() => {
 
   dependencyMocks.reset();
   dependencyMocks.mock(Navigator);
+
+  remoteMocks.reset();
+  remoteMocks.mock(API_TELEMETRY, {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as TelemetryApi);
 });
 
 describe('all resources permitted', () => {
@@ -211,6 +223,10 @@ describe('one resource permitted, resource cannot be active', () => {
     const button = screen.getByRole('button');
     await userEvent.click(button);
     expect(dependencyMocks.get<Navigator>(Navigator).navigateTo).toHaveBeenCalledWith({ kind: 'Seal' });
+    expect(remoteMocks.get(API_TELEMETRY).track).toHaveBeenCalledWith('dashboard.resource', {
+      type: 'Seals and Dolphins',
+      kind: 'Seal',
+    });
   });
 });
 

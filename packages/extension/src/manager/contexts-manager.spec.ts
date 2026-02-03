@@ -16,7 +16,14 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Cluster, CoreV1Event, KubernetesObject, ObjectCache, V1Status } from '@kubernetes/client-node';
+import type {
+  Cluster,
+  CoreV1Event,
+  KubernetesObject,
+  KubernetesObjectApi,
+  ObjectCache,
+  V1Status,
+} from '@kubernetes/client-node';
 import { ApiException, KubeConfig } from '@kubernetes/client-node';
 import { type Uri, Disposable, type TelemetryLogger } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -1499,12 +1506,24 @@ test('deleteObject handler throws status embedded in ApiException', async () => 
   vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
   const status = {
     kind: 'Status',
+    code: 400,
+    reason: 'Bad Request',
+    status: 'Failure',
+    details: {
+      kind: 'Resource4',
+    },
   };
   resource4DeleteObjectMock.mockRejectedValue(new ApiException(400, 'Bad Request', JSON.stringify(status), {}));
   await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
   expect(window.showInformationMessage).toHaveBeenCalled();
   expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
   expect(manager.handleStatus).toHaveBeenCalledWith(status, 'deletion of Resource4 resource-name');
+  expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('api.error', {
+    code: 400,
+    reason: 'Bad Request',
+    status: 'Failure',
+    kind: 'Resource4',
+  });
 });
 
 test('deleteObject handler throws a non-Status in ApiException', async () => {
@@ -1685,6 +1704,9 @@ test('restartObject on context namespace', async () => {
   await manager.update(kc);
   await manager.restartObject('Resource4', 'resource-name', 'ns1');
   expect(resource4RestartObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'ns1');
+  expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('restart.object', {
+    kind: 'Resource4',
+  });
 });
 
 test('restartObject on other namespace', async () => {
@@ -1945,4 +1967,26 @@ test('deleteObject sends telemetry', async () => {
   vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
   await manager.deleteObject('Resource4', 'resource-name');
   expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('delete.resource4');
+});
+
+test('applyResources sends telemetry', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue({
+    getKubeConfig: vi.fn().mockReturnValue({
+      makeApiClient: vi.fn().mockReturnValue({
+        patch: vi.fn(),
+      } as unknown as KubernetesObjectApi),
+    }),
+    getNamespace: vi.fn().mockReturnValue('ns1'),
+  } as unknown as KubeConfigSingleContext);
+  await manager.update(kc);
+  await manager.applyResources('apiVersion: v1\nkind: Namespace\nmetadata:\n  name: ns1\n');
+  expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('apply.resources', {
+    manifestsSize: 1,
+    kinds: 'Namespace',
+  });
 });
