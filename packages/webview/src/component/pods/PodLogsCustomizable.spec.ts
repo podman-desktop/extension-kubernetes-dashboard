@@ -84,6 +84,7 @@ test('renders with 2 containers running', async () => {
     containerName: '',
     colorizer: 'colorizer 1',
     timestamps: false,
+    previous: false,
   });
 
   await userEvent.click(containerDropdownButton);
@@ -94,6 +95,7 @@ test('renders with 2 containers running', async () => {
     containerName: 'container2',
     colorizer: 'colorizer 1',
     timestamps: false,
+    previous: false,
   });
 
   await userEvent.click(colorizerDropdownButton);
@@ -104,6 +106,17 @@ test('renders with 2 containers running', async () => {
     containerName: 'container2',
     colorizer: 'colorizer 2',
     timestamps: false,
+    previous: false,
+  });
+
+  const previousCheckbox = screen.getByLabelText('Previous logs');
+  await userEvent.click(previousCheckbox);
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod2containersRunning,
+    containerName: 'container2',
+    colorizer: 'colorizer 2',
+    timestamps: false,
+    previous: true,
   });
 });
 
@@ -122,6 +135,7 @@ test('renders with 1 container running', async () => {
     containerName: '',
     colorizer: 'colorizer 2',
     timestamps: false,
+    previous: false,
   });
 });
 
@@ -136,6 +150,7 @@ test('renders with 1 container running with colors annotation', async () => {
     containerName: '',
     colorizer: 'colorizer 2',
     timestamps: false,
+    previous: false,
   });
 });
 
@@ -156,5 +171,6 @@ test('renders with 1 container running with timestamps annotation', async () => 
     containerName: '',
     colorizer: 'colorizer 2',
     timestamps: true,
+    previous: false,
   });
 });
