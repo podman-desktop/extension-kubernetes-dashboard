@@ -5,11 +5,12 @@ import Fa from 'svelte-fa';
 import NewProvider from '/@/component/icons/NewProvider.svelte';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_NAVIGATION } from '@kubernetes-dashboard/channels';
+import { API_NAVIGATION, API_TELEMETRY } from '@kubernetes-dashboard/channels';
 import Markdown from '/@/markdown/Markdown.svelte';
 
 const remote = getContext<Remote>(Remote);
 const navigationApi = remote.getProxy(API_NAVIGATION);
+const telemetryApi = remote.getProxy(API_TELEMETRY);
 
 const markdownText = `
 Install a new Kubernetes provider via extension. Navigate to extensions by pressing the button, install the ones you prefer and they will show up here.
@@ -17,6 +18,7 @@ Install a new Kubernetes provider via extension. Navigate to extensions by press
 More information: [creating a kube cluster](https://podman-desktop.io/docs/kubernetes/creating-a-kube-cluster)`;
 
 async function navigateToExtensionsCatalog(): Promise<void> {
+  telemetryApi.track('nocontext.extensionsCatalog').catch(console.warn);
   return navigationApi.navigateToExtensionsCatalog('category:kubernetes keyword:provider not:installed');
 }
 </script>

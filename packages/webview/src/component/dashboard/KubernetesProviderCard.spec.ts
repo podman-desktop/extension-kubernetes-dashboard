@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 import KubernetesProviderCard from '/@/component/dashboard/KubernetesProviderCard.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_NAVIGATION } from '@kubernetes-dashboard/channels';
-import type { NavigationApi } from '@kubernetes-dashboard/channels';
+import { API_NAVIGATION, API_TELEMETRY } from '@kubernetes-dashboard/channels';
+import type { NavigationApi, TelemetryApi } from '@kubernetes-dashboard/channels';
 import userEvent from '@testing-library/user-event';
 
 const remoteMocks = new RemoteMocks();
@@ -35,6 +35,9 @@ beforeEach(() => {
   remoteMocks.mock(API_NAVIGATION, {
     navigateToProviderNewConnection: vi.fn(),
   } as unknown as NavigationApi);
+  remoteMocks.mock(API_TELEMETRY, {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as TelemetryApi);
 });
 
 test('should render with all values passed', async () => {
@@ -66,4 +69,7 @@ test('should render with minimal values passed', async () => {
   expect(btn).toBeEnabled();
   await userEvent.click(btn);
   expect(remoteMocks.get(API_NAVIGATION).navigateToProviderNewConnection).toHaveBeenCalledWith('k8s-provider');
+  expect(remoteMocks.get(API_TELEMETRY).track).toHaveBeenCalledWith('nocontext.createNew', {
+    provider: 'k8s-provider',
+  });
 });
