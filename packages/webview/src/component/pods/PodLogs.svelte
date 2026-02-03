@@ -16,8 +16,9 @@ interface Props {
   containerName?: string;
   colorizer: string;
   timestamps: boolean;
+  previous: boolean;
 }
-let { object, containerName, colorizer, timestamps }: Props = $props();
+let { object, containerName, colorizer, timestamps, previous }: Props = $props();
 
 // Logs has been initialized
 let noLogs = $state<boolean>();
@@ -45,7 +46,7 @@ onMount(async () => {
         object.metadata?.name ?? '',
         object.metadata?.namespace ?? '',
         name,
-        { timestamps },
+        { timestamps, previous },
         chunk => {
           const data = podLogsHelper.transformPodLogs(name, chunk.data);
           if (noLogs !== false) {

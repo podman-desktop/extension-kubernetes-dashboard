@@ -25,6 +25,7 @@ const timestampsAnnotations = $derived(annotations.getAnnotations(object.metadat
 // If no container is selected, logs for all containers are displayed
 let selectedContainerName = $state<string>('');
 let selectedTimestamps = $derived<boolean>(timestampsAnnotations['logs-timestamps'] === 'true');
+let selectedPrevious = $state<boolean>(false);
 
 let containerSelection = $derived([
   { label: 'All containers', value: '' },
@@ -40,7 +41,7 @@ let colorizerSelection = podLogsHelper.getColorizers().map(colorizer => ({ label
 
 {#if runningContainers.length > 0}
   <div class="flex grow flex-col h-full w-full">
-    <div class="flex flex-row p-2 h-[40px] gap-2">
+    <div class="flex flex-wrap flex-row p-2 h-min-[40px] gap-x-4">
       {#if runningContainers.length > 1}
         <div class="w-48">
           <Dropdown
@@ -59,20 +60,25 @@ let colorizerSelection = podLogsHelper.getColorizers().map(colorizer => ({ label
           options={colorizerSelection}>
         </Dropdown>
       </div>
-      <div class="w-48">
+      <div>
         <Checkbox class="pt-2" name="timestamps" title="Show timestamps" bind:checked={selectedTimestamps}
           >Show timestamps</Checkbox>
+      </div>
+      <div>
+        <Checkbox class="pt-2" name="previous" title="Previous logs" bind:checked={selectedPrevious}
+          >Previous logs</Checkbox>
       </div>
     </div>
 
     <div class="flex w-full h-full min-h-0">
-      {#key [selectedContainerName, selectedColorizer, selectedTimestamps]}
+      {#key [selectedContainerName, selectedColorizer, selectedTimestamps, selectedPrevious]}
         {#if selectedContainerName !== undefined}
           <PodLogs
             object={object}
             containerName={selectedContainerName}
             colorizer={selectedColorizer}
-            timestamps={selectedTimestamps} />
+            timestamps={selectedTimestamps}
+            previous={selectedPrevious} />
         {/if}
       {/key}
     </div>
