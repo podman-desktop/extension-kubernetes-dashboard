@@ -9,6 +9,8 @@ import { States } from '/@/state/states';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { Navigator } from '/@/navigation/navigator';
 import type { ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { Remote } from '/@/remote/remote';
+import { API_TELEMETRY } from '@kubernetes-dashboard/channels';
 
 interface Props {
   type: string;
@@ -21,6 +23,8 @@ let { type, resources, kind, iconName = kind }: Props = $props();
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const navigator = dependencyAccessor.get<Navigator>(Navigator);
+const remote = getContext<Remote>(Remote);
+const telemetryApi = remote.getProxy(API_TELEMETRY);
 
 const activeResourcesCount = getContext<States>(States).stateActiveResourcesCountInfoUI;
 const resourcesCount = getContext<States>(States).stateResourcesCountInfoUI;
@@ -86,6 +90,7 @@ const permitted = $derived.by(() => {
 });
 
 async function openLink(): Promise<void> {
+  telemetryApi.track('dashboard.resource', { type: type, kind: kind }).catch(console.warn);
   navigator.navigateTo({ kind });
 }
 </script>

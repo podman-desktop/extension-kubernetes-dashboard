@@ -2,7 +2,7 @@
 import { Button } from '@podman-desktop/ui-svelte';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { API_SYSTEM } from '@kubernetes-dashboard/channels';
+import { API_SYSTEM, API_TELEMETRY } from '@kubernetes-dashboard/channels';
 
 interface Props {
   title: string;
@@ -14,8 +14,10 @@ let { title, link, image }: Props = $props();
 
 const remote = getContext<Remote>(Remote);
 const systemApi = remote.getProxy(API_SYSTEM);
+const telemetryApi = remote.getProxy(API_TELEMETRY);
 
 async function openLink(): Promise<void> {
+  telemetryApi.track('dashboard.guide', { title: title, link: link }).catch(console.warn);
   await systemApi.openExternal(link);
 }
 </script>

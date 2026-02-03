@@ -551,6 +551,9 @@ export class ContextsManager implements ContextsApi {
       return;
     }
     const ns = namespace ?? this.currentContext.getNamespace();
+    this.telemetryLogger.logUsage('restart.object', {
+      kind: kind,
+    });
     return handler.restartObject(this.currentContext, name, ns);
   }
 
@@ -571,6 +574,12 @@ export class ContextsManager implements ContextsApi {
         throw error;
       }
       if (this.isV1Status(status)) {
+        this.telemetryLogger.logUsage('api.error', {
+          code: status.code,
+          reason: status.reason,
+          status: status.status,
+          kind: status.details?.kind ?? 'Unknown',
+        });
         this.handleStatus(status, actionMsg);
       } else {
         throw error;
@@ -835,6 +844,11 @@ export class ContextsManager implements ContextsApi {
         this.handleApiException(error, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
       }
     }
+    const telemetryOptions: Record<string, unknown> = {
+      manifestsSize: manifests?.length,
+      kinds: manifests?.map(manifest => manifest.kind).join(','),
+    };
+    this.telemetryLogger.logUsage('apply.resources', telemetryOptions);
   }
 
   convertYamlFrom11to12(yamlDocuments: string): string {

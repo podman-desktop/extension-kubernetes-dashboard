@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, test, vi } from 'vitest';
 import DashboardGuideCard from './DashboardGuideCard.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_SYSTEM } from '@kubernetes-dashboard/channels';
-import type { SystemApi } from '@kubernetes-dashboard/channels';
+import { API_SYSTEM, API_TELEMETRY } from '@kubernetes-dashboard/channels';
+import type { SystemApi, TelemetryApi } from '@kubernetes-dashboard/channels';
 
 const remoteMocks = new RemoteMocks();
 
@@ -35,6 +35,9 @@ beforeEach(() => {
   remoteMocks.mock(API_SYSTEM, {
     openExternal: vi.fn(),
   } as unknown as SystemApi);
+  remoteMocks.mock(API_TELEMETRY, {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as TelemetryApi);
 });
 
 test('Verify basic card format', async () => {
@@ -65,4 +68,8 @@ test('Expect clicking works', async () => {
 
   await userEvent.click(button);
   expect(remoteMocks.get(API_SYSTEM).openExternal).toHaveBeenCalledWith(params.link);
+  expect(remoteMocks.get(API_TELEMETRY).track).toHaveBeenCalledWith('dashboard.guide', {
+    title: params.title,
+    link: params.link,
+  });
 });
