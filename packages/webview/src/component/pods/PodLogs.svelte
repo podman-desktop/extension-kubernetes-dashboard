@@ -17,8 +17,10 @@ interface Props {
   colorizer: string;
   timestamps: boolean;
   previous: boolean;
+  tailLines?: string;
+  sinceSeconds?: string;
 }
-let { object, containerName, colorizer, timestamps, previous }: Props = $props();
+let { object, containerName, colorizer, timestamps, previous, tailLines, sinceSeconds }: Props = $props();
 
 // Logs has been initialized
 let noLogs = $state<boolean>();
@@ -46,7 +48,12 @@ onMount(async () => {
         object.metadata?.name ?? '',
         object.metadata?.namespace ?? '',
         name,
-        { timestamps, previous },
+        {
+          timestamps,
+          previous,
+          tailLines: tailLines ? parseInt(tailLines) : undefined,
+          sinceSeconds: sinceSeconds ? parseInt(sinceSeconds) : undefined,
+        },
         chunk => {
           const data = podLogsHelper.transformPodLogs(name, chunk.data);
           if (noLogs !== false) {

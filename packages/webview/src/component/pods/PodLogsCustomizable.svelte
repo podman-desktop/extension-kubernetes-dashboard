@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { V1Pod } from '@kubernetes/client-node';
-import { Checkbox, Dropdown, EmptyScreen } from '@podman-desktop/ui-svelte';
+import { Checkbox, Dropdown, EmptyScreen, Input } from '@podman-desktop/ui-svelte';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import PodLogs from '/@/component/pods/PodLogs.svelte';
 import { getContext } from 'svelte';
@@ -12,6 +12,8 @@ interface Props {
   object: V1Pod;
 }
 let { object }: Props = $props();
+
+const DEBOUNCE_DELAY = 1000;
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const podLogsHelper = dependencyAccessor.get<PodLogsHelper>(PodLogsHelper);
@@ -26,6 +28,8 @@ const timestampsAnnotations = $derived(annotations.getAnnotations(object.metadat
 let selectedContainerName = $state<string>('');
 let selectedTimestamps = $derived<boolean>(timestampsAnnotations['logs-timestamps'] === 'true');
 let selectedPrevious = $state<boolean>(false);
+let tailLines = $state<string>();
+let sinceSeconds = $state<string>();
 
 let containerSelection = $derived([
   { label: 'All containers', value: '' },
@@ -37,6 +41,26 @@ let containerSelection = $derived([
 
 let selectedColorizer = $derived<string>(podLogsHelper.resolveColorizer(colorsAnnotations['logs-colors']));
 let colorizerSelection = podLogsHelper.getColorizers().map(colorizer => ({ label: colorizer, value: colorizer }));
+
+function onTailLinesInput(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  tailLines = input.value;
+}
+
+function onSinceSecondsInput(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  sinceSeconds = input.value;
+}
+
+function debounce(func: (event: Event) => void, delay: number): (event: Event) => void {
+  let timeout: ReturnType<typeof setTimeout>;
+  return (event: Event) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => func(event), delay);
+  };
+}
 </script>
 
 {#if runningContainers.length > 0}
@@ -68,17 +92,40 @@ let colorizerSelection = podLogsHelper.getColorizers().map(colorizer => ({ label
         <Checkbox class="pt-2" name="previous" title="Previous logs" bind:checked={selectedPrevious}
           >Previous logs</Checkbox>
       </div>
+      <div>
+        <Input
+          id="tailLines"
+          type="number"
+          placeholder="All"
+          aria-label="Last lines"
+          class="w-20 pt-1"
+          oninput={debounce(onTailLinesInput, DEBOUNCE_DELAY)}>
+          {#snippet right()}<div>lines</div>{/snippet}
+        </Input>
+      </div>
+      <div>
+        <Input
+          type="number"
+          placeholder="All"
+          aria-label="Last seconds"
+          class="w-26 pt-1"
+          oninput={debounce(onSinceSecondsInput, DEBOUNCE_DELAY)}>
+          {#snippet right()}<div>seconds</div>{/snippet}
+        </Input>
+      </div>
     </div>
 
     <div class="flex w-full h-full min-h-0">
-      {#key [selectedContainerName, selectedColorizer, selectedTimestamps, selectedPrevious]}
+      {#key [selectedContainerName, selectedColorizer, selectedTimestamps, selectedPrevious, tailLines, sinceSeconds]}
         {#if selectedContainerName !== undefined}
           <PodLogs
             object={object}
             containerName={selectedContainerName}
             colorizer={selectedColorizer}
             timestamps={selectedTimestamps}
-            previous={selectedPrevious} />
+            previous={selectedPrevious}
+            tailLines={tailLines}
+            sinceSeconds={sinceSeconds} />
         {/if}
       {/key}
     </div>
