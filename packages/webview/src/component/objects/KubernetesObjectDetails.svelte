@@ -7,7 +7,7 @@ import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { Navigator } from '/@/navigation/navigator';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';
-import type { ContextResourceDetails, ContextResourceEvents } from '@kubernetes-dashboard/channels';
+import { API_TELEMETRY, type ContextResourceDetails, type ContextResourceEvents } from '@kubernetes-dashboard/channels';
 import type { KubernetesObjectUI } from '/@/component/objects/KubernetesObjectUI';
 import { DetailsPage, StatusIcon, Tab } from '@podman-desktop/ui-svelte';
 import Route from '/@/Route.svelte';
@@ -19,6 +19,7 @@ import { KubernetesObjectUIHelper } from './kubernetes-object-ui-helper';
 import MonacoEditor from '/@/component/editor/MonacoEditor.svelte';
 import { stringify } from 'yaml';
 import EditYAML from '/@/component/editor/EditYAML.svelte';
+import { Remote } from '/@/remote/remote';
 
 interface TabInfo<T extends KubernetesObject> {
   title: string;
@@ -58,6 +59,9 @@ let detailsPage: DetailsPage | undefined = $state(undefined);
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const navigator = dependencyAccessor.get(Navigator);
 const objectHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(KubernetesObjectUIHelper);
+
+const remote = getContext<Remote>(Remote);
+const telemetryApi = remote.getProxy(API_TELEMETRY);
 
 const resourceDetails = getContext<States>(States).stateResourceDetailsInfoUI;
 const resourceEvents = getContext<States>(States).stateResourceEventsInfoUI;
@@ -127,6 +131,7 @@ $effect(() => {
 });
 
 onMount(() => {
+  telemetryApi.track(`details.${kind.toLowerCase()}`).catch(console.warn);
   initialCurrentContextName = currentContext.data?.contextName;
   if (!initialCurrentContextName) {
     navigateToList();

@@ -26,13 +26,14 @@ import type {
   UpdateResourceInfo,
   CurrentContextInfo,
   ContextsApi,
+  TelemetryApi,
 } from '@kubernetes-dashboard/channels';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import * as uiSvelte from '@podman-desktop/ui-svelte';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
+import { API_CONTEXTS, API_TELEMETRY } from '@kubernetes-dashboard/channels';
 
 vi.mock(import('/@/component/connection/CurrentContextConnectionBadge.svelte'));
 vi.mock(import('./NamespaceDropdown.svelte'));
@@ -69,7 +70,9 @@ beforeEach(() => {
   remoteMocks.mock(API_CONTEXTS, {
     deleteObjects: vi.fn(),
   } as unknown as ContextsApi);
-
+  remoteMocks.mock(API_TELEMETRY, {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as TelemetryApi);
   vi.spyOn(uiSvelte, 'Table').mockImplementation(vi.fn());
   vi.spyOn(uiSvelte, 'FilteredEmptyScreen').mockImplementation(vi.fn());
 });
@@ -203,4 +206,9 @@ describe('resources exist', () => {
 
     expect(uiSvelte.FilteredEmptyScreen).toHaveBeenCalled();
   });
+});
+
+test('telemetry is sent when list is rendered', () => {
+  render(KubernetesObjectsListSpec);
+  expect(remoteMocks.get(API_TELEMETRY).track).toHaveBeenCalledWith('list.seals');
 });

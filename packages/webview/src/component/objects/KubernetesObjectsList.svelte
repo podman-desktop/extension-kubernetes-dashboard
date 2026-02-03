@@ -13,7 +13,7 @@ import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import CurrentContextConnectionBadge from '/@/component/connection/CurrentContextConnectionBadge.svelte';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Remote } from '/@/remote/remote';
-import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
+import { API_CONTEXTS, API_TELEMETRY } from '@kubernetes-dashboard/channels';
 import NamespaceDropdown from './NamespaceDropdown.svelte';
 
 export interface Kind {
@@ -43,6 +43,7 @@ const objectHelper = dependencyAccessor.get<KubernetesObjectUIHelper>(Kubernetes
 
 const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);
+const telemetryApi = remote.getProxy(API_TELEMETRY);
 
 let searchTerm = $state<string>('');
 
@@ -65,6 +66,7 @@ const objects = $derived(
 );
 
 onMount(() => {
+  telemetryApi.track(`list.${plural.toLowerCase().replaceAll(' ', '-')}`).catch(console.warn);
   unsubscribers = kinds.map(kind =>
     updateResource.subscribe({
       contextName: undefined, // ask for resources in the default context

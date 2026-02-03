@@ -3,18 +3,23 @@ import { faEthernet } from '@fortawesome/free-solid-svg-icons';
 import { EmptyScreen, NavPage, Table, TableColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 
 import PortForwardIcon from './columns/PortForwardIcon.svelte';
-import type { ForwardConfig, WorkloadKind } from '@kubernetes-dashboard/channels';
+import { API_TELEMETRY, type ForwardConfig, type WorkloadKind } from '@kubernetes-dashboard/channels';
 import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
 import type { Unsubscriber } from 'svelte/store';
 import NameColumn from './columns/Name.svelte';
 import ActionsColumn from './columns/Actions.svelte';
+import { Remote } from '/@/remote/remote';
 
 const portForwards = getContext<States>(States).statePortForwardsInfoUI;
+
+const remote = getContext<Remote>(Remote);
+const telemetryApi = remote.getProxy(API_TELEMETRY);
 
 let portForwardsUnsubscriber: Unsubscriber;
 
 onMount(() => {
+  telemetryApi.track('list.port-forwardings').catch(console.warn);
   portForwardsUnsubscriber = portForwards.subscribe();
 });
 

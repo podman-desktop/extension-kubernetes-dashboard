@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import {
   type SystemApi,
   type PortForwardApi,
   type PortForwardsInfo,
+  API_TELEMETRY,
+  type TelemetryApi,
 } from '@kubernetes-dashboard/channels';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
@@ -62,6 +64,9 @@ beforeEach(() => {
   remoteMocks.mock(API_PORT_FORWARD, {
     deletePortForward: vi.fn(),
   } as unknown as PortForwardApi);
+  remoteMocks.mock(API_TELEMETRY, {
+    track: vi.fn().mockResolvedValue(undefined),
+  } as unknown as TelemetryApi);
 });
 
 test('empty kubernetesCurrentContextPortForwards store should display empty screen', async () => {
@@ -218,4 +223,9 @@ test('Column sorting should reorder the table data', async () => {
   // 5. Sort by "Type" (descending)
   await fireEvent.click(typeHeader);
   expect(getColumnData(3)).toEqual(['service', 'pod', 'deployment']); // Alphabetical sort descending
+});
+
+test('telemetry is sent when list is rendered', () => {
+  render(PortForwardList);
+  expect(remoteMocks.get(API_TELEMETRY).track).toHaveBeenCalledWith('list.port-forwardings');
 });
