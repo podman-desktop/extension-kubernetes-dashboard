@@ -40,8 +40,6 @@ export class PodLogsHelper {
     if (!this.#colorizerFunctions[colorizer]) {
       throw new Error(`Invalid colorizer: ${colorizer}`);
     }
-    this.#colorizerFunction = this.#colorizerFunctions[colorizer];
-    this.multiContainersLogsHelper.init(containers);
     this.#jsonColorizer = new JsonColorizer({
       keyColor: '\u001b[34;1m', // bright blue for keys
       braceColor: '\u001b[33m', // yellow for {}[]
@@ -50,6 +48,8 @@ export class PodLogsHelper {
       nullColor: '\u001b[35m', // magenta for null
       reset: '\u001b[0m',
     });
+    this.#colorizerFunction = this.#colorizerFunctions[colorizer];
+    this.multiContainersLogsHelper.init(containers);
   }
 
   transformPodLogs(containerName: string, data: string): string {
