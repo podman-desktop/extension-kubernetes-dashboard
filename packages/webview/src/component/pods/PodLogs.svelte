@@ -57,9 +57,7 @@ onMount(async () => {
         },
         chunk => {
           const data = podLogsHelper.transformPodLogs(name, chunk.data);
-          if (noLogs !== false) {
-            noLogs = false;
-          }
+          noLogs = false;
           logsTerminal?.write(data + '\r');
           tick()
             .then(() => {
