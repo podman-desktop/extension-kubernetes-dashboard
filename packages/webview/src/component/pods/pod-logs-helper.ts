@@ -20,6 +20,7 @@ import type { V1Container } from '@kubernetes/client-node';
 import { colorizeLogLevel } from '/@/component/terminal/terminal-colors';
 import { MultiContainersLogsHelper } from '/@/component/pods/multi-container-logs-helper';
 import { inject, injectable } from 'inversify';
+import { JsonColorizer } from '/@/component/terminal/json-colorizer';
 
 @injectable()
 export class PodLogsHelper {
@@ -28,8 +29,12 @@ export class PodLogsHelper {
   #colorizerFunction: (data: string) => string;
   #colorizerFunctions: Record<string, (data: string) => string> = {
     'log level colors': colorizeLogLevel,
+    'json colors': (data: string) => this.#jsonColorizer.colorize(data),
+    'json colors with indent': (data: string) => this.#jsonColorizer.colorize(data, { indent: 2 }),
     'no colors': (data: string) => data,
   };
+
+  #jsonColorizer: JsonColorizer;
 
   init(containers: V1Container[], colorizer: string): void {
     if (!this.#colorizerFunctions[colorizer]) {
@@ -37,6 +42,14 @@ export class PodLogsHelper {
     }
     this.#colorizerFunction = this.#colorizerFunctions[colorizer];
     this.multiContainersLogsHelper.init(containers);
+    this.#jsonColorizer = new JsonColorizer({
+      keyColor: '\u001b[34;1m', // bright blue for keys
+      braceColor: '\u001b[33m', // yellow for {}[]
+      numberColor: '\u001b[32m', // green for numbers
+      booleanColor: '\u001b[35m', // magenta for booleans
+      nullColor: '\u001b[35m', // magenta for null
+      reset: '\u001b[0m',
+    });
   }
 
   transformPodLogs(containerName: string, data: string): string {
