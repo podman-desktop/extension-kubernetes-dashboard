@@ -43,7 +43,6 @@ onMount(async () => {
   logsTerminal?.clear();
 
   for (const name of containers.map(c => c.name)) {
-    console.log('sinceSeconds', sinceSeconds, getFiniteNumber(sinceSeconds));
     disposables.push(
       await streams.streamPodLogs.subscribe(
         object.metadata?.name ?? '',
