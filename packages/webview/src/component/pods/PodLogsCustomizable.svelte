@@ -96,7 +96,6 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
       </div>
       <div>
         <Input
-          id="tailLines"
           type="number"
           placeholder="All"
           aria-label="Last lines"
