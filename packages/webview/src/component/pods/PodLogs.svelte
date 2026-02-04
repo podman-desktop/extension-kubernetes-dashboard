@@ -43,6 +43,7 @@ onMount(async () => {
   logsTerminal?.clear();
 
   for (const name of containers.map(c => c.name)) {
+    console.log('sinceSeconds', sinceSeconds, getFiniteNumber(sinceSeconds));
     disposables.push(
       await streams.streamPodLogs.subscribe(
         object.metadata?.name ?? '',
@@ -51,8 +52,8 @@ onMount(async () => {
         {
           timestamps,
           previous,
-          tailLines: tailLines ? parseInt(tailLines) : undefined,
-          sinceSeconds: sinceSeconds ? parseInt(sinceSeconds) : undefined,
+          tailLines: getFiniteNumber(tailLines),
+          sinceSeconds: getFiniteNumber(sinceSeconds),
         },
         chunk => {
           const data = podLogsHelper.transformPodLogs(name, chunk.data);
@@ -74,6 +75,14 @@ onMount(async () => {
     noLogs ??= true;
   }, 1_000);
 });
+
+function getFiniteNumber(value: string | undefined): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const number = parseInt(value);
+  return isNaN(number) ? undefined : number;
+}
 
 onDestroy(() => {
   disposables.forEach(disposable => disposable.dispose());
