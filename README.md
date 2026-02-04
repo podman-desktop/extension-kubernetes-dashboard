@@ -48,6 +48,10 @@ Colorize logs levels (by default)
 Disable colorization of logs
 - `kubernetes-dashboard.podman-desktop.io/logs-timestamps: "true"`  
 Prefix the logs of the pod's containers with timestamps.
+- `kubernetes-dashboard.podman-desktop.io/logs-tail-lines: "10"`  
+Fetch the last _n_ lines of the logs only.
+- `kubernetes-dashboard.podman-desktop.io/logs-since-seconds: "60"`  
+Fetch the logs emitted since _n_ seconds only.
 
 # Installation
 
