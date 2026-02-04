@@ -20,7 +20,7 @@ interface Props {
   tailLines?: string;
   sinceSeconds?: string;
 }
-let { object, containerName, colorizer, timestamps, previous, tailLines, sinceSeconds }: Props = $props();
+let { object, containerName, colorizer, timestamps, previous, tailLines = '1060', sinceSeconds }: Props = $props();
 
 // Logs has been initialized
 let noLogs = $state<boolean>();
