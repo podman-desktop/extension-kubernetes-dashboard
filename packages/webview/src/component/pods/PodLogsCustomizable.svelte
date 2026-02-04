@@ -23,13 +23,15 @@ const runningContainers = $derived(object.status?.containerStatuses?.filter(stat
 
 const colorsAnnotations = $derived(annotations.getAnnotations(object.metadata, { key: 'logs-colors' }));
 const timestampsAnnotations = $derived(annotations.getAnnotations(object.metadata, { key: 'logs-timestamps' }));
+const tailLinesAnnotations = $derived(annotations.getAnnotations(object.metadata, { key: 'logs-tail-lines' }));
+const sinceSecondsAnnotations = $derived(annotations.getAnnotations(object.metadata, { key: 'logs-since-seconds' }));
 
 // If no container is selected, logs for all containers are displayed
 let selectedContainerName = $state<string>('');
 let selectedTimestamps = $derived<boolean>(timestampsAnnotations['logs-timestamps'] === 'true');
 let selectedPrevious = $state<boolean>(false);
-let tailLines = $state<string>();
-let sinceSeconds = $state<string>();
+let tailLines = $derived<string>(tailLinesAnnotations['logs-tail-lines']);
+let sinceSeconds = $derived<string>(sinceSecondsAnnotations['logs-since-seconds']);
 
 let containerSelection = $derived([
   { label: 'All containers', value: '' },
@@ -99,6 +101,7 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
           placeholder="All"
           aria-label="Last lines"
           class="w-20 pt-1"
+          value={tailLines}
           oninput={debounce(onTailLinesInput, DEBOUNCE_DELAY)}>
           {#snippet right()}<div>lines</div>{/snippet}
         </Input>
@@ -109,6 +112,7 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
           placeholder="All"
           aria-label="Last seconds"
           class="w-26 pt-1"
+          value={sinceSeconds}
           oninput={debounce(onSinceSecondsInput, DEBOUNCE_DELAY)}>
           {#snippet right()}<div>seconds</div>{/snippet}
         </Input>
