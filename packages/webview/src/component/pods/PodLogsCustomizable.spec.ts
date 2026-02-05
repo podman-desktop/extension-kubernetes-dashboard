@@ -21,7 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen, within } from '@testing-library/svelte';
 import type { V1Pod } from '@kubernetes/client-node';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import PodLogsCustomizable from '/@/component/pods/PodLogsCustomizable.svelte';
 import PodLogs from '/@/component/pods/PodLogs.svelte';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
@@ -61,11 +61,16 @@ const dependencyMocks = new DependencyMocks();
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   dependencyMocks.reset();
   dependencyMocks.mock(PodLogsHelper);
   vi.mocked(dependencyMocks.get(PodLogsHelper).getColorizers).mockReturnValue(['colorizer 1', 'colorizer 2']);
   dependencyMocks.mock(Annotations);
   vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({});
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 test('renders with no container running', () => {
@@ -117,6 +122,41 @@ test('renders with 2 containers running', async () => {
     colorizer: 'colorizer 2',
     timestamps: false,
     previous: true,
+  });
+
+  // Tail lines waits for 1 second before dispatching the new value
+  const tailLinesInput = screen.getByLabelText('Last lines');
+  vi.mocked(PodLogs).mockClear();
+  await userEvent.type(tailLinesInput, '1');
+  await vi.advanceTimersByTimeAsync(100);
+  await userEvent.type(tailLinesInput, '0');
+  await vi.advanceTimersByTimeAsync(1_000);
+  expect(PodLogs).toHaveBeenCalledOnce();
+  expect(PodLogs).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod2containersRunning,
+    containerName: 'container2',
+    colorizer: 'colorizer 2',
+    timestamps: false,
+    previous: true,
+    tailLines: '10',
+  });
+
+  // Since seconds waits for 1 second before dispatching the new value
+  const sinceSecondsInput = screen.getByLabelText('Last seconds');
+  vi.mocked(PodLogs).mockClear();
+  await userEvent.type(sinceSecondsInput, '3');
+  await vi.advanceTimersByTimeAsync(100);
+  await userEvent.type(sinceSecondsInput, '5');
+  await vi.advanceTimersByTimeAsync(1_000);
+  expect(PodLogs).toHaveBeenCalledOnce();
+  expect(PodLogs).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod2containersRunning,
+    containerName: 'container2',
+    colorizer: 'colorizer 2',
+    timestamps: false,
+    previous: true,
+    tailLines: '10',
+    sinceSeconds: '35',
   });
 });
 
@@ -172,5 +212,49 @@ test('renders with 1 container running with timestamps annotation', async () => 
     colorizer: 'colorizer 2',
     timestamps: true,
     previous: false,
+  });
+});
+
+test('renders with 1 container running with tailLines annotation', async () => {
+  vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({ 'logs-tail-lines': '10' });
+
+  render(PodLogsCustomizable, { object: fakePod1containerRunning });
+  expect(screen.queryByText('container1')).not.toBeInTheDocument();
+
+  const colorizerDropdown = screen.getByLabelText('Select colorization');
+  const colorizerDropdownButton = within(colorizerDropdown).getByText('colorizer 1');
+
+  await userEvent.click(colorizerDropdownButton);
+  const colorizer2 = within(colorizerDropdown).getByText('colorizer 2');
+  await userEvent.click(colorizer2);
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod1containerRunning,
+    containerName: '',
+    colorizer: 'colorizer 2',
+    timestamps: false,
+    previous: false,
+    tailLines: '10',
+  });
+});
+
+test('renders with 1 container running with sinceSeconds annotation', async () => {
+  vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({ 'logs-since-seconds': '35' });
+
+  render(PodLogsCustomizable, { object: fakePod1containerRunning });
+  expect(screen.queryByText('container1')).not.toBeInTheDocument();
+
+  const colorizerDropdown = screen.getByLabelText('Select colorization');
+  const colorizerDropdownButton = within(colorizerDropdown).getByText('colorizer 1');
+
+  await userEvent.click(colorizerDropdownButton);
+  const colorizer2 = within(colorizerDropdown).getByText('colorizer 2');
+  await userEvent.click(colorizer2);
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod1containerRunning,
+    containerName: '',
+    colorizer: 'colorizer 2',
+    timestamps: false,
+    previous: false,
+    sinceSeconds: '35',
   });
 });

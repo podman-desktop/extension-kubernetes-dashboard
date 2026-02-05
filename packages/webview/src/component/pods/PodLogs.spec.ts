@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ describe('pod with one container', async () => {
   });
 
   test('display No Log with no logs', async () => {
-    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false });
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false, previous: false });
     await vi.advanceTimersByTimeAsync(1_100);
     expect(EmptyScreen).toHaveBeenCalled();
   });
@@ -90,7 +90,7 @@ describe('pod with one container', async () => {
       props.terminal = mockedTerminal;
       return {};
     });
-    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false });
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false, previous: false });
     expect(mockedTerminal.write).not.toHaveBeenCalledWith();
     expect(mockedTerminal.clear).toHaveBeenCalled();
     expect(TerminalWindow).toHaveBeenCalled();
@@ -133,7 +133,7 @@ describe('pod with two containers', async () => {
   });
 
   test('display No Log with no logs', async () => {
-    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false });
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false, previous: false });
     await vi.advanceTimersByTimeAsync(1_100);
     expect(EmptyScreen).toHaveBeenCalled();
   });
@@ -148,7 +148,7 @@ describe('pod with two containers', async () => {
       props.terminal = mockedTerminal;
       return {};
     });
-    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false });
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false, previous: false });
     expect(mockedTerminal.write).not.toHaveBeenCalledWith();
     expect(mockedTerminal.clear).toHaveBeenCalled();
     expect(TerminalWindow).toHaveBeenCalled();
@@ -193,7 +193,7 @@ describe('pod with two containers, one container selected', async () => {
   });
 
   test('display No Log with no logs', async () => {
-    render(PodLogs, { object: pod, containerName: 'cnt1', colorizer: 'no colors', timestamps: false });
+    render(PodLogs, { object: pod, containerName: 'cnt1', colorizer: 'no colors', timestamps: false, previous: false });
     await vi.advanceTimersByTimeAsync(1_100);
     expect(EmptyScreen).toHaveBeenCalled();
   });
@@ -208,7 +208,7 @@ describe('pod with two containers, one container selected', async () => {
       props.terminal = mockedTerminal;
       return {};
     });
-    render(PodLogs, { object: pod, containerName: 'cnt1', colorizer: 'no colors', timestamps: false });
+    render(PodLogs, { object: pod, containerName: 'cnt1', colorizer: 'no colors', timestamps: false, previous: false });
     expect(mockedTerminal.write).not.toHaveBeenCalledWith();
     expect(mockedTerminal.clear).toHaveBeenCalled();
     expect(TerminalWindow).toHaveBeenCalled();

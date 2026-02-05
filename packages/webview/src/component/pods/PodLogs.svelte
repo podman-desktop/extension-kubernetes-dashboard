@@ -17,8 +17,10 @@ interface Props {
   colorizer: string;
   timestamps: boolean;
   previous: boolean;
+  tailLines?: string;
+  sinceSeconds?: string;
 }
-let { object, containerName, colorizer, timestamps, previous }: Props = $props();
+let { object, containerName, colorizer, timestamps, previous, tailLines = '1060', sinceSeconds }: Props = $props();
 
 // Logs has been initialized
 let noLogs = $state<boolean>();
@@ -46,12 +48,15 @@ onMount(async () => {
         object.metadata?.name ?? '',
         object.metadata?.namespace ?? '',
         name,
-        { timestamps, previous },
+        {
+          timestamps,
+          previous,
+          tailLines: getFiniteNumber(tailLines),
+          sinceSeconds: getFiniteNumber(sinceSeconds),
+        },
         chunk => {
           const data = podLogsHelper.transformPodLogs(name, chunk.data);
-          if (noLogs !== false) {
-            noLogs = false;
-          }
+          noLogs = false;
           logsTerminal?.write(data + '\r');
           tick()
             .then(() => {
@@ -67,6 +72,14 @@ onMount(async () => {
     noLogs ??= true;
   }, 1_000);
 });
+
+function getFiniteNumber(value: string | undefined): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const number = parseInt(value);
+  return isNaN(number) ? undefined : number;
+}
 
 onDestroy(() => {
   disposables.forEach(disposable => disposable.dispose());
