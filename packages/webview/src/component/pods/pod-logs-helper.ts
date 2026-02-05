@@ -21,6 +21,7 @@ import { colorizeLogLevel } from '/@/component/terminal/terminal-colors';
 import { MultiContainersLogsHelper } from '/@/component/pods/multi-container-logs-helper';
 import { inject, injectable } from 'inversify';
 import { JsonColorizer } from '/@/component/terminal/json-colorizer';
+import { logfmtColorize } from '/@/component/terminal/logfmt-colorizer';
 
 @injectable()
 export class PodLogsHelper {
@@ -31,6 +32,8 @@ export class PodLogsHelper {
     'log level colors': colorizeLogLevel,
     'json colors': (data: string) => this.#jsonColorizer.colorize(data),
     'json colors with indent': (data: string) => this.#jsonColorizer.colorize(data, { indent: 2 }),
+    'logfmt colors': data => logfmtColorize(data),
+    'logfmt colors with indent': data => logfmtColorize(data, 2),
     'no colors': (data: string) => data,
   };
 
