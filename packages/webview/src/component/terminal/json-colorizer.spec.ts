@@ -212,4 +212,12 @@ describe('JsonColorizer', () => {
     expect(result).toContain('"key"');
     expect(result).toContain('"value"');
   });
+
+  test('non-json line should not be changed', () => {
+    const jsonLine = 'this is not a JSON line';
+    const result = colorizer.colorize(jsonLine);
+    expect(result).toBe(jsonLine);
+    const resultIndented = colorizer.colorize(jsonLine, { indent: 2 });
+    expect(resultIndented).toBe(jsonLine);
+  });
 });

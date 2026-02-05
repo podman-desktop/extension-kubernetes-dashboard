@@ -50,12 +50,11 @@ export class JsonColorizer {
    * @returns The colorized JSON string with ANSI codes
    */
   colorize(jsonLine: string, options?: JsonColorizerOptions): string {
-    if (options?.indent) {
-      try {
-        jsonLine = JSON.stringify(JSON.parse(jsonLine), undefined, 2);
-      } catch {
-        // nothing to do, we don't want to change non-json line
-      }
+    try {
+      jsonLine = JSON.stringify(JSON.parse(jsonLine), undefined, options?.indent ?? 0);
+    } catch {
+      // nothing to do, we don't want to change non-json line
+      return jsonLine;
     }
     let result = '';
     let i = 0;
