@@ -1,0 +1,631 @@
+apiVersion: v1
+kind: Node
+metadata:
+  annotations:
+    node.alpha.kubernetes.io/ttl: "0"
+    volumes.kubernetes.io/controller-managed-attach-detach: "true"
+  creationTimestamp: "2026-01-11T08:18:47Z"
+  labels:
+    beta.kubernetes.io/arch: amd64
+    beta.kubernetes.io/os: linux
+    kubernetes.io/arch: amd64
+    kubernetes.io/hostname: node1
+    kubernetes.io/os: linux
+    node-role.kubernetes.io/control-plane: ""
+    node.kubernetes.io/exclude-from-external-load-balancers: ""
+  name: node1
+  resourceVersion: "4817735"
+  uid: 556f81a8-16fa-4201-89a8-b6e456bc3d06
+spec:
+  podCIDR: 10.244.0.0/24
+  podCIDRs:
+  - 10.244.0.0/24
+status:
+  addresses:
+  - address: 192.168.1.52
+    type: InternalIP
+  - address: node1
+    type: Hostname
+  allocatable:
+    cpu: "4"
+    ephemeral-storage: "229909918545"
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 15958784Ki
+    pods: "110"
+  capacity:
+    cpu: "4"
+    ephemeral-storage: 249468228Ki
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 16061184Ki
+    pods: "110"
+  conditions:
+  - lastHeartbeatTime: "2026-02-04T14:29:25Z"
+    lastTransitionTime: "2026-01-11T08:18:46Z"
+    message: kubelet has sufficient memory available
+    reason: KubeletHasSufficientMemory
+    status: "False"
+    type: MemoryPressure
+  - lastHeartbeatTime: "2026-02-04T14:29:25Z"
+    lastTransitionTime: "2026-01-11T08:18:46Z"
+    message: kubelet has no disk pressure
+    reason: KubeletHasNoDiskPressure
+    status: "False"
+    type: DiskPressure
+  - lastHeartbeatTime: "2026-02-04T14:29:25Z"
+    lastTransitionTime: "2026-01-11T08:18:46Z"
+    message: kubelet has sufficient PID available
+    reason: KubeletHasSufficientPID
+    status: "False"
+    type: PIDPressure
+  - lastHeartbeatTime: "2026-02-04T14:29:25Z"
+    lastTransitionTime: "2026-01-11T08:18:47Z"
+    message: kubelet is posting ready status
+    reason: KubeletReady
+    status: "True"
+    type: Ready
+  daemonEndpoints:
+    kubeletEndpoint:
+      Port: 10250
+  features:
+    supplementalGroupsPolicy: true
+  images:
+  - names:
+    - docker.io/cloudnativelabs/kube-router@sha256:4f1375aa0b09f41916bc44f705adb38c93308fb562f71bb0e58346e13c9702d1
+    - docker.io/cloudnativelabs/kube-router@sha256:68621cf22ebc1f605813f6edb203a13590db8301746efe552a57bcf18620c33e
+    - docker.io/cloudnativelabs/kube-router:latest
+    sizeBytes: 242598359
+  - names:
+    - docker.io/envoyproxy/envoy@sha256:ddd43a6cd93db90e8e412466aba31e6fd7339eb76ed0d52c5a18e6e73aada2a0
+    - docker.io/envoyproxy/envoy@sha256:f858675e384b74cb7a2238723c1c0edea01112ed7aa0f6cf65fbe18dabd4c6a9
+    - docker.io/envoyproxy/envoy:v1.35.8
+    sizeBytes: 173755501
+  - names:
+    - docker.io/library/nginx@sha256:7272239bd21472f311aa3e86a85fdca0f1ad648995f983ab6e5e7dea665cd233
+    - docker.io/library/nginx@sha256:c6c55d513dd0e897a6a1c1f1405e00f8fc49bf67eab2e14e43a705a9a6080b8b
+    - docker.io/library/nginx:latest
+    sizeBytes: 164278110
+  - names:
+    - docker.io/library/httpd@sha256:d17906bc35fb0527e64cf6410704e94cb9cb4657ce690a107cd5b56943ff9eb0
+    - docker.io/library/httpd@sha256:dd178595edd6d4f49296f62f9587238db2cd1045adfff6fccc15a6c4d08f5d2e
+    - docker.io/library/httpd:latest
+    sizeBytes: 120208169
+  - names:
+    - docker.io/library/httpd@sha256:e19cdd61f51985351ca9867d384cf1b050487d26bb1b49c470f2fcda1b5f276c
+    sizeBytes: 120200997
+  - names:
+    - docker.io/envoyproxy/envoy@sha256:132e3ab7d7f993916b3bd8f27c401e58065e031708ca55cdc53f3614c5df0fff
+    - docker.io/envoyproxy/envoy@sha256:42354b713726140f886492de1223877dd66e83bb2fc1952c36375399553ae733
+    - docker.io/envoyproxy/envoy:distroless-v1.35.8
+    sizeBytes: 101448622
+  - names:
+    - registry.k8s.io/kube-apiserver@sha256:5af1030676ceca025742ef5e73a504d11b59be0e5551cdb8c9cf0d3c1231b460
+    - registry.k8s.io/kube-apiserver@sha256:9b2e9bae4dc94991e51c601ba6a00369b45064243ba7822143b286edb9d41f9e
+    - registry.k8s.io/kube-apiserver:v1.34.3
+    sizeBytes: 89050097
+  - names:
+    - registry.k8s.io/coredns/coredns@sha256:4f7a57135719628cf2070c5e3cbde64b013e90d4c560c5ecbf14004181f91998
+    - registry.k8s.io/coredns/coredns@sha256:e8c262566636e6bc340ece6473b0eed193cad045384401529721ddbe6463d31c
+    - registry.k8s.io/coredns/coredns:v1.12.1
+    sizeBytes: 76103547
+  - names:
+    - registry.k8s.io/kube-controller-manager@sha256:716a210d31ee5e27053ea0e1a3a3deb4910791a85ba4b1120410b5a4cbcf1954
+    - registry.k8s.io/kube-controller-manager@sha256:90ceecee64b3dac0e619928b9b21522bde1a120bb039971110ab68d830c1f1a2
+    - registry.k8s.io/kube-controller-manager:v1.34.3
+    sizeBytes: 76004183
+  - names:
+    - registry.k8s.io/kube-proxy@sha256:7298ab89a103523d02ff4f49bedf9359710af61df92efdc07bac873064f03ed6
+    - registry.k8s.io/kube-proxy@sha256:aee44d152c9eaa4f3e10584e61ee501a094880168db257af1201c806982a0945
+    - registry.k8s.io/kube-proxy:v1.34.3
+    sizeBytes: 73145241
+  - names:
+    - registry.k8s.io/etcd@sha256:042ef9c02799eb9303abf1aa99b09f09d94b8ee3ba0c2dd3f42dc4e1d3dce534
+    - registry.k8s.io/etcd@sha256:28cf8781a30d69c2e3a969764548497a949a363840e1de34e014608162644778
+    - registry.k8s.io/etcd:3.6.5-0
+    sizeBytes: 63647058
+  - names:
+    - ghcr.io/projectcontour/contour@sha256:b38a04f74e905ba42cf00a41cf70d41eca8887d7bfc567024bb480c0dff10332
+    - ghcr.io/projectcontour/contour@sha256:ee628e43ec04ade4d53d02b37377cd2f217a851e9fcd5d39d35ab36699f1228d
+    - ghcr.io/projectcontour/contour:v1.33.1
+    sizeBytes: 58783846
+  - names:
+    - registry.k8s.io/kube-scheduler@sha256:490ff7b484d67db4a77e8d4bba9f12da68f6a3cae8da3b977522b60c8b5092c9
+    - registry.k8s.io/kube-scheduler@sha256:f9a9bc7948fd804ef02255fe82ac2e85d2a66534bae2fe1348c14849260a1fe2
+    - registry.k8s.io/kube-scheduler:v1.34.3
+    sizeBytes: 53853013
+  - names:
+    - registry.k8s.io/pause@sha256:278fb9dbcca9518083ad1e11276933a2e96f23de604a3a08cc3c80002767d24c
+    - registry.k8s.io/pause@sha256:e5b941ef8f71de54dc3a13398226c269ba217d06650a21bd3afcf9d890cf1f41
+    - registry.k8s.io/pause:3.10.1
+    sizeBytes: 742092
+  - names:
+    - registry.k8s.io/pause@sha256:7c38f24774e3cbd906d2d33c38354ccf787635581c122965132c9bd309754d4a
+    - registry.k8s.io/pause@sha256:ee6521f290b2168b6e0935a181d4cff9be1ac3f505666ef0e3c98fae8199917a
+    - registry.k8s.io/pause:3.10
+    sizeBytes: 742080
+  nodeInfo:
+    architecture: amd64
+    bootID: 96728159-96d5-48ed-b30b-279b61e6dbaf
+    containerRuntimeVersion: cri-o://1.32.0
+    kernelVersion: 6.17.12-300.fc43.x86_64
+    kubeProxyVersion: ""
+    kubeletVersion: v1.34.3
+    machineID: 79eb9e0fee754e848d34723ab425d394
+    operatingSystem: linux
+    osImage: Fedora CoreOS 43.20260105.3.0
+    systemUUID: f89f4680-a860-11f0-b42f-5ec927b45943
+  runtimeHandlers:
+  - features:
+      recursiveReadOnlyMounts: true
+      userNamespaces: true
+    name: crun
+  - features:
+      recursiveReadOnlyMounts: true
+      userNamespaces: true
+    name: ""
+---
+apiVersion: v1
+kind: Node
+metadata:
+  annotations:
+    node.alpha.kubernetes.io/ttl: "0"
+    volumes.kubernetes.io/controller-managed-attach-detach: "true"
+  creationTimestamp: "2026-01-11T08:42:47Z"
+  labels:
+    beta.kubernetes.io/arch: amd64
+    beta.kubernetes.io/os: linux
+    kubernetes.io/arch: amd64
+    kubernetes.io/hostname: node2
+    kubernetes.io/os: linux
+  name: node2
+  resourceVersion: "4817488"
+  uid: b46f66ad-6720-46a4-a50c-9a80f2d8c583
+spec:
+  podCIDR: 10.244.1.0/24
+  podCIDRs:
+  - 10.244.1.0/24
+status:
+  addresses:
+  - address: 192.168.1.162
+    type: InternalIP
+  - address: node2
+    type: Hostname
+  allocatable:
+    cpu: "4"
+    ephemeral-storage: "460190209696"
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 16036932Ki
+    pods: "110"
+  capacity:
+    cpu: "4"
+    ephemeral-storage: 499338336Ki
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 16139332Ki
+    pods: "110"
+  conditions:
+  - lastHeartbeatTime: "2026-02-04T14:27:41Z"
+    lastTransitionTime: "2026-01-23T05:38:52Z"
+    message: kubelet has sufficient memory available
+    reason: KubeletHasSufficientMemory
+    status: "False"
+    type: MemoryPressure
+  - lastHeartbeatTime: "2026-02-04T14:27:41Z"
+    lastTransitionTime: "2026-01-23T05:38:52Z"
+    message: kubelet has no disk pressure
+    reason: KubeletHasNoDiskPressure
+    status: "False"
+    type: DiskPressure
+  - lastHeartbeatTime: "2026-02-04T14:27:41Z"
+    lastTransitionTime: "2026-01-23T05:38:52Z"
+    message: kubelet has sufficient PID available
+    reason: KubeletHasSufficientPID
+    status: "False"
+    type: PIDPressure
+  - lastHeartbeatTime: "2026-02-04T14:27:41Z"
+    lastTransitionTime: "2026-01-23T05:38:52Z"
+    message: kubelet is posting ready status
+    reason: KubeletReady
+    status: "True"
+    type: Ready
+  daemonEndpoints:
+    kubeletEndpoint:
+      Port: 10250
+  features:
+    supplementalGroupsPolicy: true
+  images:
+  - names:
+    - docker.io/library/kong@sha256:4379444ecfd82794b27de38a74ba540e8571683dfdfce74c8ecb4018f308fb29
+    - docker.io/library/kong@sha256:73ac10ce4d2c5b3b8b4acd6c8117b4e72d1a201d95be2d51aeae8324d776a108
+    - docker.io/library/kong:3.9
+    sizeBytes: 388965806
+  - names:
+    - docker.io/cloudnativelabs/kube-router@sha256:4f1375aa0b09f41916bc44f705adb38c93308fb562f71bb0e58346e13c9702d1
+    - docker.io/cloudnativelabs/kube-router@sha256:68621cf22ebc1f605813f6edb203a13590db8301746efe552a57bcf18620c33e
+    - docker.io/cloudnativelabs/kube-router:latest
+    sizeBytes: 242597335
+  - names:
+    - docker.io/envoyproxy/envoy@sha256:ddd43a6cd93db90e8e412466aba31e6fd7339eb76ed0d52c5a18e6e73aada2a0
+    - docker.io/envoyproxy/envoy@sha256:f858675e384b74cb7a2238723c1c0edea01112ed7aa0f6cf65fbe18dabd4c6a9
+    - docker.io/envoyproxy/envoy:v1.35.8
+    sizeBytes: 173755501
+  - names:
+    - docker.io/library/nginx@sha256:617fef3c6adb90788d06f7ebe634fe990a6cd1e63c815facaf5fcaf3fa1ea003
+    - docker.io/library/nginx@sha256:e3a22a791adaf8f59de605d824f8d9cf0ac7c7c779d405bb0158144e57433246
+    - docker.io/library/nginx:latest
+    sizeBytes: 164283229
+  - names:
+    - docker.io/library/nginx@sha256:7272239bd21472f311aa3e86a85fdca0f1ad648995f983ab6e5e7dea665cd233
+    sizeBytes: 164278110
+  - names:
+    - docker.io/library/httpd@sha256:360c5ad356d5f5e649186914b4c12b54e13bfd6aa3baed2cd972fe5a6f8c45d6
+    sizeBytes: 120218310
+  - names:
+    - docker.io/library/httpd@sha256:26f814935317f89d136603ac4b6af1b3d076cc5c5413398c13fc41fb7ac9c31d
+    - docker.io/library/httpd@sha256:60a9de5582b60c45a649018786180bf75d57f43d6fefe799670d5acae8462799
+    - docker.io/library/httpd@sha256:b89c19a390514d6767e8c62f29375d0577190be448f63b24f5f11d6b03f7bf18
+    - docker.io/library/httpd:latest
+    sizeBytes: 120207657
+  - names:
+    - docker.io/library/httpd@sha256:e19cdd61f51985351ca9867d384cf1b050487d26bb1b49c470f2fcda1b5f276c
+    sizeBytes: 120202021
+  - names:
+    - docker.io/envoyproxy/envoy@sha256:132e3ab7d7f993916b3bd8f27c401e58065e031708ca55cdc53f3614c5df0fff
+    - docker.io/envoyproxy/envoy@sha256:42354b713726140f886492de1223877dd66e83bb2fc1952c36375399553ae733
+    - docker.io/envoyproxy/envoy:distroless-v1.35.8
+    sizeBytes: 101752238
+  - names:
+    - docker.io/kong/kubernetes-ingress-controller@sha256:6618d0c0f33e99916a2581b7ef786714f168913b84af63e02545fd6730ba4e83
+    - docker.io/kong/kubernetes-ingress-controller@sha256:e5436a3ddc2896783b55a62c4e9214a851efd2d2d241e19a0f9bc229e4fed3fd
+    - docker.io/kong/kubernetes-ingress-controller:3.5
+    sizeBytes: 74270275
+  - names:
+    - registry.k8s.io/kube-proxy@sha256:7298ab89a103523d02ff4f49bedf9359710af61df92efdc07bac873064f03ed6
+    - registry.k8s.io/kube-proxy@sha256:aee44d152c9eaa4f3e10584e61ee501a094880168db257af1201c806982a0945
+    - registry.k8s.io/kube-proxy:v1.34.3
+    sizeBytes: 73145241
+  - names:
+    - ghcr.io/projectcontour/contour@sha256:b38a04f74e905ba42cf00a41cf70d41eca8887d7bfc567024bb480c0dff10332
+    - ghcr.io/projectcontour/contour@sha256:ee628e43ec04ade4d53d02b37377cd2f217a851e9fcd5d39d35ab36699f1228d
+    - ghcr.io/projectcontour/contour:v1.33.1
+    sizeBytes: 58783846
+  - names:
+    - docker.io/library/busybox@sha256:70ce0a747f09cd7c09c2d6eaeab69d60adb0398f569296e8c0e844599388ebd6
+    - docker.io/library/busybox@sha256:b3255e7dfbcd10cb367af0d409747d511aeb66dfac98cf30e97e87e4207dd76f
+    - docker.io/library/busybox@sha256:e226d6308690dbe282443c8c7e57365c96b5228f0fe7f40731b5d84d37a06839
+    - docker.io/library/busybox:latest
+    sizeBytes: 4670414
+  - names:
+    - registry.k8s.io/pause@sha256:7c38f24774e3cbd906d2d33c38354ccf787635581c122965132c9bd309754d4a
+    - registry.k8s.io/pause@sha256:ee6521f290b2168b6e0935a181d4cff9be1ac3f505666ef0e3c98fae8199917a
+    - registry.k8s.io/pause:3.10
+    sizeBytes: 742080
+  nodeInfo:
+    architecture: amd64
+    bootID: 8577780d-4429-42aa-86ee-785feae84a67
+    containerRuntimeVersion: cri-o://1.32.0
+    kernelVersion: 6.17.12-300.fc43.x86_64
+    kubeProxyVersion: ""
+    kubeletVersion: v1.34.3
+    machineID: 70e736f99b23442e8911a0c46bc8dcf3
+    operatingSystem: linux
+    osImage: Fedora CoreOS 43.20260105.3.0
+    systemUUID: 03000200-0400-0500-0006-000700080084
+  runtimeHandlers:
+  - features:
+      recursiveReadOnlyMounts: true
+      userNamespaces: true
+    name: crun
+  - features:
+      recursiveReadOnlyMounts: true
+      userNamespaces: true
+    name: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: "2026-02-04T14:25:06Z"
+  generation: 1
+  labels:
+    app: deploy1
+  name: deploy1
+  namespace: default
+  uid: 361d8d07-944d-44ac-b852-adc8adf7358e
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: deploy1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: deploy1
+    spec:
+      containers:
+      - image: httpd
+        imagePullPolicy: Always
+        name: httpd
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: "2026-02-04T14:30:13Z"
+  generation: 1
+  labels:
+    app: deploy2
+  name: deploy2
+  namespace: default
+  uid: e1ab000e-f441-4e03-8555-c8d9cb7ad738
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: deploy2
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: deploy2
+    spec:
+      containers:
+      - image: httpd
+        imagePullPolicy: Always
+        name: httpd
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2026-02-06T06:25:36Z"
+  generation: 1
+  labels:
+    run: pod1
+  name: pod1
+  namespace: default
+  uid: b7a5a6d9-8f6f-4982-ba15-9e295dc043f1
+spec:
+  containers:
+  - image: httpd
+    imagePullPolicy: Always
+    name: pod1
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+status:
+  phase: Pending
+  qosClass: BestEffort
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2026-02-06T06:26:01Z"
+  generation: 1
+  labels:
+    run: pod2
+  name: pod2
+  namespace: default
+  uid: 781281c2-f98b-4362-91d0-7df6a15172de
+spec:
+  containers:
+  - image: busybox
+    imagePullPolicy: Always
+    name: pod2
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+status:
+  phase: Pending
+  qosClass: BestEffort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2026-02-06T07:05:47Z"
+  labels:
+    app: svc1-clusterip
+  name: svc1-clusterip
+  namespace: default
+  uid: e974da4a-b601-4e50-9afb-3815e93ca506
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: 8080-8080
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: svc1-clusterip
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2026-02-06T07:06:57Z"
+  labels:
+    app: svc2-externalname
+  name: svc2-externalname
+  namespace: default
+  uid: 076cea08-6cd1-4f76-b8db-f36e00a837fa
+spec:
+  externalName: foo.example.com
+  selector:
+    app: svc2-externalname
+  sessionAffinity: None
+  type: ExternalName
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2026-02-06T07:07:50Z"
+  labels:
+    app: svc3-loadbalancer
+  name: svc3-loadbalancer
+  namespace: default
+  uid: 7a154d33-402e-435c-af56-bac530e6959e
+spec:
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: 8080-8080
+    nodePort: 31001
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: svc3-loadbalancer
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2026-02-06T07:09:00Z"
+  labels:
+    app: svc4-nodeport
+  name: svc4-nodeport
+  namespace: default
+  uid: b254393d-ddfd-43a1-8e8b-ad5a9695f255
+spec:
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: 8080-8080
+    nodePort: 31000
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: svc4-nodeport
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  creationTimestamp: null
+  name: ingress1
+spec:
+  ingressClassName: default
+  rules:
+  - host: example.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: svc
+            port:
+              name: https
+        path: /
+        pathType: Exact
+      - backend:
+          service:
+            name: othersvc
+            port:
+              number: 8080
+        path: /path/subpath
+        pathType: Prefix
+  tls:
+  - hosts:
+    - example.com
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc1
+spec:
+  storageClassName: ""
+  accessModes:
+  - ReadWriteOnce    
+  resources:
+    requests:
+      storage: 100Mi
+---
