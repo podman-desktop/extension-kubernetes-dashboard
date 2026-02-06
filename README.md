@@ -93,3 +93,19 @@ After each change, you may have to restart the extension from the `Extensions > 
 ### On the CI
 
 When creating a PR on the GitHub repository, the e2e tests are not executed by default. To run the e2e tests, you need to add the `area/ci/e2e` label to the PR.
+
+### On Linux
+
+#### Pre-requisites (see CI workflow for instructions):
+- Install setup-envtest,
+- install envtest-start.
+
+#### To run the tests
+
+- Install a testing binary from https://github.com/podman-desktop/testing-prereleases
+- export the variable `PODMAN_DESKTOP_BINARY` with the path of the `podman-desktop` testing binary
+- execute `export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)`
+- run `envtest-start &`
+- copy the file `/tmp/envtest-kubeconfig` created by the previous command to the directory `tests/resources/`
+- run `pnpm test:e2e`. During the tests, the window may be hidden, you can open it using the Tray icon
+- once the extension is installed during the first test run, you can run `EXTENSION_PREINSTALLED=true  npx pnpm test:e2e`
