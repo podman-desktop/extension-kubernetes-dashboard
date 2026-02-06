@@ -16,10 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect as playExpect, type Locator, type Page } from '@playwright/test';
+import test, { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
-import { KubernetesResourceAttributes, type KubernetesResources } from '/@/model/core/types';
+import { KubernetesResourceAttributes, KubernetesResources } from '/@/model/core/types';
 import { MainPage } from '@podman-desktop/tests-playwright';
+import { KubernetesResourceDetailsPage } from '/@/model/pages/kubernetes-resource-details-page';
 
 export class KubernetesResourcePage extends MainPage {
   readonly applyYamlButton: Locator;
@@ -45,5 +46,27 @@ export class KubernetesResourcePage extends MainPage {
     const attributes = KubernetesResourceAttributes[resourceType];
     const attrIndex = attributes.indexOf(attributeName) + 1;
     return row.getByRole('cell').nth(attrIndex);
+  }
+
+  async openResourceDetails(
+    resourceName: string,
+    resourceType: KubernetesResources,
+    timeout?: number,
+  ): Promise<KubernetesResourceDetailsPage> {
+    return test.step(`Open ${resourceType}: ${resourceName} details`, async () => {
+      const resourceRow = await this.fetchKubernetesResource(resourceName, timeout);
+
+      let resourceRowName: Locator;
+      if (resourceType === KubernetesResources.Nodes) {
+        resourceRowName = resourceRow.getByRole('cell').nth(2);
+      } else {
+        resourceRowName = resourceRow.getByRole('cell').nth(3);
+      }
+
+      await playExpect(resourceRowName).toBeEnabled();
+      await resourceRowName.click();
+
+      return new KubernetesResourceDetailsPage(this.page, resourceName);
+    });
   }
 }
