@@ -54,6 +54,7 @@ async function initializeNewTerminal(
     lineHeight: 1,
     screenReaderMode: true,
     theme: getTerminalTheme(),
+    minimumContrastRatio: 4.5,
   });
 
   disposables.push(
