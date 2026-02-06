@@ -69,6 +69,7 @@ async function refreshTerminal(): Promise<void> {
     convertEol: convertEol,
     screenReaderMode: screenReaderMode,
     rightClickSelectsWord: true,
+    minimumContrastRatio: 4.5,
   });
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
