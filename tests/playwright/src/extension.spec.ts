@@ -222,7 +222,11 @@ test.describe.serial('With resources', () => {
     await createKubernetesResource(yamlPath);
   });
 
-  test('Open Extension webview and verify the dashboard is connected', async ({ runner, page, navigationBar }) => {
+  test('Open Extension webview and verify the dashboard is connected and resources metrics are correct', async ({
+    runner,
+    page,
+    navigationBar,
+  }) => {
     // open the webview
     const [, webview] = await handleWebview(runner, page, navigationBar);
 
@@ -232,6 +236,34 @@ test.describe.serial('With resources', () => {
     const dashboardPage = await navigation.openKubernetesDashboardPage();
     const status = await dashboardPage.getStatus();
     playExpect(status).toContain('Connected');
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentActiveCountForResource(KubernetesResources.Nodes))
+      .toBe(2);
+    await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Nodes)).toBe(2);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Namespaces))
+      .toBe(4);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentActiveCountForResource(KubernetesResources.Deployments))
+      .toBe(2);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Deployments))
+      .toBe(2);
+    await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Pods)).toBe(2);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Services))
+      .toBe(5);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.IngressesRoutes))
+      .toBe(1);
+    await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.PVCs)).toBe(1);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource('ConfigMaps & Secrets' as KubernetesResources)) // #696
+      .toBe(4);
+    await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Jobs)).toBe(1);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Cronjobs))
+      .toBe(1);
   });
 
   test('go to node1 page', async () => {
