@@ -96,10 +96,16 @@ When creating a PR on the GitHub repository, the e2e tests are not executed by d
 
 ### On Linux
 
-#### Pre-requisites (see CI workflow for instructions):
-- Install setup-envtest,
-- install envtest-start.
+#### Pre-requisites:
+- Install setup-envtest (see https://pkg.go.dev/sigs.k8s.io/controller-runtime/tools/setup-envtest#section-readme)
+```
+go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
 
+```
+- install envtest-start:
+```
+go install github.com/feloy/envtest-start@latest
+```
 #### To run the tests
 
 - Install a testing binary from https://github.com/podman-desktop/testing-prereleases
@@ -108,4 +114,4 @@ When creating a PR on the GitHub repository, the e2e tests are not executed by d
 - run `envtest-start &`
 - copy the file `/tmp/envtest-kubeconfig` created by the previous command to the directory `tests/resources/`
 - run `pnpm test:e2e`. During the tests, the window may be hidden, you can open it using the Tray icon
-- once the extension is installed during the first test run, you can run `EXTENSION_PREINSTALLED=true  npx pnpm test:e2e`
+- once the extension is installed during the first test run, you can run `EXTENSION_PREINSTALLED=true pnpm test:e2e`
