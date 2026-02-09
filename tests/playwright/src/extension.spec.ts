@@ -365,4 +365,70 @@ test.describe.serial('With resources', () => {
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
     await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
   });
+
+  test('go to configmap1 page', async () => {
+    const configmapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
+    await playExpect(configmapsSecretsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await configmapsSecretsPage.openResourceDetails(
+      'configmap1',
+      KubernetesResources.ConfigMapsSecrets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to secret1-generic page', async () => {
+    const configmapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
+    await playExpect(configmapsSecretsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await configmapsSecretsPage.openResourceDetails(
+      'secret1-generic',
+      KubernetesResources.ConfigMapsSecrets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to secret2-docker-registry page', async () => {
+    const configmapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
+    await playExpect(configmapsSecretsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await configmapsSecretsPage.openResourceDetails(
+      'secret2-docker-registry',
+      KubernetesResources.ConfigMapsSecrets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to secret3-tls page', async () => {
+    const configmapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
+    await playExpect(configmapsSecretsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await configmapsSecretsPage.openResourceDetails(
+      'secret3-tls',
+      KubernetesResources.ConfigMapsSecrets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to job1 page', async () => {
+    const jobsPage = await navigation.openTabPage(KubernetesResources.Jobs);
+    await playExpect(jobsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await jobsPage.openResourceDetails('job1', KubernetesResources.Jobs);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Starting);
+  });
+
+  test('go to cronjob1 page', async () => {
+    const cronjobsPage = await navigation.openTabPage(KubernetesResources.Cronjobs);
+    await playExpect(cronjobsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await cronjobsPage.openResourceDetails('cronjob1', KubernetesResources.Cronjobs);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
 });

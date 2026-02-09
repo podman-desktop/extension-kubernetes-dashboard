@@ -629,3 +629,128 @@ spec:
     requests:
       storage: 100Mi
 ---
+apiVersion: v1
+data:
+  key1: val1
+  key2: val2
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2026-02-09T09:51:53Z"
+  name: configmap1
+  namespace: default
+  uid: d409d6c7-6d3a-4d93-9247-3c6d1e7665e6
+---
+apiVersion: v1
+data:
+  key1: c2VjcmV0MQ==
+  key2: c2VjcmV0Mg==
+kind: Secret
+metadata:
+  creationTimestamp: "2026-02-09T09:54:15Z"
+  name: secret1-generic
+  namespace: default
+  uid: ed666a52-ded8-4c98-be97-845596c13da6
+type: Opaque
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJkb2NrZXItc2VydmVyIjp7InVzZXJuYW1lIjoidXNlcjEiLCJwYXNzd29yZCI6IlNlY3JlVCIsImF1dGgiOiJkWE5sY2pFNlUyVmpjbVZVIn19fQ==
+kind: Secret
+metadata:
+  creationTimestamp: "2026-02-09T09:55:27Z"
+  name: secret2-docker-registry
+  namespace: default
+  uid: 9d87f6bf-f026-4f49-8b70-283fe1abfa9c
+type: kubernetes.io/dockerconfigjson
+---
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURPVENDQWlHZ0F3SUJBZ0lVQjZaNUF1ZDNOWmUxcVhkR0owTmR5dGhlT0tzd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1JURUxNQWtHQTFVRUJoTUNRVlV4RXpBUkJnTlZCQWdNQ2xOdmJXVXRVM1JoZEdVeElUQWZCZ05WQkFvTQpHRWx1ZEdWeWJtVjBJRmRwWkdkcGRITWdVSFI1SUV4MFpEQWVGdzB5TmpBeU1Ea3dPVFU0TXpWYUZ3MHlOekF5Ck1Ea3dPVFU0TXpWYU1FVXhDekFKQmdOVkJBWVRBa0ZWTVJNd0VRWURWUVFJREFwVGIyMWxMVk4wWVhSbE1TRXcKSHdZRFZRUUtEQmhKYm5SbGNtNWxkQ0JYYVdSbmFYUnpJRkIwZVNCTWRHUXdnZ0VpTUEwR0NTcUdTSWIzRFFFQgpBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQ2FyRXZjaTFTQzExaFZRaXJEc2luWmxpTHZnSElXK3VRcms2em9ZeCtuCnFmTkFYSm5FYmpadU1wSW1qbEppTThReEM3NklvSVJVMENFbnB2MXE4cXJzUjNwT3lURklFZjIvVkdhT3FWNk0KeXJhOUFLTnBCN0U4QUZOREY4QW1mZjBiazFHZUdaM3h4eVpRamNPR2JIVXVuRUdraC9vTGwzNk45ZU83QjNJcgpJZTMrOE9HS2V0SWFUWnZlNEdIbExjbzRlRE1aS1A5UGFQUWE0aVJxT1E1andsRHJKeW82L0czVCsvTlFOTzEwCnhET0tZeVpocjBUMFhhcHoxL2ZmTXZqTC9VcFB3SlhoRGk1aWN3dWMwOHNQRFYwL3hsUlB6ZXlxYlVrMWZYWVgKbzNEb0ZwaEtGR0l5cUFBZUI3WmVWTWtrTHRLTTMyaTFnb0VPS25qN3Flc3hBZ01CQUFHaklUQWZNQjBHQTFVZApEZ1FXQkJTdmJUdk4vVmJVZnFVZVYram5HUExNN09icXhUQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFVK25pCnk1bnpBa3Y4djVoV3laTm8vQ2d4VFJjcHlYRnBTaWlBWWM5RlVEMWNoUlJuMFpER3BlYytRdEpNdDZlTERXYjkKaDJXTUZGZ2ptNFgvSTZDano5YTRoK0kzTnZOM2lCT0lsUEtiYmdFRDh3ekM5RzJ4eVlIaHVCK1Nyb0pYTll5dApsQ1Z1MUtSb2dFTFdrNlAwVUUwaTJtWEYxNXB2Vm1seng2ekVUdFhCUHNZSFd6djVYOEpYRSt2Z0NnTDZsMk5yCmlYM0pHWUQ2M2pISm1qb2N5VmUyOFpKNWZJalgxVDFtcXBJNnczcHU3ZVBFZGVxT3B1Sno0TG5LUWRuVEtKMXYKTGY3NzhMbkhYbnQ2Qlk0Z1oyUjFqQ0FuRE04NThzMkg4bGw1YzZEdCs5TTVBT293TnRtbE1zVGM1aGdlQVE0aQpma3laOWJvOFA4eUswM1k4bmc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2UUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktjd2dnU2pBZ0VBQW9JQkFRQ2FyRXZjaTFTQzExaFYKUWlyRHNpblpsaUx2Z0hJVyt1UXJrNnpvWXgrbnFmTkFYSm5FYmpadU1wSW1qbEppTThReEM3NklvSVJVMENFbgpwdjFxOHFyc1IzcE95VEZJRWYyL1ZHYU9xVjZNeXJhOUFLTnBCN0U4QUZOREY4QW1mZjBiazFHZUdaM3h4eVpRCmpjT0diSFV1bkVHa2gvb0xsMzZOOWVPN0IzSXJJZTMrOE9HS2V0SWFUWnZlNEdIbExjbzRlRE1aS1A5UGFQUWEKNGlScU9RNWp3bERySnlvNi9HM1QrL05RTk8xMHhET0tZeVpocjBUMFhhcHoxL2ZmTXZqTC9VcFB3SlhoRGk1aQpjd3VjMDhzUERWMC94bFJQemV5cWJVazFmWFlYbzNEb0ZwaEtGR0l5cUFBZUI3WmVWTWtrTHRLTTMyaTFnb0VPCktuajdxZXN4QWdNQkFBRUNnZ0VBSVVzTWdrSzRkSGg3Z2xDZGlXV3dkZTVJQTFNYjI3L3gvTUpMRWZPQ05SSVQKTXV1cnlwa3BuTE5FZThtZlNKV1plYkFzT1ZjSjNRSzIzRVRvNEF3dmgvQUR6dkVtS3p2NktXUzJ0YWNWMjhybgpwa3U4b09jL3VtbGNnc0RhUXI3VVRFcjc0c0xqV1U5emV4dmt0aXJpMTE5Wmp0dVpFa1V2LzhrcGxaRE8vYUw0CmpIRHlzcTgyNVM4enFPYnNybU5XdThUVjdWT3NiTzBDYlhLZ00vTTUvMFpjR1ZSbDk1Yk5KTklZd3owdHdDV1UKalc5b1g2bmVrZVZPWUk2emtaeG96Q25qeTVuK0NWdmJZSXdJNDFGRU1iS1dhZnp6SjJ3UkhERFBQWDlXN2pKMwpNNlVnYldxQ0d3S2ZIakU4aWIyUXFBdFFLQUkzazhGb1hPYnhRNnMrZFFLQmdRRFBtZy9CSTdxRWJpMzhyZjJlCjk5Rk9nd2pUWUZpTTVrM3hMUWNQbEJrWW8xTVRIaGM2MnpNZTBHMHdrYTJrUkk3dlJDdjlZTjJ2OTUrcU5EQkUKSnFJVGh5b1kzajZvRldLalVNWGQ4YjZOTkNXekU4K2JQVTFSU1k2a0xZTDZlcEpZb3R5VzZia3cxMm1XbEJaYwpjbnI3UDdBQitKSzJxZ3BkOFl5YVdzOE5yUUtCZ1FDK3UyRDJoaU43VWIwcWtMQkllT3NoKzFaZEFxK0tqSnlwCnlrZ1FBTmw0M0phVCs5MUIvRklKR29UTkJNVFFqRWJ5bWhXSlg1Um1CWXpwZUwvdVZNbXIwNTk4MFlybWRsUmgKdnFpVmNTZGpoVU0wKytGY1pwSUpjUjlDYjRWc3ZKRmlmYlJINVd3NmJOc3dlUzZMWUxSRjNOWjJlTThFNFB0cQoyekNpSEFaOEZRS0JnQmxpejNaZ3RoZ25tUHdERXJaenUyYU1ZM0hsb0M1cW96RlF2a0pMYTk0MWFwMDEyc1ZaCnRLQ2FBQ0FtVUVOOEZyWnZjYW1rUkxlVjRqSmYrMTc2RW11czVacnc0bHlQY09aanBDNkZ0elZ4SVFNSzh5SWEKbHUvUHZOK2FxUitVQ1gxSlBRdy9QR1FhazFEVWZ2K0RDRUxkQU5yYzJLUDVteGJ0eUxHL1ZQNXBBb0dCQUljbAo4eEQ3LzR4VVlQd1dSak0wS3ppTEJha21UQWlhbGkvaGU2cUxUNDNLa0pBUGVicFY5ak1wTFV5d3dsMGI2UEhpCnFMd01rL1N1bmlpWlBUYTlzYUVsZE85VzgxdFdJWGlaUm8rTi9HRVNmb3ErcC9OM1lxZDZGckpXbjI1ck40RlkKblRRTXB1SEhYSkUrYlBLcDlWTkRwbHVRUXZDc0VycW0waEVzVnBQNUFvR0FVYzZ1b3JvK3JzVGd6Z0dhcVlzRgpEaHBEYTlWVUFSb2VGMGxmeU5kbzdPRUFhNVF2aDk1WFBzc005VlUxQTFFWUlHY3kvQk1TUzhzZlZHWkVlMS8yCmpla3NVYVV4WW9uYjNYRm1qT2VhMWR0Rnh6VFIzaVh0Q3FXZ29INEwzemRZSTBUaGhOc0lCTkRjUEtJdVdtY2IKM2pnbVJKdE5VTC9QOThTMUVTL01QUVk9Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
+kind: Secret
+metadata:
+  creationTimestamp: "2026-02-09T09:59:29Z"
+  name: secret3-tls
+  namespace: default
+  uid: a9bd6c68-a035-4dec-a6d3-1dbc836ce855
+type: kubernetes.io/tls
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: "2026-02-09T10:09:10Z"
+  generation: 1
+  labels:
+    batch.kubernetes.io/job-name: job1
+    job-name: job1
+  name: job1
+  namespace: default
+  uid: 2609d4c8-09c6-48c7-8e72-b1b81ab82227
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  selector:
+    matchLabels:
+  suspend: false
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        batch.kubernetes.io/job-name: job1
+        job-name: job1
+    spec:
+      containers:
+      - image: httpd
+        imagePullPolicy: Always
+        name: job1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  creationTimestamp: "2026-02-09T10:10:26Z"
+  generation: 1
+  name: cronjob1
+  namespace: default
+  uid: ca5bc2d7-6abf-430f-ad35-27627b5ebb37
+spec:
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+      name: cronjob1
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - image: httpd
+            imagePullPolicy: Always
+            name: cronjob1
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: OnFailure
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+  schedule: 00 4 * * *
+  successfulJobsHistoryLimit: 3
+  suspend: false
+status: {}
+---
