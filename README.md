@@ -53,6 +53,10 @@ Fetch the last _n_ lines of the logs only.
 - `kubernetes-dashboard.podman-desktop.io/logs-since-seconds: "60"`  
 Fetch the logs emitted since _n_ seconds only.
 
+# Compatibility
+
+The Kubernetes Dashboard extension is compatible with Podman Desktop v1.26.0 and later. The Kubernetes Dashboard internal to Podman Desktop is deactivated when this extension is installed and active.
+
 # Installation
 
 ## Install latest release

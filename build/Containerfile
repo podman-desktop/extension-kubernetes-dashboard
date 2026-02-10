@@ -62,6 +62,6 @@ FROM scratch
 LABEL org.opencontainers.image.title="Kubernetes Dashboard extension" \
       org.opencontainers.image.description="Kubernetes Dashboard extension" \
       org.opencontainers.image.vendor="podman-desktop" \
-      io.podman-desktop.api.version=">= 1.18.0"
+      io.podman-desktop.api.version=">= 1.26.0"
 
 COPY --from=builder /opt/app-root/extension /extension
