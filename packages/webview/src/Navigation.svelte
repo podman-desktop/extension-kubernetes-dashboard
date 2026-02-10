@@ -62,7 +62,7 @@ const navigator = dependencyAccessor.get<Navigator>(Navigator);
       href={navigator.kubernetesResourcesURL('PersistentVolumeClaim')} />
 
     <SettingsNavItem
-      title="ConfigMaps and Secrets"
+      title="ConfigMaps &amp; Secrets"
       selected={meta.url === navigator.kubernetesResourcesURL('ConfigMap')}
       href={navigator.kubernetesResourcesURL('ConfigMap')} />
 
