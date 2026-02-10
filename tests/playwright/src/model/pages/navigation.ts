@@ -40,7 +40,7 @@ export class KubernetesBar {
     switch (kubernetesResource) {
       case 'Persistent Volume Claims':
         return new KubernetesResourcePage(this.page, 'PVCs');
-      case 'ConfigMaps and Secrets':
+      case 'ConfigMaps & Secrets':
         return new KubernetesResourcePage(this.page, 'Configmaps and Secrets');
       case 'Ingresses & Routes':
         return new KubernetesResourcePage(this.page, 'ingresses and routes');
