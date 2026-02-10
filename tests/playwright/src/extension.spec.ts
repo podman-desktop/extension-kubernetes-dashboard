@@ -258,7 +258,7 @@ test.describe.serial('With resources', () => {
       .toBe(1);
     await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.PVCs)).toBe(1);
     await playExpect
-      .poll(async () => dashboardPage.getCurrentTotalCountForResource('ConfigMaps & Secrets' as KubernetesResources)) // #696
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.ConfigMapsSecrets))
       .toBe(4);
     await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Jobs)).toBe(1);
     await playExpect
