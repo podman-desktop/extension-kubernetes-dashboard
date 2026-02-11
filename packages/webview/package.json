@@ -29,7 +29,7 @@
     "@fortawesome/fontawesome-free": "^7.2.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-regular-svg-icons": "^7.2.0",
-    "@fortawesome/free-solid-svg-icons": "^7.0.0",
+    "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@podman-desktop/ui-svelte": "1.25.1",
     "@podman-desktop/webview-api": "1.25.1",
     "@podman-desktop/kubernetes-dashboard-extension-api": "workspace:*",
