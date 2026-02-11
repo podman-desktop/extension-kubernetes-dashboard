@@ -82,7 +82,7 @@ async function refreshTerminal(): Promise<void> {
 
   //copy behavior
   terminal.attachCustomKeyEventHandler((event: KeyboardEvent): boolean => {
-    let isCopyShortcut = false;
+    let isCopyShortcut: boolean;
 
     if (platformName === 'darwin') {
       // macOS: Cmd+C

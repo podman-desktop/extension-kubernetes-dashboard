@@ -15,6 +15,7 @@ interface Props {
 
 const { context }: Props = $props();
 
+// eslint-disable-next-line no-useless-assignment
 let initialized = $state(false);
 
 // Sets the value in the global svelte context
