@@ -23,6 +23,7 @@ import {
   RunnerOptions,
   PreferencesPage,
   StatusBar,
+  KubernetesResourceState,
 } from '@podman-desktop/tests-playwright';
 import { KubernetesDashboardDetailsPage } from './model/pages/kd-details-page';
 import { handleWebview } from './utils/webviewHandler';
@@ -31,6 +32,7 @@ import { fileURLToPath } from 'node:url';
 import * as fs from 'node:fs';
 import { KubernetesBar } from './model/pages/navigation';
 import { KubernetesResources } from './model/core/types';
+import { createKubernetesResource } from '/@/utility/kubernetes';
 
 const EXTENSION_OCI_IMAGE =
   process.env.EXTENSION_OCI_IMAGE ?? 'ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest';
@@ -75,6 +77,7 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe.serial(`Extension installation and verification`, { tag: '@smoke' }, () => {
+  test.skip(EXTENSION_PREINSTALLED, 'Extension is preinstalled');
   test.describe.serial(`Extension installation`, () => {
     let extensionsPage: ExtensionsPage;
 
@@ -86,7 +89,6 @@ test.describe.serial(`Extension installation and verification`, { tag: '@smoke' 
     });
 
     test(`Install extension`, async () => {
-      test.skip(EXTENSION_PREINSTALLED, 'Extension is preinstalled');
       await extensionsPage.installExtensionFromOCIImage(EXTENSION_OCI_IMAGE);
     });
 
@@ -207,5 +209,258 @@ test.describe.serial(`Extension usage`, () => {
   test('go to port forwarding page', async () => {
     const portForwardingPage = await navigation.openPortForwardingPage();
     await playExpect(portForwardingPage.heading).toBeVisible();
+  });
+});
+
+test.describe.serial('With resources', () => {
+  let navigation: KubernetesBar;
+
+  test('deploy resources to cluster', async () => {
+    const kubeConfigPathDst = path.resolve(__dirname, '..', 'tests', 'playwright', 'resources', 'kube-config');
+    process.env.KUBECONFIG = kubeConfigPathDst;
+    const yamlPath = path.resolve(__dirname, '..', '..', 'resources', 'cluster-resources.yaml');
+    await createKubernetesResource(yamlPath);
+  });
+
+  test('Open Extension webview and verify the dashboard is connected and resources metrics are correct', async ({
+    runner,
+    page,
+    navigationBar,
+  }) => {
+    // open the webview
+    const [, webview] = await handleWebview(runner, page, navigationBar);
+
+    navigation = new KubernetesBar(webview);
+    await playExpect(navigation.title).toBeVisible();
+
+    const dashboardPage = await navigation.openKubernetesDashboardPage();
+    const status = await dashboardPage.getStatus();
+    playExpect(status).toContain('Connected');
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentActiveCountForResource(KubernetesResources.Nodes))
+      .toBe(2);
+    await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Nodes)).toBe(2);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Namespaces))
+      .toBe(4);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentActiveCountForResource(KubernetesResources.Deployments))
+      .toBe(2);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Deployments))
+      .toBe(2);
+    await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Pods)).toBe(2);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Services))
+      .toBe(5);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.IngressesRoutes))
+      .toBe(1);
+    await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.PVCs)).toBe(1);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.ConfigMapsSecrets))
+      .toBe(4);
+    await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Jobs)).toBe(1);
+    await playExpect
+      .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Cronjobs))
+      .toBe(1);
+  });
+
+  test('go to node1 page', async () => {
+    const nodesPage = await navigation.openTabPage(KubernetesResources.Nodes);
+    await playExpect(nodesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await nodesPage.openResourceDetails('node1', KubernetesResources.Nodes);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to node2 page', async () => {
+    const nodesPage = await navigation.openTabPage(KubernetesResources.Nodes);
+    await playExpect(nodesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await nodesPage.openResourceDetails('node2', KubernetesResources.Nodes);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to default namespace page', async () => {
+    const namespacesPage = await navigation.openTabPage(KubernetesResources.Namespaces);
+    await playExpect(namespacesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await namespacesPage.openResourceDetails(
+      'default',
+      KubernetesResources.Namespaces,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to deploy1 page', async () => {
+    const deploymentsPage = await navigation.openTabPage(KubernetesResources.Deployments);
+    await playExpect(deploymentsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await deploymentsPage.openResourceDetails(
+      'deploy1',
+      KubernetesResources.Deployments,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Stopped);
+  });
+
+  test('go to deploy2 page', async () => {
+    const deploymentsPage = await navigation.openTabPage(KubernetesResources.Deployments);
+    await playExpect(deploymentsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await deploymentsPage.openResourceDetails(
+      'deploy2',
+      KubernetesResources.Deployments,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Stopped);
+  });
+
+  test('go to pod1 page', async () => {
+    const podsPage = await navigation.openTabPage(KubernetesResources.Pods);
+    await playExpect(podsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await podsPage.openResourceDetails('pod1', KubernetesResources.Pods);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe('PENDING');
+  });
+
+  test('go to pod2 page', async () => {
+    const podsPage = await navigation.openTabPage(KubernetesResources.Pods);
+    await playExpect(podsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await podsPage.openResourceDetails('pod2', KubernetesResources.Pods);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe('PENDING');
+  });
+
+  test('go to svc1-clusterip page', async () => {
+    const servicesPage = await navigation.openTabPage(KubernetesResources.Services);
+    await playExpect(servicesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await servicesPage.openResourceDetails(
+      'svc1-clusterip',
+      KubernetesResources.Services,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to svc2-externalname page', async () => {
+    const servicesPage = await navigation.openTabPage(KubernetesResources.Services);
+    await playExpect(servicesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await servicesPage.openResourceDetails(
+      'svc2-externalname',
+      KubernetesResources.Services,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to svc3-loadbalancer page', async () => {
+    const servicesPage = await navigation.openTabPage(KubernetesResources.Services);
+    await playExpect(servicesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await servicesPage.openResourceDetails(
+      'svc3-loadbalancer',
+      KubernetesResources.Services,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to svc4-nodeport page', async () => {
+    const servicesPage = await navigation.openTabPage(KubernetesResources.Services);
+    await playExpect(servicesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await servicesPage.openResourceDetails(
+      'svc4-nodeport',
+      KubernetesResources.Services,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to ingress1 page', async () => {
+    const ingressesRoutesPage = await navigation.openTabPage(KubernetesResources.IngressesRoutes);
+    await playExpect(ingressesRoutesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await ingressesRoutesPage.openResourceDetails(
+      'ingress1',
+      KubernetesResources.IngressesRoutes,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to configmap1 page', async () => {
+    const configmapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
+    await playExpect(configmapsSecretsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await configmapsSecretsPage.openResourceDetails(
+      'configmap1',
+      KubernetesResources.ConfigMapsSecrets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to secret1-generic page', async () => {
+    const configmapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
+    await playExpect(configmapsSecretsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await configmapsSecretsPage.openResourceDetails(
+      'secret1-generic',
+      KubernetesResources.ConfigMapsSecrets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to secret2-docker-registry page', async () => {
+    const configmapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
+    await playExpect(configmapsSecretsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await configmapsSecretsPage.openResourceDetails(
+      'secret2-docker-registry',
+      KubernetesResources.ConfigMapsSecrets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to secret3-tls page', async () => {
+    const configmapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
+    await playExpect(configmapsSecretsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await configmapsSecretsPage.openResourceDetails(
+      'secret3-tls',
+      KubernetesResources.ConfigMapsSecrets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to job1 page', async () => {
+    const jobsPage = await navigation.openTabPage(KubernetesResources.Jobs);
+    await playExpect(jobsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await jobsPage.openResourceDetails('job1', KubernetesResources.Jobs);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Starting);
+  });
+
+  test('go to cronjob1 page', async () => {
+    const cronjobsPage = await navigation.openTabPage(KubernetesResources.Cronjobs);
+    await playExpect(cronjobsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await cronjobsPage.openResourceDetails('cronjob1', KubernetesResources.Cronjobs);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
   });
 });

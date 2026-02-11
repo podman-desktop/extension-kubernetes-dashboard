@@ -175,6 +175,13 @@ jobs:
         run: |
           "$KUBEBUILDER_ASSETS/kubectl" get all | grep "service/kubernetes"
 
+      - name: Install kubectl on macOS
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install kubectl
+          kubectl version --client
+
       # Run tests
       - name: Run E2E Smoke tests
         shell: bash
