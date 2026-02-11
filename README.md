@@ -2,7 +2,7 @@
 
 ![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue)
 
-Kubernetes Dashboard is an open source extension for Podman Desktop to monitor with Kubernetes clusters.
+Kubernetes Dashboard is an open source extension for Podman Desktop to monitor Kubernetes clusters.
 
 The Kubernetes Dashboard detects your Kubeconfig file, and connects to the current Kubernetes context.
 Any change of Kubernetes context (either from Podman Desktop or by editing the Kubeconfig file with another tool) 
@@ -16,7 +16,7 @@ A Dashboard page provides a synthetic view of the main resources present in the 
 
 You can access from the dashboard, or from the menu, the list of resources of a specific kind (for example, the list of Pods).
 
-From this list, you have access to the details for a specifc resource, including:
+From this list, you have access to the details for a specific resource, including:
 - a summary of the resource (extracted from the metadata, spec and status of the resource),
 - a raw JSON representation of the resource,
 - a utility to patch the resource definition, using [strategic merge patch](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-object-kubectl-patch/).
