@@ -17,7 +17,7 @@ The project uses **pnpm workspaces** with the following packages:
 - **`packages/extension`**: The main extension code that runs in Podman Desktop (Node.js/TypeScript)
 - **`packages/rpc`**: RPC communication layer between extension and webview
 - **`packages/webview`**: The Svelte-based UI that runs in a webview (Svelte 5 + TypeScript)
-- **`tests/playwright`**: End-to-end tests using Playwright
+- **`integration-tests/playwright`**: Integration tests using Playwright
 
 ### Communication Flow
 

@@ -73,10 +73,10 @@ jobs:
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" packages/extension/package.json
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" packages/rpc/package.json
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" packages/webview/package.json
-          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" tests/playwright/package.json
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" integration-tests/playwright/package.json
           sed -i "s#\(ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard-builder:\)next#\1${{ steps.TAG_UTIL.outputs.extVersion }}#g" build/Containerfile
 
-          git add package.json packages/api/package.json packages/channels/package.json packages/extension/package.json packages/rpc/package.json packages/webview/package.json tests/playwright/package.json build/Containerfile
+          git add package.json packages/api/package.json packages/channels/package.json packages/extension/package.json packages/rpc/package.json packages/webview/package.json integration-tests/playwright/package.json build/Containerfile
 
           # commit the changes
           git commit -m "chore: 🥁 tagging ${{ steps.TAG_UTIL.outputs.githubTag }} 🥳"
@@ -110,10 +110,10 @@ jobs:
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" packages/extension/package.json
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" packages/rpc/package.json
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" packages/webview/package.json
-          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" tests/playwright/package.json
+          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" integration-tests/playwright/package.json
           # put back next as the version in the Containerfile
           sed -i "s|\(ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard-builder:\)[^ ]*|\1next|" build/Containerfile
-          git add package.json packages/api/package.json packages/channels/package.json packages/extension/package.json packages/rpc/package.json packages/webview/package.json tests/playwright/package.json build/Containerfile
+          git add package.json packages/api/package.json packages/channels/package.json packages/extension/package.json packages/rpc/package.json packages/webview/package.json integration-tests/playwright/package.json build/Containerfile
 
           git commit -s --amend -m "chore: bump version to ${bumpedVersion}"
           git push origin "${bumpedBranchName}"

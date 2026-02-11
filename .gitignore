@@ -6,4 +6,4 @@ dist
 .idea
 output
 packages/extension/media
-/tests/playwright/tests/
+/integration-tests/playwright/tests/

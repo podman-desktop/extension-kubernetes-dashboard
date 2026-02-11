@@ -92,11 +92,11 @@ You can now make changes to the sources. The project is composed of two parts, w
 
 After each change, you may have to restart the extension from the `Extensions > Local Extensions` page.
 
-## Running e2e tests
+## Running integration tests
 
 ### On the CI
 
-When creating a PR on the GitHub repository, the e2e tests are not executed by default. To run the e2e tests, you need to add the `area/ci/e2e` label to the PR.
+When creating a PR on the GitHub repository, the integration tests are not executed by default. To run the integration tests, you need to add the `area/ci/integration` label to the PR.
 
 ### On Linux
 
@@ -116,6 +116,6 @@ go install github.com/feloy/envtest-start@latest
 - export the variable `PODMAN_DESKTOP_BINARY` with the path of the `podman-desktop` testing binary
 - execute `export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)`
 - run `envtest-start &`
-- copy the file `/tmp/envtest-kubeconfig` created by the previous command to the directory `tests/resources/`
-- run `pnpm test:e2e`. During the tests, the window may be hidden, you can open it using the Tray icon
-- once the extension is installed during the first test run, you can run `EXTENSION_PREINSTALLED=true pnpm test:e2e`
+- copy the file `/tmp/envtest-kubeconfig` created by the previous command to the directory `integration-tests/resources/`
+- run `pnpm test:integration`. During the tests, the window may be hidden, you can open it using the Tray icon
+- once the extension is installed during the first test run, you can run `EXTENSION_PREINSTALLED=true pnpm test:integration`

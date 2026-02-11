@@ -1,11 +1,10 @@
 {
   "name": "kubernetes-dashboard-tests-playwright",
   "version": "0.6.0-next",
-  "description": "Kubernetes Dashboard extension Playwright E2E tests",
+  "description": "Kubernetes Dashboard extension Playwright Integration tests",
   "scripts": {
-    "test:e2e:setup": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' --",
-    "test:e2e": "npm run test:e2e:setup playwright test src/",
-    "test:e2e:smoke": "npm run test:e2e:setup playwright test src/ --grep @smoke"
+    "test:integration:setup": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' --",
+    "test:integration": "npm run test:integration:setup playwright test src/"
   },
   "publisher": "podman-desktop",
   "license": "Apache-2.0",

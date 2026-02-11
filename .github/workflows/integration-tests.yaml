@@ -15,7 +15,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: e2e-tests
+name: integration-tests
 
 on:
   pull_request:
@@ -24,7 +24,7 @@ on:
 jobs:
   # Dedicated step to build the extension image
   build-container:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci/e2e') }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci/integration') }}
     name: Build Extension Image
     runs-on: ubuntu-24.04
     steps:
@@ -44,8 +44,8 @@ jobs:
           name: extension-plugin
           path: output/plugins/
 
-  e2e-pr-check:
-    name: e2e tests smoke / ${{ matrix.os }}
+  integration-pr-check:
+    name: integration tests / ${{ matrix.os }}
     needs: build-container
     runs-on: ${{ matrix.os }}
     strategy:
@@ -135,7 +135,7 @@ jobs:
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: extension-plugin
-          path: tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins/
+          path: integration-tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins/
 
       # Run envtest cluster
       - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
@@ -183,11 +183,11 @@ jobs:
           kubectl version --client
 
       # Run tests
-      - name: Run E2E Smoke tests
+      - name: Run Integration tests
         shell: bash
         run: |
-          cp "${KUBECONFIG}" ./tests/resources/envtest-kubeconfig
-          pnpm test:e2e:smoke
+          cp "${KUBECONFIG}" ./integration-tests/resources/envtest-kubeconfig
+          pnpm test:integration
         env:
           NODE_OPTIONS: --no-experimental-strip-types
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
@@ -216,7 +216,7 @@ jobs:
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
-          name: e2e-pr-check-${{ matrix.os }}
+          name: integration-pr-check-${{ matrix.os }}
           path: |
-            tests/playwright/output/
-            tests/playwright/tests/
+            integration-tests/playwright/output/
+            integration-tests/playwright/tests/

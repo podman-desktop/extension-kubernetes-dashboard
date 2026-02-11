@@ -1,6 +1,6 @@
 packages:
   - packages/*
-  - tests/*
+  - integration-tests/*
 
 onlyBuiltDependencies:
   - esbuild

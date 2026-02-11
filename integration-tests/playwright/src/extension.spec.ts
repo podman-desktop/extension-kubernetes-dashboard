@@ -48,7 +48,7 @@ test.use({
   runnerOptions: new RunnerOptions({
     customFolder: 'kubernetes-dashboard-tests',
     /**
-     * For performance reasons, disable extensions which are not necessary for the e2e
+     * For performance reasons, disable extensions which are not necessary for the integration tests
      */
     customSettings: {
       'extensions.disabled': [
@@ -67,7 +67,7 @@ test.use({
 test.beforeAll(async ({ runner, welcomePage }) => {
   test.setTimeout(80_000);
 
-  runner.setVideoAndTraceName('kubernetes-dashboard-e2e');
+  runner.setVideoAndTraceName('kubernetes-dashboard-integration');
   await welcomePage.handleWelcomePage(true);
 });
 
@@ -76,7 +76,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial(`Extension installation and verification`, { tag: '@smoke' }, () => {
+test.describe.serial(`Extension installation and verification`, () => {
   test.skip(EXTENSION_PREINSTALLED, 'Extension is preinstalled');
   test.describe.serial(`Extension installation`, () => {
     let extensionsPage: ExtensionsPage;
