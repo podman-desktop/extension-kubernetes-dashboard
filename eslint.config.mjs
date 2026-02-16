@@ -218,7 +218,7 @@ export default [
 
     languageOptions: {
       parser: svelteParser,
-      ecmaVersion: 5,
+      ecmaVersion: 6,
       sourceType: 'script',
       parserOptions: {
         parser: tsParser,

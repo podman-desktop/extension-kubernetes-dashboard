@@ -28,14 +28,18 @@ export async function createKubernetesResource(resourceYamlPath: string): Promis
       const version = execSync('kubectl version').toString();
       console.log(`Kubectl version stdout: ${version}`);
     } catch (error) {
-      throw new Error(`Kubectl is not installed: ${error}`);
+      throw new Error(`Kubectl is not installed: ${error}`, {
+        cause: error,
+      });
     }
     try {
       // eslint-disable-next-line sonarjs/os-command
       const kubectlApply = execSync(`kubectl apply -f ${resourceYamlPath}`).toString();
       console.log(`Kube yaml ${resourceYamlPath} applied successfully via cli: ${kubectlApply}`);
     } catch (error) {
-      throw new Error(`Error encountered when trying to apply kube yaml: ${error}`);
+      throw new Error(`Error encountered when trying to apply kube yaml: ${error}`, {
+        cause: error,
+      });
     }
   });
 }
