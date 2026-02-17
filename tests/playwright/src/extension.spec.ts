@@ -33,6 +33,7 @@ import * as fs from 'node:fs';
 import { KubernetesBar } from './model/pages/navigation';
 import { KubernetesResources } from './model/core/types';
 import { createKubernetesResource } from '/@/utility/kubernetes';
+import { anonymousUserTests } from './anonymous-user';
 
 const EXTENSION_OCI_IMAGE =
   process.env.EXTENSION_OCI_IMAGE ?? 'ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest';
@@ -463,4 +464,8 @@ test.describe.serial('With resources', { tag: '@integration' }, () => {
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
     await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
   });
+});
+
+test.describe.serial(`Anonymous user`, { tag: '@integration' }, () => {
+  anonymousUserTests();
 });
