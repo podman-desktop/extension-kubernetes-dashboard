@@ -145,7 +145,7 @@ jobs:
       - name: install envtest-start and setup-envtest binaries
         shell: bash
         run: |
-          go install github.com/feloy/envtest-start@563d135d56015062c35bd20f8c14ab5fcbee38ae
+          go install github.com/feloy/envtest-start@v0.1.0
           go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
 
       - name: install envtest with latest kubernetes version with setup-envtest
@@ -155,14 +155,14 @@ jobs:
           export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)
           echo "KUBEBUILDER_ASSETS=$KUBEBUILDER_ASSETS" >> $GITHUB_OUTPUT
 
-      - name: run envtest-start to start the envtest cluster
+      - name: run envtest-start to start the envtest cluster with 2 users user1 and user2
         id: run-envtest
         env:
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
         shell: bash
         run: |
           KUBECONFIG='${{ runner.temp }}/envtest-kubeconfig'
-          envtest-start "$KUBECONFIG" &
+          envtest-start --users 2 "$KUBECONFIG" &
           ENVTEST_START_PID=$!
           echo "ENVTEST_START_PID=$ENVTEST_START_PID" >> $GITHUB_OUTPUT
           echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_OUTPUT
