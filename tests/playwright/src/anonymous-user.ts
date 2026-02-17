@@ -48,6 +48,17 @@ export function anonymousUserTests(): void {
     const dashboardPage = await navigation.openKubernetesDashboardPage();
     const status = await dashboardPage.getStatus();
     playExpect(status).toContain('Connected');
+
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.Nodes)).toBeTruthy();
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.Namespaces)).toBeTruthy();
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.Deployments)).toBeTruthy();
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.Pods)).toBeTruthy();
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.Services)).toBeTruthy();
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.IngressesRoutes)).toBeTruthy();
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.PVCs)).toBeTruthy();
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.ConfigMapsSecrets)).toBeTruthy();
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.Jobs)).toBeTruthy();
+    await playExpect.poll(async () => dashboardPage.isUnauthorized(KubernetesResources.Cronjobs)).toBeTruthy();
   });
 
   test('go to nodes page', async () => {
