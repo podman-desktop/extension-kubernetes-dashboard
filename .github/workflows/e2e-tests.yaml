@@ -155,7 +155,7 @@ jobs:
           export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)
           echo "KUBEBUILDER_ASSETS=$KUBEBUILDER_ASSETS" >> $GITHUB_OUTPUT
 
-      - name: run envtest-start to start the envtest cluster with 2 users user1 and user2
+      - name: run envtest-start to start the envtest cluster with 1 user user1
         id: run-envtest
         env:
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
@@ -163,7 +163,7 @@ jobs:
         run: |
           KUBECONFIG='${{ runner.temp }}/envtest-kubeconfig'
           KUBECONFIG_USER1='${{ runner.temp }}/user1-kubeconfig'
-          envtest-start --users 2 "$KUBECONFIG" &
+          envtest-start --users 1 "$KUBECONFIG" &
           ENVTEST_START_PID=$!
           echo "ENVTEST_START_PID=$ENVTEST_START_PID" >> $GITHUB_OUTPUT
           echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_OUTPUT
