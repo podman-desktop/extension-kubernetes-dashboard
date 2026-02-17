@@ -44,8 +44,8 @@ jobs:
           name: extension-plugin
           path: output/plugins/
 
-  e2e-pr-check:
-    name: e2e tests smoke / ${{ matrix.os }}
+  integration-tests-pr-check:
+    name: integration tests / ${{ matrix.os }}
     needs: build-container
     runs-on: ${{ matrix.os }}
     strategy:
@@ -183,11 +183,11 @@ jobs:
           kubectl version --client
 
       # Run tests
-      - name: Run E2E Smoke tests
+      - name: Run Integration tests
         shell: bash
         run: |
           cp "${KUBECONFIG}" ./tests/resources/envtest-kubeconfig
-          pnpm test:e2e:smoke
+          pnpm test:e2e:integration
         env:
           NODE_OPTIONS: --no-experimental-strip-types
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}

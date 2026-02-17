@@ -76,7 +76,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial(`Extension installation and verification`, { tag: '@smoke' }, () => {
+test.describe.serial(`Extension installation and verification`, { tag: '@integration' }, () => {
   test.skip(EXTENSION_PREINSTALLED, 'Extension is preinstalled');
   test.describe.serial(`Extension installation`, () => {
     let extensionsPage: ExtensionsPage;
@@ -122,7 +122,7 @@ test.describe.serial(`Extension installation and verification`, { tag: '@smoke' 
   });
 });
 
-test.describe.serial(`Extension usage`, () => {
+test.describe.serial(`Extension usage`, { tag: '@integration' }, () => {
   let navigation: KubernetesBar;
 
   test('Load kubeconfig file in Preferences for an empty envtest cluster', async ({ page, navigationBar }) => {
@@ -212,7 +212,7 @@ test.describe.serial(`Extension usage`, () => {
   });
 });
 
-test.describe.serial('With resources', () => {
+test.describe.serial('With resources', { tag: '@integration' }, () => {
   let navigation: KubernetesBar;
 
   test('deploy resources to cluster', async () => {
