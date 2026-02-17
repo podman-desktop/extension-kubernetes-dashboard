@@ -160,56 +160,67 @@ test.describe.serial(`Extension usage`, { tag: '@integration' }, () => {
   test('go to nodes page', async () => {
     const nodesPage = await navigation.openTabPage(KubernetesResources.Nodes);
     await playExpect(nodesPage.heading).toBeVisible();
+    await playExpect.poll(async () => nodesPage.isEmpty('No nodes')).toBeTruthy();
   });
 
   test('go to namespaces page', async () => {
     const namespacesPage = await navigation.openTabPage(KubernetesResources.Namespaces);
     await playExpect(namespacesPage.heading).toBeVisible();
+    await playExpect.poll(async () => namespacesPage.rowsAreVisible()).toBeTruthy();
   });
 
   test('go to deployments page', async () => {
     const deploymentsPage = await navigation.openTabPage(KubernetesResources.Deployments);
     await playExpect(deploymentsPage.heading).toBeVisible();
+    await playExpect.poll(async () => deploymentsPage.isEmpty('No deployments')).toBeTruthy();
   });
 
   test('go to pods page', async () => {
     const podsPage = await navigation.openTabPage(KubernetesResources.Pods);
     await playExpect(podsPage.heading).toBeVisible();
+    await playExpect.poll(async () => podsPage.isEmpty('No pods')).toBeTruthy();
   });
 
   test('go to services page', async () => {
     const servicesPage = await navigation.openTabPage(KubernetesResources.Services);
     await playExpect(servicesPage.heading).toBeVisible();
+    await playExpect.poll(async () => servicesPage.rowsAreVisible()).toBeTruthy();
   });
 
   test('go to ingresses & routes page', async () => {
     const ingresssRoutesPage = await navigation.openTabPage(KubernetesResources.IngressesRoutes);
     await playExpect(ingresssRoutesPage.heading).toBeVisible();
+    await playExpect.poll(async () => ingresssRoutesPage.isEmpty('No ingresses or routes')).toBeTruthy();
   });
 
   test('go to pvc page', async () => {
     const pvcPage = await navigation.openTabPage(KubernetesResources.PVCs);
     await playExpect(pvcPage.heading).toBeVisible();
+    await playExpect.poll(async () => pvcPage.isEmpty('No persistentvolumeclaims')).toBeTruthy();
   });
 
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
     await playExpect(configMapsSecretsPage.heading).toBeVisible();
+    await playExpect.poll(async () => configMapsSecretsPage.isEmpty('No configmaps or secrets')).toBeTruthy();
   });
 
   test('go to jobs page', async () => {
     const jobsPage = await navigation.openTabPage(KubernetesResources.Jobs);
     await playExpect(jobsPage.heading).toBeVisible();
+    await playExpect.poll(async () => jobsPage.isEmpty('No jobs')).toBeTruthy();
   });
 
   test('go to cronjobs page', async () => {
     const cronjobsPage = await navigation.openTabPage(KubernetesResources.Cronjobs);
     await playExpect(cronjobsPage.heading).toBeVisible();
+    await playExpect.poll(async () => cronjobsPage.isEmpty('No cronjobs')).toBeTruthy();
   });
 
   test('go to port forwarding page', async () => {
     const portForwardingPage = await navigation.openPortForwardingPage();
     await playExpect(portForwardingPage.heading).toBeVisible();
+    await playExpect.poll(async () => portForwardingPage.isEmpty('No port forwarding configured')).toBeTruthy();
   });
 });
 

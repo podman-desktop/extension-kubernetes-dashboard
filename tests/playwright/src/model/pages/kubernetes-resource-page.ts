@@ -69,4 +69,13 @@ export class KubernetesResourcePage extends MainPage {
       return new KubernetesResourceDetailsPage(this.page, resourceName);
     });
   }
+
+  async isEmpty(label: string): Promise<boolean> {
+    const content = this.mainPage.getByRole('region', { name: 'content' });
+    const heading = content.getByRole('heading', {
+      name: label,
+      exact: true,
+    });
+    return (await heading.count()) > 0;
+  }
 }
