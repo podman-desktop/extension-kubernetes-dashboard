@@ -77,7 +77,7 @@ test.afterAll(async ({ runner }) => {
   await runner.close();
 });
 
-test.describe.serial(`Extension installation and verification`, { tag: '@integration' }, () => {
+test.describe(`Extension installation and verification`, { tag: ['@integration', '@anonymous'] }, () => {
   test.skip(EXTENSION_PREINSTALLED, 'Extension is preinstalled');
   test.describe.serial(`Extension installation`, () => {
     let extensionsPage: ExtensionsPage;
@@ -123,10 +123,8 @@ test.describe.serial(`Extension installation and verification`, { tag: '@integra
   });
 });
 
-test.describe.serial(`Extension usage`, { tag: '@integration' }, () => {
-  let navigation: KubernetesBar;
-
-  test('Load kubeconfig file in Preferences for an empty envtest cluster', async ({ page, navigationBar }) => {
+test.describe(`Configure kubeconfig file`, { tag: ['@integration', '@anonymous'] }, () => {
+  test('Load kubeconfig file in Preferences', async ({ page, navigationBar }) => {
     // copy testing kubeconfig file to the expected location
     const kubeConfigPathSrc = path.resolve(__dirname, '..', '..', 'resources', 'envtest-kubeconfig');
     const kubeConfigPathDst = path.resolve(__dirname, '..', 'tests', 'playwright', 'resources', 'kube-config');
@@ -144,6 +142,10 @@ test.describe.serial(`Extension usage`, { tag: '@integration' }, () => {
     const statusbar = new StatusBar(page);
     await statusbar.validateKubernetesContext('envtest');
   });
+});
+
+test.describe(`Extension usage`, { tag: '@integration' }, () => {
+  let navigation: KubernetesBar;
 
   test('Open Extension webview and verify the dashboard is connected', async ({ runner, page, navigationBar }) => {
     // open the webview
@@ -224,7 +226,7 @@ test.describe.serial(`Extension usage`, { tag: '@integration' }, () => {
   });
 });
 
-test.describe.serial('With resources', { tag: '@integration' }, () => {
+test.describe('With resources', { tag: '@integration' }, () => {
   let navigation: KubernetesBar;
 
   test('deploy resources to cluster', async () => {
@@ -477,6 +479,6 @@ test.describe.serial('With resources', { tag: '@integration' }, () => {
   });
 });
 
-test.describe.serial(`Anonymous user`, { tag: '@integration' }, () => {
+test.describe(`Anonymous user`, { tag: ['@integration', '@anonymous'] }, () => {
   anonymousUserTests();
 });
