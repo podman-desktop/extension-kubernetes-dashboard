@@ -3,9 +3,8 @@
   "version": "0.6.0-next",
   "description": "Kubernetes Dashboard extension Playwright E2E tests",
   "scripts": {
-    "test:e2e:setup": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' --",
-    "test:e2e": "npm run test:e2e:setup playwright test src/",
-    "test:e2e:integration": "npm run test:e2e:setup playwright test src/ --grep @integration"
+    "test:e2e:integration": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test src/ --grep @integration",
+    "test:e2e:integration:anonymous": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test src/ --grep @anonymous"
   },
   "publisher": "podman-desktop",
   "license": "Apache-2.0",

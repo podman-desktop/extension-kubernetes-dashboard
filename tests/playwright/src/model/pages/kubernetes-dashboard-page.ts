@@ -103,4 +103,17 @@ export class KubernetesDashboardPage extends MainPage {
     const countText = await countLocator.textContent();
     return countText ? Number.parseInt(countText, 10) : 0;
   }
+
+  public async isUnauthorized(name: KubernetesResources): Promise<boolean> {
+    const currentResource = this.metricsLocatorByName(name);
+    const label = `${name} count`;
+    const countLocator = currentResource.getByLabel(label, { exact: true });
+
+    if ((await countLocator.count()) === 0) {
+      throw new Error(`No ${label} locator found for resource: ${name}`);
+    }
+
+    const countText = await countLocator.textContent();
+    return countText === '-';
+  }
 }

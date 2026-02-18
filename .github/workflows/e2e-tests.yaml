@@ -145,7 +145,7 @@ jobs:
       - name: install envtest-start and setup-envtest binaries
         shell: bash
         run: |
-          go install github.com/feloy/envtest-start@563d135d56015062c35bd20f8c14ab5fcbee38ae
+          go install github.com/feloy/envtest-start@v0.1.0
           go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
 
       - name: install envtest with latest kubernetes version with setup-envtest
@@ -155,17 +155,19 @@ jobs:
           export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)
           echo "KUBEBUILDER_ASSETS=$KUBEBUILDER_ASSETS" >> $GITHUB_OUTPUT
 
-      - name: run envtest-start to start the envtest cluster
+      - name: run envtest-start to start the envtest cluster with 1 user user1
         id: run-envtest
         env:
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
         shell: bash
         run: |
           KUBECONFIG='${{ runner.temp }}/envtest-kubeconfig'
-          envtest-start "$KUBECONFIG" &
+          KUBECONFIG_USER1='${{ runner.temp }}/user1-kubeconfig'
+          envtest-start --users 1 "$KUBECONFIG" &
           ENVTEST_START_PID=$!
           echo "ENVTEST_START_PID=$ENVTEST_START_PID" >> $GITHUB_OUTPUT
           echo "KUBECONFIG=$KUBECONFIG" >> $GITHUB_OUTPUT
+          echo "KUBECONFIG_USER1=$KUBECONFIG_USER1" >> $GITHUB_OUTPUT
 
       - name: check cluster is accessible, should show a service named "kubernetes"
         env:
@@ -187,11 +189,13 @@ jobs:
         shell: bash
         run: |
           cp "${KUBECONFIG}" ./tests/resources/envtest-kubeconfig
+          cp "${KUBECONFIG_USER1}" ./tests/resources/envtest-kubeconfig-user1
           pnpm test:e2e:integration
         env:
           NODE_OPTIONS: --no-experimental-strip-types
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
           KUBECONFIG: ${{ steps.run-envtest.outputs.KUBECONFIG }}
+          KUBECONFIG_USER1: ${{ steps.run-envtest.outputs.KUBECONFIG_USER1 }}
 
       - name: stop envtest cluster on non-macOS
         if: always() && runner.os != 'macOS'
