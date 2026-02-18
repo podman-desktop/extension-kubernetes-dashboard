@@ -34,12 +34,12 @@ vi.mock(import('node:fs/promises'));
 vi.mock(import('@kubernetes/client-node'));
 vi.mock(import('./manager/contexts-manager'));
 vi.mock(import('./manager/contexts-states-dispatcher'), () => {
-  const ContextsStatesDispatcher = vi.fn(
+  const ContextsStatesDispatcherMock = vi.fn(
     class {
       constructor() {}
-    },
+    } as unknown as typeof ContextsStatesDispatcher,
   );
-  return { ContextsStatesDispatcher };
+  return { ContextsStatesDispatcher: ContextsStatesDispatcherMock };
 });
 vi.mock(import('./subscriber/api-subscriber'));
 
