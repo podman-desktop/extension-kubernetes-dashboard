@@ -24,6 +24,7 @@ import { expect, test } from 'vitest';
 import Mode from './Mode.svelte';
 
 const fakePVC = {
+  kind: 'PersistentVolumeClaim',
   name: 'my-pvc',
   namespace: 'default',
   status: 'Available',

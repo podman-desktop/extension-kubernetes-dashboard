@@ -13,7 +13,8 @@
     "format:fix": "prettier --write \"src/**/*.{ts,svelte}\"",
     "lint:check": "eslint . --ext js,ts,tsx",
     "lint:fix": "eslint . --fix --ext js,ts,tsx",
-    "watch": "vite --mode development build -w"
+    "watch": "vite --mode development build -w",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
     "cronstrue": "^3.12.0",
