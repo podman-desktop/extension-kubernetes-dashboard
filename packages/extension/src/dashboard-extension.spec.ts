@@ -28,14 +28,19 @@ import { type ApiSubscriber } from '/@/subscriber/api-subscriber';
 
 let extensionContextMock: ExtensionContext;
 let dashboardExtension: DashboardExtension;
-let contextsManagerMock: ContextsManager;
-let contextsStatesDispatcherMock: ContextsStatesDispatcher;
 
 vi.mock(import('node:fs'));
 vi.mock(import('node:fs/promises'));
 vi.mock(import('@kubernetes/client-node'));
 vi.mock(import('./manager/contexts-manager'));
-vi.mock(import('./manager/contexts-states-dispatcher'));
+vi.mock(import('./manager/contexts-states-dispatcher'), () => {
+  const ContextsStatesDispatcher = vi.fn(
+    class {
+      constructor() {}
+    },
+  );
+  return { ContextsStatesDispatcher };
+});
 vi.mock(import('./subscriber/api-subscriber'));
 
 beforeEach(() => {
@@ -46,6 +51,11 @@ beforeEach(() => {
     '/path/to/extension/index.html': '<html></html>',
   });
 
+  ContextsManager.prototype.update = vi.fn();
+  ContextsManager.prototype.onCurrentContextChange = vi.fn();
+  ContextsStatesDispatcher.prototype.init = vi.fn();
+  ContextsStatesDispatcher.prototype.addSubscriber = vi.fn();
+  ContextsStatesDispatcher.prototype.removeSubscriber = vi.fn();
   vi.mocked(window.createWebviewPanel).mockReturnValue({
     webview: {
       html: '',
@@ -59,20 +69,6 @@ beforeEach(() => {
     subscriptions: [],
   } as unknown as ExtensionContext;
 
-  // Create a mock for the contextsManager
-  contextsManagerMock = {
-    update: vi.fn(),
-    onCurrentContextChange: vi.fn(),
-  } as unknown as ContextsManager;
-  vi.mocked(ContextsManager).mockReturnValue(contextsManagerMock);
-
-  contextsStatesDispatcherMock = {
-    init: vi.fn(),
-    addSubscriber: vi.fn(),
-    removeSubscriber: vi.fn(),
-  } as unknown as ContextsStatesDispatcher;
-  vi.mocked(ContextsStatesDispatcher).mockReturnValue(contextsStatesDispatcherMock);
-
   dashboardExtension = new DashboardExtension(extensionContextMock);
   vi.mocked(kubernetes.getKubeconfig).mockReturnValue({
     path: '/path/to/kube/config',
@@ -82,15 +78,14 @@ beforeEach(() => {
 describe('a kubeconfig file is not present', () => {
   test('should activate correctly and calls contextsManager every time the kubeconfig file changes', async () => {
     await dashboardExtension.activate();
-    expect(contextsManagerMock.update).not.toHaveBeenCalled();
+    expect(ContextsManager.prototype.update).not.toHaveBeenCalled();
 
     const callback = vi.mocked(kubernetes.onDidUpdateKubeconfig).mock.lastCall?.[0];
     assert(callback);
-    vi.mocked(contextsManagerMock.update).mockClear();
+    vi.mocked(ContextsManager.prototype.update).mockClear();
     callback({ type: 'UPDATE', location: { path: '/path/to/kube/config' } as Uri });
-    expect(contextsManagerMock.update).toHaveBeenCalledOnce();
-
-    expect(contextsStatesDispatcherMock.init).toHaveBeenCalledOnce();
+    expect(ContextsManager.prototype.update).toHaveBeenCalledOnce();
+    expect(ContextsStatesDispatcher.prototype.init).toHaveBeenCalledOnce();
   });
 
   test('should deactivate correctly', async () => {
@@ -110,15 +105,15 @@ describe('a kubeconfig file is present', () => {
 
   test('should activate correctly and calls contextsManager every time the kubeconfig file changes', async () => {
     await dashboardExtension.activate();
-    expect(contextsManagerMock.update).toHaveBeenCalledOnce();
+    expect(ContextsManager.prototype.update).toHaveBeenCalledOnce();
 
     const callback = vi.mocked(kubernetes.onDidUpdateKubeconfig).mock.lastCall?.[0];
     assert(callback);
-    vi.mocked(contextsManagerMock.update).mockClear();
+    vi.mocked(ContextsManager.prototype.update).mockClear();
     callback({ type: 'UPDATE', location: { path: '/path/to/kube/config' } as Uri });
-    expect(contextsManagerMock.update).toHaveBeenCalledOnce();
+    expect(ContextsManager.prototype.update).toHaveBeenCalledOnce();
 
-    expect(contextsStatesDispatcherMock.init).toHaveBeenCalledOnce();
+    expect(ContextsStatesDispatcher.prototype.init).toHaveBeenCalledOnce();
   });
 
   test('should deactivate correctly', async () => {
@@ -135,11 +130,11 @@ test('activate should return a KubernetesDashboardExtensionApi', async () => {
 
   const subscriber = api.getSubscriber();
   expect(subscriber).toBeDefined();
-  expect(contextsStatesDispatcherMock.addSubscriber).toHaveBeenCalled();
-  const apiSubscriber = vi.mocked(contextsStatesDispatcherMock.addSubscriber).mock.lastCall?.[0];
+  expect(ContextsStatesDispatcher.prototype.addSubscriber).toHaveBeenCalled();
+  const apiSubscriber = vi.mocked(ContextsStatesDispatcher.prototype.addSubscriber).mock.lastCall?.[0];
 
   subscriber.dispose();
-  expect(contextsStatesDispatcherMock.removeSubscriber).toHaveBeenCalled();
+  expect(ContextsStatesDispatcher.prototype.removeSubscriber).toHaveBeenCalled();
   expect(apiSubscriber).toBeDefined();
   expect((apiSubscriber as ApiSubscriber).dispose).toHaveBeenCalledOnce();
 });
