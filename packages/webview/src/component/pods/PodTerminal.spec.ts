@@ -36,7 +36,7 @@ vi.mock(import('@xterm/addon-serialize'));
 vi.mock(import('@xterm/addon-fit'));
 
 vi.mock(import('@xterm/xterm'), () => ({
-  Terminal: vi.fn(class {}),
+  Terminal: vi.fn(class {} as unknown as typeof Terminal),
 }));
 
 const remoteMocks = new RemoteMocks();
