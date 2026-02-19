@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { assert, beforeEach, expect, test, vi } from 'vitest';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import { StatesMocks } from '/@/tests/state-mocks';
 import type { CurrentContextInfo, EndpointsInfo, EndpointsOptions, SystemApi } from '@kubernetes-dashboard/channels';
@@ -78,6 +78,7 @@ test('OpenLinks component', () => {
     }),
   );
   const call = vi.mocked(IconButton).mock.calls[0][1];
+  assert(call);
   expect(call.onClick).toBeDefined();
   const onClick = call.onClick as () => void;
   onClick();

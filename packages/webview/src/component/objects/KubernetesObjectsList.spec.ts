@@ -34,6 +34,7 @@ import * as uiSvelte from '@podman-desktop/ui-svelte';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_CONTEXTS, API_TELEMETRY } from '@kubernetes-dashboard/channels';
+import type { SvelteComponent } from 'svelte';
 
 vi.mock(import('/@/component/connection/CurrentContextConnectionBadge.svelte'));
 vi.mock(import('./NamespaceDropdown.svelte'));
@@ -163,7 +164,7 @@ describe('resources exist', () => {
     expect(screen.queryByText('No Seals')).toBeNull();
 
     expect(uiSvelte.Table).toHaveBeenCalled();
-    const props = vi.mocked(uiSvelte.Table).mock.calls[0][1];
+    const props = vi.mocked(uiSvelte.Table as unknown as SvelteComponent).mock.calls[0][1];
     expect(props.data).toHaveLength(1);
     // get data transformed by the `transformer`
     expect(props.data[0]).toEqual({ name: 'podman' });
@@ -182,7 +183,7 @@ describe('resources exist', () => {
     expect(screen.queryByText('No Seals')).toBeNull();
 
     expect(uiSvelte.Table).toHaveBeenCalled();
-    const props = vi.mocked(uiSvelte.Table).mock.calls[0][1];
+    const props = vi.mocked(uiSvelte.Table as unknown as SvelteComponent).mock.calls[0][1];
     expect(props.data).toHaveLength(1);
     // get data transformed by the `transformer`
     expect(props.data[0]).toEqual({ name: 'podman' });
@@ -201,7 +202,7 @@ describe('resources exist', () => {
     expect(screen.queryByText('No Seals')).toBeNull();
 
     expect(uiSvelte.Table).toHaveBeenCalled();
-    const props = vi.mocked(uiSvelte.Table).mock.calls[0][1];
+    const props = vi.mocked(uiSvelte.Table as unknown as SvelteComponent).mock.calls[0][1];
     expect(props.data).toHaveLength(0);
 
     expect(uiSvelte.FilteredEmptyScreen).toHaveBeenCalled();

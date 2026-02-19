@@ -60,25 +60,16 @@ beforeEach(() => {
 describe('readyz returns a value', async () => {
   const onStateChangeCB = vi.fn();
   const onReachableCB = vi.fn();
-  const readyzMock = vi.fn();
   let hc: ContextHealthChecker;
 
   beforeEach(async () => {
-    vi.mocked(Health).mockImplementation(
-      () =>
-        ({
-          readyz: readyzMock,
-        }) as unknown as Health,
-    );
-
     hc = new ContextHealthChecker(config);
-
     hc.onStateChange(onStateChangeCB);
     hc.onReachable(onReachableCB);
   });
 
   test('onStateChange is fired with result of readyz', async () => {
-    readyzMock.mockResolvedValue(true);
+    vi.mocked(Health.prototype.readyz).mockResolvedValue(true);
     await hc.start();
 
     expect(onStateChangeCB).toHaveBeenCalledWith({
@@ -103,7 +94,7 @@ describe('readyz returns a value', async () => {
 
     onStateChangeCB.mockReset();
 
-    readyzMock.mockResolvedValue(false);
+    vi.mocked(Health.prototype.readyz).mockResolvedValue(false);
     await hc.start();
     expect(onStateChangeCB).toHaveBeenCalledWith({
       kubeConfig: config,
@@ -127,7 +118,7 @@ describe('readyz returns a value', async () => {
   });
 
   test('onReachable is fired when readyz returns true', async () => {
-    readyzMock.mockResolvedValue(true);
+    vi.mocked(Health.prototype.readyz).mockResolvedValue(true);
     await hc.start();
 
     expect(onReachableCB).toHaveBeenCalledWith({
@@ -139,28 +130,20 @@ describe('readyz returns a value', async () => {
 
     onReachableCB.mockReset();
 
-    readyzMock.mockResolvedValue(false);
+    vi.mocked(Health.prototype.readyz).mockResolvedValue(false);
     await hc.start();
     expect(onReachableCB).not.toHaveBeenCalled();
   });
 });
 
 test('onStateChange is not fired when readyz is rejected with an abort error', async () => {
-  const readyzMock = vi.fn();
-  vi.mocked(Health).mockImplementation(
-    () =>
-      ({
-        readyz: readyzMock,
-      }) as unknown as Health,
-  );
-
   const hc = new ContextHealthChecker(config);
   const onStateChangeCB = vi.fn();
   hc.onStateChange(onStateChangeCB);
 
   const err = new Error('a message');
   err.name = 'AbortError';
-  readyzMock.mockRejectedValue(err);
+  vi.mocked(Health.prototype.readyz).mockRejectedValue(err);
   await hc.start();
   expect(onStateChangeCB).toHaveBeenCalledOnce();
   expect(onStateChangeCB).toHaveBeenCalledWith({
@@ -178,19 +161,11 @@ test('onStateChange is not fired when readyz is rejected with an abort error', a
 });
 
 test('onReadiness is called with false when readyz is rejected with a generic error', async () => {
-  const readyzMock = vi.fn();
-  vi.mocked(Health).mockImplementation(
-    () =>
-      ({
-        readyz: readyzMock,
-      }) as unknown as Health,
-  );
-
   const hc = new ContextHealthChecker(config);
   const onStateChangeCB = vi.fn();
   hc.onStateChange(onStateChangeCB);
 
-  readyzMock.mockRejectedValue(new Error('a generic error'));
+  vi.mocked(Health.prototype.readyz).mockRejectedValue(new Error('a generic error'));
   await hc.start();
   expect(onStateChangeCB).toHaveBeenCalledWith({
     kubeConfig: config,
@@ -213,14 +188,6 @@ test('onReadiness is called with false when readyz is rejected with a generic er
 });
 
 test('onReadiness is called with false when readyz is rejected with a noent error', async () => {
-  const readyzMock = vi.fn();
-  vi.mocked(Health).mockImplementation(
-    () =>
-      ({
-        readyz: readyzMock,
-      }) as unknown as Health,
-  );
-
   const hc = new ContextHealthChecker(config);
   const onStateChangeCB = vi.fn();
   hc.onStateChange(onStateChangeCB);
@@ -228,7 +195,7 @@ test('onReadiness is called with false when readyz is rejected with a noent erro
   const enoentErr: NodeJS.ErrnoException = new Error('enoent error');
   enoentErr.code = 'ENOENT';
   enoentErr.path = '/path/to/command';
-  readyzMock.mockRejectedValue(enoentErr);
+  vi.mocked(Health.prototype.readyz).mockRejectedValue(enoentErr);
   await hc.start();
   expect(onStateChangeCB).toHaveBeenCalledWith({
     kubeConfig: config,

@@ -100,12 +100,6 @@ test('showCursor false or undefined should write specific instruction to termina
 });
 
 test('addon fit should be loaded on mount', async () => {
-  const fitAddonMock = {
-    fit: vi.fn(),
-  } as unknown as FitAddon;
-
-  vi.mocked(FitAddon).mockReturnValue(fitAddonMock);
-
   render(TerminalWindow, {
     terminal: createTerminalMock(),
   });
@@ -115,7 +109,7 @@ test('addon fit should be loaded on mount', async () => {
   });
 
   expect(FitAddon).toHaveBeenCalled();
-  expect(Terminal.prototype.loadAddon).toHaveBeenCalledWith(fitAddonMock);
+  expect(Terminal.prototype.loadAddon).toHaveBeenCalledWith(expect.anything());
 });
 
 test('matchMedia resize listener should trigger fit addon', async () => {
