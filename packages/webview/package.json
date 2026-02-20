@@ -54,7 +54,7 @@
     "micromark": "^4.0.2",
     "monaco-editor": "^0.55.1",
     "prettier": "^3.8.1",
-    "prettier-plugin-svelte": "^3.4.1",
+    "prettier-plugin-svelte": "^3.5.0",
     "reflect-metadata": "^0.2.2",
     "svelte": "^5",
     "svelte-fa": "^4.0.3",
