@@ -851,6 +851,56 @@ export class ContextsManager implements ContextsApi {
     this.telemetryLogger.logUsage('apply.resources', telemetryOptions);
   }
 
+  async createResources(yamlDocuments: string): Promise<{ kind?: string }[]> {
+    const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
+    if (!client) {
+      throw new Error('create resources: unable to get client for current context');
+    }
+    const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
+    if (manifests.filter(s => s?.kind).length === 0) {
+      throw new Error('No valid Kubernetes resources found');
+    }
+
+    const applied: { kind?: string }[] = [];
+    const existing: object[] = [];
+    for (const manifest of manifests) {
+      manifest.metadata ??= {};
+      manifest.metadata.annotations ??= {};
+      delete manifest.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'];
+      manifest.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(manifest);
+      manifest.metadata.namespace ??= this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
+
+      delete manifest.metadata.resourceVersion;
+      delete manifest.metadata.uid;
+      delete manifest.metadata.selfLink;
+      delete manifest.metadata.creationTimestamp;
+      delete manifest.metadata.managedFields;
+      delete (manifest as Record<string, unknown>).status;
+
+      try {
+        const result = await client.create(manifest);
+        this.handleResult(result, `create of ${manifest.kind} ${manifest.metadata?.name}`);
+        applied.push({ kind: manifest.kind });
+      } catch (e: unknown) {
+        // HTTP 409 Conflict means the resource already exists and will be patched by applyResources.
+        // https://kubernetes.io/docs/reference/using-api/api-concepts/#conflicts
+        if (e instanceof ApiException && e.code === 409) {
+          existing.push(manifest);
+          continue;
+        }
+        this.handleApiException(e, `create of ${manifest.kind} ${manifest.metadata?.name}`);
+      }
+    }
+
+    if (existing.length > 0) {
+      await this.applyResources(existing.map(m => stringify(m)).join('---\n'));
+      for (const manifest of existing) {
+        applied.push({ kind: (manifest as { kind?: string }).kind });
+      }
+    }
+    return applied;
+  }
+
   convertYamlFrom11to12(yamlDocuments: string): string {
     const parsedManifests = parseAllDocuments(yamlDocuments, { customTags: this.getTags });
     return parsedManifests.map(parsedManifest => stringify(parsedManifest)).join('\n');
