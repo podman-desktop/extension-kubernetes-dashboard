@@ -18,6 +18,10 @@
 
 export const ContextsApi = Symbol.for('ContextsApi');
 
+export interface AppliedResource {
+  kind?: string;
+}
+
 export interface ContextsApi {
   setCurrentContext(contextName: string): Promise<void>;
   refreshContextState(contextName: string): Promise<void>;
@@ -26,4 +30,5 @@ export interface ContextsApi {
   setCurrentNamespace(namespace: string): Promise<void>;
   restartObject(kind: string, name: string, namespace: string): Promise<void>;
   applyResources(yamlDocuments: string): Promise<void>;
+  createResources(yamlDocuments: string): Promise<AppliedResource[]>;
 }
