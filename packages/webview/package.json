@@ -34,7 +34,7 @@
     "@podman-desktop/ui-svelte": "1.25.1",
     "@podman-desktop/webview-api": "1.25.1",
     "@podman-desktop/kubernetes-dashboard-extension-api": "workspace:*",
-    "@sveltejs/vite-plugin-svelte": "^6",
+    "@sveltejs/vite-plugin-svelte": "^7",
     "@tailwindcss/typography": "^0.5.18",
     "@tailwindcss/vite": "^4.2.1",
     "@testing-library/dom": "^10.4.0",
