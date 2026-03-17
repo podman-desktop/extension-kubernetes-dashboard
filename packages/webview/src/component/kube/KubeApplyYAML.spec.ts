@@ -23,7 +23,16 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import KubeApplyYAML from './KubeApplyYAML.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
-import { API_CONTEXTS, API_SYSTEM, type ContextsApi, type SystemApi } from '@kubernetes-dashboard/channels';
+import { StatesMocks } from '/@/tests/state-mocks';
+import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
+import {
+  API_CONTEXTS,
+  API_SYSTEM,
+  type ContextsApi,
+  type SystemApi,
+  type CurrentContextInfo,
+  type AvailableContextsInfo,
+} from '@kubernetes-dashboard/channels';
 
 vi.mock(import('tinro'));
 
@@ -33,6 +42,9 @@ vi.mock(import('/@/component/editor/MonacoEditor.svelte'), async () => ({
 }));
 
 const remoteMocks = new RemoteMocks();
+const statesMocks = new StatesMocks();
+let currentContextMock: FakeStateObject<CurrentContextInfo, void>;
+let availableContextsMock: FakeStateObject<AvailableContextsInfo, void>;
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -40,11 +52,21 @@ beforeEach(() => {
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
     createResources: vi.fn(),
+    setCurrentContext: vi.fn(),
   } as unknown as ContextsApi);
   remoteMocks.mock(API_SYSTEM, {
     openFileDialog: vi.fn().mockResolvedValue(['kube.yaml']),
     readTextFile: vi.fn().mockResolvedValue('apiVersion: v1\nkind: Pod'),
   } as unknown as SystemApi);
+
+  currentContextMock = new FakeStateObject<CurrentContextInfo, void>();
+  availableContextsMock = new FakeStateObject<AvailableContextsInfo, void>();
+  currentContextMock.setData({ contextName: 'test-context', namespace: 'default' });
+  availableContextsMock.setData({ contextNames: ['test-context', 'other-context'] });
+
+  statesMocks.reset();
+  statesMocks.mock<CurrentContextInfo, void>('stateCurrentContextInfoUI', currentContextMock);
+  statesMocks.mock<AvailableContextsInfo, void>('stateAvailableContextsInfoUI', availableContextsMock);
 });
 
 test(`'Apply' button is visible and disabled after page is opened`, async () => {
@@ -156,7 +178,7 @@ test('`Apply` button sends selected file content and show error message in case 
   const error = new Error('Something went wrong.');
   const { getByText } = await applyFileScenario(error);
   await vi.waitFor(() => {
-    const errorMessage = getByText('Could not apply Kubernetes YAML: ' + error);
+    const errorMessage = getByText('Could not apply YAML: ' + error);
     expect(errorMessage).toBeVisible();
   });
 });
@@ -186,7 +208,7 @@ test('`Apply custom YAML` shows error message after failed execution', async () 
   const button = getByRole('button', { name: 'Apply Custom YAML' });
   await fireEvent.click(button);
   await vi.waitFor(() => {
-    expect(getByText(/Could not apply Kubernetes YAML/)).toBeVisible();
+    expect(getByText(/Could not apply YAML/)).toBeVisible();
   });
 });
 
@@ -206,6 +228,17 @@ test('Done button navigates back to dashboard after successful apply', async () 
   });
   await fireEvent.click(screen.getByRole('button', { name: 'Done' }));
   expect(router.goto).toHaveBeenCalledWith('/');
+});
+
+test(`'Apply' button stays disabled when no Kubernetes context is available`, async () => {
+  currentContextMock.setData({ contextName: undefined, namespace: undefined });
+  availableContextsMock.setData({ contextNames: [] });
+  const { getByRole } = render(KubeApplyYAML);
+  const browseButton = getByRole('button', { name: 'browse' });
+  await fireEvent.click(browseButton);
+  await vi.waitFor(() => {
+    expect(getByRole('button', { name: 'Apply' })).toBeDisabled();
+  });
 });
 
 test('browse does nothing when dialog is cancelled', async () => {

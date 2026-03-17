@@ -1,14 +1,16 @@
 <script lang="ts">
 import { faCircleCheck, faFolderOpen, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { Button, ErrorMessage, FormPage, Input } from '@podman-desktop/ui-svelte';
+import { Button, Dropdown, ErrorMessage, FormPage, Input } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
-import { getContext, type Snippet } from 'svelte';
+import { getContext, onDestroy, onMount, type Snippet } from 'svelte';
 import { router } from 'tinro';
+import type { Unsubscriber } from 'svelte/store';
 
 import MonacoEditor from '/@/component/editor/MonacoEditor.svelte';
 import KubeIcon from '/@/component/icons/KubeIcon.svelte';
 import SolidKubeIcon from './SolidKubeIcon.svelte';
 import { Remote } from '/@/remote/remote';
+import { States } from '/@/state/states';
 import { API_CONTEXTS, API_SYSTEM } from '@kubernetes-dashboard/channels';
 
 type UsersChoice = 'file' | 'custom';
@@ -16,6 +18,26 @@ type UsersChoice = 'file' | 'custom';
 const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);
 const systemApi = remote.getProxy(API_SYSTEM);
+
+const states = getContext<States>(States);
+const currentContext = states.stateCurrentContextInfoUI;
+const availableContexts = states.stateAvailableContextsInfoUI;
+
+const contextNames = $derived(availableContexts.data?.contextNames ?? []);
+let selectedContextName = $derived(currentContext.data?.contextName ?? '');
+
+let unsubscribers: Unsubscriber[] = [];
+onMount(() => {
+  unsubscribers.push(currentContext.subscribe());
+  unsubscribers.push(availableContexts.subscribe());
+});
+onDestroy(() => {
+  unsubscribers.forEach(u => u());
+});
+
+async function handleContextChange(value: unknown): Promise<void> {
+  await contextsApi.setCurrentContext(String(value));
+}
 
 let runStarted = $state(false);
 let runFinished = $state(false);
@@ -26,6 +48,9 @@ let customYamlContent = $state('');
 let userChoice: UsersChoice = $state('file');
 
 let hasInvalidFields = $derived.by(() => {
+  if (!selectedContextName) {
+    return true;
+  }
   switch (userChoice) {
     case 'file':
       return !kubernetesYamlFilePath;
@@ -83,7 +108,7 @@ async function kubeApply(): Promise<void> {
       applyKubeResultRaw = `Successfully applied ${objects.length} resources (${resources}).`;
     }
   } catch (error) {
-    runError = 'Could not apply Kubernetes YAML: ' + error;
+    runError = 'Could not apply YAML: ' + error;
   } finally {
     runStarted = false;
     runFinished = true;
@@ -103,7 +128,7 @@ function goBack(): void {
 }
 </script>
 
-<FormPage title="Apply Kubernetes YAML" inProgress={runStarted && !runFinished} onclose={goBack}>
+<FormPage title="Apply YAML" inProgress={runStarted && !runFinished} onclose={goBack}>
   {#snippet icon()}
     <KubeIcon size="30" solid />
   {/snippet}
@@ -113,8 +138,26 @@ function goBack(): void {
       <div class="bg-(--pd-content-card-bg) p-6 space-y-2 lg:p-8 rounded-lg">
 
   <div class="space-y-6">
+    <label for="kubeContexts" class="block mb-2 text-base font-bold text-(--pd-content-card-header-text)"
+      >Context</label>
+
+    <div class="flex flex-col">
+      <div
+        class="border-2 rounded-md p-5 cursor-pointer bg-(--pd-content-card-inset-bg) border-(--pd-content-card-border)">
+        <Dropdown
+          id="kubeContexts"
+          name="kubeContexts"
+          value={selectedContextName}
+          onChange={handleContextChange}
+          options={contextNames.map(name => ({
+            label: name,
+            value: name,
+          }))} />
+      </div>
+    </div>
+
     <label for="containerFilePath" class="block mb-2 text-base font-bold text-(--pd-content-card-header-text)"
-      >Kubernetes YAML file</label>
+      >YAML file</label>
 
     <div class="flex flex-col">
       {#snippet file()}
@@ -169,7 +212,7 @@ function goBack(): void {
     {#if userChoice === 'custom'}
       <div class="space-y-3">
         <label for="custom-yaml-editor" class="block text-base font-bold text-(--pd-content-card-header-text)">
-          Custom Kubernetes YAML Content
+          Custom YAML Content
         </label>
         <div id="custom-yaml-editor" class="h-[400px] border">
           <MonacoEditor
@@ -183,7 +226,7 @@ function goBack(): void {
 
     {#if runStarted}
       <div class="text-(--pd-content-card-text) text-sm">
-        Please don't leave the page while the Kubernetes YAML is being applied. This process may take a few minutes to complete...
+        Please don't leave the page while the YAML is being applied. This process may take a few minutes to complete...
       </div>
     {/if}
 
