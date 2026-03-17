@@ -2,9 +2,8 @@
 import { faCircleCheck, faFolderOpen, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { Button, Dropdown, ErrorMessage, FormPage, Input } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
-import { getContext, onDestroy, onMount, type Snippet } from 'svelte';
+import { getContext, onMount, type Snippet } from 'svelte';
 import { router } from 'tinro';
-import type { Unsubscriber } from 'svelte/store';
 
 import MonacoEditor from '/@/component/editor/MonacoEditor.svelte';
 import KubeIcon from '/@/component/icons/KubeIcon.svelte';
