@@ -15,7 +15,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Remote } from '/@/remote/remote';
 import { API_CONTEXTS, API_TELEMETRY } from '@kubernetes-dashboard/channels';
 import NamespaceDropdown from './NamespaceDropdown.svelte';
-import KubeApplyYAMLButton from '/@/component/kube/KubeApplyYAMLButton.svelte';
+import KubeApplyYAMLButton from '/@/component/apply/KubeApplyYAMLButton.svelte';
 
 export interface Kind {
   resource: string;
