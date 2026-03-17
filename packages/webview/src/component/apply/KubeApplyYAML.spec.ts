@@ -186,6 +186,24 @@ test('`Apply` button sends selected file content and show error message in case 
   });
 });
 
+test('`Apply` button shows error message when file read fails', async () => {
+  vi.mocked(remoteMocks.get(API_SYSTEM).readTextFile).mockRejectedValue(
+    new Error("ENOENT: no such file or directory, open 'kube.yaml'"),
+  );
+  vi.mocked(remoteMocks.get(API_CONTEXTS).createResources).mockResolvedValue([]);
+  const page = render(KubeApplyYAML);
+  await fireEvent.click(page.getByRole('button', { name: 'browse' }));
+  await vi.waitFor(() => {
+    expect(page.getByRole('button', { name: 'Apply' })).toBeEnabled();
+  });
+  await fireEvent.click(page.getByRole('button', { name: 'Apply' }));
+  await vi.waitFor(() => {
+    expect(page.getByText(/Could not apply YAML/)).toBeVisible();
+    expect(page.getByText(/ENOENT/)).toBeVisible();
+  });
+  expect(remoteMocks.get(API_CONTEXTS).createResources).not.toHaveBeenCalled();
+});
+
 test('`Apply custom YAML` sends custom YAML content to createResources', async () => {
   vi.mocked(remoteMocks.get(API_CONTEXTS).createResources).mockResolvedValue([{ kind: 'Pod' }]);
   const { getByRole } = render(KubeApplyYAML);
