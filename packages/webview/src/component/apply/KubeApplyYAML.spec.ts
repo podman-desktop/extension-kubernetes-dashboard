@@ -186,6 +186,19 @@ test('`Apply` button sends selected file content and show error message in case 
   });
 });
 
+test('`Apply` button renders RPC string rejection without [object Object]', async () => {
+  vi.mocked(remoteMocks.get(API_CONTEXTS).createResources).mockRejectedValue('No valid Kubernetes resources found');
+  const page = render(KubeApplyYAML);
+  await fireEvent.click(page.getByRole('button', { name: 'browse' }));
+  await vi.waitFor(() => {
+    expect(page.getByRole('button', { name: 'Apply' })).toBeEnabled();
+  });
+  await fireEvent.click(page.getByRole('button', { name: 'Apply' }));
+  await vi.waitFor(() => {
+    expect(page.getByText('Could not apply YAML: No valid Kubernetes resources found')).toBeVisible();
+  });
+});
+
 test('`Apply` button shows error message when file read fails', async () => {
   vi.mocked(remoteMocks.get(API_SYSTEM).readTextFile).mockRejectedValue(
     new Error("ENOENT: no such file or directory, open 'kube.yaml'"),
