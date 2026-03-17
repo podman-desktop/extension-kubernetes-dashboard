@@ -862,7 +862,7 @@ export class ContextsManager implements ContextsApi {
     }
 
     const applied: { kind?: string }[] = [];
-    const existing: object[] = [];
+    const existing: KubernetesObject[] = [];
     for (const manifest of manifests) {
       manifest.metadata ??= {};
       manifest.metadata.annotations ??= {};
@@ -892,10 +892,20 @@ export class ContextsManager implements ContextsApi {
       }
     }
 
-    if (existing.length > 0) {
-      await this.applyResources(existing.map(m => stringify(m)).join('---\n'));
-      for (const manifest of existing) {
-        applied.push({ kind: (manifest as { kind?: string }).kind });
+    for (const manifest of existing) {
+      try {
+        const result = await client.patch(
+          manifest,
+          undefined, // pretty
+          undefined, // dryRun
+          FIELD_MANAGER,
+          undefined, // force
+          PatchStrategy.StrategicMergePatch,
+        );
+        this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
+        applied.push({ kind: manifest.kind });
+      } catch (e: unknown) {
+        this.handleApiException(e, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
       }
     }
     return applied;

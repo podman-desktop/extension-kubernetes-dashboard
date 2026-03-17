@@ -14,6 +14,15 @@ import { API_CONTEXTS, API_SYSTEM } from '@kubernetes-dashboard/channels';
 
 type UsersChoice = 'file' | 'custom';
 
+function extractErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === 'string') return err;
+  if (typeof err === 'object' && err !== null && 'message' in err && typeof (err as Record<string, unknown>).message === 'string') {
+    return (err as Record<string, unknown>).message as string;
+  }
+  return 'Unknown error';
+}
+
 const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);
 const systemApi = remote.getProxy(API_SYSTEM);
@@ -107,7 +116,7 @@ async function kubeApply(): Promise<void> {
       applyKubeResultRaw = `Successfully applied ${objects.length} resources (${resources}).`;
     }
   } catch (error) {
-    runError = 'Could not apply YAML: ' + (error instanceof Error ? error.message : String(error));
+    runError = 'Could not apply YAML: ' + extractErrorMessage(error);
   } finally {
     runStarted = false;
     runFinished = true;
