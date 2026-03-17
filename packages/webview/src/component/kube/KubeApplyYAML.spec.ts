@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, type RenderResult, screen } from '@testing-library/svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubeApplyYAML from './KubeApplyYAML.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
