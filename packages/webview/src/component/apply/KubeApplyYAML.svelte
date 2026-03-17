@@ -28,7 +28,7 @@ let selectedContextName = $derived(currentContext.data?.contextName ?? '');
 onMount(() => {
   const currentContextUnsubscriber = currentContext.subscribe();
   const availableContextsUnsubscriber = availableContexts.subscribe();
-  return () => {
+  return (): void => {
     currentContextUnsubscriber();
     availableContextsUnsubscriber();
   };
