@@ -18,9 +18,14 @@
 
 export const SystemApi = Symbol.for('SystemApi');
 
+export interface FileDialogFilter {
+  name: string;
+  extensions: string[];
+}
+
 export interface OpenFileDialogOptions {
   title?: string;
-  filters?: { name: string; extensions: string[] }[];
+  filters?: FileDialogFilter[];
 }
 
 export interface SystemApi {
