@@ -26,13 +26,13 @@ const availableContexts = states.stateAvailableContextsInfoUI;
 const contextNames = $derived(availableContexts.data?.contextNames ?? []);
 let selectedContextName = $derived(currentContext.data?.contextName ?? '');
 
-let unsubscribers: Unsubscriber[] = [];
 onMount(() => {
-  unsubscribers.push(currentContext.subscribe());
-  unsubscribers.push(availableContexts.subscribe());
-});
-onDestroy(() => {
-  unsubscribers.forEach(u => u());
+  const currentContextUnsubscriber = currentContext.subscribe();
+  const availableContextsUnsubscriber = availableContexts.subscribe();
+  return () => {
+    currentContextUnsubscriber();
+    availableContextsUnsubscriber();
+  }
 });
 
 async function handleContextChange(value: unknown): Promise<void> {
