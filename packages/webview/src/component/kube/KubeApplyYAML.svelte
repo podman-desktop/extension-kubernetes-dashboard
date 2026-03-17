@@ -176,8 +176,8 @@ function goBack(): void {
             {#snippet custom()}
               <div
                 class="pl-2"
-                class:text-[var(--pd-content-card-text)]={userChoice === 'custom'}
-                class:text-[var(--pd-input-field-disabled-text)]={userChoice !== 'custom'}>
+                class:text-(--pd-content-card-text)={userChoice === 'custom'}
+                class:text-(--pd-input-field-disabled-text)={userChoice !== 'custom'}>
                 Create custom YAML from scratch
               </div>
             {/snippet}
@@ -188,14 +188,14 @@ function goBack(): void {
                 class="border-2 rounded-md p-5 cursor-pointer bg-(--pd-content-card-inset-bg)"
                 aria-label={label}
                 aria-pressed={userChoice === option ? 'true' : 'false'}
-                class:border-[var(--pd-content-card-border-selected)]={userChoice === option}
-                class:border-[var(--pd-content-card-border)]={userChoice !== option}
+                class:border-(--pd-content-card-border-selected)={userChoice === option}
+                class:border-(--pd-content-card-border)={userChoice !== option}
                 onclick={toggle.bind(undefined, option)}>
                 <div class="flex flex-row align-middle items-center">
                   <div
                     class="text-2xl pr-2"
-                    class:text-[var(--pd-content-card-border-selected)]={userChoice === option}
-                    class:text-[var(--pd-content-card-border)]={userChoice !== option}>
+                    class:text-(--pd-content-card-border-selected)={userChoice === option}
+                    class:text-(--pd-content-card-border)={userChoice !== option}>
                     <Icon icon={faCircleCheck} />
                   </div>
                   {@render content()}
