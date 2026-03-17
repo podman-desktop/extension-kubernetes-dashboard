@@ -41,25 +41,15 @@ export class SystemApiImpl implements SystemApi {
   }
 
   async openFileDialog(options?: OpenFileDialogOptions): Promise<string[] | undefined> {
-    try {
-      const result = await podmanDesktopApi.window.showOpenDialog({
-        title: options?.title,
-        selectors: ['openFile'],
-        filters: options?.filters,
-      });
-      return result?.map(uri => uri.fsPath);
-    } catch (error: unknown) {
-      const detail = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to open file dialog: ${detail}`);
-    }
+    const result = await podmanDesktopApi.window.showOpenDialog({
+      title: options?.title,
+      selectors: ['openFile'],
+      filters: options?.filters,
+    });
+    return result?.map(uri => uri.fsPath);
   }
 
   async readTextFile(filePath: string): Promise<string> {
-    try {
-      return await fs.readFile(filePath, 'utf-8');
-    } catch (error: unknown) {
-      const detail = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to read file '${filePath}': ${detail}`);
-    }
+    return fs.readFile(filePath, 'utf-8');
   }
 }
