@@ -17,7 +17,12 @@ type UsersChoice = 'file' | 'custom';
 function extractErrorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
   if (typeof err === 'string') return err;
-  if (typeof err === 'object' && err !== null && 'message' in err && typeof (err as Record<string, unknown>).message === 'string') {
+  if (
+    typeof err === 'object' &&
+    err !== null &&
+    'message' in err &&
+    typeof (err as Record<string, unknown>).message === 'string'
+  ) {
     return (err as Record<string, unknown>).message as string;
   }
   return 'Unknown error';
