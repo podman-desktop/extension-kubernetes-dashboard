@@ -31,7 +31,7 @@ onMount(() => {
   return () => {
     currentContextUnsubscriber();
     availableContextsUnsubscriber();
-  }
+  };
 });
 
 async function handleContextChange(value: unknown): Promise<void> {
