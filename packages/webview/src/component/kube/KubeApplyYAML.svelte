@@ -136,132 +136,132 @@ function goBack(): void {
   {#snippet content()}
     <div class="p-5 min-w-full h-full">
       <div class="bg-(--pd-content-card-bg) p-6 space-y-2 lg:p-8 rounded-lg">
+        <div class="space-y-6">
+          <label for="kubeContexts" class="block mb-2 text-base font-bold text-(--pd-content-card-header-text)"
+            >Context</label>
 
-  <div class="space-y-6">
-    <label for="kubeContexts" class="block mb-2 text-base font-bold text-(--pd-content-card-header-text)"
-      >Context</label>
-
-    <div class="flex flex-col">
-      <div
-        class="border-2 rounded-md p-5 cursor-pointer bg-(--pd-content-card-inset-bg) border-(--pd-content-card-border)">
-        <Dropdown
-          id="kubeContexts"
-          name="kubeContexts"
-          value={selectedContextName}
-          onChange={handleContextChange}
-          options={contextNames.map(name => ({
-            label: name,
-            value: name,
-          }))} />
-      </div>
-    </div>
-
-    <label for="containerFilePath" class="block mb-2 text-base font-bold text-(--pd-content-card-header-text)"
-      >YAML file</label>
-
-    <div class="flex flex-col">
-      {#snippet file()}
-        <div class="flex flex-row grow space-x-1.5">
-          <Input
-            name="containerFilePath"
-            id="containerFilePath"
-            readonly
-            required
-            bind:value={kubernetesYamlFilePath}
-            placeholder="Select a .yaml file to apply"
-            class="w-full p-2" />
-          <Button aria-label="browse" icon={faFolderOpen} onclick={browseFile} disabled={runStarted} />
-        </div>
-      {/snippet}
-
-      {#snippet custom()}
-        <div
-          class="pl-2"
-          class:text-[var(--pd-content-card-text)]={userChoice === 'custom'}
-          class:text-[var(--pd-input-field-disabled-text)]={userChoice !== 'custom'}>
-          Create custom YAML from scratch
-        </div>
-      {/snippet}
-
-      {#snippet optionSnippet(option: 'file' | 'custom', label: string, content: Snippet)}
-        <button disabled={runStarted}
-          class="border-2 rounded-md p-5 cursor-pointer bg-(--pd-content-card-inset-bg)"
-          aria-label={label}
-          aria-pressed={userChoice === option ? 'true' : 'false'}
-          class:border-[var(--pd-content-card-border-selected)]={userChoice === option}
-          class:border-[var(--pd-content-card-border)]={userChoice !== option}
-          onclick={toggle.bind(undefined, option)}>
-          <div class="flex flex-row align-middle items-center">
+          <div class="flex flex-col">
             <div
-              class="text-2xl pr-2"
-              class:text-[var(--pd-content-card-border-selected)]={userChoice === option}
-              class:text-[var(--pd-content-card-border)]={userChoice !== option}>
-              <Icon icon={faCircleCheck} />
+              class="border-2 rounded-md p-5 cursor-pointer bg-(--pd-content-card-inset-bg) border-(--pd-content-card-border)">
+              <Dropdown
+                id="kubeContexts"
+                name="kubeContexts"
+                value={selectedContextName}
+                onChange={handleContextChange}
+                options={contextNames.map(name => ({
+                  label: name,
+                  value: name,
+                }))} />
             </div>
-            {@render content()}
           </div>
-        </button>
-      {/snippet}
-      
-      <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -->
-      {@render optionSnippet('file', '.yaml file to apply', file)}
-      <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -->
-      {@render optionSnippet('custom', 'Custom yaml to apply', custom)}
-    </div>
 
-    {#if userChoice === 'custom'}
-      <div class="space-y-3">
-        <label for="custom-yaml-editor" class="block text-base font-bold text-(--pd-content-card-header-text)">
-          Custom YAML Content
-        </label>
-        <div id="custom-yaml-editor" class="h-[400px] border">
-          <MonacoEditor
-            content={customYamlContent}
-            readOnly={runStarted}
-            language="yaml"
-            onChange={handleContentChange} />
+          <label for="containerFilePath" class="block mb-2 text-base font-bold text-(--pd-content-card-header-text)"
+            >YAML file</label>
+
+          <div class="flex flex-col">
+            {#snippet file()}
+              <div class="flex flex-row grow space-x-1.5">
+                <Input
+                  name="containerFilePath"
+                  id="containerFilePath"
+                  readonly
+                  required
+                  bind:value={kubernetesYamlFilePath}
+                  placeholder="Select a .yaml file to apply"
+                  class="w-full p-2" />
+                <Button aria-label="browse" icon={faFolderOpen} onclick={browseFile} disabled={runStarted} />
+              </div>
+            {/snippet}
+
+            {#snippet custom()}
+              <div
+                class="pl-2"
+                class:text-[var(--pd-content-card-text)]={userChoice === 'custom'}
+                class:text-[var(--pd-input-field-disabled-text)]={userChoice !== 'custom'}>
+                Create custom YAML from scratch
+              </div>
+            {/snippet}
+
+            {#snippet optionSnippet(option: 'file' | 'custom', label: string, content: Snippet)}
+              <button
+                disabled={runStarted}
+                class="border-2 rounded-md p-5 cursor-pointer bg-(--pd-content-card-inset-bg)"
+                aria-label={label}
+                aria-pressed={userChoice === option ? 'true' : 'false'}
+                class:border-[var(--pd-content-card-border-selected)]={userChoice === option}
+                class:border-[var(--pd-content-card-border)]={userChoice !== option}
+                onclick={toggle.bind(undefined, option)}>
+                <div class="flex flex-row align-middle items-center">
+                  <div
+                    class="text-2xl pr-2"
+                    class:text-[var(--pd-content-card-border-selected)]={userChoice === option}
+                    class:text-[var(--pd-content-card-border)]={userChoice !== option}>
+                    <Icon icon={faCircleCheck} />
+                  </div>
+                  {@render content()}
+                </div>
+              </button>
+            {/snippet}
+
+            <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -->
+            {@render optionSnippet('file', '.yaml file to apply', file)}
+            <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -->
+            {@render optionSnippet('custom', 'Custom yaml to apply', custom)}
+          </div>
+
+          {#if userChoice === 'custom'}
+            <div class="space-y-3">
+              <label for="custom-yaml-editor" class="block text-base font-bold text-(--pd-content-card-header-text)">
+                Custom YAML Content
+              </label>
+              <div id="custom-yaml-editor" class="h-[400px] border">
+                <MonacoEditor
+                  content={customYamlContent}
+                  readOnly={runStarted}
+                  language="yaml"
+                  onChange={handleContentChange} />
+              </div>
+            </div>
+          {/if}
+
+          {#if runStarted}
+            <div class="text-(--pd-content-card-text) text-sm">
+              Please don't leave the page while the YAML is being applied. This process may take a few minutes to
+              complete...
+            </div>
+          {/if}
+
+          {#if runWarning}
+            <div class="text-(--pd-state-warning) p-1 flex flex-row items-center text-sm">
+              <Icon icon={faTriangleExclamation} />
+              <div role="alert" aria-label="Warning Message Content" class="ml-2">{runWarning}</div>
+            </div>
+          {/if}
+
+          {#if runError}
+            <ErrorMessage class="text-sm" error={runError} />
+          {/if}
+
+          {#if applyKubeResultRaw}
+            <div class="text-(--pd-content-card-text) text-sm">{applyKubeResultRaw}</div>
+          {/if}
+
+          <div class="flex flex-row gap-4">
+            <Button class="grow" onclick={goBack} type={!runFinished || runError ? 'secondary' : 'primary'}
+              >{runFinished ? 'Done' : 'Cancel'}</Button>
+            {#if !runFinished || runError}
+              <Button
+                type="primary"
+                onclick={kubeApply}
+                disabled={hasInvalidFields || runStarted}
+                inProgress={runStarted}
+                icon={SolidKubeIcon}
+                class="grow">
+                {userChoice === 'custom' ? 'Apply Custom YAML' : 'Apply'}
+              </Button>
+            {/if}
+          </div>
         </div>
-      </div>
-    {/if}
-
-    {#if runStarted}
-      <div class="text-(--pd-content-card-text) text-sm">
-        Please don't leave the page while the YAML is being applied. This process may take a few minutes to complete...
-      </div>
-    {/if}
-
-    {#if runWarning}
-      <div
-        class="text-(--pd-state-warning) p-1 flex flex-row items-center text-sm">
-        <Icon icon={faTriangleExclamation} />
-        <div role="alert" aria-label="Warning Message Content" class="ml-2">{runWarning}</div>
-      </div>
-    {/if}
-
-    {#if runError}
-      <ErrorMessage class="text-sm" error={runError} />
-    {/if}
-
-    {#if applyKubeResultRaw}
-      <div class="text-(--pd-content-card-text) text-sm">{applyKubeResultRaw}</div>
-    {/if}
-
-    <div class="flex flex-row gap-4">
-      <Button class="grow" onclick={goBack} type={!runFinished || runError ? 'secondary' : 'primary'}>{runFinished ? 'Done' : 'Cancel'}</Button>
-      {#if !runFinished || runError}
-        <Button
-          type="primary"
-          onclick={kubeApply}
-          disabled={hasInvalidFields || runStarted}
-          inProgress={runStarted}
-          icon={SolidKubeIcon}
-          class="grow">
-          {userChoice === 'custom' ? 'Apply Custom YAML' : 'Apply'}
-        </Button>
-      {/if}
-    </div>
-  </div>
-
       </div>
     </div>
   {/snippet}
