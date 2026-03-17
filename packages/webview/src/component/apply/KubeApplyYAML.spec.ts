@@ -130,6 +130,9 @@ async function applyFileScenario(result: { kind?: string }[] | Error): Promise<R
   });
   const applyButton = page.getByRole('button', { name: 'Apply' });
   await fireEvent.click(applyButton);
+  await vi.waitFor(() => {
+    expect(applyMock).toHaveBeenCalled();
+  });
   return page;
 }
 
