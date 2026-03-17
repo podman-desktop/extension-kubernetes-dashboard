@@ -107,7 +107,7 @@ async function kubeApply(): Promise<void> {
       applyKubeResultRaw = `Successfully applied ${objects.length} resources (${resources}).`;
     }
   } catch (error) {
-    runError = 'Could not apply YAML: ' + error;
+    runError = 'Could not apply YAML: ' + (error instanceof Error ? error.message : String(error));
   } finally {
     runStarted = false;
     runFinished = true;

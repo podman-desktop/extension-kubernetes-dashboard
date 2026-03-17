@@ -181,7 +181,7 @@ test('`Apply` button sends selected file content and show error message in case 
   const error = new Error('Something went wrong.');
   const { getByText } = await applyFileScenario(error);
   await vi.waitFor(() => {
-    const errorMessage = getByText('Could not apply YAML: ' + error);
+    const errorMessage = getByText('Could not apply YAML: ' + error.message);
     expect(errorMessage).toBeVisible();
   });
 });
