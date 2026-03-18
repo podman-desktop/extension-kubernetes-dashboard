@@ -201,7 +201,7 @@ test('`Apply` button renders RPC string rejection without [object Object]', asyn
 
 test('`Apply` button shows error message when file read fails', async () => {
   vi.mocked(remoteMocks.get(API_SYSTEM).readTextFile).mockRejectedValue(
-    new Error("ENOENT: no such file or directory, open 'kube.yaml'"),
+    new Error(`ENOENT: no such file or directory, open 'kube.yaml'`),
   );
   vi.mocked(remoteMocks.get(API_CONTEXTS).createResources).mockResolvedValue([]);
   const page = render(KubeApplyYAML);

@@ -19,7 +19,7 @@ function extractErrorMessage(err: unknown): string {
   if (typeof err === 'string') return err;
   if (
     typeof err === 'object' &&
-    err !== null &&
+    !!err &&
     'message' in err &&
     typeof (err as Record<string, unknown>).message === 'string'
   ) {
