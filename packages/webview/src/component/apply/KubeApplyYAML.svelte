@@ -48,8 +48,16 @@ onMount(() => {
   };
 });
 
+let contextSwitching = $state(false);
+
 async function handleContextChange(value: unknown): Promise<void> {
-  await contextsApi.setCurrentContext(String(value));
+  const target = String(value);
+  contextSwitching = true;
+  try {
+    await contextsApi.setCurrentContext(target);
+  } finally {
+    contextSwitching = false;
+  }
 }
 
 let runStarted = $state(false);
@@ -61,7 +69,7 @@ let customYamlContent = $state('');
 let userChoice: UsersChoice = $state('file');
 
 let hasInvalidFields = $derived.by(() => {
-  if (!selectedContextName) {
+  if (contextSwitching || !selectedContextName) {
     return true;
   }
   switch (userChoice) {
@@ -159,6 +167,7 @@ function goBack(): void {
               <Dropdown
                 id="kubeContexts"
                 name="kubeContexts"
+                disabled={contextSwitching || runStarted}
                 value={selectedContextName}
                 onChange={handleContextChange}
                 options={contextNames.map(name => ({
@@ -182,7 +191,7 @@ function goBack(): void {
                   bind:value={kubernetesYamlFilePath}
                   placeholder="Select a .yaml file to apply"
                   class="w-full p-2" />
-                <Button aria-label="browse" icon={faFolderOpen} onclick={browseFile} disabled={runStarted} />
+                <Button aria-label="browse" icon={faFolderOpen} onclick={browseFile} disabled={contextSwitching || runStarted} />
               </div>
             {/snippet}
 
@@ -197,7 +206,7 @@ function goBack(): void {
 
             {#snippet optionSnippet(option: 'file' | 'custom', label: string, content: Snippet)}
               <button
-                disabled={runStarted}
+                disabled={contextSwitching || runStarted}
                 class="border-2 rounded-md p-5 cursor-pointer bg-(--pd-content-card-inset-bg)"
                 aria-label={label}
                 aria-pressed={userChoice === option ? 'true' : 'false'}
