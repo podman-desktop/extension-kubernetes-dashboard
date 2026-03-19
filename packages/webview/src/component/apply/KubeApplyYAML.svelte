@@ -50,11 +50,10 @@ onMount(() => {
 
 let contextSwitching = $state(false);
 
-async function handleContextChange(value: unknown): Promise<void> {
-  const target = String(value);
+async function handleContextChange(value: string): Promise<void> {
   contextSwitching = true;
   try {
-    await contextsApi.setCurrentContext(target);
+    await contextsApi.setCurrentContext(value);
   } finally {
     contextSwitching = false;
   }
@@ -69,7 +68,7 @@ let customYamlContent = $state('');
 let userChoice: UsersChoice = $state('file');
 
 let hasInvalidFields = $derived.by(() => {
-  if (contextSwitching || !selectedContextName) {
+  if (!selectedContextName) {
     return true;
   }
   switch (userChoice) {
@@ -97,6 +96,7 @@ function handleContentChange(content: string): void {
 }
 
 async function kubeApply(): Promise<void> {
+  if (contextSwitching) return;
   runStarted = true;
   runFinished = false;
   runError = '';
@@ -275,7 +275,7 @@ function goBack(): void {
               <Button
                 type="primary"
                 onclick={kubeApply}
-                disabled={hasInvalidFields || runStarted}
+                disabled={hasInvalidFields || contextSwitching || runStarted}
                 inProgress={runStarted}
                 icon={SolidKubeIcon}
                 class="grow">
