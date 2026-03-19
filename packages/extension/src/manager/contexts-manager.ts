@@ -853,6 +853,7 @@ export class ContextsManager implements ContextsApi {
 
   async createResources(yamlDocuments: string): Promise<{ kind?: string }[]> {
     const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
+    const defaultNamespace = this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
     if (!client) {
       throw new Error('create resources: unable to get client for current context');
     }
@@ -868,7 +869,7 @@ export class ContextsManager implements ContextsApi {
       manifest.metadata.annotations ??= {};
       delete manifest.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'];
       manifest.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(manifest);
-      manifest.metadata.namespace ??= this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
+      manifest.metadata.namespace ??= defaultNamespace;
 
       delete manifest.metadata.resourceVersion;
       delete manifest.metadata.uid;
@@ -908,6 +909,13 @@ export class ContextsManager implements ContextsApi {
         this.handleApiException(e, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
       }
     }
+  
+    const telemetryOptions: Record<string, unknown> = {
+      manifestsSize: manifests?.length,
+      kinds: manifests?.map(manifest => manifest.kind).join(','),
+    };
+    this.telemetryLogger.logUsage('apply.yaml', telemetryOptions);
+  
     return applied;
   }
 
