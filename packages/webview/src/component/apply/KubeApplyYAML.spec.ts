@@ -282,3 +282,12 @@ test('browse does nothing when dialog is cancelled', async () => {
   await fireEvent.click(screen.getByRole('button', { name: 'browse' }));
   expect(applyButton).toBeDisabled();
 });
+
+test('browse shows error message when openFileDialog rejects', async () => {
+  vi.mocked(remoteMocks.get(API_SYSTEM).openFileDialog).mockRejectedValue(new Error('dialog failed'));
+  render(KubeApplyYAML);
+  await fireEvent.click(screen.getByRole('button', { name: 'browse' }));
+  await vi.waitFor(() => {
+    expect(screen.getByText('Could not open file dialog: dialog failed')).toBeVisible();
+  });
+});

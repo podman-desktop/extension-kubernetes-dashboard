@@ -82,12 +82,16 @@ let hasInvalidFields = $derived.by(() => {
 let applyKubeResultRaw: string | undefined = $state(undefined);
 
 async function browseFile(): Promise<void> {
-  const result = await systemApi.openFileDialog({
-    title: 'Select a .yaml file to apply',
-    filters: [{ name: 'YAML files', extensions: ['yaml', 'yml'] }],
-  });
-  if (result?.length) {
-    kubernetesYamlFilePath = result[0];
+  try {
+    const result = await systemApi.openFileDialog({
+      title: 'Select a .yaml file to apply',
+      filters: [{ name: 'YAML files', extensions: ['yaml', 'yml'] }],
+    });
+    if (result?.length) {
+      kubernetesYamlFilePath = result[0];
+    }
+  } catch (error: unknown) {
+    runError = 'Could not open file dialog: ' + extractErrorMessage(error);
   }
 }
 
@@ -167,7 +171,7 @@ function goBack(): void {
               <Dropdown
                 id="kubeContexts"
                 name="kubeContexts"
-                disabled={contextSwitching || runStarted}
+                disabled={runStarted}
                 value={selectedContextName}
                 onChange={handleContextChange}
                 options={contextNames.map(name => ({
@@ -191,7 +195,7 @@ function goBack(): void {
                   bind:value={kubernetesYamlFilePath}
                   placeholder="Select a .yaml file to apply"
                   class="w-full p-2" />
-                <Button aria-label="browse" icon={faFolderOpen} onclick={browseFile} disabled={contextSwitching || runStarted} />
+                <Button aria-label="browse" icon={faFolderOpen} onclick={browseFile} disabled={runStarted} />
               </div>
             {/snippet}
 
@@ -206,7 +210,7 @@ function goBack(): void {
 
             {#snippet optionSnippet(option: 'file' | 'custom', label: string, content: Snippet)}
               <button
-                disabled={contextSwitching || runStarted}
+                disabled={runStarted}
                 class="border-2 rounded-md p-5 cursor-pointer bg-(--pd-content-card-inset-bg)"
                 aria-label={label}
                 aria-pressed={userChoice === option ? 'true' : 'false'}
