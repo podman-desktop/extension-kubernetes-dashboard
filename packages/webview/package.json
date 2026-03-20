@@ -50,7 +50,7 @@
     "@xterm/addon-serialize": "^0.14.0",
     "@xterm/xterm": "^6.0.0",
     "humanize-duration": "^3.33.0",
-    "jsdom": "^29.0.0",
+    "jsdom": "^29.0.1",
     "micromark": "^4.0.2",
     "monaco-editor": "^0.55.1",
     "prettier": "^3.8.1",
