@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
  ***********************************************************************/
 
 import { injectable } from 'inversify';
-import type { SystemApi } from '@kubernetes-dashboard/channels';
+import type { SystemApi, OpenFileDialogOptions } from '@kubernetes-dashboard/channels';
 import * as podmanDesktopApi from '@podman-desktop/api';
 import * as os from 'node:os';
+import * as fs from 'node:fs/promises';
 
 @injectable()
 export class SystemApiImpl implements SystemApi {
@@ -37,5 +38,18 @@ export class SystemApiImpl implements SystemApi {
 
   async getPlatformName(): Promise<string> {
     return os.platform();
+  }
+
+  async openFileDialog(options?: OpenFileDialogOptions): Promise<string[] | undefined> {
+    const result = await podmanDesktopApi.window.showOpenDialog({
+      title: options?.title,
+      selectors: ['openFile'],
+      filters: options?.filters,
+    });
+    return result?.map(uri => uri.fsPath);
+  }
+
+  async readTextFile(filePath: string): Promise<string> {
+    return fs.readFile(filePath, 'utf-8');
   }
 }

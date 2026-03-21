@@ -561,7 +561,6 @@ export class ContextsManager implements ContextsApi {
     if (this.isV1Status(result)) {
       this.handleStatus(result, actionMsg);
     }
-    // Ignore if result is a KubernetesObject
   }
 
   private handleApiException(error: unknown, actionMsg: string): void {
@@ -849,6 +848,78 @@ export class ContextsManager implements ContextsApi {
       kinds: manifests?.map(manifest => manifest.kind).join(','),
     };
     this.telemetryLogger.logUsage('apply.resources', telemetryOptions);
+  }
+
+  async applyYaml(yamlDocuments: string): Promise<{ kind?: string }[]> {
+    const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
+    const defaultNamespace = this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
+    if (!client) {
+      throw new Error('apply yaml: unable to get client for current context');
+    }
+    const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
+    if (manifests.filter(s => s?.kind).length === 0) {
+      throw new Error('No valid Kubernetes resources found');
+    }
+
+    const applied: { kind?: string }[] = [];
+    const existing: KubernetesObject[] = [];
+    for (const manifest of manifests) {
+      manifest.metadata ??= {};
+      manifest.metadata.annotations ??= {};
+      delete manifest.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'];
+      manifest.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(manifest);
+      manifest.metadata.namespace ??= defaultNamespace;
+
+      delete manifest.metadata.resourceVersion;
+      delete manifest.metadata.uid;
+      delete manifest.metadata.selfLink;
+      delete manifest.metadata.creationTimestamp;
+      delete manifest.metadata.managedFields;
+      delete (manifest as Record<string, unknown>).status;
+
+      try {
+        const result = await client.create(manifest);
+        this.handleResult(result, `create of ${manifest.kind} ${manifest.metadata?.name}`);
+        if (!this.isV1Status(result)) {
+          applied.push({ kind: manifest.kind });
+        }
+      } catch (e: unknown) {
+        // HTTP 409 Conflict means the resource already exists and will be patched by applyResources.
+        // https://kubernetes.io/docs/reference/using-api/api-concepts/#conflicts
+        if (e instanceof ApiException && e.code === 409) {
+          existing.push(manifest);
+          continue;
+        }
+        this.handleApiException(e, `create of ${manifest.kind} ${manifest.metadata?.name}`);
+      }
+    }
+
+    for (const manifest of existing) {
+      try {
+        const result = await client.patch(
+          manifest,
+          undefined, // pretty
+          undefined, // dryRun
+          FIELD_MANAGER,
+          undefined, // force
+          PatchStrategy.StrategicMergePatch,
+        );
+        this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
+        if (!this.isV1Status(result)) {
+          applied.push({ kind: manifest.kind });
+        }
+      } catch (e: unknown) {
+        this.handleApiException(e, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
+      }
+    }
+
+    const telemetryOptions: Record<string, unknown> = {
+      manifestsSize: manifests?.length,
+      kinds: manifests?.map(manifest => manifest.kind).join(','),
+    };
+    this.telemetryLogger.logUsage('apply.yaml', telemetryOptions);
+
+    return applied;
   }
 
   convertYamlFrom11to12(yamlDocuments: string): string {

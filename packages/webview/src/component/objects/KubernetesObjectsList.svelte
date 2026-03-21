@@ -15,6 +15,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Remote } from '/@/remote/remote';
 import { API_CONTEXTS, API_TELEMETRY } from '@kubernetes-dashboard/channels';
 import NamespaceDropdown from './NamespaceDropdown.svelte';
+import KubeApplyYAMLButton from '/@/component/apply/KubeApplyYAMLButton.svelte';
 
 export interface Kind {
   resource: string;
@@ -111,6 +112,10 @@ function waitThrottleDelay(): Promise<void> {
 </script>
 
 <NavPage bind:searchTerm={searchTerm} title={plural}>
+  {#snippet additionalActions()}
+    <KubeApplyYAMLButton />
+  {/snippet}
+
   {#snippet bottomAdditionalActions()}
     {#if selectedItemsNumber > 0}
       <Button on:click={deleteSelectedObjects} title="Delete {selectedItemsNumber} selected items" icon={faTrash} />
