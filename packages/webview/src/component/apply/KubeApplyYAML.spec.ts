@@ -51,7 +51,7 @@ beforeEach(() => {
 
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
-    createResources: vi.fn(),
+    applyYaml: vi.fn(),
     setCurrentContext: vi.fn(),
   } as unknown as ContextsApi);
   remoteMocks.mock(API_SYSTEM, {
@@ -116,7 +116,7 @@ test(`'Apply Custom YAML' button gets enabled when custom YAML editor content ch
 });
 
 async function applyFileScenario(result: { kind?: string }[] | Error): Promise<RenderResult<typeof KubeApplyYAML>> {
-  const applyMock = vi.mocked(remoteMocks.get(API_CONTEXTS).createResources);
+  const applyMock = vi.mocked(remoteMocks.get(API_CONTEXTS).applyYaml);
   if (result instanceof Error) {
     applyMock.mockRejectedValue(result);
   } else {
@@ -171,10 +171,10 @@ test('`Apply` button sends selected file content for multiple unknown resources 
   });
 });
 
-test('`Apply` button reads file content and calls createResources', async () => {
+test('`Apply` button reads file content and calls applyYaml', async () => {
   await applyFileScenario([{ kind: 'Pod' }]);
   expect(remoteMocks.get(API_SYSTEM).readTextFile).toHaveBeenCalledWith('kube.yaml');
-  expect(remoteMocks.get(API_CONTEXTS).createResources).toHaveBeenCalledWith('apiVersion: v1\nkind: Pod');
+  expect(remoteMocks.get(API_CONTEXTS).applyYaml).toHaveBeenCalledWith('apiVersion: v1\nkind: Pod');
 });
 
 test('`Apply` button sends selected file content and show error message in case of error', async () => {
@@ -187,7 +187,7 @@ test('`Apply` button sends selected file content and show error message in case 
 });
 
 test('`Apply` button renders RPC string rejection without [object Object]', async () => {
-  vi.mocked(remoteMocks.get(API_CONTEXTS).createResources).mockRejectedValue('No valid Kubernetes resources found');
+  vi.mocked(remoteMocks.get(API_CONTEXTS).applyYaml).mockRejectedValue('No valid Kubernetes resources found');
   const page = render(KubeApplyYAML);
   await fireEvent.click(page.getByRole('button', { name: 'browse' }));
   await vi.waitFor(() => {
@@ -203,7 +203,7 @@ test('`Apply` button shows error message when file read fails', async () => {
   vi.mocked(remoteMocks.get(API_SYSTEM).readTextFile).mockRejectedValue(
     new Error(`ENOENT: no such file or directory, open 'kube.yaml'`),
   );
-  vi.mocked(remoteMocks.get(API_CONTEXTS).createResources).mockResolvedValue([]);
+  vi.mocked(remoteMocks.get(API_CONTEXTS).applyYaml).mockResolvedValue([]);
   const page = render(KubeApplyYAML);
   await fireEvent.click(page.getByRole('button', { name: 'browse' }));
   await vi.waitFor(() => {
@@ -214,11 +214,11 @@ test('`Apply` button shows error message when file read fails', async () => {
     expect(page.getByText(/Could not apply YAML/)).toBeVisible();
     expect(page.getByText(/ENOENT/)).toBeVisible();
   });
-  expect(remoteMocks.get(API_CONTEXTS).createResources).not.toHaveBeenCalled();
+  expect(remoteMocks.get(API_CONTEXTS).applyYaml).not.toHaveBeenCalled();
 });
 
-test('`Apply custom YAML` sends custom YAML content to createResources', async () => {
-  vi.mocked(remoteMocks.get(API_CONTEXTS).createResources).mockResolvedValue([{ kind: 'Pod' }]);
+test('`Apply custom YAML` sends custom YAML content to applyYaml', async () => {
+  vi.mocked(remoteMocks.get(API_CONTEXTS).applyYaml).mockResolvedValue([{ kind: 'Pod' }]);
   const { getByRole } = render(KubeApplyYAML);
   const option = getByRole('button', { name: 'Custom yaml to apply' });
   await fireEvent.click(option);
@@ -227,13 +227,13 @@ test('`Apply custom YAML` sends custom YAML content to createResources', async (
   const button = getByRole('button', { name: 'Apply Custom YAML' });
   await fireEvent.click(button);
   await vi.waitFor(() => {
-    expect(remoteMocks.get(API_CONTEXTS).createResources).toHaveBeenCalledWith('apiVersion: v1\nkind: Pod');
+    expect(remoteMocks.get(API_CONTEXTS).applyYaml).toHaveBeenCalledWith('apiVersion: v1\nkind: Pod');
   });
   expect(remoteMocks.get(API_SYSTEM).readTextFile).not.toHaveBeenCalled();
 });
 
 test('`Apply custom YAML` shows error message after failed execution', async () => {
-  vi.mocked(remoteMocks.get(API_CONTEXTS).createResources).mockRejectedValue(new Error('Failed to apply resources.'));
+  vi.mocked(remoteMocks.get(API_CONTEXTS).applyYaml).mockRejectedValue(new Error('Failed to apply resources.'));
   const { getByRole, getByText } = render(KubeApplyYAML);
   const option = getByRole('button', { name: 'Custom yaml to apply' });
   await fireEvent.click(option);

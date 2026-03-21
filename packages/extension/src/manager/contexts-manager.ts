@@ -561,7 +561,6 @@ export class ContextsManager implements ContextsApi {
     if (this.isV1Status(result)) {
       this.handleStatus(result, actionMsg);
     }
-    // Ignore if result is a KubernetesObject
   }
 
   private handleApiException(error: unknown, actionMsg: string): void {
@@ -851,11 +850,11 @@ export class ContextsManager implements ContextsApi {
     this.telemetryLogger.logUsage('apply.resources', telemetryOptions);
   }
 
-  async createResources(yamlDocuments: string): Promise<{ kind?: string }[]> {
+  async applyYaml(yamlDocuments: string): Promise<{ kind?: string }[]> {
     const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
     const defaultNamespace = this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
     if (!client) {
-      throw new Error('create resources: unable to get client for current context');
+      throw new Error('apply yaml: unable to get client for current context');
     }
     const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
     if (manifests.filter(s => s?.kind).length === 0) {
@@ -881,7 +880,9 @@ export class ContextsManager implements ContextsApi {
       try {
         const result = await client.create(manifest);
         this.handleResult(result, `create of ${manifest.kind} ${manifest.metadata?.name}`);
-        applied.push({ kind: manifest.kind });
+        if (!this.isV1Status(result)) {
+          applied.push({ kind: manifest.kind });
+        }
       } catch (e: unknown) {
         // HTTP 409 Conflict means the resource already exists and will be patched by applyResources.
         // https://kubernetes.io/docs/reference/using-api/api-concepts/#conflicts
@@ -904,18 +905,20 @@ export class ContextsManager implements ContextsApi {
           PatchStrategy.StrategicMergePatch,
         );
         this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
-        applied.push({ kind: manifest.kind });
+        if (!this.isV1Status(result)) {
+          applied.push({ kind: manifest.kind });
+        }
       } catch (e: unknown) {
         this.handleApiException(e, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
       }
     }
-  
+
     const telemetryOptions: Record<string, unknown> = {
       manifestsSize: manifests?.length,
       kinds: manifests?.map(manifest => manifest.kind).join(','),
     };
     this.telemetryLogger.logUsage('apply.yaml', telemetryOptions);
-  
+
     return applied;
   }
 
