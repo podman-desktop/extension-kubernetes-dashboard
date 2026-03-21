@@ -114,7 +114,7 @@ async function kubeApply(): Promise<void> {
     } else {
       content = await systemApi.readTextFile(kubernetesYamlFilePath);
     }
-    const objects = await contextsApi.createResources(content);
+    const objects = await contextsApi.applyYaml(content);
     if (objects.length === 0) {
       runWarning = 'No resource(s) were applied.';
     } else if (objects.length === 1) {

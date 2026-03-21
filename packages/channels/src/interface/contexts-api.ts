@@ -30,5 +30,5 @@ export interface ContextsApi {
   setCurrentNamespace(namespace: string): Promise<void>;
   restartObject(kind: string, name: string, namespace: string): Promise<void>;
   applyResources(yamlDocuments: string): Promise<void>;
-  createResources(yamlDocuments: string): Promise<AppliedResource[]>;
+  applyYaml(yamlDocuments: string): Promise<AppliedResource[]>;
 }
