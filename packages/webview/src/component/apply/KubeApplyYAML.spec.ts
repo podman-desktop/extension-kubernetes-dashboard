@@ -214,7 +214,6 @@ test('`Apply` button renders RPC string rejection without [object Object]', asyn
   });
 });
 
-
 test('`Apply custom YAML` sends custom YAML content to applyYaml', async () => {
   vi.mocked(remoteMocks.get(API_CONTEXTS).applyYaml).mockResolvedValue([{ kind: 'Pod' }]);
   const { getByRole } = render(KubeApplyYAML);

@@ -11,7 +11,12 @@ import SolidKubeIcon from './SolidKubeIcon.svelte';
 import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import { Remote } from '/@/remote/remote';
 import { States } from '/@/state/states';
-import { API_CONTEXTS, API_OPEN_DIALOG, OPEN_DIALOG_RESULTS, type OpenDialogResult } from '@kubernetes-dashboard/channels';
+import {
+  API_CONTEXTS,
+  API_OPEN_DIALOG,
+  OPEN_DIALOG_RESULTS,
+  type OpenDialogResult,
+} from '@kubernetes-dashboard/channels';
 
 type UsersChoice = 'file' | 'custom';
 

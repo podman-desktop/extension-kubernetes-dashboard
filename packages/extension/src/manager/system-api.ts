@@ -38,5 +38,4 @@ export class SystemApiImpl implements SystemApi {
   async getPlatformName(): Promise<string> {
     return os.platform();
   }
-
 }
