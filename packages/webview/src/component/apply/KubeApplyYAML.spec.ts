@@ -23,13 +23,15 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import KubeApplyYAML from './KubeApplyYAML.svelte';
 import { RemoteMocks } from '/@/tests/remote-mocks';
+import { RpcBrowserMocks } from '/@/tests/rpc-browser-mocks';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import {
   API_CONTEXTS,
-  API_SYSTEM,
+  API_OPEN_DIALOG,
+  OPEN_DIALOG_RESULTS,
   type ContextsApi,
-  type SystemApi,
+  type OpenDialogApi,
   type CurrentContextInfo,
   type AvailableContextsInfo,
 } from '@kubernetes-dashboard/channels';
@@ -42,6 +44,7 @@ vi.mock(import('/@/component/editor/MonacoEditor.svelte'), async () => ({
 }));
 
 const remoteMocks = new RemoteMocks();
+const rpcBrowserMocks = new RpcBrowserMocks();
 const statesMocks = new StatesMocks();
 let currentContextMock: FakeStateObject<CurrentContextInfo, void>;
 let availableContextsMock: FakeStateObject<AvailableContextsInfo, void>;
@@ -50,14 +53,15 @@ beforeEach(() => {
   vi.resetAllMocks();
 
   remoteMocks.reset();
+  rpcBrowserMocks.reset();
+
   remoteMocks.mock(API_CONTEXTS, {
     applyYaml: vi.fn(),
     setCurrentContext: vi.fn(),
   } as unknown as ContextsApi);
-  remoteMocks.mock(API_SYSTEM, {
-    openFileDialog: vi.fn().mockResolvedValue(['kube.yaml']),
-    readTextFile: vi.fn().mockResolvedValue('apiVersion: v1\nkind: Pod'),
-  } as unknown as SystemApi);
+  remoteMocks.mock(API_OPEN_DIALOG, {
+    openDialog: vi.fn(),
+  } as unknown as OpenDialogApi);
 
   currentContextMock = new FakeStateObject<CurrentContextInfo, void>();
   availableContextsMock = new FakeStateObject<AvailableContextsInfo, void>();
@@ -86,8 +90,12 @@ test(`'Cancel' button is visible and enabled after page is opened`, async () => 
 test(`'Apply' button gets enabled after yaml file is selected`, async () => {
   const { getByRole } = render(KubeApplyYAML);
   const applyButton = getByRole('button', { name: 'Apply' });
-  const browseButton = getByRole('button', { name: 'browse' });
-  await fireEvent.click(browseButton);
+  await fireEvent.click(getByRole('button', { name: 'browse' }));
+  rpcBrowserMocks.fire(OPEN_DIALOG_RESULTS, {
+    id: 'apply-yaml',
+    files: ['/path/to/kube.yaml'],
+    content: 'apiVersion: v1\nkind: Pod',
+  });
   await vi.waitFor(() => {
     expect(applyButton).toBeEnabled();
   });
@@ -123,13 +131,16 @@ async function applyFileScenario(result: { kind?: string }[] | Error): Promise<R
     applyMock.mockResolvedValue(result);
   }
   const page = render(KubeApplyYAML);
-  const browseButton = page.getByRole('button', { name: 'browse' });
-  await fireEvent.click(browseButton);
+  await fireEvent.click(page.getByRole('button', { name: 'browse' }));
+  rpcBrowserMocks.fire(OPEN_DIALOG_RESULTS, {
+    id: 'apply-yaml',
+    files: ['/path/to/kube.yaml'],
+    content: 'apiVersion: v1\nkind: Pod',
+  });
   await vi.waitFor(() => {
     expect(page.getByRole('button', { name: 'Apply' })).toBeEnabled();
   });
-  const applyButton = page.getByRole('button', { name: 'Apply' });
-  await fireEvent.click(applyButton);
+  await fireEvent.click(page.getByRole('button', { name: 'Apply' }));
   await vi.waitFor(() => {
     expect(applyMock).toHaveBeenCalled();
   });
@@ -171,9 +182,8 @@ test('`Apply` button sends selected file content for multiple unknown resources 
   });
 });
 
-test('`Apply` button reads file content and calls applyYaml', async () => {
+test('`Apply` button sends dialog content to applyYaml', async () => {
   await applyFileScenario([{ kind: 'Pod' }]);
-  expect(remoteMocks.get(API_SYSTEM).readTextFile).toHaveBeenCalledWith('kube.yaml');
   expect(remoteMocks.get(API_CONTEXTS).applyYaml).toHaveBeenCalledWith('apiVersion: v1\nkind: Pod');
 });
 
@@ -190,6 +200,11 @@ test('`Apply` button renders RPC string rejection without [object Object]', asyn
   vi.mocked(remoteMocks.get(API_CONTEXTS).applyYaml).mockRejectedValue('No valid Kubernetes resources found');
   const page = render(KubeApplyYAML);
   await fireEvent.click(page.getByRole('button', { name: 'browse' }));
+  rpcBrowserMocks.fire(OPEN_DIALOG_RESULTS, {
+    id: 'apply-yaml',
+    files: ['/path/to/kube.yaml'],
+    content: 'apiVersion: v1\nkind: Pod',
+  });
   await vi.waitFor(() => {
     expect(page.getByRole('button', { name: 'Apply' })).toBeEnabled();
   });
@@ -199,23 +214,6 @@ test('`Apply` button renders RPC string rejection without [object Object]', asyn
   });
 });
 
-test('`Apply` button shows error message when file read fails', async () => {
-  vi.mocked(remoteMocks.get(API_SYSTEM).readTextFile).mockRejectedValue(
-    new Error(`ENOENT: no such file or directory, open 'kube.yaml'`),
-  );
-  vi.mocked(remoteMocks.get(API_CONTEXTS).applyYaml).mockResolvedValue([]);
-  const page = render(KubeApplyYAML);
-  await fireEvent.click(page.getByRole('button', { name: 'browse' }));
-  await vi.waitFor(() => {
-    expect(page.getByRole('button', { name: 'Apply' })).toBeEnabled();
-  });
-  await fireEvent.click(page.getByRole('button', { name: 'Apply' }));
-  await vi.waitFor(() => {
-    expect(page.getByText(/Could not apply YAML/)).toBeVisible();
-    expect(page.getByText(/ENOENT/)).toBeVisible();
-  });
-  expect(remoteMocks.get(API_CONTEXTS).applyYaml).not.toHaveBeenCalled();
-});
 
 test('`Apply custom YAML` sends custom YAML content to applyYaml', async () => {
   vi.mocked(remoteMocks.get(API_CONTEXTS).applyYaml).mockResolvedValue([{ kind: 'Pod' }]);
@@ -229,7 +227,7 @@ test('`Apply custom YAML` sends custom YAML content to applyYaml', async () => {
   await vi.waitFor(() => {
     expect(remoteMocks.get(API_CONTEXTS).applyYaml).toHaveBeenCalledWith('apiVersion: v1\nkind: Pod');
   });
-  expect(remoteMocks.get(API_SYSTEM).readTextFile).not.toHaveBeenCalled();
+  expect(remoteMocks.get(API_OPEN_DIALOG).openDialog).not.toHaveBeenCalled();
 });
 
 test('`Apply custom YAML` shows error message after failed execution', async () => {
@@ -268,26 +266,36 @@ test(`'Apply' button stays disabled when no Kubernetes context is available`, as
   currentContextMock.setData({ contextName: undefined, namespace: undefined });
   availableContextsMock.setData({ contextNames: [] });
   const { getByRole } = render(KubeApplyYAML);
-  const browseButton = getByRole('button', { name: 'browse' });
-  await fireEvent.click(browseButton);
+  await fireEvent.click(getByRole('button', { name: 'browse' }));
+  rpcBrowserMocks.fire(OPEN_DIALOG_RESULTS, {
+    id: 'apply-yaml',
+    files: ['/path/to/kube.yaml'],
+    content: 'apiVersion: v1\nkind: Pod',
+  });
   await vi.waitFor(() => {
     expect(getByRole('button', { name: 'Apply' })).toBeDisabled();
   });
 });
 
 test('browse does nothing when dialog is cancelled', async () => {
-  vi.mocked(remoteMocks.get(API_SYSTEM).openFileDialog).mockResolvedValue(undefined);
   render(KubeApplyYAML);
   const applyButton = screen.getByRole('button', { name: 'Apply' });
   await fireEvent.click(screen.getByRole('button', { name: 'browse' }));
-  expect(applyButton).toBeDisabled();
+  rpcBrowserMocks.fire(OPEN_DIALOG_RESULTS, { id: 'apply-yaml', files: undefined });
+  await vi.waitFor(() => {
+    expect(applyButton).toBeDisabled();
+  });
 });
 
-test('browse shows error message when openFileDialog rejects', async () => {
-  vi.mocked(remoteMocks.get(API_SYSTEM).openFileDialog).mockRejectedValue(new Error('dialog failed'));
+test('dialog result for different id is ignored', async () => {
   render(KubeApplyYAML);
-  await fireEvent.click(screen.getByRole('button', { name: 'browse' }));
+  const applyButton = screen.getByRole('button', { name: 'Apply' });
+  rpcBrowserMocks.fire(OPEN_DIALOG_RESULTS, {
+    id: 'different-dialog',
+    files: ['/path/to/kube.yaml'],
+    content: 'apiVersion: v1\nkind: Pod',
+  });
   await vi.waitFor(() => {
-    expect(screen.getByText('Could not open file dialog: dialog failed')).toBeVisible();
+    expect(applyButton).toBeDisabled();
   });
 });

@@ -588,6 +588,10 @@ export class ContextsManager implements ContextsApi {
     }
   }
 
+  private isConflict(error: unknown): boolean {
+    return error instanceof ApiException && error.code === 409;
+  }
+
   private isV1Status(status: unknown): status is V1Status {
     return (
       !!status &&
@@ -886,7 +890,7 @@ export class ContextsManager implements ContextsApi {
       } catch (e: unknown) {
         // HTTP 409 Conflict means the resource already exists and will be patched by applyResources.
         // https://kubernetes.io/docs/reference/using-api/api-concepts/#conflicts
-        if (e instanceof ApiException && e.code === 409) {
+        if (this.isConflict(e)) {
           existing.push(manifest);
           continue;
         }

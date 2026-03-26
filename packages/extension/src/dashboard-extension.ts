@@ -37,12 +37,14 @@ import {
   API_SUBSCRIBE,
   API_SYSTEM,
   API_TELEMETRY,
+  API_OPEN_DIALOG,
   CONTEXTS_HEALTHS,
   CONTEXTS_PERMISSIONS,
   IDisposable,
   RESOURCES_COUNT,
 } from '@kubernetes-dashboard/channels';
 import { SystemApiImpl } from './manager/system-api';
+import { OpenDialogApiImpl } from './manager/open-dialog-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
 import { PortForwardServiceProvider } from './port-forward/port-forward-service';
 import { PodLogsApiImpl } from './manager/pod-logs-api-impl';
@@ -70,6 +72,7 @@ export class DashboardExtension {
   #contextsManager: ContextsManager;
   #contextsStatesDispatcher: ContextsStatesDispatcher;
   #systemApiImpl: SystemApiImpl;
+  #openDialogApiImpl: OpenDialogApiImpl;
   #portForwardApiImpl: PortForwardApiImpl;
   #portForwardServiceProvider: PortForwardServiceProvider;
   #podLogsApiImpl: PodLogsApiImpl;
@@ -100,6 +103,7 @@ export class DashboardExtension {
     this.#contextsManager = await this.#container.getAsync(ContextsManager);
     this.#contextsStatesDispatcher = await this.#container.getAsync(ContextsStatesDispatcher);
     this.#systemApiImpl = await this.#container.getAsync(SystemApiImpl);
+    this.#openDialogApiImpl = await this.#container.getAsync(OpenDialogApiImpl);
     this.#portForwardApiImpl = await this.#container.getAsync(PortForwardApiImpl);
     this.#portForwardServiceProvider = await this.#container.getAsync(PortForwardServiceProvider);
     this.#podLogsApiImpl = await this.#container.getAsync(PodLogsApiImpl);
@@ -123,6 +127,7 @@ export class DashboardExtension {
     rpcExtension.registerInstance(API_POD_TERMINALS, this.#podTerminalsApiImpl);
     rpcExtension.registerInstance(API_NAVIGATION, this.#navigationApiImpl);
     rpcExtension.registerInstance(API_TELEMETRY, this.#telemetryApiImpl);
+    rpcExtension.registerInstance(API_OPEN_DIALOG, this.#openDialogApiImpl);
 
     await this.listenMonitoring();
     await this.startMonitoring();

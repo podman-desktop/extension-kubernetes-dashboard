@@ -17,10 +17,9 @@
  ***********************************************************************/
 
 import { injectable } from 'inversify';
-import type { SystemApi, OpenFileDialogOptions } from '@kubernetes-dashboard/channels';
+import type { SystemApi } from '@kubernetes-dashboard/channels';
 import * as podmanDesktopApi from '@podman-desktop/api';
 import * as os from 'node:os';
-import * as fs from 'node:fs/promises';
 
 @injectable()
 export class SystemApiImpl implements SystemApi {
@@ -40,16 +39,4 @@ export class SystemApiImpl implements SystemApi {
     return os.platform();
   }
 
-  async openFileDialog(options?: OpenFileDialogOptions): Promise<string[] | undefined> {
-    const result = await podmanDesktopApi.window.showOpenDialog({
-      title: options?.title,
-      selectors: ['openFile'],
-      filters: options?.filters,
-    });
-    return result?.map(uri => uri.fsPath);
-  }
-
-  async readTextFile(filePath: string): Promise<string> {
-    return fs.readFile(filePath, 'utf-8');
-  }
 }

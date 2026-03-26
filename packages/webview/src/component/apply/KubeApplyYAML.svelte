@@ -8,9 +8,10 @@ import { router } from 'tinro';
 import MonacoEditor from '/@/component/editor/MonacoEditor.svelte';
 import KubeIcon from '/@/component/icons/KubeIcon.svelte';
 import SolidKubeIcon from './SolidKubeIcon.svelte';
+import { RpcBrowser } from '@kubernetes-dashboard/rpc';
 import { Remote } from '/@/remote/remote';
 import { States } from '/@/state/states';
-import { API_CONTEXTS, API_SYSTEM } from '@kubernetes-dashboard/channels';
+import { API_CONTEXTS, API_OPEN_DIALOG, OPEN_DIALOG_RESULTS, type OpenDialogResult } from '@kubernetes-dashboard/channels';
 
 type UsersChoice = 'file' | 'custom';
 
@@ -28,9 +29,12 @@ function extractErrorMessage(err: unknown): string {
   return 'Unknown error';
 }
 
+const DIALOG_ID = 'apply-yaml';
+
 const remote = getContext<Remote>(Remote);
+const rpcBrowser = getContext<RpcBrowser>(RpcBrowser);
 const contextsApi = remote.getProxy(API_CONTEXTS);
-const systemApi = remote.getProxy(API_SYSTEM);
+const openDialogApi = remote.getProxy(API_OPEN_DIALOG);
 
 const states = getContext<States>(States);
 const currentContext = states.stateCurrentContextInfoUI;
@@ -39,12 +43,22 @@ const availableContexts = states.stateAvailableContextsInfoUI;
 const contextNames = $derived(availableContexts.data?.contextNames ?? []);
 let selectedContextName = $derived(currentContext.data?.contextName ?? '');
 
+function handleDialogResult(result: OpenDialogResult): void {
+  if (result.id !== DIALOG_ID) return;
+  if (result.files?.length) {
+    selectedFileName = result.files[0];
+    fileYamlContent = result.content ?? '';
+  }
+}
+
 onMount(() => {
   const currentContextUnsubscriber = currentContext.subscribe();
   const availableContextsUnsubscriber = availableContexts.subscribe();
+  const dialogDisposable = rpcBrowser.on(OPEN_DIALOG_RESULTS, handleDialogResult);
   return (): void => {
     currentContextUnsubscriber();
     availableContextsUnsubscriber();
+    dialogDisposable.dispose();
   };
 });
 
@@ -63,7 +77,8 @@ let runStarted = $state(false);
 let runFinished = $state(false);
 let runError = $state('');
 let runWarning = $state('');
-let kubernetesYamlFilePath = $state('');
+let selectedFileName = $state('');
+let fileYamlContent = $state('');
 let customYamlContent = $state('');
 let userChoice: UsersChoice = $state('file');
 
@@ -73,7 +88,7 @@ let hasInvalidFields = $derived.by(() => {
   }
   switch (userChoice) {
     case 'file':
-      return !kubernetesYamlFilePath;
+      return !fileYamlContent;
     case 'custom':
       return customYamlContent.length === 0;
   }
@@ -81,18 +96,13 @@ let hasInvalidFields = $derived.by(() => {
 
 let applyKubeResultRaw: string | undefined = $state(undefined);
 
-async function browseFile(): Promise<void> {
-  try {
-    const result = await systemApi.openFileDialog({
-      title: 'Select a .yaml file to apply',
-      filters: [{ name: 'YAML files', extensions: ['yaml', 'yml'] }],
-    });
-    if (result?.length) {
-      kubernetesYamlFilePath = result[0];
-    }
-  } catch (error: unknown) {
-    runError = 'Could not open file dialog: ' + extractErrorMessage(error);
-  }
+function browseFile(): void {
+  runError = '';
+  openDialogApi.openDialog(DIALOG_ID, {
+    title: 'Select a .yaml file to apply',
+    selectors: ['openFile'],
+    filters: [{ name: 'YAML files', extensions: ['yaml', 'yml'] }],
+  });
 }
 
 function handleContentChange(content: string): void {
@@ -108,12 +118,7 @@ async function kubeApply(): Promise<void> {
   runWarning = '';
 
   try {
-    let content: string;
-    if (userChoice === 'custom') {
-      content = customYamlContent;
-    } else {
-      content = await systemApi.readTextFile(kubernetesYamlFilePath);
-    }
+    const content = userChoice === 'custom' ? customYamlContent : fileYamlContent;
     const objects = await contextsApi.applyYaml(content);
     if (objects.length === 0) {
       runWarning = 'No resource(s) were applied.';
@@ -192,7 +197,7 @@ function goBack(): void {
                   id="containerFilePath"
                   readonly
                   required
-                  bind:value={kubernetesYamlFilePath}
+                  bind:value={selectedFileName}
                   placeholder="Select a .yaml file to apply"
                   class="w-full p-2" />
                 <Button aria-label="browse" icon={faFolderOpen} onclick={browseFile} disabled={runStarted} />

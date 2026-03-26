@@ -17,24 +17,24 @@
  ***********************************************************************/
 
 import { type AppliedResource, type ContextsApi } from './contexts-api';
+import { type OpenDialogApi } from './open-dialog-api';
 import { type PodLogsApi } from './pod-logs-api';
 import { type PodTerminalsApi } from './pod-terminals-api';
 import { type DeletePortForwardOptions, type PortForwardApi } from './port-forward-api';
 import { type SubscribeApi } from './subscribe-api';
-import { type SystemApi, type FileDialogFilter, type OpenFileDialogOptions } from './system-api';
+import { type SystemApi } from './system-api';
 import { type NavigationApi } from './navigation-api';
 import { type TelemetryApi } from './telemetry-api';
 
 export type {
   AppliedResource,
   ContextsApi,
+  OpenDialogApi,
   PodLogsApi,
   PodTerminalsApi,
   PortForwardApi,
   SubscribeApi,
   SystemApi,
-  FileDialogFilter,
-  OpenFileDialogOptions,
   DeletePortForwardOptions,
   NavigationApi,
   TelemetryApi,

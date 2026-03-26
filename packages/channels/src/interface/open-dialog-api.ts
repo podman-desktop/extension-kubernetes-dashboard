@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 - 2026 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const SystemApi = Symbol.for('SystemApi');
+import type { OpenDialogOptions } from '@podman-desktop/api';
 
-export interface SystemApi {
-  openExternal(uri: string): Promise<boolean>;
-  clipboardWriteText(text: string): Promise<void>;
-  getFreePort(startPort: number): Promise<number>;
-  getPlatformName(): Promise<string>;
+export const OpenDialogApi = Symbol.for('OpenDialogApi');
+
+export interface OpenDialogApi {
+  openDialog(id: string, options: OpenDialogOptions): Promise<void>;
 }
