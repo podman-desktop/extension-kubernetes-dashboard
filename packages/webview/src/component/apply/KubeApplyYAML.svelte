@@ -101,13 +101,17 @@ let hasInvalidFields = $derived.by(() => {
 
 let applyKubeResultRaw: string | undefined = $state(undefined);
 
-function browseFile(): void {
+async function browseFile(): Promise<void> {
   runError = '';
-  openDialogApi.openDialog(DIALOG_ID, {
-    title: 'Select a .yaml file to apply',
-    selectors: ['openFile'],
-    filters: [{ name: 'YAML files', extensions: ['yaml', 'yml'] }],
-  });
+  try {
+    await openDialogApi.openDialog(DIALOG_ID, {
+      title: 'Select a .yaml file to apply',
+      selectors: ['openFile'],
+      filters: [{ name: 'YAML files', extensions: ['yaml', 'yml'] }],
+    });
+  } catch (error: unknown) {
+    runError = 'Could not open file dialog: ' + extractErrorMessage(error);
+  }
 }
 
 function handleContentChange(content: string): void {
