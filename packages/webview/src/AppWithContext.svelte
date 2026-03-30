@@ -25,6 +25,7 @@ import JobDetails from './component/jobs/JobDetails.svelte';
 import CronJobDetails from './component/cronjobs/CronJobDetails.svelte';
 import PodDetails from './component/pods/PodDetails.svelte';
 import PortForwardingList from './component/port-forward/PortForwardingList.svelte';
+import KubeApplyYAML from './component/apply/KubeApplyYAML.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -133,5 +134,9 @@ const { meta }: Props = $props();
 
   <Route path="/portForward">
     <PortForwardingList />
+  </Route>
+
+  <Route path="/applyYaml">
+    <KubeApplyYAML />
   </Route>
 </div>

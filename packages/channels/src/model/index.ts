@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 export * from './active-resources-count-info';
+export * from './open-dialog-result';
 export * from './available-contexts-info';
 export * from './context-resource-events';
 export * from './context-resources-details';

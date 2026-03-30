@@ -34,6 +34,8 @@ import type { PortForwardsInfo } from './model/port-forward-info';
 import type { ResourceDetailsInfo } from './model/resource-details-info';
 import type { ResourceEventsInfo } from './model/resource-events-info';
 import type { UpdateResourceInfo } from './model/update-resource-info';
+import type { OpenDialogApi } from './interface/open-dialog-api';
+import type { OpenDialogResult } from './model/open-dialog-result';
 import type { TelemetryApi } from '/@/interface/telemetry-api';
 import { createRpcChannel } from '@kubernetes-dashboard/rpc';
 import type {
@@ -49,6 +51,7 @@ export const API_SYSTEM = createRpcChannel<SystemApi>('SystemApi');
 export const API_PORT_FORWARD = createRpcChannel<PortForwardApi>('PortForwardApi');
 export const API_NAVIGATION = createRpcChannel<NavigationApi>('NavigationApi');
 export const API_TELEMETRY = createRpcChannel<TelemetryApi>('TelemetryApi');
+export const API_OPEN_DIALOG = createRpcChannel<OpenDialogApi>('OpenDialogApi');
 
 // Broadcast events (sent by extension and received by the webview)
 export const RESOURCES_COUNT = createRpcChannel<ResourcesCountInfo>('ResourcesCount');
@@ -63,6 +66,8 @@ export const RESOURCE_EVENTS = createRpcChannel<ResourceEventsInfo>('ResourceEve
 export const PORT_FORWARDS = createRpcChannel<PortForwardsInfo>('PortForwards');
 export const ENDPOINTS = createRpcChannel<EndpointsInfo>('Endpoints');
 export const KUBERNETES_PROVIDERS = createRpcChannel<KubernetesProvidersInfo>('KubernetesProviders');
+
+export const OPEN_DIALOG_RESULTS = createRpcChannel<OpenDialogResult>('OpenDialogResult');
 
 // Channels fot streams
 export const API_POD_LOGS = createRpcChannel<PodLogsApi>('PodLogsApi');

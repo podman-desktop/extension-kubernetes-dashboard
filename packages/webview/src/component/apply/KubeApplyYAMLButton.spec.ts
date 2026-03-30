@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 - 2026 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const SystemApi = Symbol.for('SystemApi');
+import '@testing-library/jest-dom/vitest';
 
-export interface SystemApi {
-  openExternal(uri: string): Promise<boolean>;
-  clipboardWriteText(text: string): Promise<void>;
-  getFreePort(startPort: number): Promise<number>;
-  getPlatformName(): Promise<string>;
-}
+import { render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { router } from 'tinro';
+import { expect, test, vi } from 'vitest';
+
+import KubeApplyYamlButton from './KubeApplyYAMLButton.svelte';
+
+vi.mock(import('tinro'));
+
+test(`Verify clicking button will open 'Apply Kubernetes YAML' form`, async () => {
+  render(KubeApplyYamlButton);
+
+  const button = screen.getByRole('button', { name: 'Apply YAML' });
+  expect(button).toBeInTheDocument();
+  await userEvent.click(button);
+
+  expect(router.goto).toHaveBeenCalledWith('/applyYaml');
+});

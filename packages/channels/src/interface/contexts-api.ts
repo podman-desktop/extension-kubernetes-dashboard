@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,10 @@
 
 export const ContextsApi = Symbol.for('ContextsApi');
 
+export interface AppliedResource {
+  kind?: string;
+}
+
 export interface ContextsApi {
   setCurrentContext(contextName: string): Promise<void>;
   refreshContextState(contextName: string): Promise<void>;
@@ -26,4 +30,5 @@ export interface ContextsApi {
   setCurrentNamespace(namespace: string): Promise<void>;
   restartObject(kind: string, name: string, namespace: string): Promise<void>;
   applyResources(yamlDocuments: string): Promise<void>;
+  applyYaml(yamlDocuments: string): Promise<AppliedResource[]>;
 }
