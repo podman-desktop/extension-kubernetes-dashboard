@@ -561,6 +561,7 @@ export class ContextsManager implements ContextsApi {
     if (this.isV1Status(result)) {
       this.handleStatus(result, actionMsg);
     }
+    // Ignore if result is a KubernetesObject
   }
 
   private handleApiException(error: unknown, actionMsg: string): void {
