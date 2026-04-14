@@ -37,7 +37,7 @@ export async function handleWebview(runner: Runner, page: Page, navigationBar: N
   const webView = page.getByRole('document', { name: PAGE_BODY_LABEL });
   await playExpect(webView).toBeVisible();
   await new Promise(resolve => setTimeout(resolve, 1_000));
-  const [mainPage, webViewPage] = runner.getElectronApp().windows();
+  const [mainPage, webViewPage] = runner.getWindows();
   await mainPage.evaluate(() => {
     const element = document.querySelector('webview');
     if (element) {
