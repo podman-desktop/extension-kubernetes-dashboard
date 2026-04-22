@@ -70,8 +70,6 @@ describe('ForwardConfigRequirements', () => {
       forward: { localPort: 8080, remotePort: 80 },
     };
 
-    await expect(requirements.checkRuntimeRequirements(multiPortConfig)).rejects.toThrow(
-      'Port 8081 is not available',
-    );
+    await expect(requirements.checkRuntimeRequirements(multiPortConfig)).rejects.toThrow('Port 8081 is not available');
   });
 });

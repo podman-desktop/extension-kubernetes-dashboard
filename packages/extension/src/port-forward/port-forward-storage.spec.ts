@@ -194,9 +194,7 @@ describe('FileBasedConfigStorage', () => {
     const storage = new TestFileBasedConfigStorage(mockFileStorage, 'test-key');
     storage['configs'] = [sampleConfig];
 
-    expect(() => storage._createForward(sampleConfig)).toThrow(
-      'Found existed forward configuration with the same id.',
-    );
+    expect(() => storage._createForward(sampleConfig)).toThrow('Found existed forward configuration with the same id.');
   });
 
   test('should throw an error if deleting a non-existing forward configuration', () => {
@@ -293,9 +291,7 @@ describe('MemoryBasedConfigStorage', () => {
     const storage = new MemoryBasedStorage();
     storage['configs'] = [sampleConfig];
 
-    expect(() => storage.createForward(sampleConfig)).toThrow(
-      'Found existed forward configuration with the same id.',
-    );
+    expect(() => storage.createForward(sampleConfig)).toThrow('Found existed forward configuration with the same id.');
   });
 
   test('should throw an error if deleting a non-existing forward configuration', () => {
