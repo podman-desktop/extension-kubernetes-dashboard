@@ -8,7 +8,7 @@ overrides:
   '@testing-library/dom>@babel/runtime': ^7.26.10
   minimatch>@isaacs/brace-expansion: ^5.0.1
   minimatch>brace-expansion: ^2.0.2
-  '@microsoft/api-extractor>lodash': ^4.17.23
+  '@microsoft/api-extractor>lodash': ^4.18.0
   test-exclude>glob: ^10.5.0
   node-gyp>tar: ^7.5.7
   minimatch@<3.1.4: ^3.1.4
@@ -3119,8 +3119,8 @@ packages:
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
-  lodash@4.17.23:
-    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
   lru-cache@11.3.5:
     resolution: {integrity: sha512-NxVFwLAnrd9i7KUBxC4DrUhmgjzOs+1Qm50D3oF1/oL+r1NpZ4gA7xvG0/zJ8evR7zIKn4vLf7qTNduWFtCrRw==}
@@ -4889,7 +4889,7 @@ snapshots:
       '@rushstack/rig-package': 0.6.0
       '@rushstack/terminal': 0.19.1(@types/node@24.12.2)
       '@rushstack/ts-command-line': 5.1.1(@types/node@24.12.2)
-      lodash: 4.17.23
+      lodash: 4.18.1
       minimatch: 10.2.5
       resolve: 1.22.10
       semver: 7.5.4
@@ -7176,7 +7176,7 @@ snapshots:
 
   lodash.merge@4.6.2: {}
 
-  lodash@4.17.23: {}
+  lodash@4.18.1: {}
 
   lru-cache@11.3.5: {}
 
