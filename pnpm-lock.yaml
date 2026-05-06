@@ -54,7 +54,7 @@ importers:
         version: 1.6.16(@typescript-eslint/eslint-plugin@8.59.2(@typescript-eslint/parser@8.59.2(eslint@10.3.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.3.0(jiti@2.6.1))(typescript@5.9.3))(eslint@10.3.0(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@24.12.2)(jiti@2.6.1)(jsdom@29.1.1)(lightningcss@1.32.0)(yaml@2.8.4))
       autoprefixer:
         specifier: ^10.5.0
-        version: 10.5.0(postcss@8.5.12)
+        version: 10.5.0(postcss@8.5.14)
       concurrently:
         specifier: ^9.1.2
         version: 9.2.1
@@ -116,8 +116,8 @@ importers:
         specifier: ^4.4.8
         version: 4.4.8(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.59.2))(typescript@5.9.3)
       svelte-eslint-parser:
-        specifier: ^1.6.0
-        version: 1.6.0(svelte@5.55.5(@typescript-eslint/types@8.59.2))
+        specifier: ^1.6.1
+        version: 1.6.1(svelte@5.55.5(@typescript-eslint/types@8.59.2))
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -252,7 +252,7 @@ importers:
         version: 2.30.1
       svelte-preprocess:
         specifier: ^6.0.3
-        version: 6.0.3(postcss-load-config@6.0.1(jiti@2.6.1)(postcss@8.5.12)(yaml@2.8.4))(postcss@8.5.12)(svelte@5.55.5(@typescript-eslint/types@8.59.2))(typescript@5.9.3)
+        version: 6.0.3(postcss-load-config@6.0.1(jiti@2.6.1)(postcss@8.5.14)(yaml@2.8.4))(postcss@8.5.14)(svelte@5.55.5(@typescript-eslint/types@8.59.2))(typescript@5.9.3)
       tinro:
         specifier: ^0.6.12
         version: 0.6.12
@@ -3267,6 +3267,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@3.3.12:
+    resolution: {integrity: sha512-ZB9RH/39qpq5Vu6Y+NmUaFhQR6pp+M2Xt76XBnEwDaGcVAqhlvxrl3B2bKS5D3NH3QR76v3aSrKaF/Kiy7lEtQ==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
   nanospinner@1.2.2:
     resolution: {integrity: sha512-Zt/AmG6qRU3e+WnzGGLuMCEAO/dAu45stNbHY223tUxldaDAeE+FxSPsd9Q+j+paejmm0ZbrNVs5Sraqy3dRxA==}
 
@@ -3470,6 +3475,10 @@ packages:
 
   postcss@8.5.12:
     resolution: {integrity: sha512-W62t/Se6rA0Az3DfCL0AqJwXuKwBeYg6nOaIgzP+xZ7N5BFCI7DYi1qs6ygUYT6rvfi6t9k65UMLJC+PHZpDAA==}
+    engines: {node: ^10 || ^12 || >=14}
+
+  postcss@8.5.14:
+    resolution: {integrity: sha512-SoSL4+OSEtR99LHFZQiJLkT59C5B1amGO1NzTwj7TT1qCUgUO6hxOvzkOYxD+vMrXBM3XJIKzokoERdqQq/Zmg==}
     engines: {node: ^10 || ^12 || >=14}
 
   prelude-ls@1.2.1:
@@ -3797,9 +3806,9 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: '>=5.0.0'
 
-  svelte-eslint-parser@1.6.0:
-    resolution: {integrity: sha512-qoB1ehychT6OxEtQAqc/guSqLS20SlA53Uijl7x375s8nlUT0lb9ol/gzraEEatQwsyPTJo87s2CmKL9Xab+Uw==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0, pnpm: 10.30.3}
+  svelte-eslint-parser@1.6.1:
+    resolution: {integrity: sha512-hhvSH6kRj46UzrBVO5TaotD+Iuvruj5ccKBcO4wAhVcPTLmIc/c32D8UllBTYO0on4LzYuM0rNzf1lM/gBlkSQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0, pnpm: 10.33.0}
     peerDependencies:
       svelte: ^3.37.0 || ^4.0.0 || ^5.0.0
     peerDependenciesMeta:
@@ -5853,13 +5862,13 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  autoprefixer@10.5.0(postcss@8.5.12):
+  autoprefixer@10.5.0(postcss@8.5.14):
     dependencies:
       browserslist: 4.28.2
       caniuse-lite: 1.0.30001787
       fraction.js: 5.3.4
       picocolors: 1.1.1
-      postcss: 8.5.12
+      postcss: 8.5.14
       postcss-value-parser: 4.2.0
 
   available-typed-arrays@1.0.7:
@@ -6497,7 +6506,7 @@ snapshots:
       postcss-load-config: 3.1.4(postcss@8.5.12)
       postcss-safe-parser: 7.0.1(postcss@8.5.12)
       semver: 7.7.4
-      svelte-eslint-parser: 1.6.0(svelte@5.55.5(@typescript-eslint/types@8.59.2))
+      svelte-eslint-parser: 1.6.1(svelte@5.55.5(@typescript-eslint/types@8.59.2))
     optionalDependencies:
       svelte: 5.55.5(@typescript-eslint/types@8.59.2)
     transitivePeerDependencies:
@@ -7413,6 +7422,8 @@ snapshots:
 
   nanoid@3.3.11: {}
 
+  nanoid@3.3.12: {}
+
   nanospinner@1.2.2:
     dependencies:
       picocolors: 1.1.1
@@ -7572,12 +7583,12 @@ snapshots:
     optionalDependencies:
       postcss: 8.5.12
 
-  postcss-load-config@6.0.1(jiti@2.6.1)(postcss@8.5.12)(yaml@2.8.4):
+  postcss-load-config@6.0.1(jiti@2.6.1)(postcss@8.5.14)(yaml@2.8.4):
     dependencies:
       lilconfig: 3.1.3
     optionalDependencies:
       jiti: 2.6.1
-      postcss: 8.5.12
+      postcss: 8.5.14
       yaml: 2.8.4
     optional: true
 
@@ -7585,9 +7596,9 @@ snapshots:
     dependencies:
       postcss: 8.5.12
 
-  postcss-scss@4.0.9(postcss@8.5.12):
+  postcss-scss@4.0.9(postcss@8.5.14):
     dependencies:
-      postcss: 8.5.12
+      postcss: 8.5.14
 
   postcss-selector-parser@6.0.10:
     dependencies:
@@ -7604,6 +7615,12 @@ snapshots:
   postcss@8.5.12:
     dependencies:
       nanoid: 3.3.11
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
+
+  postcss@8.5.14:
+    dependencies:
+      nanoid: 3.3.12
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -7992,13 +8009,13 @@ snapshots:
     transitivePeerDependencies:
       - picomatch
 
-  svelte-eslint-parser@1.6.0(svelte@5.55.5(@typescript-eslint/types@8.59.2)):
+  svelte-eslint-parser@1.6.1(svelte@5.55.5(@typescript-eslint/types@8.59.2)):
     dependencies:
       eslint-scope: 8.4.0
       eslint-visitor-keys: 4.2.1
       espree: 10.4.0
-      postcss: 8.5.12
-      postcss-scss: 4.0.9(postcss@8.5.12)
+      postcss: 8.5.14
+      postcss-scss: 4.0.9(postcss@8.5.14)
       postcss-selector-parser: 7.1.1
       semver: 7.7.4
     optionalDependencies:
@@ -8014,12 +8031,12 @@ snapshots:
       marked: 5.1.2
       svelte: 5.55.5(@typescript-eslint/types@8.59.2)
 
-  svelte-preprocess@6.0.3(postcss-load-config@6.0.1(jiti@2.6.1)(postcss@8.5.12)(yaml@2.8.4))(postcss@8.5.12)(svelte@5.55.5(@typescript-eslint/types@8.59.2))(typescript@5.9.3):
+  svelte-preprocess@6.0.3(postcss-load-config@6.0.1(jiti@2.6.1)(postcss@8.5.14)(yaml@2.8.4))(postcss@8.5.14)(svelte@5.55.5(@typescript-eslint/types@8.59.2))(typescript@5.9.3):
     dependencies:
       svelte: 5.55.5(@typescript-eslint/types@8.59.2)
     optionalDependencies:
-      postcss: 8.5.12
-      postcss-load-config: 6.0.1(jiti@2.6.1)(postcss@8.5.12)(yaml@2.8.4)
+      postcss: 8.5.14
+      postcss-load-config: 6.0.1(jiti@2.6.1)(postcss@8.5.14)(yaml@2.8.4)
       typescript: 5.9.3
 
   svelte@5.55.5(@typescript-eslint/types@8.59.2):
