@@ -293,7 +293,7 @@ importers:
         version: 7.1.2(svelte@5.55.5(@typescript-eslint/types@8.59.2))(vite@8.0.11(@types/node@24.12.3)(esbuild@0.27.2)(jiti@2.7.0)(yaml@2.8.4))
       '@tailwindcss/typography':
         specifier: ^0.5.18
-        version: 0.5.19(tailwindcss@4.2.4)
+        version: 0.5.19(tailwindcss@4.3.0)
       '@tailwindcss/vite':
         specifier: ^4.3.0
         version: 4.3.0(vite@8.0.11(@types/node@24.12.3)(esbuild@0.27.2)(jiti@2.7.0)(yaml@2.8.4))
@@ -365,7 +365,7 @@ importers:
         version: 0.4.1(svelte@5.55.5(@typescript-eslint/types@8.59.2))
       tailwindcss:
         specifier: ^4
-        version: 4.2.4
+        version: 4.3.0
       vite:
         specifier: ^8.0
         version: 8.0.11(@types/node@24.12.3)(esbuild@0.27.2)(jiti@2.7.0)(yaml@2.8.4)
@@ -3850,9 +3850,6 @@ packages:
       '@eslint/css':
         optional: true
 
-  tailwindcss@4.2.4:
-    resolution: {integrity: sha512-HhKppgO81FQof5m6TEnuBWCZGgfRAWbaeOaGT00KOy/Pf/j6oUihdvBpA7ltCeAvZpFhW3j0PTclkxsd4IXYDA==}
-
   tailwindcss@4.3.0:
     resolution: {integrity: sha512-y6nxMGB1nMW9R6k96e5gdIFzcfL/gTJRNaqGes1YvkLnPVXzWgbqFF2yLC0T8G774n24cx3Pe8XrKoniCOAH+Q==}
 
@@ -5207,10 +5204,10 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.3.0
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.0
 
-  '@tailwindcss/typography@0.5.19(tailwindcss@4.2.4)':
+  '@tailwindcss/typography@0.5.19(tailwindcss@4.3.0)':
     dependencies:
       postcss-selector-parser: 6.0.10
-      tailwindcss: 4.2.4
+      tailwindcss: 4.3.0
 
   '@tailwindcss/vite@4.3.0(vite@8.0.11(@types/node@24.12.3)(esbuild@0.27.2)(jiti@2.7.0)(yaml@2.8.4))':
     dependencies:
@@ -7985,8 +7982,6 @@ snapshots:
       '@pkgr/core': 0.2.9
 
   tailwind-csstree@0.3.1: {}
-
-  tailwindcss@4.2.4: {}
 
   tailwindcss@4.3.0: {}
 
