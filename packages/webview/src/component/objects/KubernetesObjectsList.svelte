@@ -137,6 +137,7 @@ function waitThrottleDelay(): Promise<void> {
         columns={columns}
         row={row}
         defaultSortColumn="Name"
+        enableLayoutConfiguration={true}
         bind:selectedItemsNumber={selectedItemsNumber}></Table>
 
       {#if objects.length === 0}
