@@ -70,7 +70,9 @@ test('OpenLinks component', () => {
       },
     ],
   });
-  render(OpenLinks, { object: { name: 'pod1', namespace: 'ns1', containers: [], kind: 'Pod', status: 'Running' } });
+  render(OpenLinks, {
+    object: { name: 'pod1', namespace: 'ns1', containers: [], kind: 'Pod', status: 'Running', restarts: 0 },
+  });
   expect(IconButton).toHaveBeenCalledWith(
     expect.anything(),
     expect.objectContaining({

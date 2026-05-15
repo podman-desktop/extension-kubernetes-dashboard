@@ -38,6 +38,7 @@ const pod: PodUI = {
     },
   ],
   namespace: '',
+  restarts: 0,
 };
 
 const dependencyMocks = new DependencyMocks();
