@@ -4,9 +4,13 @@ import './app.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import { onDestroy, onMount } from 'svelte';
+import { tablePersistence } from '@podman-desktop/ui-svelte';
 
 import { Main, type MainContext } from '/@/main';
 import MainContextAware from '/@/MainContextAware.svelte';
+import { LocalStoragePersistence } from '/@/table/local-storage-persistence';
+
+tablePersistence.storage = new LocalStoragePersistence();
 
 let main: Main | undefined;
 let mainContext: MainContext | undefined = $state();
