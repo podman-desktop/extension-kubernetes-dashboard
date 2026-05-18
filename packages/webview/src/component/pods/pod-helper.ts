@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,10 @@ export class PodHelper {
         };
       }) ?? [];
 
+    const restarts = pod.status?.containerStatuses?.reduce((sum, status) => sum + (status.restartCount ?? 0), 0) ?? 0;
+
+    const controller = pod.metadata?.ownerReferences?.find(ref => ref.controller);
+
     return {
       kind: 'Pod',
       name: pod.metadata?.name ?? '',
@@ -39,6 +43,9 @@ export class PodHelper {
       selected: false,
       node: pod.spec?.nodeName,
       namespace: pod.metadata?.namespace ?? '',
+      restarts,
+      controlledBy: controller?.kind,
+      qosClass: pod.status?.qosClass,
     };
   }
 
