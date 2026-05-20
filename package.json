@@ -1,5 +1,7 @@
 {
   "name": "kubernetes-dashboard-monorepo",
+  "repository": "https://github.com/podman-desktop/extension-kubernetes-dashboard",
+  "homepage": "https://github.com/podman-desktop/extension-kubernetes-dashboard#readme",
   "displayName": "Mono repository for Kubernetes Dashboard extension for Podman Desktop",
   "description": "Root repository",
   "version": "0.6.0-next",
