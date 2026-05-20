@@ -1,189 +1,168 @@
 # AGENTS.md
 
-This file provides guidance for AI agents working on the Kubernetes Dashboard Podman Desktop Extension codebase.
-
 ## Project Overview
 
-This is a **monorepo** for a Podman Desktop extension that provides a Kubernetes Dashboard UI. The extension allows users to monitor and interact with Kubernetes clusters, view resources, access pod logs, open terminals, and manage port forwardings.
+Kubernetes Dashboard extension for Podman Desktop. Monitors Kubernetes clusters,
+views resources (deployments, pods, services, configmaps, secrets, etc.), accesses
+pod logs and terminals, and manages port forwardings. Detects kubeconfig changes
+and connects to the current Kubernetes context automatically.
+
+- **Tech stack**: TypeScript, Svelte 5, Tailwind CSS, Vite, pnpm
+- **Monorepo**: pnpm workspaces with five packages — `extension`, `webview`, `channels`, `rpc`, `api`
+- **Extension API**: `@podman-desktop/api`
+- **Kubernetes client**: `@kubernetes/client-node`
+- **DI framework**: Inversify
+- **Test frameworks**: Vitest (unit), Playwright with `@podman-desktop/tests-playwright` (E2E)
+- **License**: Apache-2.0
+
+## Quick Start
+
+```sh
+pnpm install
+pnpm build
+```
+
+## Essential Commands
+
+```sh
+# Build
+pnpm build                    # build all packages (rpc → channels → extension + webview)
+
+# Test
+pnpm test                     # all unit tests
+pnpm test:extension           # extension unit tests
+pnpm test:webview             # webview unit tests
+pnpm test:e2e:integration     # playwright E2E tests (with auth)
+
+# Lint & Format
+pnpm lint:check               # ESLint check
+pnpm lint:fix                 # ESLint fix
+pnpm format:check             # Prettier check
+pnpm format:fix               # Prettier fix
+pnpm typecheck                # TypeScript type checking across all packages
+pnpm svelte:check             # Svelte component validation
+
+# Pre-PR checklist (run all of these)
+pnpm format:fix && pnpm lint:fix && pnpm typecheck && pnpm test
+```
+
+## Single-File Verification
+
+Lint, type-check, and test a single file without a full build:
+
+```sh
+# Lint single file
+npx eslint path/to/file.ts
+
+# Type-check single file
+npx tsc --noEmit path/to/file.ts
+
+# Type-check by package (when cross-package imports are involved)
+npx tsc --noEmit -p packages/extension/tsconfig.json
+npx tsc --noEmit -p packages/webview/tsconfig.json
+npx tsc --noEmit -p packages/channels/tsconfig.json
+npx tsc --noEmit -p packages/rpc/tsconfig.json
+
+# Test single file
+pnpm vitest run path/to/file.spec.ts
+```
+
+## Skills
+
+Task-specific guidance lives in `.agents/skills/`:
+
+- `extension-development` — end-to-end feature work across extension/webview
+- `backend-api` — extension backend, K8s client, Inversify DI, RPC channels
+- `svelte-ui-design` — Svelte 5 and Podman Desktop UI patterns
+- `unit-testing` — Vitest patterns for extension/webview/channels
+- `playwright-testing` — E2E structure, envtest setup, and spec patterns
 
 ## Architecture
 
-### Monorepo Structure
+Webview (Svelte 5) ←→ RPC (postMessage) ←→ Extension (Node.js)
 
-The project uses **pnpm workspaces** with the following packages:
+- **Extension**: `main.ts` entry, `DashboardExtension`, `@podman-desktop/api` — see **backend-api** skill
+- **Webview**: `Main.svelte`, state objects, `@podman-desktop/ui-svelte` — see **svelte-ui-design** skill
+- **Channels**: RPC channel definitions, API interfaces, data models (shared contract)
+- **RPC**: `RpcExtension` (backend) and `RpcBrowser` (webview) transport layer
+- **API**: Public extension API for other Podman Desktop extensions
 
-- **`packages/api`**: API to share features with other Podman Desktop extensions
-- **`packages/channels`**: Channel abstractions for communication patterns
-- **`packages/extension`**: The main extension code that runs in Podman Desktop (Node.js/TypeScript)
-- **`packages/rpc`**: RPC communication layer between extension and webview
-- **`packages/webview`**: The Svelte-based UI that runs in a webview (Svelte 5 + TypeScript)
-- **`tests/playwright`**: End-to-end tests using Playwright
+Five packages under `packages/`:
 
-### Communication Flow
+- **`extension/`** — Node.js extension. Entry: `src/main.ts`, lifecycle: `src/dashboard-extension.ts`. Uses Inversify DI, `@kubernetes/client-node`.
+- **`webview/`** — Svelte 5 webview UI. Entry: `src/main.ts`, root: `src/Main.svelte`. Uses Inversify DI, state objects (`.svelte.ts`).
+- **`channels/`** — Shared interfaces and models. Channels: `src/channels.ts`, interfaces: `src/interface/`, models: `src/model/`.
+- **`rpc/`** — RPC transport. `src/rpc.ts` provides `RpcExtension` and `RpcBrowser`.
+- **`api/`** — Public API types: `src/kubernetes-dashboard-extension-api.d.ts`.
 
-- Extension ↔ Webview: Uses RPC channels for bidirectional communication
-- Extension ↔ Kubernetes API: Uses `@kubernetes/client-node`
-- Webview ↔ Extension: All operations go through RPC channels
+### Communication
 
-## Key Technologies
+Extension ↔ Webview via RPC over webview postMessage:
 
-- **TypeScript 5**: Strict type checking enabled
-- **Svelte 5**: Modern reactive framework (runes-based)
-- **Vite 7**: Build tool and dev server
-- **pnpm**: Package manager
-- **Node.js >=24.0.0**: Runtime requirement
-- **Vitest**: Unit testing framework
-- **Playwright**: E2E testing
-- **Inversify**: Dependency injection container
-- **Svelte Components**: via `@podman-desktop/ui-svelte`
-- **Tailwind CSS**: Styling (via `@podman-desktop/ui-svelte`)
+- `RpcExtension` (extension) registers `@injectable()` services for each channel
+- `RpcBrowser` (webview) calls methods via `remote.getProxy(CHANNEL)`
+- Broadcast channels defined in `packages/channels/src/channels.ts`
 
-## Coding Standards
+### Key Patterns
 
-### TypeScript
+- **Inversify DI**: Services use `@injectable()`, bound in module files (`_*-module.ts`), injected via `@inject()`
+- **Dispatcher**: `AbsDispatcherObjectImpl` pushes state to webview with debounce/throttle
+- **StateObject**: `AbsStateObjectImpl` (`.svelte.ts`) manages reactive state in webview
+- **Resource factories**: Each K8s resource type has a factory in `packages/extension/src/resources/`
 
-- Use **strict TypeScript** (`@tsconfig/strictest`)
-- Prefer explicit types over `any`
-- Use interfaces for object shapes
-- Avoid `null` - use `undefined` instead (enforced by `eslint-plugin-no-null`)
-- Avoid redundant `undefined` in optional properties (enforced by `eslint-plugin-redundant-undefined`)
+### Extension Registration
 
-### Svelte
+Extension points (commands, menus, configuration, icons, views) are defined in
+`packages/extension/package.json` under `contributes`.
 
-- Use **Svelte 5 runes** (`$state`, `$derived`, `$effect`, etc.)
-- Prefer runes over legacy reactive statements
-- Keep components focused and composable
-- Use TypeScript for component logic
+## Pattern References
 
-### File Organization
+- New RPC channel: follow `packages/channels/src/channels.ts` (definition), `packages/channels/src/interface/` (interface)
+- New backend service: follow `packages/extension/src/manager/contexts-manager.ts` (implementation), `packages/extension/src/manager/_manager-module.ts` (binding)
+- New dispatcher: follow `packages/extension/src/dispatcher/update-resource-dispatcher.ts`
+- New state object: follow `packages/webview/src/state/available-contexts.svelte.ts`
+- New Svelte page/component: follow `packages/webview/src/component/apply/KubeApplyYAML.svelte`
+- New unit test (extension): follow `packages/extension/src/dashboard-extension.spec.ts`
+- New unit test (webview): follow `packages/webview/src/App.spec.ts`
+- New E2E test: follow `tests/playwright/src/extension.spec.ts`
+- New resource factory: follow `packages/extension/src/resources/pods-resource-factory.ts`
 
-- Source files in `src/` directories
-- Tests co-located
-- Use clear, descriptive file names
-- Group related functionality together
+## Coding Guidelines
 
-### Imports
+### Svelte Patterns
 
-- Use **simple-import-sort** plugin ordering:
-  1. External dependencies
-  2. Internal packages (`@kubernetes-dashboard/*`)
-  3. Podman Desktop packages (`@podman-desktop/*`)
-  4. Relative imports
-- Prefer named exports over default exports
-- Use absolute imports with aliases when configured (e.g., `/@/`)
+This project uses **Svelte 5 runes** (`$state`, `$derived`, `$effect`). Do NOT use legacy reactive syntax (`$:`, `let x = writable()`). For concrete component and state patterns, use `.agents/skills/svelte-ui-design/SKILL.md`.
 
-### Error Handling
+### Testing Patterns
 
-- Always handle errors explicitly
-- Use proper error types
-- Log errors appropriately
-- Provide meaningful error messages
+Use `.agents/skills/unit-testing/SKILL.md` for unit-test patterns and `.agents/skills/playwright-testing/SKILL.md` for E2E patterns. Extension tests mock `@podman-desktop/api` and `@kubernetes/client-node`, webview tests use `@testing-library/svelte` with `FakeStateObject`. Import alias: `/@/` → `src/`.
 
-## Development Workflow
+### Commit Conventions
 
-### Setup
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-```bash
-pnpm i                    # Install dependencies
-cd packages/webview
-pnpm watch               # Watch mode for webview (keep running)
+```text
+feat: add CronJob resource view
+feat(pods): add more information to pod page
+fix: handle missing kubeconfig gracefully
+chore: bump eslint-plugin-unicorn
+docs: update README with E2E instructions
 ```
 
-### Build Commands
+### Import Organization
 
-- `pnpm build`: Build all packages
-- `pnpm watch`: Watch mode for webview and extension
-- `pnpm format:check`: Check code formatting
-- `pnpm format:fix`: Auto-fix formatting
-- `pnpm lint:check`: Check linting
-- `pnpm lint:fix`: Auto-fix linting
-- `pnpm typecheck`: Type check all packages
-- `pnpm test`: Run all unit tests
-- `pnpm test:e2e`: Run E2E tests
+Use **simple-import-sort** plugin ordering:
 
-### Testing
+1. External dependencies
+2. Internal packages (`@kubernetes-dashboard/*`)
+3. Podman Desktop packages (`@podman-desktop/*`)
+4. Relative imports
 
-- **Unit tests**: Use Vitest with `@testing-library/svelte` for Svelte components
-- **E2E tests**: Use Playwright (requires `area/ci/e2e` label on PR to run in CI)
-- Write tests for new features
-- Maintain or improve test coverage
-
-## Important Patterns
-
-### Dependency Injection
-
-The project uses **Inversify** for DI. When adding new services:
-
-1. Define interfaces for services
-2. Create implementations with `@injectable()` decorator
-3. Bind in the appropriate binding file (`inversify-binding.ts`)
-4. Inject dependencies via constructor or via property
-
-### Stream Objects
-
-For streaming data (logs, terminal output), use the `StreamObject` pattern:
-
-```typescript
-export interface StreamObject<T, U> {
-  subscribe(
-    podName: string,
-    namespace: string,
-    containerName: string,
-    options: U,
-    callback: (data: T) => void,
-  ): Promise<IDisposable>;
-}
-```
-
-### RPC Communication
-
-- All webview ↔ extension communication goes through RPC channels
-- Define channel interfaces in `packages/channels`
-- Use typed RPC methods for type safety
-
-### Resource Management
-
-- Implement `IDisposable` for resources that need cleanup
-- Always dispose of subscriptions, timers, and event listeners
-- Use try/finally or cleanup functions in effects
-
-## Common Tasks
-
-### Adding a New Kubernetes Resource View
-
-1. Create component in `packages/webview/src/component/`
-2. Add RPC method in `packages/rpc` if needed
-3. Add route in webview router
-4. Update navigation/menu if needed
-5. Add tests
-
-### Adding a New Feature
-
-1. Determine if it needs extension-side code (Kubernetes API access)
-2. Create RPC methods if needed
-3. Implement webview UI using components from Podman Desktop UI library (`@podman-desktop/ui-svelte`)
-4. Add proper error handling
-5. Write tests
-6. Update documentation if needed
-
-### Debugging
-
-- Extension logs: Check Podman Desktop console
-- Webview logs: Check browser devtools (if webview is debuggable)
-- Use `console.log` sparingly, prefer proper logging
-- Check RPC channel communication for issues
-
-## Code Quality
-
-- **ESLint**: Comprehensive linting with strict rules
-- **Prettier**: Code formatting (check `.prettierrc`)
-- **TypeScript**: Strict type checking
-- **Svelte Check**: Svelte-specific validation
-- All checks must pass before committing
+Import alias: `/@/` → package `src/` directory.
 
 ## License
 
-Apache 2.0 - Include license header in new files:
+Apache 2.0 — include license header in new files:
 
 ```typescript
 /**********************************************************************
@@ -205,17 +184,10 @@ Apache 2.0 - Include license header in new files:
  ***********************************************************************/
 ```
 
-Update headers for modified files, with the current year:
+Update headers for modified files with the current year:
 
 ```typescript
 /**********************************************************************
  * Copyright (C) 2024 - 2026 Red Hat, Inc.
 [...]
 ```
-
-
-## Additional Resources
-
-- See `docs/data-flow.md` for data flow documentation
-- Check existing components for patterns and conventions
-- Review `.github/workflows/` for CI/CD requirements
