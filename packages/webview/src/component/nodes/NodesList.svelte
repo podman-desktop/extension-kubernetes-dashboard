@@ -29,6 +29,7 @@ let nameColumn = new TableColumn<NodeUI>('Name', {
 });
 
 let rolesColumn = new TableColumn<NodeUI>('Roles', {
+  width: '180px',
   renderer: RolesColumn,
   overflow: true,
   comparator: (a, b): number => a.role.localeCompare(b.role),
