@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import type { Component } from 'svelte';
+import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 import CronJobIcon from './CronJobIcon.svelte';
 import DeploymentIcon from './DeploymentIcon.svelte';
@@ -31,7 +32,7 @@ import ConfigMapIcon from './ConfigMapIcon.svelte';
 import SecretIcon from './SecretIcon.svelte';
 import ConfigMapSecretIcon from './ConfigMapSecretIcon.svelte';
 
-export const icon: Record<string, Component> = {
+export const icon: Record<string, Component | IconDefinition> = {
   ConfigMap: ConfigMapIcon,
   Secret: SecretIcon,
   ConfigMapSecret: ConfigMapSecretIcon,
