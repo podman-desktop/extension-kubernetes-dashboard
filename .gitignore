@@ -7,3 +7,17 @@ dist
 output
 packages/extension/media
 /tests/playwright/tests/
+
+# Vim
+*.swp
+*.swo
+
+# npm
+.npm
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+
+# agentready
+.agentready/
