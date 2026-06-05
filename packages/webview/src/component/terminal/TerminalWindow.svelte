@@ -17,7 +17,8 @@ interface Props {
   screenReaderMode?: boolean;
   showCursor?: boolean;
   search?: boolean;
-  class?: string;
+  class?: string;  
+  lineCount?: number;
 }
 
 let {
@@ -28,6 +29,7 @@ let {
   showCursor = false,
   search = false,
   class: className,
+  lineCount = 1060
 }: Props = $props();
 
 let logsXtermDiv: HTMLDivElement | undefined;
@@ -130,6 +132,14 @@ async function refreshTerminal(): Promise<void> {
   fitAddon.fit();
 }
 
+$effect(() => {
+  if (terminal) {
+    if (lineCount) {
+      terminal.options.scrollback = lineCount;
+    }
+  }
+});
+
 onMount(async () => {
   platformName = await systemApi.getPlatformName();
   await refreshTerminal();
@@ -147,7 +157,7 @@ onDestroy(() => {
 {/if}
 
 <div
-  class="{className} overflow-hidden p-[5px] pr-0 bg-(--pd-terminal-background)"
+  class="{className} overflow-hidden p-[5px] pr-0 bg-(--pd-terminal-background) h-full w-full"
   role="term"
   bind:this={logsXtermDiv}>
 </div>
