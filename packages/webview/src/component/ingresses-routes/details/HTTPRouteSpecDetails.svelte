@@ -2,8 +2,13 @@
 import { Link } from '@podman-desktop/ui-svelte';
 import { getContext } from 'svelte';
 
-import type { V1HTTPRouteBackendRef, V1HTTPRouteMatch, V1HTTPRouteParentRef } from '@kubernetes-dashboard/channels';
-import { API_SYSTEM, type V1HTTPRouteSpec } from '@kubernetes-dashboard/channels';
+import {
+  API_SYSTEM,
+  type V1HTTPRouteBackendRef,
+  type V1HTTPRouteMatch,
+  type V1HTTPRouteParentRef,
+  type V1HTTPRouteSpec,
+} from '@kubernetes-dashboard/channels';
 import Cell from '/@/component/details/Cell.svelte';
 import Title from '/@/component/details/Title.svelte';
 import { Remote } from '/@/remote/remote';
