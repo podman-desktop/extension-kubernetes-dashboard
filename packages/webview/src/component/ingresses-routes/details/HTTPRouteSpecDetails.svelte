@@ -2,6 +2,7 @@
 import { Link } from '@podman-desktop/ui-svelte';
 import { getContext } from 'svelte';
 
+import type { V1HTTPRouteBackendRef, V1HTTPRouteMatch, V1HTTPRouteParentRef } from '@kubernetes-dashboard/channels';
 import { API_SYSTEM, type V1HTTPRouteSpec } from '@kubernetes-dashboard/channels';
 import Cell from '/@/component/details/Cell.svelte';
 import Title from '/@/component/details/Title.svelte';
@@ -23,15 +24,15 @@ function getHostnames(): string[] {
   return spec.hostnames ?? [];
 }
 
-function getMatches(): NonNullable<V1HTTPRouteSpec['rules']>[number]['matches'] {
+function getMatches(): V1HTTPRouteMatch[] {
   return spec.rules?.flatMap(rule => rule.matches ?? []) ?? [];
 }
 
-function getBackendRefs(): NonNullable<V1HTTPRouteSpec['rules']>[number]['backendRefs'] {
+function getBackendRefs(): V1HTTPRouteBackendRef[] {
   return spec.rules?.flatMap(rule => rule.backendRefs ?? []) ?? [];
 }
 
-function getParentRefs(): NonNullable<V1HTTPRouteSpec['parentRefs']> {
+function getParentRefs(): V1HTTPRouteParentRef[] {
   return spec.parentRefs ?? [];
 }
 
