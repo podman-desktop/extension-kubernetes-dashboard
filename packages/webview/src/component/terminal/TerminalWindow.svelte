@@ -17,7 +17,7 @@ interface Props {
   screenReaderMode?: boolean;
   showCursor?: boolean;
   search?: boolean;
-  class?: string;  
+  class?: string;
   lineCount?: number;
 }
 
@@ -29,7 +29,7 @@ let {
   showCursor = false,
   search = false,
   class: className,
-  lineCount = 1060
+  lineCount = 1060,
 }: Props = $props();
 
 let logsXtermDiv: HTMLDivElement | undefined;
