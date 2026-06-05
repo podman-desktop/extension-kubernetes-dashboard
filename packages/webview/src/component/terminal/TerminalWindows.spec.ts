@@ -36,6 +36,7 @@ const remoteMocks = new RemoteMocks();
 
 beforeEach(() => {
   vi.resetAllMocks();
+  (Terminal.prototype as Terminal & { options: { scrollback?: number } }).options = {};
   remoteMocks.reset();
   remoteMocks.mock(API_SYSTEM, {
     getPlatformName: vi.fn().mockResolvedValue('linux'),
@@ -55,6 +56,7 @@ function createTerminalMock(): Terminal {
     write: vi.fn(),
     open: vi.fn(),
     loadAddon: vi.fn(),
+    options: {},
   } as unknown as Terminal;
 }
 
@@ -82,6 +84,22 @@ test('expect terminal constructor to reflect props', async () => {
         disableStdin: true,
         convertEol: true,
         screenReaderMode: true,
+        scrollback: 1060,
+      }),
+    );
+  });
+});
+
+test('expect terminal constructor to use provided scrollback line count', async () => {
+  render(TerminalWindow, {
+    terminal: createTerminalMock(),
+    lineCount: 2000,
+  });
+
+  await vi.waitFor(() => {
+    expect(Terminal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        scrollback: 2000,
       }),
     );
   });

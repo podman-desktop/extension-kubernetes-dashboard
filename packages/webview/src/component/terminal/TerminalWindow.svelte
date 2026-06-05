@@ -72,6 +72,7 @@ async function refreshTerminal(): Promise<void> {
     screenReaderMode: screenReaderMode,
     rightClickSelectsWord: true,
     minimumContrastRatio: 4.5,
+    scrollback: lineCount,
   });
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
@@ -133,7 +134,7 @@ async function refreshTerminal(): Promise<void> {
 }
 
 $effect(() => {
-  if (terminal) {
+  if (terminal?.options) {
     if (lineCount) {
       terminal.options.scrollback = lineCount;
     }
