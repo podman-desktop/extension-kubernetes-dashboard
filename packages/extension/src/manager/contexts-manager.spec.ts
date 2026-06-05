@@ -27,7 +27,7 @@ import type {
 import { ApiException, KubeConfig } from '@kubernetes/client-node';
 import { type Uri, Disposable, type TelemetryLogger } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
-import { kubernetes, window } from '@podman-desktop/api';
+import { kubernetes, process as extensionProcess, window } from '@podman-desktop/api';
 
 import type { ContextHealthState } from './context-health-checker.js';
 import { ContextHealthChecker } from './context-health-checker.js';
@@ -1609,6 +1609,75 @@ test('restartObject on other namespace', async () => {
   await manager.update(kc);
   await manager.restartObject('Resource4', 'resource-name', 'other-ns');
   expect(resource4RestartObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+});
+
+test('scaleDeployment when no current context', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithNoCurrentContext);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.scaleDeployment('deployment-name', 'ns1', 1);
+  expect(console.warn).toHaveBeenCalledWith('scale deployment: no current context');
+});
+
+test('scaleDeployment does nothing when input is cancelled', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.mocked(window.showInputBox).mockResolvedValue(undefined);
+  await manager.update(kc);
+  await manager.scaleDeployment('deployment-name', 'ns1', 1);
+  expect(extensionProcess.exec).not.toHaveBeenCalled();
+});
+
+test('scaleDeployment runs kubectl scale with the requested replica count', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.mocked(window.showInputBox).mockResolvedValue('4');
+  vi.mocked(kubernetes.getKubeconfig).mockReturnValue({ path: '/path/to/kubeconfig' } as Uri);
+  vi.mocked(extensionProcess.exec).mockResolvedValue({ command: 'kubectl', stdout: '', stderr: '' });
+  await manager.update(kc);
+  await manager.scaleDeployment('deployment-name', 'ns1', 1);
+  expect(window.showInputBox).toHaveBeenCalledWith({
+    title: 'Scale deployment deployment-name',
+    prompt: 'Enter the desired number of replicas.',
+    value: '1',
+    validateInput: expect.any(Function),
+  });
+  expect(extensionProcess.exec).toHaveBeenCalledWith('kubectl', [
+    'scale',
+    'deployment',
+    'deployment-name',
+    '--replicas=4',
+    '--namespace',
+    'ns1',
+    '--context',
+    'context1',
+    '--kubeconfig',
+    '/path/to/kubeconfig',
+  ]);
+  expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('scale.deployment');
+});
+
+test('scaleDeployment shows error message when kubectl scale fails', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.mocked(window.showInputBox).mockResolvedValue('4');
+  vi.mocked(kubernetes.getKubeconfig).mockReturnValue({ path: '/path/to/kubeconfig' } as Uri);
+  vi.mocked(extensionProcess.exec).mockRejectedValue(new Error('forbidden'));
+  await manager.update(kc);
+  await manager.scaleDeployment('deployment-name', 'ns1', 1);
+  expect(window.showErrorMessage).toHaveBeenCalledWith('Unable to scale deployment deployment-name: forbidden');
 });
 
 test('waitForObjectDeletion when no current context', async () => {

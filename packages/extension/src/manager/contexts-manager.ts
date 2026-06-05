@@ -37,7 +37,7 @@ import type {
   KubernetesTroubleshootingInformation,
   ContextsApi,
 } from '@kubernetes-dashboard/channels';
-import { kubernetes, TelemetryLogger, window } from '@podman-desktop/api';
+import { kubernetes, process as extensionProcess, TelemetryLogger, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
 
 import type { Event } from '/@/types/emitter.js';
@@ -555,6 +555,63 @@ export class ContextsManager implements ContextsApi {
       kind: kind,
     });
     return handler.restartObject(this.currentContext, name, ns);
+  }
+
+  async scaleDeployment(name: string, namespace: string, currentReplicas: number): Promise<void> {
+    if (!this.currentContext) {
+      console.warn('scale deployment: no current context');
+      return;
+    }
+
+    const replicasInput = await window.showInputBox({
+      title: `Scale deployment ${name}`,
+      prompt: 'Enter the desired number of replicas.',
+      value: currentReplicas.toString(),
+      validateInput: (value: string): string | undefined => {
+        return this.validateReplicaCount(value);
+      },
+    });
+    if (replicasInput === undefined) {
+      return;
+    }
+
+    const replicas = Number(replicasInput.trim());
+    const validationError = this.validateReplicaCount(replicasInput);
+    if (validationError) {
+      await window.showErrorMessage(validationError);
+      return;
+    }
+    const ns = namespace ?? this.currentContext.getNamespace();
+    const contextName = this.currentContext.getKubeConfig().currentContext;
+    const kubeconfig = kubernetes.getKubeconfig();
+
+    try {
+      await extensionProcess.exec('kubectl', [
+        'scale',
+        'deployment',
+        name,
+        `--replicas=${replicas}`,
+        '--namespace',
+        ns,
+        '--context',
+        contextName,
+        '--kubeconfig',
+        kubeconfig.path,
+      ]);
+      this.telemetryLogger.logUsage('scale.deployment');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      await window.showErrorMessage(`Unable to scale deployment ${name}: ${message}`);
+    }
+  }
+
+  private validateReplicaCount(value: string): string | undefined {
+    const trimmedValue = value.trim();
+    const replicas = Number(trimmedValue);
+    if (trimmedValue === '' || !Number.isInteger(replicas) || replicas < 0) {
+      return 'Replica count must be a non-negative integer.';
+    }
+    return undefined;
   }
 
   private handleResult(result: KubernetesObject | V1Status, actionMsg: string): void {
