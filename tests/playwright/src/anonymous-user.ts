@@ -91,7 +91,7 @@ export function anonymousUserTests(): void {
     await playExpect.poll(async () => servicesPage.isEmpty('Not accessible')).toBeTruthy();
   });
 
-  test('go to ingresses & routes page', async () => {
+  test('go to ingresses, routes & httproutes page', async () => {
     const ingresssRoutesPage = await navigation.openTabPage(KubernetesResources.IngressesRoutes);
     await playExpect(ingresssRoutesPage.heading).toBeVisible();
     await playExpect.poll(async () => ingresssRoutesPage.isEmpty('Not accessible')).toBeTruthy();

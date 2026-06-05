@@ -44,6 +44,8 @@ export class Navigator {
         return `/${this.resourceKindToURL(kind)}/ingress/${name}/${namespace}/summary`;
       } else if (kind === 'Route') {
         return `/${this.resourceKindToURL(kind)}/route/${name}/${namespace}/summary`;
+      } else if (kind === 'HTTPRoute') {
+        return `/${this.resourceKindToURL(kind)}/httproute/${name}/${namespace}/summary`;
       } else if (kind === 'ConfigMap') {
         return `/${this.resourceKindToURL(kind)}/configmap/${name}/${namespace}/summary`;
       } else if (kind === 'Secret') {
@@ -73,7 +75,7 @@ export class Navigator {
 
   protected resourceKindToURL(kind: string): string {
     // handle the special cases in our urls
-    if (kind === 'Ingress' || kind === 'Route') {
+    if (kind === 'Ingress' || kind === 'Route' || kind === 'HTTPRoute') {
       return 'ingressesRoutes';
     } else if (kind === 'ConfigMap' || kind === 'Secret') {
       return 'configmapsSecrets';

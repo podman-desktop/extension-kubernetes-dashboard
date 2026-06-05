@@ -45,3 +45,10 @@ describe.each([
     expect(label).toBeInTheDocument();
   });
 });
+
+test('Check Kubernetes icon is correct for HTTPRoute', async () => {
+  render(KubernetesIcon, { kind: 'HTTPRoute' });
+
+  const label = screen.getByLabelText('Ingress Route', { exact: false });
+  expect(label).toBeInTheDocument();
+});

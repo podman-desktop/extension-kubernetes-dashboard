@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,20 @@
  ***********************************************************************/
 
 import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-resource-factory';
+import { HTTPRoutesResourceFactory } from '/@/resources/http-routes-resource-factory';
 import { IngressesResourceFactory } from '/@/resources/ingresses-resource-factory';
 import type { ResourceFactory } from '/@/resources/resource-factory';
 import { RoutesResourceFactory } from '/@/resources/routes-resource-factory';
 import { ContextsManager } from './contexts-manager';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { V1EndpointSlice, V1Ingress } from '@kubernetes/client-node';
-import type { V1Route, Endpoint } from '@kubernetes-dashboard/channels';
+import type { V1HTTPRoute, V1Route, Endpoint } from '@kubernetes-dashboard/channels';
 
 class TestContextsManager extends ContextsManager {
   override getResourceFactories(): ResourceFactory[] {
     return [
       new EndpointSlicesResourceFactory(this),
+      new HTTPRoutesResourceFactory(this),
       new IngressesResourceFactory(this),
       new RoutesResourceFactory(this),
     ];
@@ -45,6 +47,7 @@ describe('ContextsManager', () => {
   test.each<{
     name: string;
     endpoints: V1EndpointSlice[];
+    httpRoutes: V1HTTPRoute[];
     ingresses: V1Ingress[];
     routes: V1Route[];
     expected: Endpoint[];
@@ -52,6 +55,7 @@ describe('ContextsManager', () => {
     {
       name: 'with no endpoints',
       endpoints: [],
+      httpRoutes: [],
       ingresses: [],
       routes: [],
       expected: [],
@@ -86,6 +90,7 @@ describe('ContextsManager', () => {
           ],
         },
       ],
+      httpRoutes: [],
       ingresses: [],
       routes: [],
       expected: [],
@@ -120,6 +125,7 @@ describe('ContextsManager', () => {
           ],
         },
       ],
+      httpRoutes: [],
       ingresses: [
         {
           metadata: {
@@ -191,6 +197,7 @@ describe('ContextsManager', () => {
           ],
         },
       ],
+      httpRoutes: [],
       routes: [
         {
           metadata: {
@@ -225,10 +232,85 @@ describe('ContextsManager', () => {
         },
       ],
     },
-  ])('getEndpoints $name', ({ endpoints, ingresses, routes, expected }) => {
-    vi.spyOn(manager, 'searchByTargetRef').mockImplementation(kind => {
+    {
+      name: 'with one endpoint targeting the pod and an httproute targeting the service',
+      endpoints: [
+        {
+          metadata: {
+            name: 'pod1-abcdef',
+            namespace: 'ns1',
+            ownerReferences: [
+              {
+                apiVersion: 'v1',
+                uid: '123',
+                controller: true,
+                kind: 'Service',
+                name: 'svc1',
+              },
+            ],
+          },
+          addressType: 'IPV4',
+          endpoints: [
+            {
+              addresses: ['10.0.0.1'],
+              targetRef: {
+                name: 'pod1',
+                namespace: 'ns1',
+                kind: 'Pod',
+              },
+            },
+          ],
+        },
+      ],
+      httpRoutes: [
+        {
+          metadata: {
+            name: 'httproute1',
+            namespace: 'ns1',
+          },
+          spec: {
+            hostnames: ['example.com'],
+            rules: [
+              {
+                matches: [
+                  {
+                    path: {
+                      type: 'PathPrefix',
+                      value: '/api',
+                    },
+                  },
+                ],
+                backendRefs: [
+                  {
+                    name: 'svc1',
+                    port: 8080,
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+      ingresses: [],
+      routes: [],
+      expected: [
+        {
+          contextName: 'ctx1',
+          targetKind: 'Pod',
+          targetName: 'pod1',
+          targetNamespace: 'ns1',
+          inputKind: 'HTTPRoute',
+          inputName: 'httproute1',
+          url: 'http://example.com/api',
+        },
+      ],
+    },
+  ])('getEndpoints $name', ({ endpoints, httpRoutes, ingresses, routes, expected }) => {
+    vi.spyOn(manager, 'searchByTargetRef').mockImplementation((kind, _targetRef) => {
       if (kind === 'EndpointSlice') {
         return endpoints;
+      } else if (kind === 'HTTPRoute') {
+        return httpRoutes;
       } else if (kind === 'Ingress') {
         return ingresses;
       } else if (kind === 'Route') {

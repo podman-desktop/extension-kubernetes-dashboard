@@ -14,7 +14,10 @@ import NamespaceDropdown from '/@/component/objects/NamespaceDropdown.svelte';
   <DashboardResourceCard type="Deployments" resources={['deployments']} kind="Deployment" />
   <DashboardResourceCard type="Pods" resources={['pods']} kind="Pod" />
   <DashboardResourceCard type="Services" resources={['services']} kind="Service" />
-  <DashboardResourceCard type="Ingresses &amp; Routes" resources={['ingresses', 'routes']} kind="Ingress" />
+  <DashboardResourceCard
+    type="Ingresses, Routes &amp; HTTPRoutes"
+    resources={['ingresses', 'routes', 'httproutes']}
+    kind="Ingress" />
   <DashboardResourceCard
     type="Persistent Volume Claims"
     resources={['persistentvolumeclaims']}

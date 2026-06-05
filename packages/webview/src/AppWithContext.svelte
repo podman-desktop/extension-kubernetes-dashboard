@@ -11,6 +11,7 @@ import ConfigMapDetails from './component/configmaps-secrets/ConfigMapDetails.sv
 import SecretDetails from './component/configmaps-secrets/SecretDetails.svelte';
 import DeploymentList from './component/deployments/DeploymentList.svelte';
 import ServicesList from './component/services/ServicesList.svelte';
+import HTTPRouteDetails from './component/ingresses-routes/HTTPRouteDetails.svelte';
 import IngressesRoutesList from './component/ingresses-routes/IngressesRoutesList.svelte';
 import PVCsList from './component/pvcs/PVCsList.svelte';
 import JobsList from './component/jobs/JobsList.svelte';
@@ -94,6 +95,10 @@ const { meta }: Props = $props();
 
   <Route path="/ingressesRoutes/route/:name/:namespace/*" let:meta>
     <RouteDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/ingressesRoutes/httproute/:name/:namespace/*" let:meta>
+    <HTTPRouteDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
   </Route>
 
   <Route path="/persistentvolumeclaims">

@@ -27,6 +27,7 @@ import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 import type { SystemApi } from '@kubernetes-dashboard/channels';
 import { IngressRouteHelper } from '/@/component/ingresses-routes/ingress-route-helper';
+import type { HTTPRouteUI } from '/@/component/ingresses-routes/HTTPRouteUI';
 import type { IngressUI } from '/@/component/ingresses-routes/IngressUI';
 import type { RouteUI } from '/@/component/ingresses-routes/RouteUI';
 
@@ -166,6 +167,31 @@ test('Expect simple column styling with route', async () => {
   };
   vi.mocked(dependencyMocks.get(IngressRouteHelper).getHostPaths).mockReturnValue([hostPath]);
   render(HostPath, { object: routeUI });
+
+  const firstLink = screen.getByRole('link', { name: hostPath.label });
+  expect(firstLink).toBeInTheDocument();
+  expect(firstLink.textContent).toEqual(hostPath.label);
+});
+
+test('Expect simple column styling with httproute', async () => {
+  const insecureUrl = ['http', '://foo.bar.com/foo'].join('');
+  const httpRouteUI: HTTPRouteUI = {
+    kind: 'HTTPRoute',
+    name: 'my-httproute',
+    namespace: 'test-namespace',
+    status: 'RUNNING',
+    hostnames: ['foo.bar.com'],
+    parentRefs: [],
+    matches: [],
+    backendRefs: [],
+    selected: false,
+  };
+  const hostPath = {
+    label: 'foo.bar.com/foo',
+    url: insecureUrl,
+  };
+  vi.mocked(dependencyMocks.get(IngressRouteHelper).getHostPaths).mockReturnValue([hostPath]);
+  render(HostPath, { object: httpRouteUI });
 
   const firstLink = screen.getByRole('link', { name: hostPath.label });
   expect(firstLink).toBeInTheDocument();

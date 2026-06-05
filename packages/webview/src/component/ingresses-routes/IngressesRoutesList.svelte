@@ -10,51 +10,54 @@ import { getContext } from 'svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
 import IngressRouteIcon from '/@/component/icons/IngressRouteIcon.svelte';
+import type { HTTPRouteUI } from './HTTPRouteUI';
 import type { RouteUI } from './RouteUI';
 import type { IngressUI } from './IngressUI';
 import { IngressRouteHelper } from './ingress-route-helper';
 import HostPathColumn from './columns/HostPath.svelte';
 
+type NetworkRouteUI = IngressUI | RouteUI | HTTPRouteUI;
+
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const ingressRouteHelper = dependencyAccessor.get<IngressRouteHelper>(IngressRouteHelper);
 
-let statusColumn = new TableColumn<IngressUI>('Status', {
+let statusColumn = new TableColumn<NetworkRouteUI>('Status', {
   align: 'center',
   width: '70px',
   renderer: StatusColumn,
   comparator: (a, b): number => a.status.localeCompare(b.status),
 });
 
-let nameColumn = new TableColumn<IngressUI | RouteUI>('Name', {
+let nameColumn = new TableColumn<NetworkRouteUI>('Name', {
   renderer: NameColumn,
   comparator: (a, b): number => a.name.localeCompare(b.name),
 });
 
-let pathColumn = new TableColumn<IngressUI | RouteUI>('Host/Path', {
+let pathColumn = new TableColumn<NetworkRouteUI>('Host/Path', {
   width: '1.5fr',
   renderer: HostPathColumn,
   comparator: (a, b): number => compareHostPath(a, b),
 });
 
-let ageColumn = new TableColumn<IngressUI | RouteUI, Date | undefined>('Age', {
+let ageColumn = new TableColumn<NetworkRouteUI, Date | undefined>('Age', {
   renderMapping: (ingressRoute): Date | undefined => ingressRoute.created,
   renderer: TableDurationColumn,
   comparator: (a, b): number => moment(b.created).diff(moment(a.created)),
 });
 
-function compareHostPath(object1: IngressUI | RouteUI, object2: IngressUI | RouteUI): number {
+function compareHostPath(object1: NetworkRouteUI, object2: NetworkRouteUI): number {
   const hostPathObject1 = ingressRouteHelper.getHostPaths(object1)[0] ?? '';
   const hostPathObject2 = ingressRouteHelper.getHostPaths(object2)[0] ?? '';
   return hostPathObject1.label.localeCompare(hostPathObject2.label);
 }
 
-let backendColumn = new TableColumn<IngressUI | RouteUI>('Backend', {
+let backendColumn = new TableColumn<NetworkRouteUI>('Backend', {
   width: '1.5fr',
   renderer: BackendColumn,
   comparator: (a, b): number => compareBackend(a, b),
 });
 
-function compareBackend(object1: IngressUI | RouteUI, object2: IngressUI | RouteUI): number {
+function compareBackend(object1: NetworkRouteUI, object2: NetworkRouteUI): number {
   const backendObject1 = ingressRouteHelper.getBackends(object1)[0] ?? '';
   const backendObject2 = ingressRouteHelper.getBackends(object2)[0] ?? '';
   return backendObject1.localeCompare(backendObject2);
@@ -66,10 +69,10 @@ const columns = [
   pathColumn,
   backendColumn,
   ageColumn,
-  new TableColumn<IngressUI | RouteUI>('Actions', { align: 'right', renderer: ActionsColumn }),
+  new TableColumn<NetworkRouteUI>('Actions', { align: 'right', renderer: ActionsColumn }),
 ];
 
-const row = new TableRow<IngressUI | RouteUI>({ selectable: (_ingressRoute): boolean => true });
+const row = new TableRow<NetworkRouteUI>({ selectable: (_ingressRoute): boolean => true });
 </script>
 
 <KubernetesObjectsList
@@ -79,18 +82,22 @@ const row = new TableRow<IngressUI | RouteUI>({ selectable: (_ingressRoute): boo
       transformer: ingressRouteHelper.getIngressUI,
     },
     {
+      resource: 'httproutes',
+      transformer: ingressRouteHelper.getHTTPRouteUI,
+    },
+    {
       resource: 'routes',
       transformer: ingressRouteHelper.getRouteUI,
     },
   ]}
-  singular="ingress and route"
-  plural="ingresses and routes"
+  singular="ingress, route, or HTTPRoute"
+  plural="ingresses, routes, and HTTPRoutes"
   isNamespaced={true}
   icon={IngressRouteIcon}
   columns={columns}
   row={row}>
   <!-- eslint-disable-next-line sonarjs/no-unused-vars -->
   {#snippet emptySnippet()}
-    <KubernetesEmptyScreen icon={IngressRouteIcon} resources={['ingresses', 'routes']} />
+    <KubernetesEmptyScreen icon={IngressRouteIcon} resources={['ingresses', 'routes', 'httproutes']} />
   {/snippet}
 </KubernetesObjectsList>

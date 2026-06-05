@@ -38,6 +38,7 @@ export const icon: Record<string, Component | IconDefinition> = {
   ConfigMapSecret: ConfigMapSecretIcon,
   CronJob: CronJobIcon,
   Deployment: DeploymentIcon,
+  HTTPRoute: IngressRouteIcon,
   Ingress: IngressRouteIcon,
   Route: IngressRouteIcon,
   Job: JobIcon,

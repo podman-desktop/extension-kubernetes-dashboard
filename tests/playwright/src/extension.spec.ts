@@ -189,10 +189,10 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => servicesPage.rowsAreVisible()).toBeTruthy();
   });
 
-  test('go to ingresses & routes page', async () => {
+  test('go to ingresses, routes & httproutes page', async () => {
     const ingresssRoutesPage = await navigation.openTabPage(KubernetesResources.IngressesRoutes);
     await playExpect(ingresssRoutesPage.heading).toBeVisible();
-    await playExpect.poll(async () => ingresssRoutesPage.isEmpty('No ingresses or routes')).toBeTruthy();
+    await playExpect.poll(async () => ingresssRoutesPage.isEmpty('No ingresses or routes or httproutes')).toBeTruthy();
   });
 
   test('go to pvc page', async () => {

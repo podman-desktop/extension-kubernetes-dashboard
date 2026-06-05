@@ -17,8 +17,9 @@
  ***********************************************************************/
 
 import type { IngressUI } from '/@/component/ingresses-routes/IngressUI';
+import type { HTTPRouteUI } from '/@/component/ingresses-routes/HTTPRouteUI';
 import type { RouteUI } from '/@/component/ingresses-routes/RouteUI';
 
 export interface Props {
-  object: IngressUI | RouteUI;
+  object: IngressUI | RouteUI | HTTPRouteUI;
 }

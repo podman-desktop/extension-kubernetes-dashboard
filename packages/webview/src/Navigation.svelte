@@ -177,7 +177,7 @@ $effect(() => {
         selected={url === navigator.kubernetesResourcesURL('Service')}
         href={navigator.kubernetesResourcesURL('Service')} />
       <SettingsNavItem
-        title="Ingresses &amp; Routes"
+        title="Ingresses, Routes &amp; HTTPRoutes"
         child={true}
         selected={url === navigator.kubernetesResourcesURL('Ingress')}
         href={navigator.kubernetesResourcesURL('Ingress')} />

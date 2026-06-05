@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,18 @@
  ***********************************************************************/
 
 import type { V1Ingress } from '@kubernetes/client-node';
+import type { V1HTTPRoute, V1HTTPRouteMatch, V1Route } from '@kubernetes-dashboard/channels';
+
+import type { HTTPRouteUI } from './HTTPRouteUI';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
-import type { V1Route } from '@kubernetes-dashboard/channels';
 
 export interface HostPathObject {
   label: string;
   url?: string;
 }
+
+type IngressRouteLike = IngressUI | RouteUI | HTTPRouteUI;
 
 export class IngressRouteHelper {
   getIngressUI(ingress: V1Ingress): IngressUI {
@@ -57,16 +61,40 @@ export class IngressRouteHelper {
       created: route.metadata?.creationTimestamp ? new Date(route.metadata.creationTimestamp) : undefined,
     };
   }
-  isIngress(object: IngressUI | RouteUI): object is IngressUI {
-    return !('to' in object);
+
+  getHTTPRouteUI(httpRoute: V1HTTPRoute): HTTPRouteUI {
+    return {
+      kind: 'HTTPRoute',
+      name: httpRoute.metadata?.name ?? '',
+      namespace: httpRoute.metadata?.namespace ?? '',
+      status: 'RUNNING',
+      hostnames: httpRoute.spec?.hostnames ?? [],
+      parentRefs: httpRoute.spec?.parentRefs ?? [],
+      matches: httpRoute.spec?.rules?.flatMap(rule => rule.matches ?? []) ?? [],
+      backendRefs: httpRoute.spec?.rules?.flatMap(rule => rule.backendRefs ?? []) ?? [],
+      selected: false,
+      created: httpRoute.metadata?.creationTimestamp ? new Date(httpRoute.metadata.creationTimestamp) : undefined,
+    };
   }
-  getHostPaths(ingressRoute: IngressUI | RouteUI): HostPathObject[] {
+
+  isIngress(object: IngressRouteLike): object is IngressUI {
+    return object.kind === 'Ingress';
+  }
+
+  isHTTPRoute(object: IngressRouteLike): object is HTTPRouteUI {
+    return object.kind === 'HTTPRoute';
+  }
+
+  getHostPaths(ingressRoute: IngressRouteLike): HostPathObject[] {
     if (this.isIngress(ingressRoute)) {
       return this.getIngressHostPaths(ingressRoute);
+    } else if (this.isHTTPRoute(ingressRoute)) {
+      return this.getHTTPRouteHostPaths(ingressRoute);
     } else {
       return this.getRouteHostPaths(ingressRoute);
     }
   }
+
   getIngressHostPaths(ingressUI: IngressUI): HostPathObject[] {
     const hostPaths: HostPathObject[] = [];
     for (const rule of ingressUI.rules ?? []) {
@@ -96,13 +124,28 @@ export class IngressRouteHelper {
       },
     ];
   }
-  getBackends(ingressRoute: IngressUI | RouteUI): string[] {
+
+  getHTTPRouteHostPaths(httpRouteUI: HTTPRouteUI): HostPathObject[] {
+    const paths = this.getHTTPRoutePaths(httpRouteUI.matches);
+    const hostnames = httpRouteUI.hostnames.length ? httpRouteUI.hostnames : [''];
+    return hostnames.flatMap(hostname =>
+      paths.map(path => ({
+        label: `${hostname}${path}`,
+        url: hostname ? `http://${hostname}${path}` : undefined,
+      })),
+    );
+  }
+
+  getBackends(ingressRoute: IngressRouteLike): string[] {
     if (this.isIngress(ingressRoute)) {
       return this.getIngressBackends(ingressRoute);
+    } else if (this.isHTTPRoute(ingressRoute)) {
+      return this.getHTTPRouteBackends(ingressRoute);
     } else {
       return [`${ingressRoute.to.kind} ${ingressRoute.to.name}`];
     }
   }
+
   getIngressBackends(ingressUI: IngressUI): string[] {
     const backends: string[] = [];
     for (const rule of ingressUI.rules ?? []) {
@@ -119,5 +162,20 @@ export class IngressRouteHelper {
       }
     }
     return backends;
+  }
+
+  getHTTPRouteBackends(httpRouteUI: HTTPRouteUI): string[] {
+    return httpRouteUI.backendRefs.map(backendRef => {
+      const kind = backendRef.kind ?? 'Service';
+      const portSuffix = backendRef.port ? `:${backendRef.port}` : '';
+      return `${kind} ${backendRef.name ?? ''}${portSuffix}`.trim();
+    });
+  }
+
+  getHTTPRoutePaths(matches: V1HTTPRouteMatch[]): string[] {
+    const paths = matches
+      .map(match => match.path?.value)
+      .filter((path): path is string => path !== undefined && path !== '');
+    return paths.length ? paths : [''];
   }
 }

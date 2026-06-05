@@ -21,6 +21,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import type { HTTPRouteUI } from '/@/component/ingresses-routes/HTTPRouteUI';
 import type { IngressUI } from '/@/component/ingresses-routes/IngressUI';
 import type { RouteUI } from '/@/component/ingresses-routes/RouteUI';
 import Backend from './Backend.svelte';
@@ -137,6 +138,27 @@ test('Expect simple column styling with route', async () => {
 
   vi.mocked(dependencyMocks.get(IngressRouteHelper).getBackends).mockReturnValue(['a backend']);
   render(Backend, { object: routeUI });
+
+  const text = screen.getByText('a backend');
+  expect(text).toBeInTheDocument();
+  expect(text).toHaveClass('text-(--pd-table-body-text)');
+});
+
+test('Expect simple column styling with httproute', async () => {
+  const httpRouteUI: HTTPRouteUI = {
+    kind: 'HTTPRoute',
+    name: 'my-httproute',
+    namespace: 'test-namespace',
+    status: 'RUNNING',
+    hostnames: ['foo.bar.com'],
+    parentRefs: [],
+    matches: [],
+    backendRefs: [],
+    selected: false,
+  };
+
+  vi.mocked(dependencyMocks.get(IngressRouteHelper).getBackends).mockReturnValue(['a backend']);
+  render(Backend, { object: httpRouteUI });
 
   const text = screen.getByText('a backend');
   expect(text).toBeInTheDocument();

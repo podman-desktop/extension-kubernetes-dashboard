@@ -19,10 +19,11 @@
 import type { V1Ingress } from '@kubernetes/client-node';
 import { beforeEach, expect, test, vi } from 'vitest';
 
+import type { HTTPRouteUI } from './HTTPRouteUI';
 import type { IngressUI } from './IngressUI';
 import type { RouteUI } from './RouteUI';
 import { IngressRouteHelper } from './ingress-route-helper';
-import type { V1Route } from '@kubernetes-dashboard/channels';
+import type { V1HTTPRoute, V1Route } from '@kubernetes-dashboard/channels';
 
 let ingressRouteHelper: IngressRouteHelper;
 
@@ -108,6 +109,35 @@ const routeUI: RouteUI = {
     name: 'service',
   },
   tlsEnabled: true,
+  selected: false,
+};
+
+const httpRouteUI: HTTPRouteUI = {
+  kind: 'HTTPRoute',
+  name: 'my-httproute',
+  namespace: 'test-namespace',
+  status: 'RUNNING',
+  hostnames: ['foo.bar.com'],
+  parentRefs: [
+    {
+      kind: 'Gateway',
+      name: 'gateway1',
+    },
+  ],
+  matches: [
+    {
+      path: {
+        type: 'PathPrefix',
+        value: '/foo',
+      },
+    },
+  ],
+  backendRefs: [
+    {
+      name: 'service',
+      port: 8080,
+    },
+  ],
   selected: false,
 };
 
@@ -201,6 +231,47 @@ test('expect basic UI conversion for route with path', async () => {
   expect(routeUI.to.name).toEqual(route.spec?.to.name);
 });
 
+test('expect basic UI conversion for httproute', async () => {
+  const httpRoute = {
+    metadata: {
+      name: 'my-httproute',
+      namespace: 'test-namespace',
+    },
+    spec: {
+      hostnames: ['foo.bar.com'],
+      parentRefs: [
+        {
+          kind: 'Gateway',
+          name: 'gateway1',
+        },
+      ],
+      rules: [
+        {
+          matches: [
+            {
+              path: {
+                type: 'PathPrefix',
+                value: '/foo',
+              },
+            },
+          ],
+          backendRefs: [
+            {
+              name: 'service',
+              port: 8080,
+            },
+          ],
+        },
+      ],
+    },
+  } as V1HTTPRoute;
+  const ui = ingressRouteHelper.getHTTPRouteUI(httpRoute);
+  expect(ui.kind).toEqual('HTTPRoute');
+  expect(ui.hostnames).toEqual(['foo.bar.com']);
+  expect(ui.matches).toHaveLength(1);
+  expect(ui.backendRefs).toHaveLength(1);
+});
+
 test('expect isIngress returns true with IngressUI object', async () => {
   const result = ingressRouteHelper.isIngress(ingressUI);
   expect(result).toBeTruthy();
@@ -209,6 +280,11 @@ test('expect isIngress returns true with IngressUI object', async () => {
 test('expect isIngress returns false with RouteUI object', async () => {
   const result = ingressRouteHelper.isIngress(routeUI);
   expect(result).toBeFalsy();
+});
+
+test('expect isHTTPRoute returns true with HTTPRouteUI object', async () => {
+  const result = ingressRouteHelper.isHTTPRoute(httpRouteUI);
+  expect(result).toBeTruthy();
 });
 
 test('expect to return one hostPathObject with ingress that has one host/path', async () => {
@@ -267,6 +343,14 @@ test('expect to return one hostPathObject if item is route', async () => {
   expect(result[0].url).toEqual('https://foo.bar.com');
 });
 
+test('expect to return one hostPathObject if item is httproute', async () => {
+  const result = ingressRouteHelper.getHTTPRouteHostPaths(httpRouteUI);
+  const insecureUrl = ['http', '://foo.bar.com/foo'].join('');
+  expect(result.length).toBe(1);
+  expect(result[0].label).toEqual('foo.bar.com/foo');
+  expect(result[0].url).toEqual(insecureUrl);
+});
+
 test('expect getIngressHostPaths is called with IngressUI object', async () => {
   const getIngressHostPathMock = vi.spyOn(ingressRouteHelper, 'getIngressHostPaths');
   const getRouteHostPathMock = vi.spyOn(ingressRouteHelper, 'getRouteHostPaths');
@@ -295,6 +379,11 @@ test('expect getIngressBackends is not called with RouteUI object', async () => 
   expect(getIngressBackendsMock).not.toHaveBeenCalled();
   expect(result.length).toBe(1);
   expect(result[0]).toEqual('Service service');
+});
+
+test('expect to return HTTPRoute backends', async () => {
+  const result = ingressRouteHelper.getBackends(httpRouteUI);
+  expect(result).toEqual(['Service service:8080']);
 });
 
 test('expect to return one item array with ingress that has one host/path', async () => {

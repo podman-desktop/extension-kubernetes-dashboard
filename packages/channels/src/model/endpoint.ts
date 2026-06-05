@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-// Endpoint represents an a URL opened by an Ingress or a Route
+// Endpoint represents a URL opened by an Ingress, Route, or HTTPRoute
 // and giving access to a target (Pod only for the moment)
 export interface Endpoint {
   contextName: string;
@@ -24,7 +24,7 @@ export interface Endpoint {
   targetName: string;
   targetNamespace: string;
 
-  inputKind: 'Ingress' | 'Route';
+  inputKind: 'Ingress' | 'Route' | 'HTTPRoute';
   inputName: string;
   url: string;
 }

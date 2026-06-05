@@ -26,6 +26,7 @@ export * from './current-context-info';
 export * from './endpoint';
 export * from './endpoints-info';
 export * from './endpoints-options';
+export * from './gateway-api-types';
 export * from './kubernetes-providers-info';
 export * from './kubernetes-troubleshooting';
 export * from './openshift-types';

@@ -23,7 +23,7 @@ import { render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import IngressRouteDetailsSummary from './IngressRouteDetailsSummary.svelte';
-import type { V1Route, SystemApi } from '@kubernetes-dashboard/channels';
+import type { V1HTTPRoute, V1Route, SystemApi } from '@kubernetes-dashboard/channels';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 
@@ -54,6 +54,35 @@ const route: V1Route = {
       weight: 0,
     },
     wildcardPolicy: '',
+  },
+};
+
+const httpRoute: V1HTTPRoute = {
+  kind: 'HTTPRoute',
+  metadata: {
+    name: 'my-httproute',
+    namespace: 'default',
+  },
+  spec: {
+    hostnames: ['example.com'],
+    rules: [
+      {
+        matches: [
+          {
+            path: {
+              type: 'PathPrefix',
+              value: '/api',
+            },
+          },
+        ],
+        backendRefs: [
+          {
+            name: 'backend-service',
+            port: 8080,
+          },
+        ],
+      },
+    ],
   },
 };
 
@@ -91,4 +120,11 @@ test('Check more route properties', async () => {
 
   expect(screen.getByText('my-route')).toBeInTheDocument();
   expect(screen.getByText('default')).toBeInTheDocument();
+});
+
+test('Expect basic httproute rendering', async () => {
+  render(IngressRouteDetailsSummary, { object: httpRoute });
+
+  expect(screen.getByText('my-httproute')).toBeInTheDocument();
+  expect(screen.getByText('example.com')).toBeInTheDocument();
 });

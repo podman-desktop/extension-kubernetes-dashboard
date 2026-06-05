@@ -124,6 +124,18 @@ test(`navigation to a specific Route`, () => {
   expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/ingressesRoutes/route/dummy-name/dummy-ns/summary');
 });
 
+test(`navigation to HTTPRoutes`, () => {
+  navigator.navigateTo({ kind: 'HTTPRoute' });
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/ingressesRoutes');
+});
+
+test(`navigation to a specific HTTPRoute`, () => {
+  navigator.navigateTo({ kind: 'HTTPRoute', name: 'dummy-name', namespace: 'dummy-ns' });
+
+  expect(vi.mocked(router.goto)).toHaveBeenCalledWith('/ingressesRoutes/httproute/dummy-name/dummy-ns/summary');
+});
+
 test(`navigation to ConfigMaps`, () => {
   navigator.navigateTo({ kind: 'ConfigMap' });
 

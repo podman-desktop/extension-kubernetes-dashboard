@@ -33,6 +33,7 @@ import type {
   IDisposable,
   TargetRef,
   Endpoint,
+  V1HTTPRoute,
   V1Route,
   KubernetesTroubleshootingInformation,
   ContextsApi,
@@ -53,6 +54,7 @@ import { ContextsDispatcher } from './contexts-dispatcher.js';
 import { CronjobsResourceFactory } from '/@/resources/cronjobs-resource-factory.js';
 import { DeploymentsResourceFactory } from '/@/resources/deployments-resource-factory.js';
 import { EventsResourceFactory } from '/@/resources/events-resource-factory.js';
+import { HTTPRoutesResourceFactory } from '/@/resources/http-routes-resource-factory.js';
 import { IngressesResourceFactory } from '/@/resources/ingresses-resource-factory.js';
 import { JobsResourceFactory } from '/@/resources/jobs-resource-factory.js';
 import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
@@ -166,6 +168,7 @@ export class ContextsManager implements ContextsApi {
       new DeploymentsResourceFactory(),
       new EndpointSlicesResourceFactory(this),
       new EventsResourceFactory(),
+      new HTTPRoutesResourceFactory(this),
       new IngressesResourceFactory(this),
       new NamespacesResourceFactory(),
       new NodesResourceFactory(),
@@ -802,6 +805,24 @@ export class ContextsManager implements ContextsApi {
           }))
           .filter(result => result.url !== ''),
       );
+      const httpRoutes = this.searchByTargetRef('HTTPRoute', {
+        kind: 'Service',
+        name: service.name,
+        namespace: targetNamespace,
+      });
+      results.push(
+        ...httpRoutes.flatMap((httpRoute: V1HTTPRoute) =>
+          this.findHTTPRouteUrlsForService(httpRoute, service.name).map(url => ({
+            contextName,
+            targetKind,
+            targetName,
+            targetNamespace,
+            inputKind: 'HTTPRoute' as const,
+            inputName: httpRoute.metadata?.name ?? '',
+            url,
+          })),
+        ),
+      );
     }
     return results;
   }
@@ -821,6 +842,34 @@ export class ContextsManager implements ContextsApi {
     // default backend: not exposed
     // TODO what do we want to return in this case?
     return '';
+  }
+
+  findHTTPRouteUrlsForService(httpRoute: V1HTTPRoute, serviceName: string): string[] {
+    const hostnames = httpRoute.spec?.hostnames?.length ? httpRoute.spec.hostnames : [];
+    const urls = new Set<string>();
+
+    for (const rule of httpRoute.spec?.rules ?? []) {
+      const targetsService = rule.backendRefs?.some(backendRef => {
+        const kind = backendRef.kind ?? 'Service';
+        return kind === 'Service' && backendRef.name === serviceName;
+      });
+      if (!targetsService) {
+        continue;
+      }
+
+      const paths = rule.matches
+        ?.map(match => match.path?.value)
+        .filter((path): path is string => path !== undefined && path !== '');
+      const resolvedPaths = paths?.length ? paths : [''];
+
+      for (const hostname of hostnames) {
+        for (const path of resolvedPaths) {
+          urls.add(`http://${hostname}${path}`);
+        }
+      }
+    }
+
+    return [...urls];
   }
 
   async applyResources(yamlDocuments: string): Promise<void> {
