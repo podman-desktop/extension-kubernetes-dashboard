@@ -14,13 +14,13 @@ let { object }: Props = $props();
 const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);
 
-async function scaleDeployment(): Promise<void> {
-  await contextsApi.scaleDeployment(object.name, object.namespace, object.replicas);
+async function scaleObject(): Promise<void> {
+  await contextsApi.scaleObject(object.kind, object.name, object.namespace, object.replicas);
 }
 </script>
 
 <IconButton
   enabled={object.status !== 'DELETING'}
   title={`Scale ${object.kind}`}
-  onClick={scaleDeployment}
+  onClick={scaleObject}
   icon={faScaleBalanced} />

@@ -46,7 +46,7 @@ beforeEach(() => {
 
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
-    scaleDeployment: vi.fn(),
+    scaleObject: vi.fn(),
   } as unknown as ContextsApi);
 });
 
@@ -56,5 +56,5 @@ test('Expect no error when scaling deployment', async () => {
   const scaleButton = screen.getByRole('button', { name: 'Scale Deployment' });
   await fireEvent.click(scaleButton);
 
-  expect(remoteMocks.get(API_CONTEXTS).scaleDeployment).toHaveBeenCalledWith('my-deployment', 'ns1', 3);
+  expect(remoteMocks.get(API_CONTEXTS).scaleObject).toHaveBeenCalledWith('Deployment', 'my-deployment', 'ns1', 3);
 });

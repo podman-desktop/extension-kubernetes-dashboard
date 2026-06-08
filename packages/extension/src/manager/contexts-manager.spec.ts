@@ -27,7 +27,7 @@ import type {
 import { ApiException, KubeConfig } from '@kubernetes/client-node';
 import { type Uri, Disposable, type TelemetryLogger } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
-import { kubernetes, process as extensionProcess, window } from '@podman-desktop/api';
+import { kubernetes, window } from '@podman-desktop/api';
 
 import type { ContextHealthState } from './context-health-checker.js';
 import { ContextHealthChecker } from './context-health-checker.js';
@@ -48,6 +48,7 @@ import type { ConnectOptions } from '@podman-desktop/kubernetes-dashboard-extens
 const resource4DeleteObjectMock = vi.fn();
 const resource4SearchBySelectorMock = vi.fn();
 const resource4RestartObjectMock = vi.fn();
+const resource4ScaleObjectMock = vi.fn();
 
 const resource5ReadObjectMock = vi.fn();
 
@@ -198,7 +199,8 @@ class TestContextsManager extends ContextsManager {
         })
         .setDeleteObject(resource4DeleteObjectMock)
         .setSearchBySelector(resource4SearchBySelectorMock)
-        .setRestartObject(resource4RestartObjectMock),
+        .setRestartObject(resource4RestartObjectMock)
+        .setScaleObject(resource4ScaleObjectMock),
       new ResourceFactoryBase({
         kind: 'Resource5',
         resource: 'resource5',
@@ -1611,18 +1613,29 @@ test('restartObject on other namespace', async () => {
   expect(resource4RestartObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
 });
 
-test('scaleDeployment when no current context', async () => {
+test('scaleObject when no current context', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithNoCurrentContext);
   const manager = new TestContextsManager();
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
   await manager.update(kc);
-  await manager.scaleDeployment('deployment-name', 'ns1', 1);
-  expect(console.warn).toHaveBeenCalledWith('scale deployment: no current context');
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
+  expect(console.warn).toHaveBeenCalledWith('scale object: no current context');
 });
 
-test('scaleDeployment does nothing when input is cancelled', async () => {
+test('scaleObject with unhandled resource', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.scaleObject('unknown', 'resource-name', 'ns1', 1);
+  expect(console.error).toHaveBeenCalledWith('scale object: no handler for kind unknown');
+});
+
+test('scaleObject does nothing when input is cancelled', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithContext1asDefault);
   const manager = new TestContextsManager();
@@ -1630,54 +1643,54 @@ test('scaleDeployment does nothing when input is cancelled', async () => {
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
   vi.mocked(window.showInputBox).mockResolvedValue(undefined);
   await manager.update(kc);
-  await manager.scaleDeployment('deployment-name', 'ns1', 1);
-  expect(extensionProcess.exec).not.toHaveBeenCalled();
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
+  expect(resource4ScaleObjectMock).not.toHaveBeenCalled();
 });
 
-test('scaleDeployment runs kubectl scale with the requested replica count', async () => {
+test('scaleObject dispatches to the resource factory with the requested replica count', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithContext1asDefault);
   const manager = new TestContextsManager();
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
   vi.mocked(window.showInputBox).mockResolvedValue('4');
-  vi.mocked(kubernetes.getKubeconfig).mockReturnValue({ path: '/path/to/kubeconfig' } as Uri);
-  vi.mocked(extensionProcess.exec).mockResolvedValue({ command: 'kubectl', stdout: '', stderr: '' });
   await manager.update(kc);
-  await manager.scaleDeployment('deployment-name', 'ns1', 1);
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
   expect(window.showInputBox).toHaveBeenCalledWith({
-    title: 'Scale deployment deployment-name',
+    title: 'Scale resource4 resource-name',
     prompt: 'Enter the desired number of replicas.',
     value: '1',
     validateInput: expect.any(Function),
   });
-  expect(extensionProcess.exec).toHaveBeenCalledWith('kubectl', [
-    'scale',
-    'deployment',
-    'deployment-name',
-    '--replicas=4',
-    '--namespace',
-    'ns1',
-    '--context',
-    'context1',
-    '--kubeconfig',
-    '/path/to/kubeconfig',
-  ]);
-  expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('scale.deployment');
+  expect(resource4ScaleObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'ns1', 4);
+  expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('scale.object', {
+    kind: 'Resource4',
+  });
 });
 
-test('scaleDeployment shows error message when kubectl scale fails', async () => {
+test('scaleObject on other namespace', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithContext1asDefault);
   const manager = new TestContextsManager();
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
   vi.mocked(window.showInputBox).mockResolvedValue('4');
-  vi.mocked(kubernetes.getKubeconfig).mockReturnValue({ path: '/path/to/kubeconfig' } as Uri);
-  vi.mocked(extensionProcess.exec).mockRejectedValue(new Error('forbidden'));
   await manager.update(kc);
-  await manager.scaleDeployment('deployment-name', 'ns1', 1);
-  expect(window.showErrorMessage).toHaveBeenCalledWith('Unable to scale deployment deployment-name: forbidden');
+  await manager.scaleObject('Resource4', 'resource-name', 'other-ns', 1);
+  expect(resource4ScaleObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns', 4);
+});
+
+test('scaleObject shows error message when scaling fails', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.mocked(window.showInputBox).mockResolvedValue('4');
+  resource4ScaleObjectMock.mockRejectedValueOnce(new Error('forbidden'));
+  await manager.update(kc);
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
+  expect(window.showErrorMessage).toHaveBeenCalledWith('Unable to scale resource4 resource-name: forbidden');
 });
 
 test('waitForObjectDeletion when no current context', async () => {

@@ -37,7 +37,7 @@ import type {
   KubernetesTroubleshootingInformation,
   ContextsApi,
 } from '@kubernetes-dashboard/channels';
-import { kubernetes, process as extensionProcess, TelemetryLogger, window } from '@podman-desktop/api';
+import { kubernetes, TelemetryLogger, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
 
 import type { Event } from '/@/types/emitter.js';
@@ -557,14 +557,20 @@ export class ContextsManager implements ContextsApi {
     return handler.restartObject(this.currentContext, name, ns);
   }
 
-  async scaleDeployment(name: string, namespace: string, currentReplicas: number): Promise<void> {
+  async scaleObject(kind: string, name: string, namespace: string, currentReplicas: number): Promise<void> {
     if (!this.currentContext) {
-      console.warn('scale deployment: no current context');
+      console.warn('scale object: no current context');
+      return;
+    }
+
+    const handler = this.#resourceFactoryHandler.getResourceFactoryByKind(kind);
+    if (!handler?.scaleObject) {
+      console.error(`scale object: no handler for kind ${kind}`);
       return;
     }
 
     const replicasInput = await window.showInputBox({
-      title: `Scale deployment ${name}`,
+      title: `Scale ${kind.toLowerCase()} ${name}`,
       prompt: 'Enter the desired number of replicas.',
       value: currentReplicas.toString(),
       validateInput: (value: string): string | undefined => {
@@ -581,27 +587,17 @@ export class ContextsManager implements ContextsApi {
       await window.showErrorMessage(validationError);
       return;
     }
+
     const ns = namespace ?? this.currentContext.getNamespace();
-    const contextName = this.currentContext.getKubeConfig().currentContext;
-    const kubeconfig = kubernetes.getKubeconfig();
 
     try {
-      await extensionProcess.exec('kubectl', [
-        'scale',
-        'deployment',
-        name,
-        `--replicas=${replicas}`,
-        '--namespace',
-        ns,
-        '--context',
-        contextName,
-        '--kubeconfig',
-        kubeconfig.path,
-      ]);
-      this.telemetryLogger.logUsage('scale.deployment');
+      await handler.scaleObject(this.currentContext, name, ns, replicas);
+      this.telemetryLogger.logUsage('scale.object', {
+        kind,
+      });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      await window.showErrorMessage(`Unable to scale deployment ${name}: ${message}`);
+      await window.showErrorMessage(`Unable to scale ${kind.toLowerCase()} ${name}: ${message}`);
     }
   }
 

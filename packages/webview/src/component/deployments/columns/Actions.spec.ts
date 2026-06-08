@@ -53,7 +53,7 @@ beforeEach(() => {
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
     deleteObject: vi.fn(),
-    scaleDeployment: vi.fn(),
+    scaleObject: vi.fn(),
   } as unknown as ContextsApi);
 });
 

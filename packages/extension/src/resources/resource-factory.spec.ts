@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,4 +123,18 @@ test('ResourceFactoryBase set restartObject with non-namespaced object', () => {
   };
   factory.setRestartObject(restartObject);
   expect(factory.restartObject).toEqual(restartObject);
+});
+
+test('ResourceFactoryBase set scaleObject with namespaced object', () => {
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
+  const scaleObject = (
+    _kubeconfig: KubeConfigSingleContext,
+    _name: string,
+    _namespace: string,
+    _replicas: number,
+  ): Promise<void> => {
+    return Promise.resolve();
+  };
+  factory.setScaleObject(scaleObject);
+  expect(factory.scaleObject).toEqual(scaleObject);
 });
