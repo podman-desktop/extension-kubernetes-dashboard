@@ -79,14 +79,27 @@ test('expect terminal constructor to reflect props', async () => {
   });
 
   await vi.waitFor(() => {
-    expect(Terminal).toHaveBeenCalledWith(
+    const [options] = vi.mocked(Terminal).mock.calls[0] ?? [];
+    expect(options).toEqual(
       expect.objectContaining({
         disableStdin: true,
         convertEol: true,
         screenReaderMode: true,
-        scrollback: undefined,
       }),
     );
+    expect(options).not.toHaveProperty('scrollback');
+  });
+});
+
+test('expect terminal constructor to omit scrollback when lineCount is undefined', async () => {
+  render(TerminalWindow, {
+    terminal: createTerminalMock(),
+    lineCount: undefined,
+  });
+
+  await vi.waitFor(() => {
+    const [options] = vi.mocked(Terminal).mock.calls[0] ?? [];
+    expect(options).not.toHaveProperty('scrollback');
   });
 });
 
