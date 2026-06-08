@@ -29,6 +29,7 @@ let {
   showCursor = false,
   search = false,
   class: className,
+  lineCount = undefined,
 }: Props = $props();
 
 let logsXtermDiv: HTMLDivElement | undefined;
