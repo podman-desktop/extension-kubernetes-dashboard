@@ -28,6 +28,7 @@ find node_modules/@podman-desktop/api -name '*.d.ts' | head -5
 ## Kubernetes Client: @kubernetes/client-node
 
 Key classes:
+
 - `KubeConfig` — load from file, manage contexts
 - `Watch` — stream Kubernetes object changes
 - `KubernetesObjectApi` — direct object operations (CRUD)
@@ -132,6 +133,7 @@ dispatch updates only to active subscribers.
 ## Resource Factories
 
 Each Kubernetes resource type has a factory in `resources/`:
+
 - `pods-resource-factory.ts`, `deployments-resource-factory.ts`, etc.
 
 Factories implement `ResourceInformerFactory` and `ResourcePermissionsFactory`:

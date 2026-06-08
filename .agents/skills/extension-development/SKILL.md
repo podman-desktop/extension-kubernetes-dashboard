@@ -93,7 +93,9 @@ const result = await myApi.doSomething(args);
 rpcExtension.fire(MY_CHANNEL, data);
 
 // Webview: listen for broadcasts
-const disposable = rpcBrowser.on(MY_CHANNEL, data => { /* handle */ });
+const disposable = rpcBrowser.on(MY_CHANNEL, data => {
+  /* handle */
+});
 ```
 
 ### Timeout

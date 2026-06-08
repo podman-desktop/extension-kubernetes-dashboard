@@ -1,6 +1,6 @@
-import {join} from 'path';
-import {builtinModules} from 'module';
-import {defineConfig} from 'vite';
+import { join } from 'path';
+import { builtinModules } from 'module';
+import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
 const PACKAGE_ROOT = __dirname;
@@ -35,9 +35,7 @@ const config = defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: [
-        ...builtinModules.flatMap(p => [p, `node:${p}`]),
-      ],
+      external: [...builtinModules.flatMap(p => [p, `node:${p}`])],
       output: {
         entryFileNames: '[name].js',
       },

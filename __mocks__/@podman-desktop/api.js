@@ -82,7 +82,7 @@ const plugin = {
     getKubeconfig: vi.fn(),
   },
   Disposable: {
-    create: (func) => ({ dispose: func }),
+    create: func => ({ dispose: func }),
   },
 };
 

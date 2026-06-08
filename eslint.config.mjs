@@ -61,7 +61,6 @@ export default [
       '**/.svelte-kit/',
       'scripts/**',
       '**/src-generated/',
-      
     ],
   },
   js.configs.recommended,
@@ -187,20 +186,20 @@ export default [
       'no-restricted-imports': [
         'error',
         {
-          'patterns': [
+          patterns: [
             {
-              'group': ['../'],
-              'message': 'Relative imports are not allowed.'
-            }
-          ]
-        }
+              group: ['../'],
+              message: 'Relative imports are not allowed.',
+            },
+          ],
+        },
       ],
       '@typescript-eslint/no-unsafe-call': 'error',
       'vitest/prefer-import-in-mock': 'error',
       'vitest/prefer-vi-mocked': 'error',
       // use "test" everywhere (outisde and within describe blocks)
       'vitest/consistent-test-it': ['error', { fn: 'test' }],
-      'vitest/consistent-test-filename': ['error', { pattern: '.*\\.spec\\.ts$' } ],
+      'vitest/consistent-test-filename': ['error', { pattern: '.*\\.spec\\.ts$' }],
       'vitest/consistent-vitest-vi': 'error',
       'vitest/no-conditional-tests': 'error',
       'vitest/no-disabled-tests': 'error',
@@ -268,5 +267,4 @@ export default [
       'sonarjs/no-hardcoded-ip': 'off',
     },
   },
-
 ];
