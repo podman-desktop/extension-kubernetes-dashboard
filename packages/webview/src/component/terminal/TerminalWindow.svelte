@@ -29,7 +29,6 @@ let {
   showCursor = false,
   search = false,
   class: className,
-  lineCount = 1060,
 }: Props = $props();
 
 let logsXtermDiv: HTMLDivElement | undefined;
@@ -72,7 +71,7 @@ async function refreshTerminal(): Promise<void> {
     screenReaderMode: screenReaderMode,
     rightClickSelectsWord: true,
     minimumContrastRatio: 4.5,
-    scrollback: lineCount,
+    scrollback: lineCount, // https://xtermjs.org/docs/api/terminal/interfaces/iterminaloptions/#optional-scrollback
   });
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
@@ -158,7 +157,7 @@ onDestroy(() => {
 {/if}
 
 <div
-  class="{className} overflow-hidden p-[5px] pr-0 bg-(--pd-terminal-background) h-full w-full"
+  class="{className} overflow-hidden p-[5px] pr-0 bg-(--pd-terminal-background)"
   role="term"
   bind:this={logsXtermDiv}>
 </div>

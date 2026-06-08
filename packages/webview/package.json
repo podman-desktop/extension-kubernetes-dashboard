@@ -6,15 +6,14 @@
   "type": "module",
   "scripts": {
     "preview": "vite preview",
-    "build:deps": "pnpm --filter @kubernetes-dashboard/rpc run build && pnpm --filter @kubernetes-dashboard/channels run build",
-    "build": "pnpm run build:deps && vite build",
+    "build": "vite build",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "format:fix": "prettier --write \"src/**/*.{ts,svelte}\"",
     "lint:check": "eslint . --ext js,ts,tsx",
     "lint:fix": "eslint . --fix --ext js,ts,tsx",
-    "watch": "pnpm run build:deps && vite --mode development build -w",
+    "watch": "vite --mode development build -w",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
