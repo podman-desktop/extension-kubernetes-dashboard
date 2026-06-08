@@ -84,7 +84,7 @@ test('expect terminal constructor to reflect props', async () => {
         disableStdin: true,
         convertEol: true,
         screenReaderMode: true,
-        scrollback: 1060,
+        scrollback: undefined,
       }),
     );
   });
