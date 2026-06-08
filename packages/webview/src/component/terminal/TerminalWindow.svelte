@@ -72,7 +72,7 @@ async function refreshTerminal(): Promise<void> {
     screenReaderMode: screenReaderMode,
     rightClickSelectsWord: true,
     minimumContrastRatio: 4.5,
-    ...(lineCount > 0 ? { scrollback: lineCount } : {}), // https://xtermjs.org/docs/api/terminal/interfaces/iterminaloptions/#optional-scrollback
+    ...(lineCount != undefined ? { scrollback: lineCount } : {}), // https://xtermjs.org/docs/api/terminal/interfaces/iterminaloptions/#optional-scrollback
   };
 
   terminal = new Terminal(terminalOptions);
@@ -137,7 +137,7 @@ async function refreshTerminal(): Promise<void> {
 
 $effect(() => {
   if (terminal?.options) {
-    if (lineCount > 0) {
+    if (lineCount != undefined) {
       terminal.options.scrollback = lineCount;
     } else {
       delete terminal.options.scrollback;
