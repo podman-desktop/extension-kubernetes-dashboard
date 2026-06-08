@@ -16,14 +16,15 @@
     ]
   },
   "scripts": {
-    "build": "vite build",
+    "build:deps": "pnpm --filter @kubernetes-dashboard/rpc run build && pnpm --filter @kubernetes-dashboard/channels run build",
+    "build": "pnpm run build:deps && vite build",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "format:fix": "prettier --write \"src/**/*.ts\"",
     "lint:check": "eslint . --ext js,ts,tsx",
     "lint:fix": "eslint . --fix --ext js,ts,tsx",
-    "watch": "vite --mode development build -w"
+    "watch": "pnpm run build:deps && vite --mode development build -w"
   },
   "devDependencies": {
     "@kubernetes-dashboard/rpc": "workspace:*",
