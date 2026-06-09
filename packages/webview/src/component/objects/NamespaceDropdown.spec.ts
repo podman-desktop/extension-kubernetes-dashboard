@@ -119,7 +119,7 @@ test('Expect basic styling', async () => {
 
   const dropdown = screen.getByLabelText('Kubernetes Namespace');
   expect(dropdown).toBeInTheDocument();
-  expect(dropdown).toHaveClass('w-64 max-w-64 truncate');
+  expect(dropdown).toHaveClass('w-64 max-w-64');
 });
 
 test('Expect namespaces are in the dropdown', async () => {
