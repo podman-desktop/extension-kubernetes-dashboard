@@ -46,7 +46,4 @@ export const icon: Record<string, Component | IconDefinition> = {
   PersistentVolumeClaim: PvcIcon,
   Service: ServiceIcon,
   Namespace: NamespaceIcon,
-  DaemonSet: DeploymentIcon,
-  StatefulSet: DeploymentIcon,
-  ReplicaSet: DeploymentIcon,
 };

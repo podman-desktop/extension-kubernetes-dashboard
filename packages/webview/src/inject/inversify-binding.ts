@@ -39,9 +39,6 @@ import { cronjobsModule } from '/@/component/cronjobs/_cronjobs-module';
 import { podsModule } from '/@/component/pods/_pods-module';
 import { streamsModule } from '/@/stream/stream-module';
 import { annotationsModule } from '/@/annotations/_annotations-module';
-import { daemonSetsModule } from '/@/component/daemonsets/_daemonsets-module';
-import { statefulSetsModule } from '/@/component/statefulsets/_statefulsets-module';
-import { replicaSetsModule } from '/@/component/replicasets/_replicasets-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -75,9 +72,6 @@ export class InversifyBinding {
     await this.#container.load(cronjobsModule);
     await this.#container.load(podsModule);
     await this.#container.load(annotationsModule);
-    await this.#container.load(daemonSetsModule);
-    await this.#container.load(statefulSetsModule);
-    await this.#container.load(replicaSetsModule);
 
     return this.#container;
   }

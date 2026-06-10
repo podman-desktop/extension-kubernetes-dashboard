@@ -26,12 +26,6 @@ import CronJobDetails from './component/cronjobs/CronJobDetails.svelte';
 import PodDetails from './component/pods/PodDetails.svelte';
 import PortForwardingList from './component/port-forward/PortForwardingList.svelte';
 import KubeApplyYAML from './component/apply/KubeApplyYAML.svelte';
-import DaemonSetsList from '/@/component/daemonsets/DaemonSetsList.svelte';
-import DaemonSetDetails from '/@/component/daemonsets/DaemonSetDetails.svelte';
-import StatefulSetsList from '/@/component/statefulsets/StatefulSetsList.svelte';
-import StatefulSetDetails from '/@/component/statefulsets/StatefulSetDetails.svelte';
-import ReplicaSetsList from '/@/component/replicasets/ReplicaSetsList.svelte';
-import ReplicaSetDetails from '/@/component/replicasets/ReplicaSetDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -144,29 +138,5 @@ const { meta }: Props = $props();
 
   <Route path="/applyYaml">
     <KubeApplyYAML />
-  </Route>
-
-  <Route path="/daemonsets">
-    <DaemonSetsList />
-  </Route>
-
-  <Route path="/daemonsets/:name/:namespace/*" let:meta>
-    <DaemonSetDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
-  </Route>
-
-  <Route path="/statefulsets">
-    <StatefulSetsList />
-  </Route>
-
-  <Route path="/statefulsets/:name/:namespace/*" let:meta>
-    <StatefulSetDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
-  </Route>
-
-  <Route path="/replicasets">
-    <ReplicaSetsList />
-  </Route>
-
-  <Route path="/replicasets/:name/:namespace/*" let:meta>
-    <ReplicaSetDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
   </Route>
 </div>
