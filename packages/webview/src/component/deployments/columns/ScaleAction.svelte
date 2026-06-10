@@ -1,5 +1,5 @@
 <script lang="ts">
-import { faScaleBalanced } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsUpDown } from '@fortawesome/free-solid-svg-icons';
 
 import IconButton from '/@/component/button/IconButton.svelte';
 
@@ -23,4 +23,4 @@ async function scaleObject(): Promise<void> {
   enabled={object.status !== 'DELETING'}
   title={`Scale ${object.kind}`}
   onClick={scaleObject}
-  icon={faScaleBalanced} />
+  icon={faArrowsUpDown} />

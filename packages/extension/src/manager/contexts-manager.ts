@@ -571,7 +571,7 @@ export class ContextsManager implements ContextsApi {
 
     const replicasInput = await window.showInputBox({
       title: `Scale ${kind.toLowerCase()} ${name}`,
-      prompt: 'Enter the desired number of replicas.',
+      prompt: 'Enter replica count',
       value: currentReplicas.toString(),
       validateInput: (value: string): string | undefined => {
         return this.validateReplicaCount(value);
