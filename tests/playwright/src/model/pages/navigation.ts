@@ -84,7 +84,7 @@ export class KubernetesBar {
 
   public async openPortForwardingPage(): Promise<PortForwardingPage> {
     const portForwardingLink = this.kubernetesNavBar.getByRole('link', { name: 'Port Forwarding', exact: true });
-    await this.expandSectionIfNeeded('Network', portForwardingLink);
+    await this.expandSectionIfNeeded(NavSection.Network, portForwardingLink);
     await portForwardingLink.click();
     return new PortForwardingPage(this.page);
   }
