@@ -17,22 +17,22 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import type { KubernetesResources } from '/@/model/core/types';
+import { KubernetesResources, NavSection } from '/@/model/core/types';
 import { KubernetesResourcePage } from './kubernetes-resource-page';
 import { KubernetesDashboardPage } from './kubernetes-dashboard-page';
 import { PortForwardingPage } from './port-forwarding-page';
 
 // Maps each nav item to the collapsible section it lives in (undefined = top-level).
-const RESOURCE_SECTION: Partial<Record<string, string>> = {
-  Deployments: 'Compute',
-  Pods: 'Compute',
-  Jobs: 'Compute',
-  CronJobs: 'Compute',
-  'ConfigMaps & Secrets': 'Config',
-  Services: 'Network',
-  'Ingresses & Routes': 'Network',
-  'Port Forwarding': 'Network',
-  'Persistent Volume Claims': 'Storage',
+const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
+  [KubernetesResources.Deployments]: NavSection.Compute,
+  [KubernetesResources.Pods]: NavSection.Compute,
+  [KubernetesResources.Jobs]: NavSection.Compute,
+  [KubernetesResources.Cronjobs]: NavSection.Compute,
+  [KubernetesResources.ConfigMapsSecrets]: NavSection.Config,
+  [KubernetesResources.Services]: NavSection.Network,
+  [KubernetesResources.IngressesRoutes]: NavSection.Network,
+  [KubernetesResources.PortForwarding]: NavSection.Network,
+  [KubernetesResources.PVCs]: NavSection.Storage,
 };
 
 export class KubernetesBar {

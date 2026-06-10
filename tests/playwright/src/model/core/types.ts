@@ -16,6 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+export enum NavSection {
+  Compute = 'Compute',
+  Config = 'Config',
+  Network = 'Network',
+  Storage = 'Storage',
+}
+
 export enum KubernetesResources {
   Namespaces = 'Namespaces',
   Nodes = 'Nodes',
