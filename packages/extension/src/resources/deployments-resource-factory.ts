@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024, 2025 Red Hat, Inc.
+ * Copyright (C) 2024 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
     });
     this.setIsActive(this.isDeploymentActive);
     this.setDeleteObject(this.deleteDeployment);
+    this.setScaleObject(this.scaleDeployment);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Deployment> {
@@ -72,5 +73,19 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
   ): Promise<V1Status | KubernetesObject> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(AppsV1Api);
     return apiClient.deleteNamespacedDeployment({ name, namespace });
+  }
+
+  async scaleDeployment(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+    replicas: number,
+  ): Promise<void> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(AppsV1Api);
+    await apiClient.patchNamespacedDeploymentScale({
+      name,
+      namespace,
+      body: [{ op: 'add', path: '/spec/replicas', value: replicas }],
+    });
   }
 }

@@ -48,6 +48,7 @@ import type { ConnectOptions } from '@podman-desktop/kubernetes-dashboard-extens
 const resource4DeleteObjectMock = vi.fn();
 const resource4SearchBySelectorMock = vi.fn();
 const resource4RestartObjectMock = vi.fn();
+const resource4ScaleObjectMock = vi.fn();
 
 const resource5ReadObjectMock = vi.fn();
 
@@ -198,7 +199,8 @@ class TestContextsManager extends ContextsManager {
         })
         .setDeleteObject(resource4DeleteObjectMock)
         .setSearchBySelector(resource4SearchBySelectorMock)
-        .setRestartObject(resource4RestartObjectMock),
+        .setRestartObject(resource4RestartObjectMock)
+        .setScaleObject(resource4ScaleObjectMock),
       new ResourceFactoryBase({
         kind: 'Resource5',
         resource: 'resource5',
@@ -1609,6 +1611,86 @@ test('restartObject on other namespace', async () => {
   await manager.update(kc);
   await manager.restartObject('Resource4', 'resource-name', 'other-ns');
   expect(resource4RestartObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+});
+
+test('scaleObject when no current context', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithNoCurrentContext);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
+  expect(console.warn).toHaveBeenCalledWith('scale object: no current context');
+});
+
+test('scaleObject with unhandled resource', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  await manager.update(kc);
+  await manager.scaleObject('unknown', 'resource-name', 'ns1', 1);
+  expect(console.error).toHaveBeenCalledWith('scale object: no handler for kind unknown');
+});
+
+test('scaleObject does nothing when input is cancelled', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.mocked(window.showInputBox).mockResolvedValue(undefined);
+  await manager.update(kc);
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
+  expect(resource4ScaleObjectMock).not.toHaveBeenCalled();
+});
+
+test('scaleObject dispatches to the resource factory with the requested replica count', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.mocked(window.showInputBox).mockResolvedValue('4');
+  await manager.update(kc);
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
+  expect(window.showInputBox).toHaveBeenCalledWith({
+    title: 'Scale resource4 resource-name',
+    prompt: 'Enter the desired number of replicas.',
+    value: '1',
+    validateInput: expect.any(Function),
+  });
+  expect(resource4ScaleObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'ns1', 4);
+  expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('scale.object', {
+    kind: 'Resource4',
+  });
+});
+
+test('scaleObject on other namespace', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.mocked(window.showInputBox).mockResolvedValue('4');
+  await manager.update(kc);
+  await manager.scaleObject('Resource4', 'resource-name', 'other-ns', 1);
+  expect(resource4ScaleObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns', 4);
+});
+
+test('scaleObject shows error message when scaling fails', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.mocked(window.showInputBox).mockResolvedValue('4');
+  resource4ScaleObjectMock.mockRejectedValueOnce(new Error('forbidden'));
+  await manager.update(kc);
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
+  expect(window.showErrorMessage).toHaveBeenCalledWith('Unable to scale resource4 resource-name: forbidden');
 });
 
 test('waitForObjectDeletion when no current context', async () => {

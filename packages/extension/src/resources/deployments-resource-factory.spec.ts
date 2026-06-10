@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { V1Deployment } from '@kubernetes/client-node';
-import { expect, test } from 'vitest';
+import type { AppsV1Api, KubeConfig, V1Deployment } from '@kubernetes/client-node';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import { DeploymentsResourceFactory } from './deployments-resource-factory.js';
+import type { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
+
+const kubeConfigMock = {
+  makeApiClient: vi.fn(),
+} as unknown as KubeConfig;
+
+const kubeconfig = {
+  getKubeConfig: () => kubeConfigMock,
+} as unknown as KubeConfigSingleContext;
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
 test('deployment with replica=0 is not active', () => {
   const factory = new DeploymentsResourceFactory();
@@ -49,4 +62,22 @@ test('deployment with replica undefined is not active', () => {
   const factory = new DeploymentsResourceFactory();
   expect(factory.isActive).toBeDefined();
   expect(factory.isActive!({} as V1Deployment)).toBeFalsy();
+});
+
+test('scaleObject updates deployment scale subresource', async () => {
+  const apiClientMock = {
+    patchNamespacedDeploymentScale: vi.fn().mockResolvedValue(undefined),
+  } as unknown as AppsV1Api;
+  vi.mocked(kubeConfigMock.makeApiClient).mockReturnValue(apiClientMock);
+
+  const factory = new DeploymentsResourceFactory();
+
+  expect(factory.scaleObject).toBeDefined();
+  await factory.scaleObject!(kubeconfig, 'deployment1', 'namespace1', 4);
+
+  expect(apiClientMock.patchNamespacedDeploymentScale).toHaveBeenCalledWith({
+    name: 'deployment1',
+    namespace: 'namespace1',
+    body: [{ op: 'add', path: '/spec/replicas', value: 4 }],
+  });
 });
