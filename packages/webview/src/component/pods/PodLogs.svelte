@@ -20,7 +20,7 @@ interface Props {
   tailLines?: string;
   sinceSeconds?: string;
 }
-let { object, containerName, colorizer, timestamps, previous, tailLines = '1060', sinceSeconds }: Props = $props();
+let { object, containerName, colorizer, timestamps, previous, tailLines = '1000', sinceSeconds }: Props = $props();
 
 // Logs has been initialized
 let noLogs = $state<boolean>();
@@ -91,6 +91,12 @@ onDestroy(() => {
   <EmptyScreen class="min-w-full" icon={NoLogIcon} title="No Log" message="Log output of Pod {object.metadata?.name}" />
 {:else}
   <div class="h-full min-w-full flex flex-col">
-    <TerminalWindow class="h-full" bind:terminal={logsTerminal} convertEol disableStdIn search />
+    <TerminalWindow
+      class="h-full"
+      bind:terminal={logsTerminal}
+      lineCount={getFiniteNumber(tailLines)}
+      convertEol
+      disableStdIn
+      search />
   </div>
 {/if}

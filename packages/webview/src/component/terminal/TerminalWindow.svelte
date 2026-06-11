@@ -18,6 +18,7 @@ interface Props {
   showCursor?: boolean;
   search?: boolean;
   class?: string;
+  lineCount?: number;
 }
 
 let {
@@ -28,6 +29,7 @@ let {
   showCursor = false,
   search = false,
   class: className,
+  lineCount = undefined,
 }: Props = $props();
 
 let logsXtermDiv: HTMLDivElement | undefined;
@@ -61,7 +63,7 @@ async function refreshTerminal(): Promise<void> {
   const fontSize = 10; // TODO: get from configuration
   const lineHeight = 1; // TODO: get from configuration
 
-  terminal = new Terminal({
+  const terminalOptions = {
     fontSize,
     lineHeight,
     disableStdin: disableStdIn,
@@ -70,7 +72,10 @@ async function refreshTerminal(): Promise<void> {
     screenReaderMode: screenReaderMode,
     rightClickSelectsWord: true,
     minimumContrastRatio: 4.5,
-  });
+    ...(lineCount != undefined ? { scrollback: lineCount } : {}), // https://xtermjs.org/docs/api/terminal/interfaces/iterminaloptions/#optional-scrollback
+  };
+
+  terminal = new Terminal(terminalOptions);
   const fitAddon = new FitAddon();
   terminal.loadAddon(fitAddon);
 
@@ -129,6 +134,16 @@ async function refreshTerminal(): Promise<void> {
 
   fitAddon.fit();
 }
+
+$effect(() => {
+  if (terminal?.options) {
+    if (lineCount != undefined) {
+      terminal.options.scrollback = lineCount;
+    } else {
+      delete terminal.options.scrollback;
+    }
+  }
+});
 
 onMount(async () => {
   platformName = await systemApi.getPlatformName();
