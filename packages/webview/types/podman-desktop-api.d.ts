@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import {type WebviewApi} from '@podman-desktop/webview-api';
+import { type WebviewApi } from '@podman-desktop/webview-api';
 
 declare global {
   function acquirePodmanDesktopApi(): WebviewApi;

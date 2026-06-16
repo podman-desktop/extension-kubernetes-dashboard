@@ -37,18 +37,18 @@ This project uses **Svelte 5 runes**. Never use legacy reactive syntax.
 
 ```svelte
 <script lang="ts">
-  // State
-  let count = $state(0);
-  let items = $state<Item[]>([]);
+// State
+let count = $state(0);
+let items = $state<Item[]>([]);
 
-  // Derived
-  let total = $derived(items.length);
-  let filtered = $derived(items.filter(i => i.active));
+// Derived
+let total = $derived(items.length);
+let filtered = $derived(items.filter(i => i.active));
 
-  // Effects
-  $effect(() => {
-    console.log('count changed:', count);
-  });
+// Effects
+$effect(() => {
+  console.log('count changed:', count);
+});
 </script>
 ```
 
@@ -75,14 +75,14 @@ Access state in components via `States`:
 
 ```svelte
 <script lang="ts">
-  const states = getContext<States>(States);
-  const myState = states.stateMyInfoUI;
-  let data = $derived(myState.data);
+const states = getContext<States>(States);
+const myState = states.stateMyInfoUI;
+let data = $derived(myState.data);
 
-  onMount(() => {
-    const unsub = myState.subscribe();
-    return unsub;
-  });
+onMount(() => {
+  const unsub = myState.subscribe();
+  return unsub;
+});
 </script>
 ```
 
@@ -94,12 +94,12 @@ Call backend methods via RPC proxy:
 
 ```svelte
 <script lang="ts">
-  const remote = getContext<Remote>(Remote);
-  const contextsApi = remote.getProxy(API_CONTEXTS);
+const remote = getContext<Remote>(Remote);
+const contextsApi = remote.getProxy(API_CONTEXTS);
 
-  async function handleAction(): Promise<void> {
-    await contextsApi.setCurrentContext(contextName);
-  }
+async function handleAction(): Promise<void> {
+  await contextsApi.setCurrentContext(contextName);
+}
 </script>
 ```
 
@@ -107,14 +107,14 @@ For broadcast listening:
 
 ```svelte
 <script lang="ts">
-  const rpcBrowser = getContext<RpcBrowser>(RpcBrowser);
+const rpcBrowser = getContext<RpcBrowser>(RpcBrowser);
 
-  onMount(() => {
-    const disposable = rpcBrowser.on(MY_CHANNEL, data => {
-      // handle broadcast
-    });
-    return () => disposable.dispose();
+onMount(() => {
+  const disposable = rpcBrowser.on(MY_CHANNEL, data => {
+    // handle broadcast
   });
+  return () => disposable.dispose();
+});
 </script>
 ```
 
@@ -124,6 +124,7 @@ The app uses hash-based routing with a custom `Route` component
 (`packages/webview/src/Route.svelte`).
 
 Main routing structure:
+
 - `Main.svelte` — initializes app, waits for context
 - `App.svelte` — checks for current K8s context
 - `AppWithContext.svelte` — renders navigation + routed content
@@ -147,11 +148,11 @@ in `packages/webview/src/table/`.
 
 ```svelte
 <script lang="ts">
-  interface Props {
-    resourceName: string;
-    namespace?: string;
-  }
-  let { resourceName, namespace }: Props = $props();
+interface Props {
+  resourceName: string;
+  namespace?: string;
+}
+let { resourceName, namespace }: Props = $props();
 </script>
 ```
 

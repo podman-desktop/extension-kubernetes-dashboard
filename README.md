@@ -5,25 +5,28 @@
 Kubernetes Dashboard is an open source extension for Podman Desktop to monitor Kubernetes clusters.
 
 The Kubernetes Dashboard detects your Kubeconfig file, and connects to the current Kubernetes context.
-Any change of Kubernetes context (either from Podman Desktop or by editing the Kubeconfig file with another tool) 
+Any change of Kubernetes context (either from Podman Desktop or by editing the Kubeconfig file with another tool)
 is detected by the dashboard, which disconnects from the previous current context and connects to the new one.
 
 ## Resources
 
-A Dashboard page provides a synthetic view of the main resources present in the Kubernetes context: 
-- non-namespaced resources: nodes and namespaces, 
+A Dashboard page provides a synthetic view of the main resources present in the Kubernetes context:
+
+- non-namespaced resources: nodes and namespaces,
 - namespaced resources: workloads (deployments, pods, jobs, cronjobs), services (services, ingresses, routes) and configuration and storage (persistent volume claims, configmaps, secrets).
 
 You can access from the dashboard, or from the menu, the list of resources of a specific kind (for example, the list of Pods).
 
 From this list, you have access to the details for a specific resource, including:
+
 - a summary of the resource (extracted from the metadata, spec and status of the resource),
 - a raw JSON representation of the resource,
 - a utility to patch the resource definition, using [strategic merge patch](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-object-kubectl-patch/).
 
 For Pods, you also have access to:
+
 - the logs of the containers running in the pod,
-- a terminal on each container running in the pod. 
+- a terminal on each container running in the pod.
 
 You can switch the namespace you want to explore from the Dashboard page or from any list of namespaced resources. The extension will disconnect from the previous namespace and connect to the new one.
 
@@ -42,16 +45,17 @@ The Kubernetes Dashboard checks Read permissions on each resource, and indicates
 The user interface supports configuration using annotations on resources. The following annotations are supported:
 
 ### On Pods
+
 - `kubernetes-dashboard.podman-desktop.io/logs-colors: "log level colors"`  
-Colorize logs levels (by default)
+  Colorize logs levels (by default)
 - `kubernetes-dashboard.podman-desktop.io/logs-colors: "no colors"`  
-Disable colorization of logs
+  Disable colorization of logs
 - `kubernetes-dashboard.podman-desktop.io/logs-timestamps: "true"`  
-Prefix the logs of the pod's containers with timestamps.
+  Prefix the logs of the pod's containers with timestamps.
 - `kubernetes-dashboard.podman-desktop.io/logs-tail-lines: "10"`  
-Fetch the last _n_ lines of the logs only.
+  Fetch the last _n_ lines of the logs only.
 - `kubernetes-dashboard.podman-desktop.io/logs-since-seconds: "60"`  
-Fetch the logs emitted since _n_ seconds only.
+  Fetch the logs emitted since _n_ seconds only.
 
 # Compatibility
 
@@ -101,15 +105,20 @@ When creating a PR on the GitHub repository, the e2e tests are not executed by d
 ### On Linux
 
 #### Pre-requisites:
+
 - Install setup-envtest (see https://pkg.go.dev/sigs.k8s.io/controller-runtime/tools/setup-envtest#section-readme)
+
 ```
 go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
 
 ```
+
 - install envtest-start:
+
 ```
 go install github.com/feloy/envtest-start@latest
 ```
+
 #### To run the tests
 
 - Install a testing binary from https://github.com/podman-desktop/testing-prereleases

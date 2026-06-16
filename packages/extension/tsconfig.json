@@ -1,15 +1,11 @@
 {
   "compilerOptions": {
-    "strict":true,
+    "strict": true,
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
-    "lib": [
-      "ES2017",
-      "webworker",
-      "dom",
-    ],
+    "lib": ["ES2017", "webworker", "dom"],
     "sourceMap": true,
     "outDir": "dist",
     "esModuleInterop": true,
@@ -18,15 +14,10 @@
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
-    "types": [
-      "node",
-    ],
+    "types": ["node"],
     "paths": {
-      "/@/*": ["./src/*"],
+      "/@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src",
-    "types/*.d.ts",
-    "../../types/*.d.ts"],
+  "include": ["src", "types/*.d.ts", "../../types/*.d.ts"]
 }

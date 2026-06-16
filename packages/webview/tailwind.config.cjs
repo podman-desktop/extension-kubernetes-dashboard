@@ -1,5 +1,5 @@
-const tailwindColors = require('tailwindcss/colors')
-const tailwindTypography = require('@tailwindcss/typography')
+const tailwindColors = require('tailwindcss/colors');
+const tailwindTypography = require('@tailwindcss/typography');
 
 module.exports = {
   content: [
@@ -10,11 +10,11 @@ module.exports = {
   darkMode: 'class',
   theme: {
     fontSize: {
-      'xs': '10px',
-      'sm': '11px',
-      'base': '12px',
-      'lg': '14px',
-      'xl': '16px',
+      xs: '10px',
+      sm: '11px',
+      base: '12px',
+      lg: '14px',
+      xl: '16px',
       '2xl': '18px',
       '3xl': '20px',
       '4xl': '24px',
@@ -23,22 +23,22 @@ module.exports = {
     },
     extend: {
       boxShadow: {
-        "titlebar": 'inset 0px -1px 0px 0 rgb(54 54 61 / 0.6)', // highlight for bottom of titlebar
-	"pageheader": 'inset 0 0px 10px 0 rgb(0 0 0 / 0.4)',
-	"nav": 'inset 7px -4px 6px 0 rgb(0 0 0 / 0.15)',
+        titlebar: 'inset 0px -1px 0px 0 rgb(54 54 61 / 0.6)', // highlight for bottom of titlebar
+        pageheader: 'inset 0 0px 10px 0 rgb(0 0 0 / 0.4)',
+        nav: 'inset 7px -4px 6px 0 rgb(0 0 0 / 0.15)',
       },
       transitionProperty: {
         width: 'width',
       },
       width: {
-        'leftnavbar': '54px',
-        'leftsidebar': '225px',
+        leftnavbar: '54px',
+        leftsidebar: '225px',
       },
       minWidth: {
-        'leftnavbar': '54px',
-        'leftsidebar': '225px',
+        leftnavbar: '54px',
+        leftsidebar: '225px',
       },
-      typography: (theme) => ({
+      typography: theme => ({
         DEFAULT: {
           css: {
             color: 'var(--pd-details-body-text)',
@@ -54,29 +54,29 @@ module.exports = {
       }),
     },
     colors: {
-      'charcoal': {
+      charcoal: {
         600: '#27272a',
         800: '#18181b',
       },
-      'gray': {
+      gray: {
         400: '#d1d1d1',
         700: '#aaabac',
         900: '#818181',
       },
-      'purple': {
+      purple: {
         400: '#ad8bfa',
         500: '#8b5cf6',
       },
-      'sky': {
+      sky: {
         400: '#51a2da',
       },
-      'green': {
+      green: {
         600: '#2b7037',
       },
-      'red': {
+      red: {
         600: '#e5421d',
       },
-      'amber': {
+      amber: {
         600: tailwindColors.amber[600],
       },
       transparent: 'transparent',
@@ -84,13 +84,11 @@ module.exports = {
       white: '#fff',
       // The remaining colors below are not part of our palette and are only here
       // to maintain existing code. No new use.
-      'violet': {
+      violet: {
         500: tailwindColors.violet[500],
         600: tailwindColors.violet[600],
       },
     },
   },
-  plugins: [
-    tailwindTypography
-  ],
+  plugins: [tailwindTypography],
 };
