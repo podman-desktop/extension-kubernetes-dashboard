@@ -39,7 +39,6 @@ env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
-
   tag:
     name: Tagging
     runs-on: ubuntu-24.04
@@ -53,13 +52,13 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
           token: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
-          
+
       - name: Generate tag utilities
         id: TAG_UTIL
         run: |
-            TAG_PATTERN=${{ github.event.inputs.version }}
-            echo "githubTag=v$TAG_PATTERN" >> ${GITHUB_OUTPUT}
-            echo "extVersion=$TAG_PATTERN" >> ${GITHUB_OUTPUT}
+          TAG_PATTERN=${{ github.event.inputs.version }}
+          echo "githubTag=v$TAG_PATTERN" >> ${GITHUB_OUTPUT}
+          echo "extVersion=$TAG_PATTERN" >> ${GITHUB_OUTPUT}
 
       - name: tag
         run: |
@@ -128,7 +127,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
 
-
   builder-image:
     needs: tag
     runs-on: ubuntu-24.04
@@ -175,7 +173,6 @@ jobs:
           subject-name: ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard-builder
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
           push-to-registry: true
-
 
   extension-image:
     name: Build and publish extension OCI image

@@ -76,11 +76,7 @@ Tests use `@podman-desktop/tests-playwright` which provides:
 ## Spec File Pattern
 
 ```typescript
-import {
-  test,
-  expect as playExpect,
-  RunnerOptions,
-} from '@podman-desktop/tests-playwright';
+import { test, expect as playExpect, RunnerOptions } from '@podman-desktop/tests-playwright';
 
 test.beforeAll(async ({ runner, welcomePage }) => {
   test.setTimeout(80_000);

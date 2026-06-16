@@ -11,13 +11,8 @@
       "/@/*": ["./src/*"]
     },
     "allowJs": true,
-    "checkJs": true,
+    "checkJs": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
