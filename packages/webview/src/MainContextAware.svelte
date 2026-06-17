@@ -24,6 +24,7 @@ setContext(Streams, context.streams);
 setContext(Remote, context.remote);
 setContext(DependencyAccessor, context.dependencyAccessor);
 setContext(RpcBrowser, context.rpcBrowser);
+setContext('WebviewApi', context.webviewApi);
 
 initialized = true;
 </script>
