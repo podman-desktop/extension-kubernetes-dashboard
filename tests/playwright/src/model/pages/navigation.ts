@@ -17,10 +17,23 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
-import type { KubernetesResources } from '/@/model/core/types';
+import { KubernetesResources, NavSection } from '/@/model/core/types';
 import { KubernetesResourcePage } from './kubernetes-resource-page';
 import { KubernetesDashboardPage } from './kubernetes-dashboard-page';
 import { PortForwardingPage } from './port-forwarding-page';
+
+// Maps each nav item to the collapsible section it lives in (undefined = top-level).
+const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
+  [KubernetesResources.Deployments]: NavSection.Compute,
+  [KubernetesResources.Pods]: NavSection.Compute,
+  [KubernetesResources.Jobs]: NavSection.Compute,
+  [KubernetesResources.Cronjobs]: NavSection.Compute,
+  [KubernetesResources.ConfigMapsSecrets]: NavSection.Config,
+  [KubernetesResources.Services]: NavSection.Network,
+  [KubernetesResources.IngressesRoutes]: NavSection.Network,
+  [KubernetesResources.PortForwarding]: NavSection.Network,
+  [KubernetesResources.PVCs]: NavSection.Storage,
+};
 
 export class KubernetesBar {
   readonly page: Page;
@@ -29,12 +42,26 @@ export class KubernetesBar {
 
   constructor(page: Page) {
     this.page = page;
-    this.kubernetesNavBar = page.getByRole('navigation', { name: 'PreferencesNavigation' });
+    this.kubernetesNavBar = page.getByRole('navigation', { name: 'Kubernetes resources' });
     this.title = this.kubernetesNavBar.getByText('Kubernetes');
   }
 
+  // Clicks the section header to expand it, only when the resource link is not already visible.
+  private async expandSectionIfNeeded(sectionName: string, resourceLink: Locator): Promise<void> {
+    if (!(await resourceLink.isVisible())) {
+      const sectionLink = this.kubernetesNavBar.getByRole('link', { name: sectionName, exact: true });
+      await sectionLink.click();
+    }
+  }
+
   public async openTabPage(kubernetesResource: KubernetesResources): Promise<KubernetesResourcePage> {
+    const section = RESOURCE_SECTION[kubernetesResource];
     const resource = this.kubernetesNavBar.getByRole('link', { name: kubernetesResource, exact: true });
+
+    if (section) {
+      await this.expandSectionIfNeeded(section, resource);
+    }
+
     await resource.click();
 
     switch (kubernetesResource) {
@@ -57,6 +84,7 @@ export class KubernetesBar {
 
   public async openPortForwardingPage(): Promise<PortForwardingPage> {
     const portForwardingLink = this.kubernetesNavBar.getByRole('link', { name: 'Port Forwarding', exact: true });
+    await this.expandSectionIfNeeded(NavSection.Network, portForwardingLink);
     await portForwardingLink.click();
     return new PortForwardingPage(this.page);
   }
