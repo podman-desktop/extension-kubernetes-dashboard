@@ -50,11 +50,48 @@ beforeEach(() => {
   } as unknown as ContextsApi);
 });
 
-test('Expect no error when scaling deployment', async () => {
+test('Expect the input to be seeded with the current replica count', () => {
   render(ScaleAction, { object: fakeDeployment });
+
+  const input = screen.getByLabelText('Desired replica count for my-deployment');
+  expect(input).toHaveValue('3');
+});
+
+test('Expect scale button to be hidden when the value is unchanged', () => {
+  render(ScaleAction, { object: fakeDeployment });
+
+  expect(screen.queryByRole('button', { name: 'Scale Deployment' })).toBeNull();
+});
+
+test('Expect scale button to appear once the value is changed', async () => {
+  render(ScaleAction, { object: fakeDeployment });
+
+  expect(screen.queryByRole('button', { name: 'Scale Deployment' })).toBeNull();
+
+  const input = screen.getByLabelText('Desired replica count for my-deployment');
+  await fireEvent.input(input, { target: { value: '5' } });
+
+  expect(screen.getByRole('button', { name: 'Scale Deployment' })).toBeInTheDocument();
+});
+
+test('Expect scaleObject to be called with the new replica count', async () => {
+  render(ScaleAction, { object: fakeDeployment });
+
+  const input = screen.getByLabelText('Desired replica count for my-deployment');
+  await fireEvent.input(input, { target: { value: '5' } });
 
   const scaleButton = screen.getByRole('button', { name: 'Scale Deployment' });
   await fireEvent.click(scaleButton);
 
-  expect(remoteMocks.get(API_CONTEXTS).scaleObject).toHaveBeenCalledWith('Deployment', 'my-deployment', 'ns1', 3);
+  expect(remoteMocks.get(API_CONTEXTS).scaleObject).toHaveBeenCalledWith('Deployment', 'my-deployment', 'ns1', 5);
+});
+
+test('Expect pressing Enter to scale with the new replica count', async () => {
+  render(ScaleAction, { object: fakeDeployment });
+
+  const input = screen.getByLabelText('Desired replica count for my-deployment');
+  await fireEvent.input(input, { target: { value: '4' } });
+  await fireEvent.keyDown(input, { key: 'Enter' });
+
+  expect(remoteMocks.get(API_CONTEXTS).scaleObject).toHaveBeenCalledWith('Deployment', 'my-deployment', 'ns1', 4);
 });

@@ -6,5 +6,7 @@ import ScaleAction from './ScaleAction.svelte';
 let { object }: Props = $props();
 </script>
 
-<ScaleAction object={object} />
-<DeleteAction object={object} />
+<div class="flex flex-row items-center justify-end gap-1">
+  <ScaleAction object={object} />
+  <DeleteAction object={object} />
+</div>

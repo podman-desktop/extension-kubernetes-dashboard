@@ -60,8 +60,11 @@ beforeEach(() => {
 test('Expect scale action to render before delete action', () => {
   render(Actions, { object: fakeDeployment });
 
-  const actionButtons = screen.getAllByRole('button');
+  const scaleInput = screen.getByLabelText('Desired replica count for my-deployment');
+  const deleteButton = screen.getByRole('button', { name: 'Delete Deployment' });
 
-  expect(actionButtons[0]).toHaveAccessibleName('Scale Deployment');
-  expect(actionButtons[1]).toHaveAccessibleName('Delete Deployment');
+  expect(scaleInput).toBeInTheDocument();
+  expect(deleteButton).toBeInTheDocument();
+  // Scale action should appear before the delete action in the DOM.
+  expect(scaleInput.compareDocumentPosition(deleteButton)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 });

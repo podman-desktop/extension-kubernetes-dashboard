@@ -1635,33 +1635,14 @@ test('scaleObject with unhandled resource', async () => {
   expect(console.error).toHaveBeenCalledWith('scale object: no handler for kind unknown');
 });
 
-test('scaleObject does nothing when input is cancelled', async () => {
-  const kc = new KubeConfig();
-  kc.loadFromOptions(kcWithContext1asDefault);
-  const manager = new TestContextsManager();
-  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
-  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
-  vi.mocked(window.showInputBox).mockResolvedValue(undefined);
-  await manager.update(kc);
-  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
-  expect(resource4ScaleObjectMock).not.toHaveBeenCalled();
-});
-
 test('scaleObject dispatches to the resource factory with the requested replica count', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithContext1asDefault);
   const manager = new TestContextsManager();
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
-  vi.mocked(window.showInputBox).mockResolvedValue('4');
   await manager.update(kc);
-  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
-  expect(window.showInputBox).toHaveBeenCalledWith({
-    title: 'Scale resource4 resource-name',
-    prompt: 'Enter the desired number of replicas.',
-    value: '1',
-    validateInput: expect.any(Function),
-  });
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 4);
   expect(resource4ScaleObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'ns1', 4);
   expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('scale.object', {
     kind: 'Resource4',
@@ -1674,9 +1655,8 @@ test('scaleObject on other namespace', async () => {
   const manager = new TestContextsManager();
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
-  vi.mocked(window.showInputBox).mockResolvedValue('4');
   await manager.update(kc);
-  await manager.scaleObject('Resource4', 'resource-name', 'other-ns', 1);
+  await manager.scaleObject('Resource4', 'resource-name', 'other-ns', 4);
   expect(resource4ScaleObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns', 4);
 });
 
@@ -1686,10 +1666,9 @@ test('scaleObject shows error message when scaling fails', async () => {
   const manager = new TestContextsManager();
   vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
   vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
-  vi.mocked(window.showInputBox).mockResolvedValue('4');
   resource4ScaleObjectMock.mockRejectedValueOnce(new Error('forbidden'));
   await manager.update(kc);
-  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 1);
+  await manager.scaleObject('Resource4', 'resource-name', 'ns1', 4);
   expect(window.showErrorMessage).toHaveBeenCalledWith('Unable to scale resource4 resource-name: forbidden');
 });
 
