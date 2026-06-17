@@ -29,9 +29,7 @@ export default defineConfig({
     environment: 'jsdom',
     alias: [{ find: '@testing-library/svelte', replacement: '@testing-library/svelte/svelte5' }],
     deps: {
-      inline: [
-
-      ],
+      inline: [],
     },
   },
   base: '',

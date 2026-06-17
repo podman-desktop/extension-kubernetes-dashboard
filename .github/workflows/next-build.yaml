@@ -99,7 +99,6 @@ jobs:
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
           push-to-registry: true
 
-
   extension-image:
     name: Build and publish extension OCI image
     if: always()

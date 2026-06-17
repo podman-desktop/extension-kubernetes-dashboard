@@ -1,5 +1,5 @@
-import {join} from 'path';
-import {builtinModules} from 'module';
+import { join } from 'path';
+import { builtinModules } from 'module';
 
 const PACKAGE_ROOT = __dirname;
 

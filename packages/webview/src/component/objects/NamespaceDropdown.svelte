@@ -58,7 +58,7 @@ onDestroy(() => {
 <Dropdown
   ariaLabel="Kubernetes Namespace"
   name="namespace"
-  class="w-64 max-w-64 truncate"
+  class="w-64 max-w-64"
   value={currentNamespace}
   disabled={!reachable}
   onChange={handleNamespaceChange}

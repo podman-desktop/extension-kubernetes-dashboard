@@ -41,7 +41,7 @@ export default defineProject({
       {
         find: /^monaco-editor$/,
         replacement: `${PACKAGE_ROOT}/../../node_modules/monaco-editor/esm/vs/editor/editor.api`,
-      }
+      },
     ],
     setupFiles: ['./vite.tests.setup.ts'],
   },
