@@ -1,2 +1,2 @@
-const { fs } = require('memfs')
-module.exports = fs.promises
+const { fs } = require('memfs');
+module.exports = fs.promises;

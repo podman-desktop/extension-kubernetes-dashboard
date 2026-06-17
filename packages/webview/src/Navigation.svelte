@@ -32,6 +32,9 @@ function isUnderSection(sectionUrls: string[]): boolean {
 
 const workloadUrls = [
   navigator.kubernetesResourcesURL('Deployment'),
+  navigator.kubernetesResourcesURL('DaemonSet'),
+  navigator.kubernetesResourcesURL('StatefulSet'),
+  navigator.kubernetesResourcesURL('ReplicaSet'),
   navigator.kubernetesResourcesURL('Pod'),
   navigator.kubernetesResourcesURL('Job'),
   navigator.kubernetesResourcesURL('CronJob'),
@@ -129,6 +132,21 @@ $effect(() => {
         child={true}
         selected={url === navigator.kubernetesResourcesURL('Deployment')}
         href={navigator.kubernetesResourcesURL('Deployment')} />
+      <SettingsNavItem
+        title="DaemonSets"
+        child={true}
+        selected={url === navigator.kubernetesResourcesURL('DaemonSet')}
+        href={navigator.kubernetesResourcesURL('DaemonSet')} />
+      <SettingsNavItem
+        title="StatefulSets"
+        child={true}
+        selected={url === navigator.kubernetesResourcesURL('StatefulSet')}
+        href={navigator.kubernetesResourcesURL('StatefulSet')} />
+      <SettingsNavItem
+        title="ReplicaSets"
+        child={true}
+        selected={url === navigator.kubernetesResourcesURL('ReplicaSet')}
+        href={navigator.kubernetesResourcesURL('ReplicaSet')} />
       <SettingsNavItem
         title="Pods"
         child={true}
