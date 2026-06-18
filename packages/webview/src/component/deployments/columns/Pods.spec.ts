@@ -19,10 +19,30 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
+import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import type { DeploymentUI } from '/@/component/deployments/DeploymentUI';
+import { ScaleEditorState } from '/@/component/deployments/scale-editor-state.svelte';
+import { DependencyMocks } from '/@/tests/dependency-mocks';
+import { RemoteMocks } from '/@/tests/remote-mocks';
+
 import Pods from './Pods.svelte';
+
+const dependencyMocks = new DependencyMocks();
+const remoteMocks = new RemoteMocks();
+
+beforeEach(() => {
+  vi.resetAllMocks();
+
+  dependencyMocks.reset();
+  dependencyMocks.mock(ScaleEditorState);
+
+  remoteMocks.reset();
+  remoteMocks.mock(API_CONTEXTS, {
+    scaleObject: vi.fn(),
+  } as unknown as ContextsApi);
+});
 
 test('Expect simple column styling', async () => {
   const deployment: DeploymentUI = {
@@ -40,5 +60,26 @@ test('Expect simple column styling', async () => {
 
   const text = screen.getByText(deployment.ready + ' / ' + deployment.replicas);
   expect(text).toBeInTheDocument();
-  expect(text).toHaveClass('text-(--pd-table-body-text)');
+  expect(text.parentElement).toHaveClass('text-(--pd-table-body-text)');
+  expect(screen.queryByRole('button', { name: 'Scale Deployment' })).toBeNull();
+});
+
+test('Expect scale editor to render in pods column while editing', () => {
+  const deployment: DeploymentUI = {
+    uid: '123',
+    name: 'my-deployment',
+    kind: 'Deployment',
+    status: '',
+    namespace: 'ns1',
+    replicas: 1,
+    ready: 1,
+    selected: false,
+    conditions: [],
+  };
+  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(true);
+
+  render(Pods, { object: deployment });
+
+  expect(screen.getByLabelText('Desired replica count for my-deployment')).toBeInTheDocument();
+  expect(screen.queryByText(deployment.ready + ' / ' + deployment.replicas)).toBeNull();
 });

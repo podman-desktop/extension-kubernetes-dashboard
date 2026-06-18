@@ -7,6 +7,6 @@ let { object }: Props = $props();
 </script>
 
 <div class="flex flex-row items-center justify-end gap-1">
-  <ScaleAction object={object} />
+  <ScaleAction object={object} mode="button" />
   <DeleteAction object={object} />
 </div>

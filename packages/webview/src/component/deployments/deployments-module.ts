@@ -18,9 +18,11 @@
 
 import { ContainerModule } from 'inversify';
 import { DeploymentHelper } from './deployment-helper';
+import { ScaleEditorState } from './scale-editor-state.svelte';
 
 const deploymentsModule = new ContainerModule(options => {
   options.bind<DeploymentHelper>(DeploymentHelper).toSelf().inSingletonScope();
+  options.bind<ScaleEditorState>(ScaleEditorState).toSelf().inSingletonScope();
 });
 
 export { deploymentsModule };

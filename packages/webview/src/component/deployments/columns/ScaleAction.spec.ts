@@ -23,6 +23,8 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import type { DeploymentUI } from '/@/component/deployments/DeploymentUI';
+import { ScaleEditorState } from '/@/component/deployments/scale-editor-state.svelte';
+import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 
 import ScaleAction from './ScaleAction.svelte';
@@ -39,10 +41,14 @@ const fakeDeployment: DeploymentUI = {
   conditions: [],
 };
 
+const dependencyMocks = new DependencyMocks();
 const remoteMocks = new RemoteMocks();
 
 beforeEach(() => {
   vi.resetAllMocks();
+
+  dependencyMocks.reset();
+  dependencyMocks.mock(ScaleEditorState);
 
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
@@ -50,43 +56,81 @@ beforeEach(() => {
   } as unknown as ContextsApi);
 });
 
-test('Expect the input to be seeded with the current replica count', () => {
+test('shows the scale action button before editing', () => {
+  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(false);
+  render(ScaleAction, { object: fakeDeployment });
+
+  expect(screen.getByRole('button', { name: 'Scale Deployment' })).toBeInTheDocument();
+  expect(screen.queryByLabelText('Desired replica count for my-deployment')).toBeNull();
+});
+
+test('shows the inline number input after clicking scale', async () => {
+  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(true);
   render(ScaleAction, { object: fakeDeployment });
 
   const input = screen.getByLabelText('Desired replica count for my-deployment');
   expect(input).toHaveValue('3');
+  expect(screen.getByRole('button', { name: 'Cancel scaling Deployment' })).toBeInTheDocument();
 });
 
-test('Expect scale button to be hidden when the value is unchanged', () => {
-  render(ScaleAction, { object: fakeDeployment });
+test('shows cancel button instead of scale button while editing in button mode', () => {
+  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(true);
+  render(ScaleAction, { object: fakeDeployment, mode: 'button' });
 
   expect(screen.queryByRole('button', { name: 'Scale Deployment' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Cancel scaling Deployment' })).toBeInTheDocument();
+  expect(screen.queryByLabelText('Desired replica count for my-deployment')).toBeNull();
 });
 
-test('Expect scale button to appear once the value is changed', async () => {
+test('shows the apply button only after the value changes', async () => {
+  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(true);
   render(ScaleAction, { object: fakeDeployment });
 
-  expect(screen.queryByRole('button', { name: 'Scale Deployment' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Apply scale for Deployment' })).toBeDisabled();
 
   const input = screen.getByLabelText('Desired replica count for my-deployment');
   await fireEvent.input(input, { target: { value: '5' } });
 
-  expect(screen.getByRole('button', { name: 'Scale Deployment' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Apply scale for Deployment' })).toBeEnabled();
 });
 
-test('Expect scaleObject to be called with the new replica count', async () => {
+test('calls scaleObject with the changed replica count and returns to the scale button', async () => {
+  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(true);
   render(ScaleAction, { object: fakeDeployment });
 
   const input = screen.getByLabelText('Desired replica count for my-deployment');
   await fireEvent.input(input, { target: { value: '5' } });
-
-  const scaleButton = screen.getByRole('button', { name: 'Scale Deployment' });
-  await fireEvent.click(scaleButton);
+  await fireEvent.click(screen.getByRole('button', { name: 'Apply scale for Deployment' }));
 
   expect(remoteMocks.get(API_CONTEXTS).scaleObject).toHaveBeenCalledWith('Deployment', 'my-deployment', 'ns1', 5);
+  expect(dependencyMocks.get(ScaleEditorState).stopEditing).toHaveBeenCalled();
 });
 
-test('Expect pressing Enter to scale with the new replica count', async () => {
+test('cancel dismisses inline editing without scaling', async () => {
+  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(true);
+  render(ScaleAction, { object: fakeDeployment });
+
+  const input = screen.getByLabelText('Desired replica count for my-deployment');
+  await fireEvent.input(input, { target: { value: '4' } });
+  await fireEvent.click(screen.getByRole('button', { name: 'Cancel scaling Deployment' }));
+
+  expect(remoteMocks.get(API_CONTEXTS).scaleObject).not.toHaveBeenCalled();
+  expect(dependencyMocks.get(ScaleEditorState).stopEditing).toHaveBeenCalled();
+});
+
+test('escape dismisses inline editing without scaling', async () => {
+  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(true);
+  render(ScaleAction, { object: fakeDeployment });
+
+  const input = screen.getByLabelText('Desired replica count for my-deployment');
+  await fireEvent.keyDown(input, { key: 'Escape' });
+
+  expect(remoteMocks.get(API_CONTEXTS).scaleObject).not.toHaveBeenCalled();
+  expect(dependencyMocks.get(ScaleEditorState).stopEditing).toHaveBeenCalled();
+});
+
+test('enter scales with the changed replica count', async () => {
+  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(true);
   render(ScaleAction, { object: fakeDeployment });
 
   const input = screen.getByLabelText('Desired replica count for my-deployment');

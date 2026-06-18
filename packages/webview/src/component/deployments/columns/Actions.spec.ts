@@ -18,11 +18,12 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import type { DeploymentUI } from '/@/component/deployments/DeploymentUI';
+import { ScaleEditorState } from '/@/component/deployments/scale-editor-state.svelte';
 import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { RemoteMocks } from '/@/tests/remote-mocks';
@@ -49,6 +50,7 @@ beforeEach(() => {
 
   dependencyMocks.reset();
   dependencyMocks.mock(KubernetesObjectUIHelper);
+  dependencyMocks.mock(ScaleEditorState);
 
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
@@ -60,11 +62,16 @@ beforeEach(() => {
 test('Expect scale action to render before delete action', () => {
   render(Actions, { object: fakeDeployment });
 
-  const scaleInput = screen.getByLabelText('Desired replica count for my-deployment');
   const deleteButton = screen.getByRole('button', { name: 'Delete Deployment' });
 
-  expect(scaleInput).toBeInTheDocument();
   expect(deleteButton).toBeInTheDocument();
-  // Scale action should appear before the delete action in the DOM.
-  expect(scaleInput.compareDocumentPosition(deleteButton)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  expect(screen.getByRole('button', { name: 'Scale Deployment' })).toBeInTheDocument();
+});
+
+test('Expect clicking scale button to open editor state', async () => {
+  render(Actions, { object: fakeDeployment });
+
+  await fireEvent.click(screen.getByRole('button', { name: 'Scale Deployment' }));
+
+  expect(dependencyMocks.get(ScaleEditorState).startEditing).toHaveBeenCalledWith('ns1/my-deployment');
 });

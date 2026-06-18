@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,25 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { DeploymentUI } from '/@/component/deployments/DeploymentUI';
+import { injectable } from 'inversify';
 
-export interface Props {
-  object: DeploymentUI;
-  mode?: 'button' | 'editor';
+@injectable()
+export class ScaleEditorState {
+  #deploymentKey = $state<string | undefined>(undefined);
+
+  get deploymentKey(): string | undefined {
+    return this.#deploymentKey;
+  }
+
+  isEditing(deploymentKey: string): boolean {
+    return this.#deploymentKey === deploymentKey;
+  }
+
+  startEditing(deploymentKey: string): void {
+    this.#deploymentKey = deploymentKey;
+  }
+
+  stopEditing(): void {
+    this.#deploymentKey = undefined;
+  }
 }

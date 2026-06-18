@@ -36,6 +36,7 @@ let conditionsColumn = new TableColumn<DeploymentUI>('Conditions', {
 });
 
 let podsColumn = new TableColumn<DeploymentUI>('Pods', {
+  overflow: true,
   renderer: PodsColumn,
 });
 
