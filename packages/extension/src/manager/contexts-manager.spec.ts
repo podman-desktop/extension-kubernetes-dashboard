@@ -89,6 +89,7 @@ class TestContextsManager extends ContextsManager {
       new ResourceFactoryBase({
         kind: 'Resource1',
         resource: 'resource1',
+        eagerStart: true,
       })
         .setPermissions({
           isNamespaced: true,
@@ -111,6 +112,7 @@ class TestContextsManager extends ContextsManager {
       new ResourceFactoryBase({
         kind: 'Resource1b',
         resource: 'resource1b',
+        eagerStart: true,
       })
         .setPermissions({
           isNamespaced: true,
@@ -217,6 +219,7 @@ class TestContextsManager extends ContextsManager {
       new ResourceFactoryBase({
         kind: 'Event',
         resource: 'events',
+        eagerStart: true,
       })
         .setPermissions({
           isNamespaced: true,
@@ -1867,5 +1870,169 @@ test('applyResources sends telemetry', async () => {
   expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('apply.resources', {
     manifestsSize: 1,
     kinds: 'Namespace',
+  });
+});
+
+describe('lazy informer lifecycle', () => {
+  const createdLazyInformerMock = {
+    onCacheUpdated: vi.fn(),
+    onOffline: vi.fn(),
+    onObjectDeleted: vi.fn(),
+    start: vi.fn(),
+    dispose: vi.fn(),
+    isOffline: vi.fn().mockReturnValue(false),
+  } as unknown as ResourceInformer<KubernetesObject>;
+
+  const createdEagerInformerMock = {
+    onCacheUpdated: vi.fn(),
+    onOffline: vi.fn(),
+    onObjectDeleted: vi.fn(),
+    start: vi.fn(),
+    dispose: vi.fn(),
+    isOffline: vi.fn().mockReturnValue(false),
+  } as unknown as ResourceInformer<KubernetesObject>;
+
+  class LazyTestContextsManager extends ContextsManager {
+    constructor() {
+      super();
+      this.telemetryLogger = telemetryLoggerMock;
+    }
+    override getResourceFactories(): ResourceFactory[] {
+      return [
+        new ResourceFactoryBase({
+          kind: 'EagerResource',
+          resource: 'eager-resource',
+          eagerStart: true,
+        })
+          .setPermissions({
+            isNamespaced: true,
+            permissionsRequests: [{ group: '*', resource: '*', verb: 'watch' }],
+          })
+          .setInformer({
+            createInformer: (): ResourceInformer<KubernetesObject> => createdEagerInformerMock,
+          }),
+        new ResourceFactoryBase({
+          kind: 'LazyResource',
+          resource: 'lazy-resource',
+        })
+          .setPermissions({
+            isNamespaced: true,
+            permissionsRequests: [{ group: '*', resource: '*', verb: 'watch' }],
+          })
+          .setInformer({
+            createInformer: (): ResourceInformer<KubernetesObject> => createdLazyInformerMock,
+          }),
+      ];
+    }
+
+    public override async startMonitoring(
+      config: KubeConfigSingleContext,
+      contextName: string,
+      options?: ConnectOptions,
+    ): Promise<void> {
+      return super.startMonitoring(config, contextName, options);
+    }
+
+    public override stopMonitoring(contextName: string): void {
+      return super.stopMonitoring(contextName);
+    }
+  }
+
+  let manager: LazyTestContextsManager;
+  let kc: KubeConfig;
+  let kcSingle: KubeConfigSingleContext;
+
+  function grantPermissions(): void {
+    const healthCheckCallback = vi.mocked(ContextHealthChecker.prototype.onReachable).mock.calls[0][0];
+    healthCheckCallback!({
+      kubeConfig: kcSingle,
+      contextName: 'context1',
+      checking: false,
+      reachable: true,
+    });
+    const permissionCallback = vi.mocked(ContextPermissionsChecker.prototype.onPermissionResult).mock.calls[1][0];
+    permissionCallback!({
+      kubeConfig: kcSingle,
+      resources: ['eager-resource', 'lazy-resource'],
+      permitted: true,
+      attrs: {},
+    });
+  }
+
+  beforeEach(async () => {
+    vi.useFakeTimers();
+    ContextHealthChecker.prototype.onStateChange = vi.fn();
+    ContextHealthChecker.prototype.onReachable = vi.fn();
+    ContextPermissionsChecker.prototype.onPermissionResult = vi.fn();
+    kc = new KubeConfig();
+    kc.loadFromOptions(kcWithContext1asDefault);
+    kcSingle = new KubeConfigSingleContext(kc, context1);
+    manager = new LazyTestContextsManager();
+    vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+    const cacheMock = { list: vi.fn().mockReturnValue([]), get: vi.fn() } as ObjectCache<KubernetesObject>;
+    vi.mocked(createdEagerInformerMock.start).mockReturnValue(cacheMock);
+    vi.mocked(createdLazyInformerMock.start).mockReturnValue(cacheMock);
+    await manager.startMonitoring(kcSingle, 'context1');
+    grantPermissions();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('eager informer starts immediately on permission grant', () => {
+    expect(createdEagerInformerMock.start).toHaveBeenCalledOnce();
+  });
+
+  test('lazy informer does not start on permission grant', () => {
+    expect(createdLazyInformerMock.start).not.toHaveBeenCalled();
+  });
+
+  test('subscribeToResource starts lazy informer', () => {
+    manager.subscribeToResource('context1', 'lazy-resource', 'sub1');
+    expect(createdLazyInformerMock.start).toHaveBeenCalledOnce();
+  });
+
+  test('subscribeToResource does not duplicate informer on repeated calls', () => {
+    manager.subscribeToResource('context1', 'lazy-resource', 'sub1');
+    manager.subscribeToResource('context1', 'lazy-resource', 'sub2');
+    expect(createdLazyInformerMock.start).toHaveBeenCalledOnce();
+  });
+
+  test('unsubscribeFromResource with remaining subscribers does not schedule stop', () => {
+    manager.subscribeToResource('context1', 'lazy-resource', 'sub1');
+    manager.subscribeToResource('context1', 'lazy-resource', 'sub2');
+    manager.unsubscribeFromResource('context1', 'lazy-resource', 'sub1');
+    vi.advanceTimersByTime(30_000);
+    expect(createdLazyInformerMock.dispose).not.toHaveBeenCalled();
+  });
+
+  test('unsubscribeFromResource with no remaining subscribers schedules grace-period stop', () => {
+    manager.subscribeToResource('context1', 'lazy-resource', 'sub1');
+    manager.unsubscribeFromResource('context1', 'lazy-resource', 'sub1');
+    expect(createdLazyInformerMock.dispose).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(30_000);
+    expect(createdLazyInformerMock.dispose).toHaveBeenCalledOnce();
+  });
+
+  test('re-subscribing before grace period cancels the stop', () => {
+    manager.subscribeToResource('context1', 'lazy-resource', 'sub1');
+    manager.unsubscribeFromResource('context1', 'lazy-resource', 'sub1');
+    vi.advanceTimersByTime(15_000);
+    manager.subscribeToResource('context1', 'lazy-resource', 'sub2');
+    vi.advanceTimersByTime(30_000);
+    expect(createdLazyInformerMock.dispose).not.toHaveBeenCalled();
+  });
+
+  test('subscribeToResource without granted permission does not start informer', () => {
+    manager.subscribeToResource('context1', 'nonexistent-resource', 'sub1');
+    expect(createdLazyInformerMock.start).not.toHaveBeenCalled();
+  });
+
+  test('unsubscribeFromResource does not schedule stop for eager resources', () => {
+    manager.subscribeToResource('context1', 'eager-resource', 'sub1');
+    manager.unsubscribeFromResource('context1', 'eager-resource', 'sub1');
+    vi.advanceTimersByTime(30_000);
+    expect(createdEagerInformerMock.dispose).not.toHaveBeenCalled();
   });
 });

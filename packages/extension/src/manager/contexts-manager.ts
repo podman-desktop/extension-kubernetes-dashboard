@@ -84,6 +84,7 @@ import { TelemetryLoggerSymbol } from '/@/inject/symbol.js';
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 const DEFAULT_NAMESPACE = 'default';
 const FIELD_MANAGER = 'kubernetes-dashboard';
+const LAZY_INFORMER_GRACE_PERIOD_MS = 30_000;
 
 /**
  * ContextsManager receives new KubeConfig updates
@@ -101,6 +102,9 @@ export class ContextsManager implements ContextsApi {
   #permissionsCheckers: ContextPermissionsChecker[];
   #informers: ContextResourceRegistry<ResourceInformer<KubernetesObject>>;
   #objectCaches: ContextResourceRegistry<ObjectCache<KubernetesObject>>;
+  #grantedPermissions: ContextResourceRegistry<KubeConfigSingleContext>;
+  #graceTimers: Map<string, NodeJS.Timeout>;
+  #resourceSubscriptions: Map<string, Set<string>>;
   #currentContext?: KubeConfigSingleContext;
   #currentKubeConfig: KubeConfig;
 
@@ -149,6 +153,9 @@ export class ContextsManager implements ContextsApi {
     this.#permissionsCheckers = [];
     this.#informers = new ContextResourceRegistry<ResourceInformer<KubernetesObject>>();
     this.#objectCaches = new ContextResourceRegistry<ObjectCache<KubernetesObject>>();
+    this.#grantedPermissions = new ContextResourceRegistry<KubeConfigSingleContext>();
+    this.#graceTimers = new Map<string, NodeJS.Timeout>();
+    this.#resourceSubscriptions = new Map<string, Set<string>>();
     this.#dispatcher = new ContextsDispatcher();
     this.#dispatcher.onUpdate(this.onUpdate.bind(this));
     this.#dispatcher.onDelete(this.onDelete.bind(this));
@@ -310,6 +317,11 @@ export class ContextsManager implements ContextsApi {
     this.disposeAllHealthChecks();
     this.disposeAllPermissionsCheckers();
     this.disposeAllInformers();
+    for (const timer of this.#graceTimers.values()) {
+      clearTimeout(timer);
+    }
+    this.#graceTimers.clear();
+    this.#resourceSubscriptions.clear();
     this.#onContextHealthStateChange.dispose();
     this.#onContextDelete.dispose();
   }
@@ -408,7 +420,6 @@ export class ContextsManager implements ContextsApi {
 
         newPermissionChecker.onPermissionResult((event: ContextPermissionResult) => {
           if (!event.permitted) {
-            // if the user does not have watch permission, do not try to start informers on these resources
             return;
           }
           for (const resource of event.resources) {
@@ -423,41 +434,17 @@ export class ContextsManager implements ContextsApi {
               );
             }
             if (!factory.informer) {
-              // no informer for this factory, skipping
-              // (we may want to check permissions on some resource, without having to start an informer)
               continue;
             }
-            const informer = factory.informer.createInformer(event.kubeConfig);
-            this.#informers.set(contextName, resource, informer);
-            informer.onCacheUpdated((e: CacheUpdatedEvent) => {
-              this.#onResourceUpdated.fire({
-                contextName: e.kubeconfig.getKubeConfig().currentContext,
-                resourceName: e.resourceName,
-              });
-              if (e.countChanged) {
-                this.#onResourceCountUpdated.fire({
-                  contextName: e.kubeconfig.getKubeConfig().currentContext,
-                  resourceName: e.resourceName,
-                });
-              }
-              if (['endpointslices', 'routes', 'ingresses', 'pods'].includes(e.resourceName)) {
-                this.#onEndpointsChange.fire();
-              }
-            });
-            informer.onOffline((e: OfflineEvent) => {
-              this.#onOfflineChange.fire();
-              this.#objectCaches.removeForContext(e.kubeconfig.getKubeConfig().currentContext);
-            });
-            informer.onObjectDeleted((e: ObjectDeletedEvent) => {
-              this.#onObjectDeleted.fire({
-                contextName: e.kubeconfig.getKubeConfig().currentContext,
-                resourceName: e.resourceName,
-                name: e.name,
-                namespace: e.namespace,
-              });
-            });
-            const cache = informer.start();
-            this.#objectCaches.set(contextName, resource, cache);
+
+            this.#grantedPermissions.set(contextName, resource, event.kubeConfig);
+
+            if (factory.eagerStart) {
+              console.log(`[informer] starting eager informer: ${resource} on ${contextName}`);
+              this.createAndStartInformer(contextName, resource, event.kubeConfig);
+            } else {
+              console.log(`[informer] permission granted for lazy resource: ${resource} on ${contextName} (deferred)`);
+            }
           }
         });
         await newPermissionChecker.start();
@@ -486,6 +473,145 @@ export class ContextsManager implements ContextsApi {
     }
     this.#informers.removeForContext(contextName);
     this.#objectCaches.removeForContext(contextName);
+    this.#grantedPermissions.removeForContext(contextName);
+    this.clearGraceTimersForContext(contextName);
+    this.clearResourceSubscriptionsForContext(contextName);
+  }
+
+  protected createAndStartInformer(contextName: string, resource: string, kubeConfig: KubeConfigSingleContext): void {
+    if (this.#informers.get(contextName, resource)) {
+      return;
+    }
+    const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resource);
+    if (!factory?.informer) {
+      return;
+    }
+    const informer = factory.informer.createInformer(kubeConfig);
+    this.#informers.set(contextName, resource, informer);
+    informer.onCacheUpdated((e: CacheUpdatedEvent) => {
+      this.#onResourceUpdated.fire({
+        contextName: e.kubeconfig.getKubeConfig().currentContext,
+        resourceName: e.resourceName,
+      });
+      if (e.countChanged) {
+        this.#onResourceCountUpdated.fire({
+          contextName: e.kubeconfig.getKubeConfig().currentContext,
+          resourceName: e.resourceName,
+        });
+      }
+      if (['endpointslices', 'routes', 'ingresses', 'pods'].includes(e.resourceName)) {
+        this.#onEndpointsChange.fire();
+      }
+    });
+    informer.onOffline((e: OfflineEvent) => {
+      this.#onOfflineChange.fire();
+      this.#objectCaches.removeForContext(e.kubeconfig.getKubeConfig().currentContext);
+    });
+    informer.onObjectDeleted((e: ObjectDeletedEvent) => {
+      this.#onObjectDeleted.fire({
+        contextName: e.kubeconfig.getKubeConfig().currentContext,
+        resourceName: e.resourceName,
+        name: e.name,
+        namespace: e.namespace,
+      });
+    });
+    const cache = informer.start();
+    this.#objectCaches.set(contextName, resource, cache);
+  }
+
+  stopResourceInformer(contextName: string, resource: string): void {
+    const informer = this.#informers.get(contextName, resource);
+    if (informer) {
+      console.log(`[informer] stopping lazy informer: ${resource} on ${contextName}`);
+      informer.dispose();
+      this.#informers.remove(contextName, resource);
+      this.#objectCaches.remove(contextName, resource);
+      this.#onResourceCountUpdated.fire({ contextName, resourceName: resource });
+    }
+  }
+
+  subscribeToResource(contextName: string, resourceName: string, subscriptionId: string): void {
+    const key = `${contextName}/${resourceName}`;
+    this.cancelGraceTimer(key);
+
+    let subs = this.#resourceSubscriptions.get(key);
+    if (!subs) {
+      subs = new Set<string>();
+      this.#resourceSubscriptions.set(key, subs);
+    }
+    subs.add(subscriptionId);
+
+    if (this.#informers.get(contextName, resourceName)) {
+      console.log(
+        `[informer] resource subscription added: ${resourceName} on ${contextName} (already running, ${subs.size} subscribers)`,
+      );
+      return;
+    }
+    const kubeConfig = this.#grantedPermissions.get(contextName, resourceName);
+    if (kubeConfig) {
+      console.log(
+        `[informer] starting lazy informer on demand: ${resourceName} on ${contextName} (${subs.size} subscribers)`,
+      );
+      this.createAndStartInformer(contextName, resourceName, kubeConfig);
+    }
+  }
+
+  unsubscribeFromResource(contextName: string, resourceName: string, subscriptionId: string): void {
+    const key = `${contextName}/${resourceName}`;
+    const subs = this.#resourceSubscriptions.get(key);
+    if (subs) {
+      subs.delete(subscriptionId);
+      if (subs.size === 0) {
+        this.#resourceSubscriptions.delete(key);
+        const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName);
+        if (factory && !factory.eagerStart && this.#informers.get(contextName, resourceName)) {
+          console.log(
+            `[informer] no subscribers left for ${resourceName} on ${contextName}, scheduling grace period (${LAZY_INFORMER_GRACE_PERIOD_MS}ms)`,
+          );
+          this.scheduleGraceTimer(contextName, resourceName);
+        }
+      } else {
+        console.log(
+          `[informer] resource subscription removed: ${resourceName} on ${contextName} (${subs.size} remaining)`,
+        );
+      }
+    }
+  }
+
+  private scheduleGraceTimer(contextName: string, resourceName: string): void {
+    const key = `${contextName}/${resourceName}`;
+    this.cancelGraceTimer(key);
+    const timer = setTimeout(() => {
+      this.#graceTimers.delete(key);
+      console.log(`[informer] grace period expired for ${resourceName} on ${contextName}, stopping informer`);
+      this.stopResourceInformer(contextName, resourceName);
+    }, LAZY_INFORMER_GRACE_PERIOD_MS);
+    this.#graceTimers.set(key, timer);
+  }
+
+  private cancelGraceTimer(key: string): void {
+    const timer = this.#graceTimers.get(key);
+    if (timer) {
+      clearTimeout(timer);
+      this.#graceTimers.delete(key);
+    }
+  }
+
+  private clearGraceTimersForContext(contextName: string): void {
+    for (const [key, timer] of this.#graceTimers.entries()) {
+      if (key.startsWith(`${contextName}/`)) {
+        clearTimeout(timer);
+        this.#graceTimers.delete(key);
+      }
+    }
+  }
+
+  private clearResourceSubscriptionsForContext(contextName: string): void {
+    for (const key of this.#resourceSubscriptions.keys()) {
+      if (key.startsWith(`${contextName}/`)) {
+        this.#resourceSubscriptions.delete(key);
+      }
+    }
   }
 
   // returns true if at least one informer for the context is 'offline'

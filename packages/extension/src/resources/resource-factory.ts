@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 - 2025 Red Hat, Inc.
+ * Copyright (C) 2024 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ type SearchByTargetRefNamespacedObject = (
 export class ResourceFactoryBase {
   #resource: string;
   #kind: string;
+  #eagerStart: boolean;
   #permissions: ResourcePermissionsFactory | undefined;
   #informer: ResourceInformerFactory | undefined;
   #isActive: undefined | ((resource: KubernetesObject) => boolean);
@@ -85,9 +86,10 @@ export class ResourceFactoryBase {
   #readObject: ReadNamespacedObject | ReadNonNamespacedObject;
   #restartObject: RestartNamespacedObject | RestartNonNamespacedObject;
 
-  constructor(options: { resource: string; kind: string }) {
+  constructor(options: { resource: string; kind: string; eagerStart?: boolean }) {
     this.#resource = options.resource;
     this.#kind = options.kind;
+    this.#eagerStart = options.eagerStart ?? false;
   }
 
   setPermissions(options: { permissionsRequests: V1ResourceAttributes[]; isNamespaced: boolean }): ResourceFactoryBase {
@@ -147,6 +149,10 @@ export class ResourceFactoryBase {
     return this.#kind;
   }
 
+  get eagerStart(): boolean {
+    return this.#eagerStart;
+  }
+
   get permissions(): ResourcePermissionsFactory | undefined {
     return this.#permissions;
   }
@@ -200,6 +206,7 @@ export class ResourceFactoryBase {
 export interface ResourceFactory {
   get resource(): string;
   get kind(): string;
+  get eagerStart(): boolean;
   permissions?: ResourcePermissionsFactory;
   informer?: ResourceInformerFactory;
   // isActive returns true if `resource` is considered active

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,10 @@ export class ChannelSubscriber implements StateSubscriber {
   #subscribers: { [channelName: string]: ChannelSubscriberInfo[] } = {};
 
   #onSubscribe = new Emitter<string>();
-
   onSubscribe: Event<string> = this.#onSubscribe.event;
+
+  #onUnsubscribe = new Emitter<string>();
+  onUnsubscribe: Event<string> = this.#onUnsubscribe.event;
 
   async resetChannelSubscribers(channelName: string): Promise<void> {
     this.#subscribers[channelName] = [];
@@ -61,6 +63,7 @@ export class ChannelSubscriber implements StateSubscriber {
     this.#subscribers[channelName] = (this.#subscribers[channelName] ?? []).filter(
       subscriber => subscriber.uid !== subscription,
     );
+    this.#onUnsubscribe.fire(channelName);
   }
 
   hasSubscribers(channelName: string): boolean {
