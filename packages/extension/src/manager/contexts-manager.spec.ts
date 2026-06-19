@@ -89,8 +89,8 @@ class TestContextsManager extends ContextsManager {
       new ResourceFactoryBase({
         kind: 'Resource1',
         resource: 'resource1',
-        eagerStart: true,
       })
+        .setEagerStart()
         .setPermissions({
           isNamespaced: true,
           permissionsRequests: [
@@ -112,8 +112,8 @@ class TestContextsManager extends ContextsManager {
       new ResourceFactoryBase({
         kind: 'Resource1b',
         resource: 'resource1b',
-        eagerStart: true,
       })
+        .setEagerStart()
         .setPermissions({
           isNamespaced: true,
           permissionsRequests: [
@@ -219,8 +219,8 @@ class TestContextsManager extends ContextsManager {
       new ResourceFactoryBase({
         kind: 'Event',
         resource: 'events',
-        eagerStart: true,
       })
+        .setEagerStart()
         .setPermissions({
           isNamespaced: true,
           permissionsRequests: [
@@ -1902,8 +1902,8 @@ describe('lazy informer lifecycle', () => {
         new ResourceFactoryBase({
           kind: 'EagerResource',
           resource: 'eager-resource',
-          eagerStart: true,
         })
+          .setEagerStart()
           .setPermissions({
             isNamespaced: true,
             permissionsRequests: [{ group: '*', resource: '*', verb: 'watch' }],

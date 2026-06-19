@@ -34,9 +34,9 @@ export class EndpointSlicesResourceFactory extends ResourceFactoryBase implement
     super({
       resource: 'endpointslices',
       kind: 'EndpointSlice',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

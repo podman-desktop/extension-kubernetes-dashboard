@@ -32,9 +32,9 @@ export class RoutesResourceFactory extends ResourceFactoryBase implements Resour
     super({
       resource: 'routes',
       kind: 'Route',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

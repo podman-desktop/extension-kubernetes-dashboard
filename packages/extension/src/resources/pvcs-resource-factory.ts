@@ -34,9 +34,9 @@ export class PVCsResourceFactory extends ResourceFactoryBase implements Resource
     super({
       resource: 'persistentvolumeclaims',
       kind: 'PersistentVolumeClaim',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

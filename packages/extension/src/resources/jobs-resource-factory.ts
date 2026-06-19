@@ -30,9 +30,9 @@ export class JobsResourceFactory extends ResourceFactoryBase implements Resource
     super({
       resource: 'jobs',
       kind: 'Job',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

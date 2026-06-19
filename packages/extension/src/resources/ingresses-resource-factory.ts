@@ -31,9 +31,9 @@ export class IngressesResourceFactory extends ResourceFactoryBase implements Res
     super({
       resource: 'ingresses',
       kind: 'Ingress',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

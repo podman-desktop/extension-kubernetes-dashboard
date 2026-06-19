@@ -29,9 +29,9 @@ export class SecretsResourceFactory extends ResourceFactoryBase implements Resou
     super({
       resource: 'secrets',
       kind: 'Secret',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

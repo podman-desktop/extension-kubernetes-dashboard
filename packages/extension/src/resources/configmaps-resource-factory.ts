@@ -29,9 +29,9 @@ export class ConfigmapsResourceFactory extends ResourceFactoryBase implements Re
     super({
       resource: 'configmaps',
       kind: 'ConfigMap',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

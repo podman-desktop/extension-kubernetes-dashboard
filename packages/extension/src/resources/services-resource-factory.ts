@@ -29,9 +29,9 @@ export class ServicesResourceFactory extends ResourceFactoryBase implements Reso
     super({
       resource: 'services',
       kind: 'Service',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

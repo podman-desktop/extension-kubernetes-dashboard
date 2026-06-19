@@ -34,9 +34,9 @@ export class NamespacesResourceFactory extends ResourceFactoryBase implements Re
     super({
       resource: 'namespaces',
       kind: 'Namespace',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: false,
       permissionsRequests: [

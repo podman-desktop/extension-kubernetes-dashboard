@@ -29,9 +29,9 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
     super({
       resource: 'deployments',
       kind: 'Deployment',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

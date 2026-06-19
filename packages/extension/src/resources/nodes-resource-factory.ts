@@ -29,9 +29,9 @@ export class NodesResourceFactory extends ResourceFactoryBase implements Resourc
     super({
       resource: 'nodes',
       kind: 'Node',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: false,
       permissionsRequests: [

@@ -31,9 +31,9 @@ export class PodsResourceFactory extends ResourceFactoryBase implements Resource
     super({
       resource: 'pods',
       kind: 'Pod',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

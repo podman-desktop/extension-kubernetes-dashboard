@@ -86,10 +86,15 @@ export class ResourceFactoryBase {
   #readObject: ReadNamespacedObject | ReadNonNamespacedObject;
   #restartObject: RestartNamespacedObject | RestartNonNamespacedObject;
 
-  constructor(options: { resource: string; kind: string; eagerStart?: boolean }) {
+  constructor(options: { resource: string; kind: string }) {
     this.#resource = options.resource;
     this.#kind = options.kind;
-    this.#eagerStart = options.eagerStart ?? false;
+    this.#eagerStart = false;
+  }
+
+  setEagerStart(): ResourceFactoryBase {
+    this.#eagerStart = true;
+    return this;
   }
 
   setPermissions(options: { permissionsRequests: V1ResourceAttributes[]; isNamespaced: boolean }): ResourceFactoryBase {

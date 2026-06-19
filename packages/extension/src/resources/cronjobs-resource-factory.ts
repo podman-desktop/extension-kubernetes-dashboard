@@ -29,9 +29,9 @@ export class CronjobsResourceFactory extends ResourceFactoryBase implements Reso
     super({
       resource: 'cronjobs',
       kind: 'CronJob',
-      eagerStart: true,
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

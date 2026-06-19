@@ -420,6 +420,7 @@ export class ContextsManager implements ContextsApi {
 
         newPermissionChecker.onPermissionResult((event: ContextPermissionResult) => {
           if (!event.permitted) {
+            // if the user does not have watch permission, do not try to start informers on these resources
             return;
           }
           for (const resource of event.resources) {
@@ -434,6 +435,8 @@ export class ContextsManager implements ContextsApi {
               );
             }
             if (!factory.informer) {
+              // no informer for this factory, skipping
+              // (we may want to check permissions on some resource, without having to start an informer)
               continue;
             }
 
