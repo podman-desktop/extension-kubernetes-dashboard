@@ -89,6 +89,7 @@ const kubernetesProvidersManagerMock = {
 } as unknown as KubernetesProvidersManager;
 const webviewSubscriberMock = {
   onSubscribe: vi.fn(),
+  onUnsubscribe: vi.fn(),
   hasSubscribers: vi.fn(),
   getSubscriptions: vi.fn(),
 } as unknown as ChannelSubscriber;
