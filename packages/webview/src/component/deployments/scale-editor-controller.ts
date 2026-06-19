@@ -16,25 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
+
+import { StateScaleEditorInfo } from '/@/state/scale-editor.svelte';
 
 @injectable()
-export class ScaleEditorState {
-  #deploymentKey = $state<string | undefined>(undefined);
-
-  get deploymentKey(): string | undefined {
-    return this.#deploymentKey;
-  }
-
-  isEditing(deploymentKey: string): boolean {
-    return this.#deploymentKey === deploymentKey;
-  }
+export class ScaleEditorController {
+  @inject(StateScaleEditorInfo)
+  private scaleEditorState: StateScaleEditorInfo;
 
   startEditing(deploymentKey: string): void {
-    this.#deploymentKey = deploymentKey;
+    this.scaleEditorState.setDeploymentKey(deploymentKey);
   }
 
   stopEditing(): void {
-    this.#deploymentKey = undefined;
+    this.scaleEditorState.setDeploymentKey();
   }
 }

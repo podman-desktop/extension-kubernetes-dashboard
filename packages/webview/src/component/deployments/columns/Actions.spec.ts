@@ -23,10 +23,13 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import type { DeploymentUI } from '/@/component/deployments/DeploymentUI';
-import { ScaleEditorState } from '/@/component/deployments/scale-editor-state.svelte';
+import { ScaleEditorController } from '/@/component/deployments/scale-editor-controller';
 import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
+import type { ScaleEditorInfo } from '/@/state/scale-editor.svelte';
+import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { RemoteMocks } from '/@/tests/remote-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 
 import Actions from './Actions.svelte';
 
@@ -44,13 +47,19 @@ const fakeDeployment: DeploymentUI = {
 
 const dependencyMocks = new DependencyMocks();
 const remoteMocks = new RemoteMocks();
+const statesMocks = new StatesMocks();
+let scaleEditorMock: FakeStateObject<ScaleEditorInfo, void>;
 
 beforeEach(() => {
   vi.resetAllMocks();
 
   dependencyMocks.reset();
   dependencyMocks.mock(KubernetesObjectUIHelper);
-  dependencyMocks.mock(ScaleEditorState);
+  dependencyMocks.mock(ScaleEditorController);
+
+  statesMocks.reset();
+  scaleEditorMock = new FakeStateObject<ScaleEditorInfo, void>();
+  statesMocks.mock<ScaleEditorInfo, void>('stateScaleEditorInfoUI', scaleEditorMock);
 
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
@@ -73,5 +82,5 @@ test('Expect clicking scale button to open editor state', async () => {
 
   await fireEvent.click(screen.getByRole('button', { name: 'Scale Deployment' }));
 
-  expect(dependencyMocks.get(ScaleEditorState).startEditing).toHaveBeenCalledWith('ns1/my-deployment');
+  expect(dependencyMocks.get(ScaleEditorController).startEditing).toHaveBeenCalledWith('ns1/my-deployment');
 });

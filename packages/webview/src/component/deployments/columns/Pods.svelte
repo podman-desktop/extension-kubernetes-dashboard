@@ -1,18 +1,16 @@
 <script lang="ts">
 import { getContext } from 'svelte';
 
-import { DependencyAccessor } from '/@/inject/dependency-accessor';
-import { ScaleEditorState } from '/@/component/deployments/scale-editor-state.svelte';
+import { States } from '/@/state/states';
 import ScaleAction from './ScaleAction.svelte';
 import type { Props } from './props';
 
 let { object }: Props = $props();
 
-const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
-const scaleEditorState = dependencyAccessor.get<ScaleEditorState>(ScaleEditorState);
+const scaleEditorState = getContext<States>(States).stateScaleEditorInfoUI;
 
 let deploymentKey = $derived(`${object.namespace}/${object.name}`);
-let editing = $derived(scaleEditorState.isEditing(deploymentKey));
+let editing = $derived(scaleEditorState.data?.deploymentKey === deploymentKey);
 </script>
 
 <div class="flex flex-row items-center gap-2 text-(--pd-table-body-text)">

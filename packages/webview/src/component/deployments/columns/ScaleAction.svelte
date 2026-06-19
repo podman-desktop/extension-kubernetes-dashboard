@@ -4,11 +4,12 @@ import { NumberInput, Tooltip } from '@podman-desktop/ui-svelte';
 
 import IconButton from '/@/component/button/IconButton.svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
+import { ScaleEditorController } from '/@/component/deployments/scale-editor-controller';
 
 import { API_CONTEXTS } from '@kubernetes-dashboard/channels';
 import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
-import { ScaleEditorState } from '/@/component/deployments/scale-editor-state.svelte';
+import { States } from '/@/state/states';
 
 import type { Props } from './props';
 
@@ -17,7 +18,8 @@ let { object, mode = 'button' }: Props = $props();
 const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
-const scaleEditorState = dependencyAccessor.get<ScaleEditorState>(ScaleEditorState);
+const scaleEditorController = dependencyAccessor.get<ScaleEditorController>(ScaleEditorController);
+const scaleEditorState = getContext<States>(States).stateScaleEditorInfoUI;
 
 let deploymentKey = $derived(`${object.namespace}/${object.name}`);
 
@@ -28,7 +30,7 @@ let lastKnownReplicas = $state(object.replicas);
 let error = $state<string | undefined>(undefined);
 $effect(() => {
   if (object.replicas !== lastKnownReplicas) {
-    if (!scaleEditorState.isEditing(deploymentKey) || desiredReplicas === lastKnownReplicas) {
+    if (scaleEditorState.data?.deploymentKey !== deploymentKey || desiredReplicas === lastKnownReplicas) {
       desiredReplicas = object.replicas;
     }
     lastKnownReplicas = object.replicas;
@@ -36,18 +38,18 @@ $effect(() => {
 });
 
 let canScale = $derived(object.status !== 'DELETING' && !error && desiredReplicas !== object.replicas);
-let editing = $derived(scaleEditorState.isEditing(deploymentKey));
+let editing = $derived(scaleEditorState.data?.deploymentKey === deploymentKey);
 
 function startEditing(): void {
   desiredReplicas = object.replicas;
   error = undefined;
-  scaleEditorState.startEditing(deploymentKey);
+  scaleEditorController.startEditing(deploymentKey);
 }
 
 function cancelEditing(): void {
   desiredReplicas = object.replicas;
   error = undefined;
-  scaleEditorState.stopEditing();
+  scaleEditorController.stopEditing();
 }
 
 async function scaleObject(): Promise<void> {
@@ -55,7 +57,7 @@ async function scaleObject(): Promise<void> {
     return;
   }
   await contextsApi.scaleObject(object.kind, object.name, object.namespace, desiredReplicas);
-  scaleEditorState.stopEditing();
+  scaleEditorController.stopEditing();
 }
 
 function onKeydown(event: KeyboardEvent): void {
@@ -94,6 +96,5 @@ function onKeydown(event: KeyboardEvent): void {
         class="w-18" />
     </Tooltip>
     <IconButton enabled={canScale} title={`Apply scale for ${object.kind}`} onClick={scaleObject} icon={faCheck} />
-    <IconButton title={`Cancel scaling ${object.kind}`} onClick={cancelEditing} icon={faTimes} />
   </div>
 {/if}

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2025 Red Hat, Inc.
+ * Copyright (C) 2023 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,29 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import type { DeploymentUI } from '/@/component/deployments/DeploymentUI';
-import { ScaleEditorState } from '/@/component/deployments/scale-editor-state.svelte';
+import type { ScaleEditorInfo } from '/@/state/scale-editor.svelte';
+import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
+import { ScaleEditorController } from '/@/component/deployments/scale-editor-controller';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { RemoteMocks } from '/@/tests/remote-mocks';
+import { StatesMocks } from '/@/tests/state-mocks';
 
 import Pods from './Pods.svelte';
 
 const dependencyMocks = new DependencyMocks();
 const remoteMocks = new RemoteMocks();
+const statesMocks = new StatesMocks();
+let scaleEditorMock: FakeStateObject<ScaleEditorInfo, void>;
 
 beforeEach(() => {
   vi.resetAllMocks();
 
   dependencyMocks.reset();
-  dependencyMocks.mock(ScaleEditorState);
+  dependencyMocks.mock(ScaleEditorController);
+
+  statesMocks.reset();
+  scaleEditorMock = new FakeStateObject<ScaleEditorInfo, void>();
+  statesMocks.mock<ScaleEditorInfo, void>('stateScaleEditorInfoUI', scaleEditorMock);
 
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
@@ -44,7 +53,7 @@ beforeEach(() => {
   } as unknown as ContextsApi);
 });
 
-test('Expect simple column styling', async () => {
+test('Expect simple column styling', () => {
   const deployment: DeploymentUI = {
     uid: '123',
     name: 'my-deployment',
@@ -61,7 +70,7 @@ test('Expect simple column styling', async () => {
   const text = screen.getByText(deployment.ready + ' / ' + deployment.replicas);
   expect(text).toBeInTheDocument();
   expect(text.parentElement).toHaveClass('text-(--pd-table-body-text)');
-  expect(screen.queryByRole('button', { name: 'Scale Deployment' })).toBeNull();
+  expect(screen.queryByLabelText('Desired replica count for my-deployment')).toBeNull();
 });
 
 test('Expect scale editor to render in pods column while editing', () => {
@@ -76,7 +85,7 @@ test('Expect scale editor to render in pods column while editing', () => {
     selected: false,
     conditions: [],
   };
-  dependencyMocks.get(ScaleEditorState).isEditing = vi.fn().mockReturnValue(true);
+  scaleEditorMock.setData({ deploymentKey: 'ns1/my-deployment' });
 
   render(Pods, { object: deployment });
 
