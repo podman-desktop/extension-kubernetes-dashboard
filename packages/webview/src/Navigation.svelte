@@ -1,6 +1,5 @@
 <script lang="ts">
 import type { TinroRouteMeta } from 'tinro';
-import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 import {
   faCubes,
   faDatabase,
@@ -10,8 +9,9 @@ import {
   faNetworkWired,
   faServer,
 } from '@fortawesome/free-solid-svg-icons';
-import { getContext } from 'svelte';
+import { getContext, setContext } from 'svelte';
 import { Navigator } from '/@/navigation/navigator';
+import NavItem from '/@/navigation/NavItem.svelte';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import kubernetesIcon from '/@/kubernetes-icon.png';
 
@@ -25,6 +25,8 @@ const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const navigator = dependencyAccessor.get<Navigator>(Navigator);
 
 const url = $derived(meta.url);
+
+setContext('nav-url', () => url);
 
 function isUnderSection(sectionUrls: string[]): boolean {
   return sectionUrls.some(u => url === u || url.startsWith(u + '/'));
@@ -110,118 +112,45 @@ $effect(() => {
   <div
     class="h-full overflow-hidden hover:overflow-y-auto [&_svg]:w-[1.25em] [&_div.pl-\[34px\]]:!pl-[36px]"
     style="margin-bottom:auto">
-    <SettingsNavItem title="Dashboard" icon={faHouse} selected={url === '/'} href="/" />
+    <NavItem title="Dashboard" icon={faHouse} href="/" />
 
-    <SettingsNavItem
-      title="Nodes"
-      icon={faServer}
-      selected={url === navigator.kubernetesResourcesURL('Node')}
-      href={navigator.kubernetesResourcesURL('Node')} />
+    <NavItem title="Nodes" icon={faServer} href={navigator.kubernetesResourcesURL('Node')} />
 
     <!-- Compute section -->
-    <SettingsNavItem
-      title="Compute"
-      icon={faCubes}
-      section={true}
-      bind:expanded={workloadsExpanded}
-      selected={false}
-      href="" />
+    <NavItem title="Compute" icon={faCubes} section={true} bind:expanded={workloadsExpanded} href="" />
     {#if workloadsExpanded}
-      <SettingsNavItem
-        title="Deployments"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('Deployment')}
-        href={navigator.kubernetesResourcesURL('Deployment')} />
-      <SettingsNavItem
-        title="DaemonSets"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('DaemonSet')}
-        href={navigator.kubernetesResourcesURL('DaemonSet')} />
-      <SettingsNavItem
-        title="StatefulSets"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('StatefulSet')}
-        href={navigator.kubernetesResourcesURL('StatefulSet')} />
-      <SettingsNavItem
-        title="ReplicaSets"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('ReplicaSet')}
-        href={navigator.kubernetesResourcesURL('ReplicaSet')} />
-      <SettingsNavItem
-        title="Pods"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('Pod')}
-        href={navigator.kubernetesResourcesURL('Pod')} />
-      <SettingsNavItem
-        title="Jobs"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('Job')}
-        href={navigator.kubernetesResourcesURL('Job')} />
-      <SettingsNavItem
-        title="CronJobs"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('CronJob')}
-        href={navigator.kubernetesResourcesURL('CronJob')} />
+      <NavItem title="Deployments" child={true} href={navigator.kubernetesResourcesURL('Deployment')} />
+      <NavItem title="DaemonSets" child={true} href={navigator.kubernetesResourcesURL('DaemonSet')} />
+      <NavItem title="StatefulSets" child={true} href={navigator.kubernetesResourcesURL('StatefulSet')} />
+      <NavItem title="ReplicaSets" child={true} href={navigator.kubernetesResourcesURL('ReplicaSet')} />
+      <NavItem title="Pods" child={true} href={navigator.kubernetesResourcesURL('Pod')} />
+      <NavItem title="Jobs" child={true} href={navigator.kubernetesResourcesURL('Job')} />
+      <NavItem title="CronJobs" child={true} href={navigator.kubernetesResourcesURL('CronJob')} />
     {/if}
 
     <!-- Config section -->
-    <SettingsNavItem
-      title="Config"
-      icon={faGear}
-      section={true}
-      bind:expanded={configExpanded}
-      selected={false}
-      href="" />
+    <NavItem title="Config" icon={faGear} section={true} bind:expanded={configExpanded} href="" />
     {#if configExpanded}
-      <SettingsNavItem
-        title="ConfigMaps &amp; Secrets"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('ConfigMap')}
-        href={navigator.kubernetesResourcesURL('ConfigMap')} />
+      <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
     {/if}
 
     <!-- Network section -->
-    <SettingsNavItem
-      title="Network"
-      icon={faNetworkWired}
-      section={true}
-      bind:expanded={networkExpanded}
-      selected={false}
-      href="" />
+    <NavItem title="Network" icon={faNetworkWired} section={true} bind:expanded={networkExpanded} href="" />
     {#if networkExpanded}
-      <SettingsNavItem
-        title="Services"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('Service')}
-        href={navigator.kubernetesResourcesURL('Service')} />
-      <SettingsNavItem
-        title="Ingresses &amp; Routes"
-        child={true}
-        selected={url === navigator.kubernetesResourcesURL('Ingress')}
-        href={navigator.kubernetesResourcesURL('Ingress')} />
-      <SettingsNavItem title="Port Forwarding" child={true} selected={url === '/portForward'} href="/portForward" />
+      <NavItem title="Services" child={true} href={navigator.kubernetesResourcesURL('Service')} />
+      <NavItem title="Ingresses &amp; Routes" child={true} href={navigator.kubernetesResourcesURL('Ingress')} />
+      <NavItem title="Port Forwarding" child={true} href="/portForward" />
     {/if}
 
     <!-- Storage section -->
-    <SettingsNavItem
-      title="Storage"
-      icon={faDatabase}
-      section={true}
-      bind:expanded={storageExpanded}
-      selected={false}
-      href="" />
+    <NavItem title="Storage" icon={faDatabase} section={true} bind:expanded={storageExpanded} href="" />
     {#if storageExpanded}
-      <SettingsNavItem
+      <NavItem
         title="Persistent Volume Claims"
         child={true}
-        selected={url === navigator.kubernetesResourcesURL('PersistentVolumeClaim')}
         href={navigator.kubernetesResourcesURL('PersistentVolumeClaim')} />
     {/if}
 
-    <SettingsNavItem
-      title="Namespaces"
-      icon={faLayerGroup}
-      selected={url === navigator.kubernetesResourcesURL('Namespace')}
-      href={navigator.kubernetesResourcesURL('Namespace')} />
+    <NavItem title="Namespaces" icon={faLayerGroup} href={navigator.kubernetesResourcesURL('Namespace')} />
   </div>
 </nav>
