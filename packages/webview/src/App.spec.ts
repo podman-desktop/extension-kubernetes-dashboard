@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { render } from '@testing-library/svelte';
+import { router } from 'tinro';
 import { StatesMocks } from '/@/tests/state-mocks';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
 import type { AvailableContextsInfo, CurrentContextInfo } from '@kubernetes-dashboard/channels';
@@ -28,6 +29,7 @@ import type { WebviewApi } from '@podman-desktop/webview-api';
 import AppWithContext from '/@/AppWithContext.svelte';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
+vi.mock(import('tinro'));
 vi.mock(import('/@/component/dashboard/NoContextPage.svelte'));
 vi.mock(import('/@/component/dashboard/NoSelectedContextPage.svelte'));
 vi.mock(import('/@/AppWithContext.svelte'));
@@ -106,4 +108,31 @@ test('dashboard with two contexts, one current context', async () => {
   expect(NoContextPage).not.toHaveBeenCalled();
   expect(NoSelectedContextPage).not.toHaveBeenCalled();
   expect(AppWithContext).toHaveBeenCalled();
+});
+
+test('restores saved router state on mount', async () => {
+  vi.mocked(webviewApiMock.getState).mockReturnValue({ url: '/pods' });
+  currentContextMock.setData({
+    contextName: 'context1',
+  });
+  availableContextsMock.setData({
+    contextNames: ['context1'],
+  });
+  render(App);
+  await vi.advanceTimersByTimeAsync(600);
+  expect(webviewApiMock.getState).toHaveBeenCalled();
+  expect(router.goto).toHaveBeenCalledWith('/pods');
+});
+
+test('navigates to root when no saved state exists', async () => {
+  vi.mocked(webviewApiMock.getState).mockReturnValue(undefined);
+  currentContextMock.setData({
+    contextName: 'context1',
+  });
+  availableContextsMock.setData({
+    contextNames: ['context1'],
+  });
+  render(App);
+  await vi.advanceTimersByTimeAsync(600);
+  expect(router.goto).toHaveBeenCalledWith('/');
 });
