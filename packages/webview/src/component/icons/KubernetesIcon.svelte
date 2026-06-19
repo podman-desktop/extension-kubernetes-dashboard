@@ -20,7 +20,7 @@ const isFa = $derived(isFontAwesomeIcon(resolvedIcon));
 </script>
 
 {#if isFa}
-  <Icon icon={resolvedIcon as IconDefinition} size={size} />
+  <Icon icon={resolvedIcon as unknown as IconDefinition} size={size} />
 {:else}
   {@const SvelteIcon = resolvedIcon as Component<{ size?: string }>}
   <SvelteIcon size={size} />
