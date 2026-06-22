@@ -30,7 +30,7 @@
     "@kubernetes-dashboard/rpc": "workspace:*",
     "@kubernetes-dashboard/channels": "workspace:*",
     "@podman-desktop/api": "1.27.2",
-    "@types/node": "^24",
+    "@types/node": "^26",
     "@typescript-eslint/eslint-plugin": "^8.61.1",
     "@typescript-eslint/parser": "^8.61.1",
     "@vitest/coverage-v8": "^4",
