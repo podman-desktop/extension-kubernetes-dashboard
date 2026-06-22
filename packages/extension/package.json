@@ -42,7 +42,7 @@
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-redundant-undefined": "^1.0.0",
     "eslint-plugin-sonarjs": "^4.0.3",
-    "memfs": "^4.57.7",
+    "memfs": "^4.57.8",
     "prettier": "^3.8.4",
     "typescript": "5.9.3",
     "vite": "^8.0",
