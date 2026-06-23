@@ -76,6 +76,12 @@ import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-reso
 import { DaemonSetsResourceFactory } from '/@/resources/daemonsets-resource-factory.js';
 import { StatefulSetsResourceFactory } from '/@/resources/statefulsets-resource-factory.js';
 import { ReplicaSetsResourceFactory } from '/@/resources/replicasets-resource-factory.js';
+import { EndpointsResourceFactory } from '/@/resources/endpoints-resource-factory.js';
+import { IngressClassesResourceFactory } from '/@/resources/ingress-classes-resource-factory.js';
+import { NetworkPoliciesResourceFactory } from '/@/resources/network-policies-resource-factory.js';
+import { HttpRoutesResourceFactory } from '/@/resources/httproutes-resource-factory.js';
+import { GatewaysResourceFactory } from '/@/resources/gateways-resource-factory.js';
+import { GatewayClassesResourceFactory } from '/@/resources/gatewayclasses-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -187,6 +193,12 @@ export class ContextsManager implements ContextsApi {
       new DaemonSetsResourceFactory(),
       new StatefulSetsResourceFactory(),
       new ReplicaSetsResourceFactory(),
+      new EndpointsResourceFactory(),
+      new IngressClassesResourceFactory(),
+      new NetworkPoliciesResourceFactory(),
+      new HttpRoutesResourceFactory(),
+      new GatewaysResourceFactory(),
+      new GatewayClassesResourceFactory(),
     ];
   }
 
