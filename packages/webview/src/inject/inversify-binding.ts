@@ -42,6 +42,11 @@ import { annotationsModule } from '/@/annotations/_annotations-module';
 import { daemonSetsModule } from '/@/component/daemonsets/_daemonsets-module';
 import { statefulSetsModule } from '/@/component/statefulsets/_statefulsets-module';
 import { replicaSetsModule } from '/@/component/replicasets/_replicasets-module';
+import { serviceAccountsModule } from '/@/component/service-accounts/_service-accounts-module';
+import { clusterRolesModule } from '/@/component/cluster-roles/_cluster-roles-module';
+import { rolesModule } from '/@/component/roles/_roles-module';
+import { clusterRoleBindingsModule } from '/@/component/cluster-role-bindings/_cluster-role-bindings-module';
+import { roleBindingsModule } from '/@/component/role-bindings/_role-bindings-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -78,6 +83,11 @@ export class InversifyBinding {
     await this.#container.load(daemonSetsModule);
     await this.#container.load(statefulSetsModule);
     await this.#container.load(replicaSetsModule);
+    await this.#container.load(serviceAccountsModule);
+    await this.#container.load(clusterRolesModule);
+    await this.#container.load(rolesModule);
+    await this.#container.load(clusterRoleBindingsModule);
+    await this.#container.load(roleBindingsModule);
 
     return this.#container;
   }

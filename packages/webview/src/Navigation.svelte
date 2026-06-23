@@ -8,6 +8,7 @@ import {
   faLayerGroup,
   faNetworkWired,
   faServer,
+  faShieldHalved,
 } from '@fortawesome/free-solid-svg-icons';
 import { getContext, setContext } from 'svelte';
 import { Navigator } from '/@/navigation/navigator';
@@ -52,6 +53,14 @@ const networkUrls = [
 
 const storageUrls = [navigator.kubernetesResourcesURL('PersistentVolumeClaim')];
 
+const accessControlUrls = [
+  navigator.kubernetesResourcesURL('ServiceAccount'),
+  navigator.kubernetesResourcesURL('ClusterRole'),
+  navigator.kubernetesResourcesURL('Role'),
+  navigator.kubernetesResourcesURL('ClusterRoleBinding'),
+  navigator.kubernetesResourcesURL('RoleBinding'),
+];
+
 const STORAGE_KEY = 'nav-sections-expanded';
 
 function loadExpanded(): Record<string, boolean> {
@@ -78,12 +87,14 @@ let workloadsExpanded = $state(initExpanded('compute', workloadUrls));
 let configExpanded = $state(initExpanded('config', configUrls));
 let networkExpanded = $state(initExpanded('network', networkUrls));
 let storageExpanded = $state(initExpanded('storage', storageUrls));
+let accessControlExpanded = $state(initExpanded('accessControl', accessControlUrls));
 
 $effect(() => {
   if (isUnderSection(workloadUrls)) workloadsExpanded = true;
   if (isUnderSection(configUrls)) configExpanded = true;
   if (isUnderSection(networkUrls)) networkExpanded = true;
   if (isUnderSection(storageUrls)) storageExpanded = true;
+  if (isUnderSection(accessControlUrls)) accessControlExpanded = true;
 });
 
 $effect(() => {
@@ -97,6 +108,9 @@ $effect(() => {
 });
 $effect(() => {
   saveExpanded('storage', storageExpanded);
+});
+$effect(() => {
+  saveExpanded('accessControl', accessControlExpanded);
 });
 </script>
 
@@ -149,6 +163,24 @@ $effect(() => {
         title="Persistent Volume Claims"
         child={true}
         href={navigator.kubernetesResourcesURL('PersistentVolumeClaim')} />
+    {/if}
+
+    <!-- Access Control section -->
+    <NavItem
+      title="Access Control"
+      icon={faShieldHalved}
+      section={true}
+      bind:expanded={accessControlExpanded}
+      href="" />
+    {#if accessControlExpanded}
+      <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
+      <NavItem title="Cluster Roles" child={true} href={navigator.kubernetesResourcesURL('ClusterRole')} />
+      <NavItem title="Roles" child={true} href={navigator.kubernetesResourcesURL('Role')} />
+      <NavItem
+        title="Cluster Role Bindings"
+        child={true}
+        href={navigator.kubernetesResourcesURL('ClusterRoleBinding')} />
+      <NavItem title="Role Bindings" child={true} href={navigator.kubernetesResourcesURL('RoleBinding')} />
     {/if}
 
     <NavItem title="Namespaces" icon={faLayerGroup} href={navigator.kubernetesResourcesURL('Namespace')} />
