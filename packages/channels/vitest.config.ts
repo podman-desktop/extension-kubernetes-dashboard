@@ -1,4 +1,3 @@
-
 import { join, resolve } from 'node:path';
 import { defineProject } from 'vitest/config';
 

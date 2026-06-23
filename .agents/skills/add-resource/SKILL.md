@@ -25,9 +25,9 @@ paths:
 
 Before writing any code answer two questions:
 
-| Question | Answer | Impact |
-|---|---|---|
-| Is the resource namespace-scoped? | yes / no | Changes factory API paths and signature |
+| Question                                                | Answer   | Impact                                              |
+| ------------------------------------------------------- | -------- | --------------------------------------------------- |
+| Is the resource namespace-scoped?                       | yes / no | Changes factory API paths and signature             |
 | Does this resource share a list page with another kind? | yes / no | Changes route structure, transformer, and navigator |
 
 Examples of **namespaced** resources: Pod, Deployment, ConfigMap, Service, Ingress.  
@@ -64,14 +64,14 @@ export class FoosResourceFactory extends ResourceFactoryBase implements Resource
 
     // this.setEagerStart();                      // see "When to use setEagerStart" below
     this.setPermissions({
-      isNamespaced: true,                         // MUST be true for namespaced resources
+      isNamespaced: true, // MUST be true for namespaced resources
       permissionsRequests: [
         { group: '*', resource: '*', verb: 'watch' },
-        { verb: 'watch', resource: 'foos' },      // always include the specific resource
+        { verb: 'watch', resource: 'foos' }, // always include the specific resource
       ],
     });
     this.setInformer({ createInformer: this.createInformer.bind(this) });
-    this.setDeleteObject(this.deleteFoo);         // omit for admin resources (Nodes, StorageClasses) and system resources (Events, EndpointSlices)
+    this.setDeleteObject(this.deleteFoo); // omit for admin resources (Nodes, StorageClasses) and system resources (Events, EndpointSlices)
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Foo> {
@@ -82,7 +82,11 @@ export class FoosResourceFactory extends ResourceFactoryBase implements Resource
     return new ResourceInformer<V1Foo>({ kubeconfig, path, listFn, kind: this.kind, plural: 'foos' });
   }
 
-  deleteFoo(kubeconfig: KubeConfigSingleContext, name: string, namespace: string): Promise<V1Status | KubernetesObject> {
+  deleteFoo(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+  ): Promise<V1Status | KubernetesObject> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
     return apiClient.deleteNamespacedFoo({ name, namespace });
   }
@@ -137,9 +141,13 @@ For OpenShift custom resources not covered by a typed client, use `CustomObjects
 ```typescript
 import { CustomObjectsApi } from '@kubernetes/client-node';
 
-const listFn = () => apiClient.listNamespacedCustomObject({
-  group: 'example.com', version: 'v1', namespace, plural: 'foos',
-});
+const listFn = () =>
+  apiClient.listNamespacedCustomObject({
+    group: 'example.com',
+    version: 'v1',
+    namespace,
+    plural: 'foos',
+  });
 const path = `/apis/example.com/v1/namespaces/${namespace}/foos`;
 ```
 
@@ -170,20 +178,22 @@ computed in the webview helper instead.
 
 **Existing examples**:
 
-| Factory | Condition |
-|---|---|
-| `NodesResourceFactory` | `status.conditions` has `type=Ready, status=True` |
-| `DeploymentsResourceFactory` | `spec.replicas > 0` |
-| `DaemonSetsResourceFactory` | `status.desiredNumberScheduled > 0` |
-| `StatefulSetsResourceFactory` | `spec.replicas > 0` |
-| `ReplicaSetsResourceFactory` | `spec.replicas > 0` |
+| Factory                       | Condition                                         |
+| ----------------------------- | ------------------------------------------------- |
+| `NodesResourceFactory`        | `status.conditions` has `type=Ready, status=True` |
+| `DeploymentsResourceFactory`  | `spec.replicas > 0`                               |
+| `DaemonSetsResourceFactory`   | `status.desiredNumberScheduled > 0`               |
+| `StatefulSetsResourceFactory` | `spec.replicas > 0`                               |
+| `ReplicaSetsResourceFactory`  | `spec.replicas > 0`                               |
 
 **Signature** (same for namespaced and non-namespaced):
+
 ```typescript
-setIsActive((obj: V1Foo) => boolean)
+setIsActive((obj: V1Foo) => boolean);
 ```
 
 **Implementation sketch**:
+
 ```typescript
 isFooActive(foo: V1Foo): boolean {
   return (foo.spec?.replicas ?? 0) > 0;
@@ -215,6 +225,7 @@ runtime selector-based lookup for that kind.
 matching items.
 
 **Signature**:
+
 ```typescript
 // Namespaced
 (kubeconfig: KubeConfigSingleContext, options: SelectorOptions, namespace: string) => Promise<KubernetesObject[]>
@@ -226,6 +237,7 @@ matching items.
 `SelectorOptions` is `{ labelSelector?: string; fieldSelector?: string }`.
 
 **Implementation sketch** (namespaced):
+
 ```typescript
 async searchFoosBySelector(
   kubeconfig: KubeConfigSingleContext,
@@ -258,15 +270,16 @@ ConfigMap, Node, etc.).
 
 **Existing examples**:
 
-| Factory | Target kind | Field inspected |
-|---|---|---|
-| `IngressesResourceFactory` | Service | `spec.defaultBackend.service.name` or `spec.rules[*].http.paths[*].backend.service.name` |
-| `RoutesResourceFactory` | Service (or any) | `spec.to.name` + `spec.to.kind` |
-| `EndpointSlicesResourceFactory` | Pod | `endpoints[*].targetRef.name/namespace/kind` |
+| Factory                         | Target kind      | Field inspected                                                                          |
+| ------------------------------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| `IngressesResourceFactory`      | Service          | `spec.defaultBackend.service.name` or `spec.rules[*].http.paths[*].backend.service.name` |
+| `RoutesResourceFactory`         | Service (or any) | `spec.to.name` + `spec.to.kind`                                                          |
+| `EndpointSlicesResourceFactory` | Pod              | `endpoints[*].targetRef.name/namespace/kind`                                             |
 
 **Signature** (same for namespaced and non-namespaced — searches the cache,
 no namespace param needed because `ContextsManager` always uses the current
 context):
+
 ```typescript
 (kubeconfig: KubeConfigSingleContext, targetRef: TargetRef) => KubernetesObject[]
 ```
@@ -312,6 +325,7 @@ restart logic does not need to poll for deletion (e.g. a deployment rolling
 restart can be triggered without deleting and recreating).
 
 **Signature**:
+
 ```typescript
 // Namespaced
 (kubeconfig: KubeConfigSingleContext, name: string, namespace: string) => Promise<KubernetesObject>
@@ -321,6 +335,7 @@ restart can be triggered without deleting and recreating).
 ```
 
 **Implementation sketch** (namespaced):
+
 ```typescript
 async readFoo(kubeconfig: KubeConfigSingleContext, name: string, namespace: string): Promise<V1Foo> {
   const apiClient = kubeconfig.getKubeConfig().makeApiClient(CoreV1Api);
@@ -351,12 +366,13 @@ re-creation) is the correct user action.
 
 **Existing examples**:
 
-| Factory | Strategy |
-|---|---|
+| Factory               | Strategy                                                                                                                                                                                                              |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `PodsResourceFactory` | For standalone pods: delete + wait for deletion + recreate with clean metadata. For controller-owned pods: just delete (the controller recreates). Delegates Job pods to `contextsManager.restartObject('Job', ...)`. |
-| `JobsResourceFactory` | Delete with `propagationPolicy: Foreground` + wait for deletion + recreate with stripped server-assigned fields (uid, resourceVersion, selector labels). |
+| `JobsResourceFactory` | Delete with `propagationPolicy: Foreground` + wait for deletion + recreate with stripped server-assigned fields (uid, resourceVersion, selector labels).                                                              |
 
 **Signature**:
+
 ```typescript
 // Namespaced
 (kubeconfig: KubeConfigSingleContext, name: string, namespace: string) => Promise<void>
@@ -369,6 +385,7 @@ re-creation) is the correct user action.
 when `restartObject` needs to call `contextsManager.waitForObjectDeletion()`.
 
 **Implementation sketch** (namespaced, delete + wait + recreate pattern):
+
 ```typescript
 constructor(protected contextsManager: ContextsManager) {
   // ...
@@ -514,8 +531,8 @@ export class FooHelper {
       kind: 'Foo',
       uid: obj.metadata?.uid ?? '',
       name: obj.metadata?.name ?? '',
-      namespace: obj.metadata?.namespace ?? '',   // omit for non-namespaced
-      status: 'RUNNING',                          // compute from obj.status as needed
+      namespace: obj.metadata?.namespace ?? '', // omit for non-namespaced
+      status: 'RUNNING', // compute from obj.status as needed
       selected: false,
       created: obj.metadata?.creationTimestamp,
     };
@@ -616,19 +633,19 @@ or reuse an existing one for similar resource shapes.
 
 **Shared columns** in `packages/webview/src/component/objects/columns/`:
 
-| Component | Purpose | Props interface |
-|-----------|---------|-----------------|
-| `Name.svelte` | Renders resource name as a link to details page | `ObjectProps` (`object: KubernetesObjectUI`) |
-| `Status.svelte` | Renders status icon based on `object.status` | `ObjectProps` |
-| `DeleteAction.svelte` | Delete button with confirmation dialog | `ObjectProps` |
-| `RestartAction.svelte` | Restart button (for Pods, Jobs) | `ObjectProps` |
+| Component              | Purpose                                         | Props interface                              |
+| ---------------------- | ----------------------------------------------- | -------------------------------------------- |
+| `Name.svelte`          | Renders resource name as a link to details page | `ObjectProps` (`object: KubernetesObjectUI`) |
+| `Status.svelte`        | Renders status icon based on `object.status`    | `ObjectProps`                                |
+| `DeleteAction.svelte`  | Delete button with confirmation dialog          | `ObjectProps`                                |
+| `RestartAction.svelte` | Restart button (for Pods, Jobs)                 | `ObjectProps`                                |
 
 **Built-in renderers** from `@podman-desktop/ui-svelte`:
 
-| Renderer | Purpose | `renderMapping` returns |
-|----------|---------|-------------------------|
-| `TableSimpleColumn` | Plain text display | `string` |
-| `TableDurationColumn` | Relative time (e.g., "5m ago") | `Date \| undefined` |
+| Renderer              | Purpose                        | `renderMapping` returns |
+| --------------------- | ------------------------------ | ----------------------- |
+| `TableSimpleColumn`   | Plain text display             | `string`                |
+| `TableDurationColumn` | Relative time (e.g., "5m ago") | `Date \| undefined`     |
 
 **When to create a resource-specific column** in `<plural>/columns/`:
 
@@ -650,6 +667,7 @@ packages/webview/src/component/<plural>/columns/
 ```
 
 **props.ts pattern:**
+
 ```typescript
 import type { FooUI } from '/@/component/<plural>/FooUI';
 
@@ -659,6 +677,7 @@ export interface Props {
 ```
 
 **Custom column pattern:**
+
 ```svelte
 <script lang="ts">
 import type { Props } from './props';
@@ -669,6 +688,7 @@ let { object }: Props = $props();
 ```
 
 **Actions column pattern:**
+
 ```svelte
 <script lang="ts">
 import DeleteAction from '/@/component/objects/columns/DeleteAction.svelte';
@@ -696,7 +716,10 @@ import { FooHelper } from './foo-helper';
 import type { FooUI } from './FooUI';
 import FooDetailsSummary from './FooDetailsSummary.svelte';
 
-interface Props { name: string; namespace: string; }   // omit namespace for non-namespaced
+interface Props {
+  name: string;
+  namespace: string;
+} // omit namespace for non-namespaced
 let { name, namespace }: Props = $props();
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
@@ -728,7 +751,10 @@ import Table from '/@/component/details/Table.svelte';
 import ObjectMetaDetails from '/@/component/objects/details/ObjectMetaDetails.svelte';
 import EventsDetails from '/@/component/objects/details/EventsDetails.svelte';
 
-interface Props { object: V1Foo; events: readonly EventUI[]; }
+interface Props {
+  object: V1Foo;
+  events: readonly EventUI[];
+}
 let { object, events }: Props = $props();
 </script>
 
@@ -809,10 +835,7 @@ Place the new link in the appropriate section (`workloadUrls`, `configUrls`,
 
 ```svelte
 <!-- Add URL to the matching section array for auto-expand -->
-const workloadUrls = [
-  // ...existing...
-  navigator.kubernetesResourcesURL('Foo'),
-];
+const workloadUrls = [ // ...existing... navigator.kubernetesResourcesURL('Foo'), ];
 
 <!-- Add NavItem in the corresponding {#if} block -->
 {#if workloadsExpanded}
@@ -838,7 +861,7 @@ to distinguish the kinds:
 
 ```typescript
 export interface FooBarUI extends KubernetesNamespacedObjectUI {
-  type: string;    // e.g. 'Foo' | 'Bar'
+  type: string; // e.g. 'Foo' | 'Bar'
   created?: Date;
 }
 ```
@@ -914,8 +937,8 @@ test('factory has correct resource name and kind', () => {
 test('active condition logic', () => {
   const factory = new FoosResourceFactory();
   expect(factory.isActive).toBeDefined();
-  expect(factory.isActive!({ status: { /* ready */ } } as V1Foo)).toBeTruthy();
-  expect(factory.isActive!({ status: { /* not ready */ } } as V1Foo)).toBeFalsy();
+  expect(factory.isActive!({ status: {/* ready */} } as V1Foo)).toBeTruthy();
+  expect(factory.isActive!({ status: {/* not ready */} } as V1Foo)).toBeFalsy();
 });
 ```
 
@@ -929,12 +952,14 @@ import { FooHelper } from './foo-helper';
 import type { V1Foo } from '@kubernetes/client-node';
 
 let helper: FooHelper;
-beforeEach(() => { helper = new FooHelper(); });
+beforeEach(() => {
+  helper = new FooHelper();
+});
 
 test('basic UI conversion', () => {
   const foo = {
     metadata: { name: 'my-foo', namespace: 'test-ns', uid: 'abc' },
-    status: { /* ... */ },
+    status: {/* ... */},
   } as V1Foo;
   const ui = helper.getFooUI(foo);
   expect(ui.kind).toBe('Foo');

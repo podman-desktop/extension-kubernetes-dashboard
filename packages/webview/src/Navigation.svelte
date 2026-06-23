@@ -46,7 +46,14 @@ const configUrls = [navigator.kubernetesResourcesURL('ConfigMap')];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
+  navigator.kubernetesResourcesURL('EndpointSlice'),
+  navigator.kubernetesResourcesURL('Endpoints'),
   navigator.kubernetesResourcesURL('Ingress'),
+  navigator.kubernetesResourcesURL('IngressClass'),
+  navigator.kubernetesResourcesURL('NetworkPolicy'),
+  navigator.kubernetesResourcesURL('HTTPRoute'),
+  navigator.kubernetesResourcesURL('Gateway'),
+  navigator.kubernetesResourcesURL('GatewayClass'),
   '/portForward',
 ];
 
@@ -142,7 +149,14 @@ $effect(() => {
     <NavItem title="Network" icon={faNetworkWired} section={true} bind:expanded={networkExpanded} href="" />
     {#if networkExpanded}
       <NavItem title="Services" child={true} href={navigator.kubernetesResourcesURL('Service')} />
+      <NavItem title="Endpoint Slices" child={true} href={navigator.kubernetesResourcesURL('EndpointSlice')} />
+      <NavItem title="Endpoints" child={true} href={navigator.kubernetesResourcesURL('Endpoints')} />
       <NavItem title="Ingresses &amp; Routes" child={true} href={navigator.kubernetesResourcesURL('Ingress')} />
+      <NavItem title="Ingress Classes" child={true} href={navigator.kubernetesResourcesURL('IngressClass')} />
+      <NavItem title="Network Policies" child={true} href={navigator.kubernetesResourcesURL('NetworkPolicy')} />
+      <NavItem title="HTTPRoutes" child={true} href={navigator.kubernetesResourcesURL('HTTPRoute')} />
+      <NavItem title="Gateways" child={true} href={navigator.kubernetesResourcesURL('Gateway')} />
+      <NavItem title="Gateway Classes" child={true} href={navigator.kubernetesResourcesURL('GatewayClass')} />
       <NavItem title="Port Forwarding" child={true} href="/portForward" />
     {/if}
 
