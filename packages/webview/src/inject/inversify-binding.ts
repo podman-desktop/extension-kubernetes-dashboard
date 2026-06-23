@@ -42,6 +42,15 @@ import { annotationsModule } from '/@/annotations/_annotations-module';
 import { daemonSetsModule } from '/@/component/daemonsets/_daemonsets-module';
 import { statefulSetsModule } from '/@/component/statefulsets/_statefulsets-module';
 import { replicaSetsModule } from '/@/component/replicasets/_replicasets-module';
+import { resourceQuotasModule } from '/@/component/resource-quotas/_resource-quotas-module';
+import { limitRangesModule } from '/@/component/limit-ranges/_limit-ranges-module';
+import { hpasModule } from '/@/component/hpas/_hpas-module';
+import { pdbsModule } from '/@/component/pdbs/_pdbs-module';
+import { priorityClassesModule } from '/@/component/priority-classes/_priority-classes-module';
+import { runtimeClassesModule } from '/@/component/runtime-classes/_runtime-classes-module';
+import { leasesModule } from '/@/component/leases/_leases-module';
+import { mutatingWebhooksModule } from '/@/component/mutating-webhooks/_mutating-webhooks-module';
+import { validatingWebhooksModule } from '/@/component/validating-webhooks/_validating-webhooks-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -78,6 +87,15 @@ export class InversifyBinding {
     await this.#container.load(daemonSetsModule);
     await this.#container.load(statefulSetsModule);
     await this.#container.load(replicaSetsModule);
+    await this.#container.load(resourceQuotasModule);
+    await this.#container.load(limitRangesModule);
+    await this.#container.load(hpasModule);
+    await this.#container.load(pdbsModule);
+    await this.#container.load(priorityClassesModule);
+    await this.#container.load(runtimeClassesModule);
+    await this.#container.load(leasesModule);
+    await this.#container.load(mutatingWebhooksModule);
+    await this.#container.load(validatingWebhooksModule);
 
     return this.#container;
   }

@@ -42,7 +42,18 @@ const workloadUrls = [
   navigator.kubernetesResourcesURL('CronJob'),
 ];
 
-const configUrls = [navigator.kubernetesResourcesURL('ConfigMap')];
+const configUrls = [
+  navigator.kubernetesResourcesURL('ConfigMap'),
+  navigator.kubernetesResourcesURL('ResourceQuota'),
+  navigator.kubernetesResourcesURL('LimitRange'),
+  navigator.kubernetesResourcesURL('HorizontalPodAutoscaler'),
+  navigator.kubernetesResourcesURL('PodDisruptionBudget'),
+  navigator.kubernetesResourcesURL('PriorityClass'),
+  navigator.kubernetesResourcesURL('RuntimeClass'),
+  navigator.kubernetesResourcesURL('Lease'),
+  navigator.kubernetesResourcesURL('MutatingWebhookConfiguration'),
+  navigator.kubernetesResourcesURL('ValidatingWebhookConfiguration'),
+];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
@@ -132,6 +143,27 @@ $effect(() => {
     <NavItem title="Config" icon={faGear} section={true} bind:expanded={configExpanded} href="" />
     {#if configExpanded}
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
+      <NavItem title="Resource Quotas" child={true} href={navigator.kubernetesResourcesURL('ResourceQuota')} />
+      <NavItem title="Limit Ranges" child={true} href={navigator.kubernetesResourcesURL('LimitRange')} />
+      <NavItem
+        title="Horizontal Pod Autoscalers"
+        child={true}
+        href={navigator.kubernetesResourcesURL('HorizontalPodAutoscaler')} />
+      <NavItem
+        title="Pod Disruption Budgets"
+        child={true}
+        href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
+      <NavItem title="Priority Classes" child={true} href={navigator.kubernetesResourcesURL('PriorityClass')} />
+      <NavItem title="Runtime Classes" child={true} href={navigator.kubernetesResourcesURL('RuntimeClass')} />
+      <NavItem title="Leases" child={true} href={navigator.kubernetesResourcesURL('Lease')} />
+      <NavItem
+        title="Mutating Webhook Configs"
+        child={true}
+        href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
+      <NavItem
+        title="Validating Webhook Configs"
+        child={true}
+        href={navigator.kubernetesResourcesURL('ValidatingWebhookConfiguration')} />
     {/if}
 
     <!-- Network section -->
