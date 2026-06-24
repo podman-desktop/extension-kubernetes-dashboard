@@ -76,6 +76,7 @@ Task-specific guidance lives in `.agents/skills/`:
 - `svelte-ui-design` — Svelte 5 and Podman Desktop UI patterns
 - `unit-testing` — Vitest patterns for extension/webview/channels
 - `playwright-testing` — E2E structure, envtest setup, and spec patterns
+- `add-resource` — step-by-step guide and review checklist for adding a new Kubernetes resource kind
 
 ## Architecture
 
