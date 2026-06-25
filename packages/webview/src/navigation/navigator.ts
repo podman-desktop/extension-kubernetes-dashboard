@@ -77,6 +77,16 @@ export class Navigator {
       return 'ingressesRoutes';
     } else if (kind === 'ConfigMap' || kind === 'Secret') {
       return 'configmapsSecrets';
+    } else if (kind === 'IngressClass') {
+      return 'ingressclasses';
+    } else if (kind === 'NetworkPolicy') {
+      return 'networkpolicies';
+    } else if (kind === 'Endpoints') {
+      return 'endpoints';
+    } else if (kind === 'HTTPRoute') {
+      return 'httproutes';
+    } else if (kind === 'GatewayClass') {
+      return 'gatewayclasses';
     }
     // otherwise do the simple conversion
     return kind.toLowerCase() + 's';

@@ -32,6 +32,20 @@ import StatefulSetsList from '/@/component/statefulsets/StatefulSetsList.svelte'
 import StatefulSetDetails from '/@/component/statefulsets/StatefulSetDetails.svelte';
 import ReplicaSetsList from '/@/component/replicasets/ReplicaSetsList.svelte';
 import ReplicaSetDetails from '/@/component/replicasets/ReplicaSetDetails.svelte';
+import EndpointSlicesList from './component/endpoint-slices/EndpointSlicesList.svelte';
+import EndpointSliceDetails from './component/endpoint-slices/EndpointSliceDetails.svelte';
+import EndpointsList from './component/endpoints/EndpointsList.svelte';
+import EndpointDetails from './component/endpoints/EndpointDetails.svelte';
+import IngressClassesList from './component/ingress-classes/IngressClassesList.svelte';
+import IngressClassDetails from './component/ingress-classes/IngressClassDetails.svelte';
+import NetworkPoliciesList from './component/network-policies/NetworkPoliciesList.svelte';
+import NetworkPolicyDetails from './component/network-policies/NetworkPolicyDetails.svelte';
+import HttpRoutesList from './component/httproutes/HttpRoutesList.svelte';
+import HttpRouteDetails from './component/httproutes/HttpRouteDetails.svelte';
+import GatewaysList from './component/gateways/GatewaysList.svelte';
+import GatewayDetails from './component/gateways/GatewayDetails.svelte';
+import GatewayClassesList from './component/gatewayclasses/GatewayClassesList.svelte';
+import GatewayClassDetails from './component/gatewayclasses/GatewayClassDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -168,5 +182,61 @@ const { meta }: Props = $props();
 
   <Route path="/replicasets/:name/:namespace/*" let:meta>
     <ReplicaSetDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/endpointslices">
+    <EndpointSlicesList />
+  </Route>
+
+  <Route path="/endpointslices/:name/:namespace/*" let:meta>
+    <EndpointSliceDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/endpoints">
+    <EndpointsList />
+  </Route>
+
+  <Route path="/endpoints/:name/:namespace/*" let:meta>
+    <EndpointDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/ingressclasses">
+    <IngressClassesList />
+  </Route>
+
+  <Route path="/ingressclasses/:name/*" let:meta>
+    <IngressClassDetails name={decodeURI(meta.params.name)} />
+  </Route>
+
+  <Route path="/networkpolicies">
+    <NetworkPoliciesList />
+  </Route>
+
+  <Route path="/networkpolicies/:name/:namespace/*" let:meta>
+    <NetworkPolicyDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/httproutes">
+    <HttpRoutesList />
+  </Route>
+
+  <Route path="/httproutes/:name/:namespace/*" let:meta>
+    <HttpRouteDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/gateways">
+    <GatewaysList />
+  </Route>
+
+  <Route path="/gateways/:name/:namespace/*" let:meta>
+    <GatewayDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/gatewayclasses">
+    <GatewayClassesList />
+  </Route>
+
+  <Route path="/gatewayclasses/:name/*" let:meta>
+    <GatewayClassDetails name={decodeURI(meta.params.name)} />
   </Route>
 </div>

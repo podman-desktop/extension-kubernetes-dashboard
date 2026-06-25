@@ -42,6 +42,13 @@ import { annotationsModule } from '/@/annotations/_annotations-module';
 import { daemonSetsModule } from '/@/component/daemonsets/_daemonsets-module';
 import { statefulSetsModule } from '/@/component/statefulsets/_statefulsets-module';
 import { replicaSetsModule } from '/@/component/replicasets/_replicasets-module';
+import { endpointSlicesModule } from '/@/component/endpoint-slices/_endpoint-slices-module';
+import { endpointsModule } from '/@/component/endpoints/_endpoints-module';
+import { ingressClassesModule } from '/@/component/ingress-classes/_ingress-classes-module';
+import { networkPoliciesModule } from '/@/component/network-policies/_network-policies-module';
+import { httpRoutesModule } from '/@/component/httproutes/_httproutes-module';
+import { gatewaysModule } from '/@/component/gateways/_gateways-module';
+import { gatewayClassesModule } from '/@/component/gatewayclasses/_gatewayclasses-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -78,6 +85,13 @@ export class InversifyBinding {
     await this.#container.load(daemonSetsModule);
     await this.#container.load(statefulSetsModule);
     await this.#container.load(replicaSetsModule);
+    await this.#container.load(endpointSlicesModule);
+    await this.#container.load(endpointsModule);
+    await this.#container.load(ingressClassesModule);
+    await this.#container.load(networkPoliciesModule);
+    await this.#container.load(httpRoutesModule);
+    await this.#container.load(gatewaysModule);
+    await this.#container.load(gatewayClassesModule);
 
     return this.#container;
   }
