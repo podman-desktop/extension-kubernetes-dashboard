@@ -17,22 +17,24 @@
  ***********************************************************************/
 
 import type { Component } from 'svelte';
-import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 import CronJobIcon from './CronJobIcon.svelte';
+import DaemonSetIcon from './DaemonSetIcon.svelte';
 import DeploymentIcon from './DeploymentIcon.svelte';
 import IngressRouteIcon from './IngressRouteIcon.svelte';
 import JobIcon from './JobIcon.svelte';
 import NodeIcon from './NodeIcon.svelte';
 import PodIcon from './PodIcon.svelte';
 import PvcIcon from './PVCIcon.svelte';
+import ReplicaSetIcon from './ReplicaSetIcon.svelte';
 import ServiceIcon from './ServiceIcon.svelte';
+import StatefulSetIcon from './StatefulSetIcon.svelte';
 import NamespaceIcon from './NamespaceIcon.svelte';
 import ConfigMapIcon from './ConfigMapIcon.svelte';
 import SecretIcon from './SecretIcon.svelte';
 import ConfigMapSecretIcon from './ConfigMapSecretIcon.svelte';
 
-export const icon: Record<string, Component | IconDefinition> = {
+export const icon: Record<string, Component> = {
   ConfigMap: ConfigMapIcon,
   Secret: SecretIcon,
   ConfigMapSecret: ConfigMapSecretIcon,
@@ -46,7 +48,7 @@ export const icon: Record<string, Component | IconDefinition> = {
   PersistentVolumeClaim: PvcIcon,
   Service: ServiceIcon,
   Namespace: NamespaceIcon,
-  DaemonSet: DeploymentIcon,
-  StatefulSet: DeploymentIcon,
-  ReplicaSet: DeploymentIcon,
+  DaemonSet: DaemonSetIcon,
+  StatefulSet: StatefulSetIcon,
+  ReplicaSet: ReplicaSetIcon,
 };
