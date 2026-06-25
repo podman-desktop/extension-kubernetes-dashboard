@@ -210,12 +210,14 @@ export class ContextsManager implements ContextsApi {
   private onDelete(state: DispatcherEvent): void {
     if (this.isMonitored(state.contextName)) {
       this.stopMonitoring(state.contextName);
+      this.clearResourceSubscriptionsForContext(state.contextName);
     }
   }
 
   private async onCurrentChange(state: CurrentChangeEvent): Promise<void> {
     if (state.previous && this.isMonitored(state.previous)) {
       this.stopMonitoring(state.previous);
+      this.clearResourceSubscriptionsForContext(state.previous);
     }
     if (state.current && state.currentConfig) {
       await this.startMonitoring(state.currentConfig, state.current);
@@ -446,7 +448,16 @@ export class ContextsManager implements ContextsApi {
               console.log(`[informer] starting eager informer: ${resource} on ${contextName}`);
               this.createAndStartInformer(contextName, resource, event.kubeConfig);
             } else {
-              console.log(`[informer] permission granted for lazy resource: ${resource} on ${contextName} (deferred)`);
+              const key = `${contextName}/${resource}`;
+              const subs = this.#resourceSubscriptions.get(key);
+              if (subs && subs.size > 0) {
+                console.log(`[informer] starting lazy informer: ${resource} on ${contextName} (existing subscribers)`);
+                this.createAndStartInformer(contextName, resource, event.kubeConfig);
+              } else {
+                console.log(
+                  `[informer] permission granted for lazy resource: ${resource} on ${contextName} (deferred)`,
+                );
+              }
             }
           }
         });
@@ -478,7 +489,6 @@ export class ContextsManager implements ContextsApi {
     this.#objectCaches.removeForContext(contextName);
     this.#grantedPermissions.removeForContext(contextName);
     this.clearGraceTimersForContext(contextName);
-    this.clearResourceSubscriptionsForContext(contextName);
   }
 
   protected createAndStartInformer(contextName: string, resource: string, kubeConfig: KubeConfigSingleContext): void {
