@@ -25,6 +25,9 @@ import { PortForwardingPage } from './port-forwarding-page';
 // Maps each nav item to the collapsible section it lives in (undefined = top-level).
 const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.Deployments]: NavSection.Compute,
+  [KubernetesResources.DaemonSets]: NavSection.Compute,
+  [KubernetesResources.StatefulSets]: NavSection.Compute,
+  [KubernetesResources.ReplicaSets]: NavSection.Compute,
   [KubernetesResources.Pods]: NavSection.Compute,
   [KubernetesResources.Jobs]: NavSection.Compute,
   [KubernetesResources.Cronjobs]: NavSection.Compute,
@@ -71,6 +74,12 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'Configmaps and Secrets');
       case 'Ingresses & Routes':
         return new KubernetesResourcePage(this.page, 'ingresses and routes');
+      case 'DaemonSets':
+        return new KubernetesResourcePage(this.page, 'daemonsets');
+      case 'StatefulSets':
+        return new KubernetesResourcePage(this.page, 'statefulsets');
+      case 'ReplicaSets':
+        return new KubernetesResourcePage(this.page, 'replicasets');
       default:
         return new KubernetesResourcePage(this.page, kubernetesResource);
     }
