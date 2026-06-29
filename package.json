@@ -42,7 +42,7 @@
     "@typescript-eslint/parser": "^8.61.1",
     "@vitest/coverage-v8": "^4",
     "@vitest/eslint-plugin": "^1.6.20",
-    "autoprefixer": "^10.5.0",
+    "autoprefixer": "^10.5.2",
     "concurrently": "^10.0.3",
     "cronstrue": "^3.21.0",
     "eslint": "^10.5.0",
