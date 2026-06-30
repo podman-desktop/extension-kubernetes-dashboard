@@ -17,14 +17,11 @@
 
 name: e2e-tests
 
-on:
-  pull_request:
-    types: [labeled, synchronize, opened, ready_for_review, reopened]
+on: [pull_request]
 
 jobs:
   # Dedicated step to build the extension image
   build-container:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci/e2e') }}
     name: Build Extension Image
     runs-on: ubuntu-24.04
     steps:
