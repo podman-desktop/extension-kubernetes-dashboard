@@ -98,15 +98,15 @@ test('getStatusColor returns the correct colors', () => {
 
 test('organizeContainers returns a record of containers organized by status', () => {
   const organizedContainers = organizeContainers(mockContainers);
-  expect(organizedContainers.running.length).toBe(1);
-  expect(organizedContainers.terminated.length).toBe(1);
-  expect(organizedContainers.waiting.length).toBe(1);
-  expect(organizedContainers.stopped.length).toBe(1);
-  expect(organizedContainers.paused.length).toBe(1);
-  expect(organizedContainers.exited.length).toBe(1);
-  expect(organizedContainers.dead.length).toBe(1);
-  expect(organizedContainers.created.length).toBe(1);
-  expect(organizedContainers.degraded.length).toBe(1);
+  expect(organizedContainers.running).toHaveLength(1);
+  expect(organizedContainers.terminated).toHaveLength(1);
+  expect(organizedContainers.waiting).toHaveLength(1);
+  expect(organizedContainers.stopped).toHaveLength(1);
+  expect(organizedContainers.paused).toHaveLength(1);
+  expect(organizedContainers.exited).toHaveLength(1);
+  expect(organizedContainers.dead).toHaveLength(1);
+  expect(organizedContainers.created).toHaveLength(1);
+  expect(organizedContainers.degraded).toHaveLength(1);
 });
 
 test('randomly re-order the containers and ensure they are still organized correctly after in the correct order', () => {

@@ -101,7 +101,7 @@ test('One port forwarded should display correct table content', async () => {
 
   const rowgroups = getAllByRole('rowgroup');
   expect(rowgroups).toBeDefined();
-  expect(rowgroups.length).toBe(2);
+  expect(rowgroups).toHaveLength(2);
 
   const tableBody = rowgroups[1];
   const row = within(tableBody).getByRole('row');
@@ -140,7 +140,7 @@ test('Multiple (10) port forwards should render all rows', async () => {
 
   const rowgroups = getAllByRole('rowgroup');
   expect(rowgroups).toBeDefined();
-  expect(rowgroups.length).toBe(2);
+  expect(rowgroups).toHaveLength(2);
 
   const tableBody = rowgroups[1];
   const rows = within(tableBody).getAllByRole('row');
@@ -190,7 +190,7 @@ test('Column sorting should reorder the table data', async () => {
 
   const rowgroups = getAllByRole('rowgroup');
   expect(rowgroups).toBeDefined();
-  expect(rowgroups.length).toBe(2);
+  expect(rowgroups).toHaveLength(2);
 
   const tableBody = rowgroups[1];
 
