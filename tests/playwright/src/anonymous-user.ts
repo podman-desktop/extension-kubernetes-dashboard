@@ -36,6 +36,7 @@ export function anonymousUserTests(): void {
     const kubeConfigPathDst = path.resolve(__dirname, '..', 'tests', 'playwright', 'resources', 'kube-config');
     fs.mkdirSync(path.dirname(kubeConfigPathDst), { recursive: true });
     fs.copyFileSync(kubeConfigPathSrc, kubeConfigPathDst);
+    playExpect(fs.existsSync(kubeConfigPathDst)).toBeTruthy();
   });
 
   test('Open Extension webview and verify the dashboard is connected', async ({ runner, page, navigationBar }) => {
