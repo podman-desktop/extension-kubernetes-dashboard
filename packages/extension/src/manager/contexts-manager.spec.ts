@@ -922,7 +922,7 @@ describe('HealthChecker pass and PermissionsChecker resturns a value', async () 
       await manager.update(kc);
 
       const result = manager.getResourceDetails('context1', 'resource1', 'obj1', 'ns1');
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
     });
 
     test('getResourceEvents', async () => {

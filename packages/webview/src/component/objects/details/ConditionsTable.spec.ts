@@ -40,7 +40,7 @@ test('conditions are displayed in a table', async () => {
   expect(table).toBeInTheDocument();
   const rows = within(table).getAllByRole('row');
   // the first row is the header
-  expect(rows.length).toBe(2);
+  expect(rows).toHaveLength(2);
   const row = rows[1];
   within(row).getByText('Ready');
   within(row).getByText('True');
