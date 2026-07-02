@@ -2035,4 +2035,60 @@ describe('lazy informer lifecycle', () => {
     vi.advanceTimersByTime(30_000);
     expect(createdEagerInformerMock.dispose).not.toHaveBeenCalled();
   });
+
+  test('lazy informer restarts after namespace change when subscribers exist', async () => {
+    // Subscribe to lazy resource — starts the informer
+    manager.subscribeToResource('context1', 'lazy-resource', 'sub1');
+    expect(createdLazyInformerMock.start).toHaveBeenCalledOnce();
+    vi.mocked(createdLazyInformerMock.start).mockClear();
+
+    // Restore real stopMonitoring so the restart correctly disposes old informers
+    vi.mocked(manager.stopMonitoring).mockRestore();
+
+    // Simulate namespace change: startMonitoring is called again for the same context
+    await manager.startMonitoring(kcSingle, 'context1');
+
+    // Grant permissions for the new monitoring cycle (second health + permission callbacks)
+    const healthCheckCallback = vi.mocked(ContextHealthChecker.prototype.onReachable).mock.calls[1]![0];
+    healthCheckCallback!({
+      kubeConfig: kcSingle,
+      contextName: 'context1',
+      checking: false,
+      reachable: true,
+    });
+    const permissionCallback = vi.mocked(ContextPermissionsChecker.prototype.onPermissionResult).mock.calls[3]![0];
+    permissionCallback!({
+      kubeConfig: kcSingle,
+      resources: ['eager-resource', 'lazy-resource'],
+      permitted: true,
+      attrs: {},
+    });
+
+    // The lazy informer must restart because 'sub1' is still subscribed
+    expect(createdLazyInformerMock.start).toHaveBeenCalledOnce();
+  });
+
+  test('lazy informer does not restart after namespace change when no subscribers exist', async () => {
+    // No subscription to lazy resource
+    vi.mocked(manager.stopMonitoring).mockRestore();
+
+    await manager.startMonitoring(kcSingle, 'context1');
+
+    const healthCheckCallback = vi.mocked(ContextHealthChecker.prototype.onReachable).mock.calls[1]![0];
+    healthCheckCallback!({
+      kubeConfig: kcSingle,
+      contextName: 'context1',
+      checking: false,
+      reachable: true,
+    });
+    const permissionCallback = vi.mocked(ContextPermissionsChecker.prototype.onPermissionResult).mock.calls[3]![0];
+    permissionCallback!({
+      kubeConfig: kcSingle,
+      resources: ['eager-resource', 'lazy-resource'],
+      permitted: true,
+      attrs: {},
+    });
+
+    expect(createdLazyInformerMock.start).not.toHaveBeenCalled();
+  });
 });

@@ -24,12 +24,27 @@ import { KubernetesResourceDetailsPage } from '/@/model/pages/kubernetes-resourc
 
 export class KubernetesResourcePage extends MainPage {
   readonly applyYamlButton: Locator;
+  readonly namespaceLocator: Locator;
+  readonly namespaceDropdownButton: Locator;
+  readonly currentNamespace: Locator;
 
   constructor(page: Page, name: string) {
     super(page, name);
     this.applyYamlButton = this.additionalActions.getByRole('button', {
       name: 'Apply YAML',
     });
+    this.namespaceLocator = this.page.getByLabel('Kubernetes Namespace', { exact: true });
+    this.namespaceDropdownButton = this.namespaceLocator.getByRole('button', { name: 'Namespace' });
+    this.currentNamespace = this.namespaceLocator.getByLabel('hidden input', { exact: true });
+  }
+
+  async changeNamespace(name: string): Promise<void> {
+    await playExpect(this.currentNamespace).not.toHaveValue(name, { timeout: 10_000 });
+    await this.namespaceDropdownButton.click();
+    const option = this.namespaceLocator.getByRole('button', { name, exact: true });
+    await playExpect(option).toBeVisible({ timeout: 10_000 });
+    await option.click();
+    await playExpect(this.currentNamespace).toHaveValue(name, { timeout: 10_000 });
   }
 
   async fetchKubernetesResource(resourceName: string, timeout = 15_000): Promise<Locator> {
