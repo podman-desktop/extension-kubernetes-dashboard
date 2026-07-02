@@ -77,6 +77,10 @@ export class Navigator {
       return 'ingressesRoutes';
     } else if (kind === 'ConfigMap' || kind === 'Secret') {
       return 'configmapsSecrets';
+    } else if (kind === 'PriorityClass') {
+      return 'priorityclasses';
+    } else if (kind === 'RuntimeClass') {
+      return 'runtimeclasses';
     }
     // otherwise do the simple conversion
     return kind.toLowerCase() + 's';
