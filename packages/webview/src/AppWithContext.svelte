@@ -2,6 +2,7 @@
 import NamespacesList from './component/namespaces/NamespacesList.svelte';
 import ConfigMapSecretList from './component/configmaps-secrets/ConfigMapSecretList.svelte';
 import Dashboard from '/@/component/dashboard/Dashboard.svelte';
+import NoContextPage from '/@/component/dashboard/NoContextPage.svelte';
 import NodesList from '/@/component/nodes/NodesList.svelte';
 import Navigation from '/@/Navigation.svelte';
 import Route from '/@/Route.svelte';
@@ -48,6 +49,10 @@ const { meta }: Props = $props();
 <div class="flex flex-col w-full h-full overflow-hidden">
   <Route path="/">
     <Dashboard />
+  </Route>
+
+  <Route path="/newCluster">
+    <NoContextPage title="Create Kubernetes Cluster" />
   </Route>
 
   <Route path="/nodes">
