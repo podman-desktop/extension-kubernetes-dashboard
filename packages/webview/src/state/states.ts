@@ -29,6 +29,7 @@ import { StatePortForwardsInfo } from './port-forwards.svelte';
 import { StateEndpointsInfo } from './endpoints.svelte';
 import { StateAvailableContextsInfo } from './available-contexts.svelte';
 import { StateKubernetesProvidersInfo } from './kubernetes-providers.svelte';
+import { StateScaleEditorInfo } from './scale-editor.svelte';
 
 @injectable()
 export class States {
@@ -114,5 +115,12 @@ export class States {
 
   get stateKubernetesProvidersInfoUI(): StateKubernetesProvidersInfo {
     return this._stateKubernetesProvidersInfoUI;
+  }
+
+  @inject(StateScaleEditorInfo)
+  private _stateScaleEditorInfoUI: StateScaleEditorInfo;
+
+  get stateScaleEditorInfoUI(): StateScaleEditorInfo {
+    return this._stateScaleEditorInfoUI;
   }
 }

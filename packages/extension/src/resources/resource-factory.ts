@@ -68,6 +68,13 @@ type RestartNamespacedObject = (kubeconfig: KubeConfigSingleContext, name: strin
 
 type RestartNonNamespacedObject = (kubeconfig: KubeConfigSingleContext, name: string) => Promise<void>;
 
+type ScaleNamespacedObject = (
+  kubeconfig: KubeConfigSingleContext,
+  name: string,
+  namespace: string,
+  replicas: number,
+) => Promise<void>;
+
 type SearchByTargetRefNamespacedObject = (
   kubeconfig: KubeConfigSingleContext,
   targetRef: TargetRef,
@@ -85,6 +92,7 @@ export class ResourceFactoryBase {
   #searchByTargetRef: SearchByTargetRefNamespacedObject;
   #readObject: ReadNamespacedObject | ReadNonNamespacedObject;
   #restartObject: RestartNamespacedObject | RestartNonNamespacedObject;
+  #scaleObject: ScaleNamespacedObject;
 
   constructor(options: { resource: string; kind: string }) {
     this.#resource = options.resource;
@@ -146,6 +154,11 @@ export class ResourceFactoryBase {
     return this;
   }
 
+  setScaleObject(scaleObject: ScaleNamespacedObject): ResourceFactoryBase {
+    this.#scaleObject = scaleObject;
+    return this;
+  }
+
   get resource(): string {
     return this.#resource;
   }
@@ -190,6 +203,10 @@ export class ResourceFactoryBase {
     return this.#restartObject;
   }
 
+  get scaleObject(): ScaleNamespacedObject {
+    return this.#scaleObject;
+  }
+
   copyWithSlicedPermissions(): ResourceFactory {
     if (!this.#permissions) {
       throw new Error('permission must be defined before calling copyWithSlicedPermissions');
@@ -220,7 +237,7 @@ export interface ResourceFactory {
   deleteObject?: DeleteNamespacedObject | DeleteNonNamespacedObject;
   searchBySelector?: SearchBySelectorNamespacedObject | SearchBySelectorNonNamespacedObject;
   searchByTargetRef?: SearchByTargetRefNamespacedObject;
-  scaleObject?: (kubeconfig: KubeConfigSingleContext, name: string, namespace: string) => Promise<void>;
+  scaleObject?: ScaleNamespacedObject;
   readObject?: ReadNamespacedObject | ReadNonNamespacedObject;
   restartObject?: RestartNamespacedObject | RestartNonNamespacedObject;
 }

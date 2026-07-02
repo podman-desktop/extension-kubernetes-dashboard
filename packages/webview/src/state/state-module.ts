@@ -33,6 +33,7 @@ import { StatePortForwardsInfo } from './port-forwards.svelte';
 import { StateEndpointsInfo } from './endpoints.svelte';
 import { StateAvailableContextsInfo } from './available-contexts.svelte';
 import { StateKubernetesProvidersInfo } from './kubernetes-providers.svelte';
+import { StateScaleEditorInfo } from './scale-editor.svelte';
 
 const statesModule = new ContainerModule(options => {
   options.bind(States).toSelf().inSingletonScope();
@@ -84,6 +85,10 @@ const statesModule = new ContainerModule(options => {
   options.bind(StateKubernetesProvidersInfo).toSelf().inSingletonScope();
   options.bind(StateObject).toService(StateKubernetesProvidersInfo);
   options.bind(IDisposable).toService(StateKubernetesProvidersInfo);
+
+  options.bind(StateScaleEditorInfo).toSelf().inSingletonScope();
+  options.bind(StateObject).toService(StateScaleEditorInfo);
+  options.bind(IDisposable).toService(StateScaleEditorInfo);
 });
 
 export { statesModule };

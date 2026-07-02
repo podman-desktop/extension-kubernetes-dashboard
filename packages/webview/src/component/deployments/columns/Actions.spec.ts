@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023 - 2026 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,32 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, expect, test, vi } from 'vitest';
 
 import { API_CONTEXTS, type ContextsApi } from '@kubernetes-dashboard/channels';
 import type { DeploymentUI } from '/@/component/deployments/DeploymentUI';
+import { ScaleEditorController } from '/@/component/deployments/scale-editor-controller';
+import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
 import type { ScaleEditorInfo } from '/@/state/scale-editor.svelte';
 import { FakeStateObject } from '/@/state/util/fake-state-object.svelte';
-import { ScaleEditorController } from '/@/component/deployments/scale-editor-controller';
 import { DependencyMocks } from '/@/tests/dependency-mocks';
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import { StatesMocks } from '/@/tests/state-mocks';
 
-import Pods from './Pods.svelte';
+import Actions from './Actions.svelte';
+
+const fakeDeployment: DeploymentUI = {
+  kind: 'Deployment',
+  uid: 'uid',
+  name: 'my-deployment',
+  namespace: 'ns1',
+  selected: false,
+  status: 'RUNNING',
+  replicas: 3,
+  ready: 3,
+  conditions: [],
+};
 
 const dependencyMocks = new DependencyMocks();
 const remoteMocks = new RemoteMocks();
@@ -41,6 +54,7 @@ beforeEach(() => {
   vi.resetAllMocks();
 
   dependencyMocks.reset();
+  dependencyMocks.mock(KubernetesObjectUIHelper);
   dependencyMocks.mock(ScaleEditorController);
 
   statesMocks.reset();
@@ -49,46 +63,24 @@ beforeEach(() => {
 
   remoteMocks.reset();
   remoteMocks.mock(API_CONTEXTS, {
+    deleteObject: vi.fn(),
     scaleObject: vi.fn(),
   } as unknown as ContextsApi);
 });
 
-test('Expect simple column styling', () => {
-  const deployment: DeploymentUI = {
-    uid: '123',
-    name: 'my-deployment',
-    kind: 'Deployment',
-    status: '',
-    namespace: '',
-    replicas: 0,
-    ready: 0,
-    selected: false,
-    conditions: [],
-  };
-  render(Pods, { object: deployment });
+test('Expect scale action to render before delete action', () => {
+  render(Actions, { object: fakeDeployment });
 
-  const text = screen.getByText(deployment.ready + ' / ' + deployment.replicas);
-  expect(text).toBeInTheDocument();
-  expect(text.parentElement).toHaveClass('text-(--pd-table-body-text)');
-  expect(screen.queryByLabelText('Desired replica count for my-deployment')).toBeNull();
+  const deleteButton = screen.getByRole('button', { name: 'Delete Deployment' });
+
+  expect(deleteButton).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Scale Deployment' })).toBeInTheDocument();
 });
 
-test('Expect scale editor to render in pods column while editing', () => {
-  const deployment: DeploymentUI = {
-    uid: '123',
-    name: 'my-deployment',
-    kind: 'Deployment',
-    status: '',
-    namespace: 'ns1',
-    replicas: 1,
-    ready: 1,
-    selected: false,
-    conditions: [],
-  };
-  scaleEditorMock.setData({ deploymentKey: 'ns1/my-deployment' });
+test('Expect clicking scale button to open editor state', async () => {
+  render(Actions, { object: fakeDeployment });
 
-  render(Pods, { object: deployment });
+  await fireEvent.click(screen.getByRole('button', { name: 'Scale Deployment' }));
 
-  expect(screen.getByLabelText('Desired replica count for my-deployment')).toBeInTheDocument();
-  expect(screen.queryByText(deployment.ready + ' / ' + deployment.replicas)).toBeNull();
+  expect(dependencyMocks.get(ScaleEditorController).startEditing).toHaveBeenCalledWith('ns1/my-deployment');
 });
