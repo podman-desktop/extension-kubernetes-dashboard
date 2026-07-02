@@ -50,7 +50,11 @@ const networkUrls = [
   '/portForward',
 ];
 
-const storageUrls = [navigator.kubernetesResourcesURL('PersistentVolumeClaim')];
+const storageUrls = [
+  navigator.kubernetesResourcesURL('PersistentVolumeClaim'),
+  navigator.kubernetesResourcesURL('PersistentVolume'),
+  navigator.kubernetesResourcesURL('StorageClass'),
+];
 
 const STORAGE_KEY = 'nav-sections-expanded';
 
@@ -149,6 +153,8 @@ $effect(() => {
         title="Persistent Volume Claims"
         child={true}
         href={navigator.kubernetesResourcesURL('PersistentVolumeClaim')} />
+      <NavItem title="Persistent Volumes" child={true} href={navigator.kubernetesResourcesURL('PersistentVolume')} />
+      <NavItem title="Storage Classes" child={true} href={navigator.kubernetesResourcesURL('StorageClass')} />
     {/if}
 
     <NavItem title="Namespaces" icon={faLayerGroup} href={navigator.kubernetesResourcesURL('Namespace')} />
