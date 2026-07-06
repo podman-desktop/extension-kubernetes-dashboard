@@ -209,9 +209,10 @@ describe('PortForwardConnectionService', () => {
       3,
     );
 
-    createdServer.listen(forwardSetup.forward.localPort, 'localhost', vi.fn<() => void>());
+    const listenCallback = vi.fn<() => void>();
+    createdServer.listen(forwardSetup.forward.localPort, 'localhost', listenCallback);
 
-    expect(server.listen).toHaveBeenCalledWith(forwardSetup.forward.localPort, 'localhost', expect.any(Function));
+    expect(server.listen).toHaveBeenCalledWith(forwardSetup.forward.localPort, 'localhost', listenCallback);
   });
 
   test('should throw an error for unsupported workload kind', async () => {
