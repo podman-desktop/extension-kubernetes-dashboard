@@ -155,6 +155,7 @@ test('PodTerminal calls resizeTerminal initially then when resized', async () =>
       30,
     );
   });
+  // eslint-disable-next-line vitest/valid-expect
   expect(addEventListener).toHaveBeenCalledWith('resize', expect.any(Function));
   const resizeCb = addEventListener.mock.calls[0][1] as unknown as () => void;
 
