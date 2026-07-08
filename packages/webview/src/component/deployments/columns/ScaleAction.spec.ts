@@ -148,3 +148,17 @@ test('enter scales with the changed replica count', async () => {
 
   expect(remoteMocks.get(API_CONTEXTS).scaleObject).toHaveBeenCalledWith('Deployment', 'my-deployment', 'ns1', 4);
 });
+
+test('enter on the apply button only scales once', async () => {
+  scaleEditorMock.setData({ deploymentKey: 'ns1/my-deployment' });
+  render(ScaleAction, { object: fakeDeployment, mode: 'editor' });
+
+  const input = screen.getByLabelText('Desired replica count for my-deployment');
+  await fireEvent.input(input, { target: { value: '4' } });
+
+  const applyButton = screen.getByRole('button', { name: 'Apply scale for Deployment' });
+  await fireEvent.keyDown(applyButton, { key: 'Enter' });
+  await fireEvent.click(applyButton);
+
+  expect(remoteMocks.get(API_CONTEXTS).scaleObject).toHaveBeenCalledTimes(1);
+});

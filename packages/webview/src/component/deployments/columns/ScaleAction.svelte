@@ -28,6 +28,7 @@ let desiredReplicas = $state(object.replicas);
 // svelte-ignore state_referenced_locally
 let lastKnownReplicas = $state(object.replicas);
 let error = $state<string | undefined>(undefined);
+let scaling = $state(false);
 $effect(() => {
   if (object.replicas !== lastKnownReplicas) {
     if (scaleEditorState.data?.deploymentKey !== deploymentKey || desiredReplicas === lastKnownReplicas) {
@@ -37,7 +38,7 @@ $effect(() => {
   }
 });
 
-let canScale = $derived(object.status !== 'DELETING' && !error && desiredReplicas !== object.replicas);
+let canScale = $derived(object.status !== 'DELETING' && !scaling && !error && desiredReplicas !== object.replicas);
 let editing = $derived(scaleEditorState.data?.deploymentKey === deploymentKey);
 
 function startEditing(): void {
@@ -56,12 +57,18 @@ async function scaleObject(): Promise<void> {
   if (!canScale) {
     return;
   }
-  await contextsApi.scaleObject(object.kind, object.name, object.namespace, desiredReplicas);
-  scaleEditorController.stopEditing();
+  scaling = true;
+
+  try {
+    await contextsApi.scaleObject(object.kind, object.name, object.namespace, desiredReplicas);
+    scaleEditorController.stopEditing();
+  } finally {
+    scaling = false;
+  }
 }
 
 function onKeydown(event: KeyboardEvent): void {
-  if (event.key === 'Enter') {
+  if (event.key === 'Enter' && !(event.target instanceof HTMLButtonElement)) {
     event.preventDefault();
     scaleObject().catch(console.error);
   }
@@ -83,18 +90,22 @@ function onKeydown(event: KeyboardEvent): void {
       icon={faArrowsUpDown} />
   {/if}
 {:else if editing}
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="flex flex-row items-center gap-1" onkeydown={onKeydown}>
+  <div class="flex flex-row items-center gap-1" role="group" onkeydown={onKeydown}>
     <Tooltip tip={`Scale the number of replicas for ${object.kind} ${object.name}`}>
       <NumberInput
         type="integer"
         minimum={0}
         bind:value={desiredReplicas}
         bind:error={error}
-        disabled={object.status === 'DELETING'}
+        disabled={object.status === 'DELETING' || scaling}
         aria-label={`Desired replica count for ${object.name}`}
         class="w-18" />
     </Tooltip>
-    <IconButton enabled={canScale} title={`Apply scale for ${object.kind}`} onClick={scaleObject} icon={faCheck} />
+    <IconButton
+      enabled={canScale}
+      title={`Apply scale for ${object.kind}`}
+      onClick={scaleObject}
+      inProgress={scaling}
+      icon={faCheck} />
   </div>
 {/if}
