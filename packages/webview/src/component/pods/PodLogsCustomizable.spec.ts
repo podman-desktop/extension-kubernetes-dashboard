@@ -39,7 +39,13 @@ const fakePod2containersRunning: V1Pod = {
   },
 } as V1Pod;
 
-const fakePod1containerRunning: V1Pod = {
+const fakePodSingleContainerRunning: V1Pod = {
+  status: {
+    containerStatuses: [{ name: 'container1', state: { running: {} } }],
+  },
+} as V1Pod;
+
+const fakePodOneRunningOneTerminated: V1Pod = {
   status: {
     containerStatuses: [
       { name: 'container1', state: { running: {} } },
@@ -48,13 +54,19 @@ const fakePod1containerRunning: V1Pod = {
   },
 } as V1Pod;
 
-const fakePodNoContainerRunning: V1Pod = {
+// Simulates a pod whose container(s) crashed: no container is running anymore, but their
+// previous logs should still be reachable through the toolbar.
+const fakePodAllContainersTerminated: V1Pod = {
   status: {
     containerStatuses: [
       { name: 'container1', state: { terminated: {} } },
       { name: 'container2', state: { terminated: {} } },
     ],
   },
+} as V1Pod;
+
+const fakePodNoContainerStatus: V1Pod = {
+  status: {},
 } as V1Pod;
 
 const dependencyMocks = new DependencyMocks();
@@ -73,9 +85,48 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-test('renders with no container running', () => {
-  render(PodLogsCustomizable, { object: fakePodNoContainerRunning });
-  expect(screen.getByText('No container running')).toBeDefined();
+test('renders empty screen when pod has no container status', () => {
+  render(PodLogsCustomizable, { object: fakePodNoContainerStatus });
+  expect(screen.getByText('No container found')).toBeDefined();
+});
+
+test('still renders toolbar and logs when all containers are terminated, so previous logs remain accessible', async () => {
+  render(PodLogsCustomizable, { object: fakePodAllContainersTerminated });
+  expect(screen.queryByText('No container found')).not.toBeInTheDocument();
+
+  const containerDropdown = screen.getByLabelText('Select container');
+  within(containerDropdown).getByText('All containers');
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePodAllContainersTerminated,
+    containerName: '',
+    colorizer: 'colorizer 1',
+    timestamps: false,
+    previous: false,
+  });
+
+  // Containers that are not running are still selectable and flagged as such
+  await userEvent.click(within(containerDropdown).getByText('All containers'));
+  within(containerDropdown).getByText('container1 (not running)');
+  const container2Option = within(containerDropdown).getByText('container2 (not running)');
+  await userEvent.click(container2Option);
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePodAllContainersTerminated,
+    containerName: 'container2',
+    colorizer: 'colorizer 1',
+    timestamps: false,
+    previous: false,
+  });
+
+  // Previous logs can still be requested for the crashed container
+  const previousCheckbox = screen.getByLabelText('Previous logs');
+  await userEvent.click(previousCheckbox);
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePodAllContainersTerminated,
+    containerName: 'container2',
+    colorizer: 'colorizer 1',
+    timestamps: false,
+    previous: true,
+  });
 });
 
 test('renders with 2 containers running', async () => {
@@ -160,8 +211,27 @@ test('renders with 2 containers running', async () => {
   });
 });
 
+test('renders with one running and one terminated container, terminated container flagged as not running', async () => {
+  render(PodLogsCustomizable, { object: fakePodOneRunningOneTerminated });
+  const containerDropdown = screen.getByLabelText('Select container');
+
+  await userEvent.click(within(containerDropdown).getByText('All containers'));
+  within(containerDropdown).getByText('container1');
+  within(containerDropdown).getByText('container2 (not running)');
+
+  const container2 = within(containerDropdown).getByText('container2 (not running)');
+  await userEvent.click(container2);
+  expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePodOneRunningOneTerminated,
+    containerName: 'container2',
+    colorizer: 'colorizer 1',
+    timestamps: false,
+    previous: false,
+  });
+});
+
 test('renders with 1 container running', async () => {
-  render(PodLogsCustomizable, { object: fakePod1containerRunning });
+  render(PodLogsCustomizable, { object: fakePodSingleContainerRunning });
   expect(screen.queryByText('container1')).not.toBeInTheDocument();
 
   const colorizerDropdown = screen.getByLabelText('Select colorization');
@@ -171,7 +241,7 @@ test('renders with 1 container running', async () => {
   const colorizer2 = within(colorizerDropdown).getByText('colorizer 2');
   await userEvent.click(colorizer2);
   expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
-    object: fakePod1containerRunning,
+    object: fakePodSingleContainerRunning,
     containerName: '',
     colorizer: 'colorizer 2',
     timestamps: false,
@@ -183,10 +253,10 @@ test('renders with 1 container running with colors annotation', async () => {
   vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({ 'logs-colors': 'colorizer 2' });
   vi.mocked(dependencyMocks.get(PodLogsHelper).resolveColorizer).mockImplementation(s => s ?? 'colorizer 1');
 
-  render(PodLogsCustomizable, { object: fakePod1containerRunning });
+  render(PodLogsCustomizable, { object: fakePodSingleContainerRunning });
 
   expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
-    object: fakePod1containerRunning,
+    object: fakePodSingleContainerRunning,
     containerName: '',
     colorizer: 'colorizer 2',
     timestamps: false,
@@ -197,7 +267,7 @@ test('renders with 1 container running with colors annotation', async () => {
 test('renders with 1 container running with timestamps annotation', async () => {
   vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({ 'logs-timestamps': 'true' });
 
-  render(PodLogsCustomizable, { object: fakePod1containerRunning });
+  render(PodLogsCustomizable, { object: fakePodSingleContainerRunning });
   expect(screen.queryByText('container1')).not.toBeInTheDocument();
 
   const colorizerDropdown = screen.getByLabelText('Select colorization');
@@ -207,7 +277,7 @@ test('renders with 1 container running with timestamps annotation', async () => 
   const colorizer2 = within(colorizerDropdown).getByText('colorizer 2');
   await userEvent.click(colorizer2);
   expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
-    object: fakePod1containerRunning,
+    object: fakePodSingleContainerRunning,
     containerName: '',
     colorizer: 'colorizer 2',
     timestamps: true,
@@ -218,7 +288,7 @@ test('renders with 1 container running with timestamps annotation', async () => 
 test('renders with 1 container running with tailLines annotation', async () => {
   vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({ 'logs-tail-lines': '10' });
 
-  render(PodLogsCustomizable, { object: fakePod1containerRunning });
+  render(PodLogsCustomizable, { object: fakePodSingleContainerRunning });
   expect(screen.queryByText('container1')).not.toBeInTheDocument();
 
   const colorizerDropdown = screen.getByLabelText('Select colorization');
@@ -228,7 +298,7 @@ test('renders with 1 container running with tailLines annotation', async () => {
   const colorizer2 = within(colorizerDropdown).getByText('colorizer 2');
   await userEvent.click(colorizer2);
   expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
-    object: fakePod1containerRunning,
+    object: fakePodSingleContainerRunning,
     containerName: '',
     colorizer: 'colorizer 2',
     timestamps: false,
@@ -240,7 +310,7 @@ test('renders with 1 container running with tailLines annotation', async () => {
 test('renders with 1 container running with sinceSeconds annotation', async () => {
   vi.mocked(dependencyMocks.get(Annotations).getAnnotations).mockReturnValue({ 'logs-since-seconds': '35' });
 
-  render(PodLogsCustomizable, { object: fakePod1containerRunning });
+  render(PodLogsCustomizable, { object: fakePodSingleContainerRunning });
   expect(screen.queryByText('container1')).not.toBeInTheDocument();
 
   const colorizerDropdown = screen.getByLabelText('Select colorization');
@@ -250,7 +320,7 @@ test('renders with 1 container running with sinceSeconds annotation', async () =
   const colorizer2 = within(colorizerDropdown).getByText('colorizer 2');
   await userEvent.click(colorizer2);
   expect(vi.mocked(PodLogs)).toHaveBeenCalledWith(expect.anything(), {
-    object: fakePod1containerRunning,
+    object: fakePodSingleContainerRunning,
     containerName: '',
     colorizer: 'colorizer 2',
     timestamps: false,

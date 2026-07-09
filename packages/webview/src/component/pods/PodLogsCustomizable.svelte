@@ -19,7 +19,9 @@ const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const podLogsHelper = dependencyAccessor.get<PodLogsHelper>(PodLogsHelper);
 const annotations = dependencyAccessor.get<Annotations>(Annotations);
 
-const runningContainers = $derived(object.status?.containerStatuses?.filter(status => status.state?.running) ?? []);
+// Containers are kept in the selection as long as they have reported a status, even if they
+// are not currently running, so previous logs of a crashed/terminated container remain accessible.
+const containerStatuses = $derived(object.status?.containerStatuses ?? []);
 
 const colorsAnnotations = $derived(annotations.getAnnotations(object.metadata, { key: 'logs-colors' }));
 const timestampsAnnotations = $derived(annotations.getAnnotations(object.metadata, { key: 'logs-timestamps' }));
@@ -35,9 +37,9 @@ let sinceSeconds = $derived<string>(sinceSecondsAnnotations['logs-since-seconds'
 
 let containerSelection = $derived([
   { label: 'All containers', value: '' },
-  ...runningContainers.map(container => ({
-    label: container.name,
-    value: container.name,
+  ...containerStatuses.map(status => ({
+    label: status.state?.running ? status.name : `${status.name} (not running)`,
+    value: status.name,
   })),
 ]);
 
@@ -65,10 +67,10 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
 }
 </script>
 
-{#if runningContainers.length > 0}
+{#if containerStatuses.length > 0}
   <div class="flex grow flex-col h-full w-full">
     <div class="flex flex-wrap flex-row p-2 h-min-[40px] gap-x-4">
-      {#if runningContainers.length > 1}
+      {#if containerStatuses.length > 1}
         <div class="w-48">
           <Dropdown
             ariaLabel="Select container"
@@ -134,5 +136,5 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
     </div>
   </div>
 {:else}
-  <EmptyScreen icon={NoLogIcon} title="No Logs" message="No container running" />
+  <EmptyScreen icon={NoLogIcon} title="No Logs" message="No container found" />
 {/if}
