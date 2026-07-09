@@ -17,10 +17,20 @@ interface Props {
   colorizer: string;
   timestamps: boolean;
   previous: boolean;
+  follow?: boolean;
   tailLines?: string;
   sinceSeconds?: string;
 }
-let { object, containerName, colorizer, timestamps, previous, tailLines = '1000', sinceSeconds }: Props = $props();
+let {
+  object,
+  containerName,
+  colorizer,
+  timestamps,
+  previous,
+  follow = true,
+  tailLines = '1000',
+  sinceSeconds,
+}: Props = $props();
 
 // Logs has been initialized
 let noLogs = $state<boolean>();
@@ -51,6 +61,7 @@ onMount(async () => {
         {
           timestamps,
           previous,
+          follow,
           tailLines: getFiniteNumber(tailLines),
           sinceSeconds: getFiniteNumber(sinceSeconds),
         },

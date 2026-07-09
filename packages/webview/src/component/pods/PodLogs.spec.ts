@@ -109,6 +109,38 @@ describe('pod with one container', async () => {
     await vi.advanceTimersByTimeAsync(1_100);
     expect(EmptyScreen).not.toHaveBeenCalled();
   });
+
+  test('follow defaults to true when not specified', async () => {
+    const subscribeSpy = vi.spyOn(streamPodLogsMock, 'subscribe');
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false, previous: false });
+
+    await vi.waitFor(() => {
+      expect(subscribeSpy).toHaveBeenCalled();
+    });
+    expect(subscribeSpy).toHaveBeenCalledWith(
+      'podName',
+      'namespace',
+      'containerName',
+      expect.objectContaining({ follow: true }),
+      expect.any(Function),
+    );
+  });
+
+  test('follow is forwarded as false when streaming is disabled', async () => {
+    const subscribeSpy = vi.spyOn(streamPodLogsMock, 'subscribe');
+    render(PodLogs, { object: pod, colorizer: 'no colors', timestamps: false, previous: false, follow: false });
+
+    await vi.waitFor(() => {
+      expect(subscribeSpy).toHaveBeenCalled();
+    });
+    expect(subscribeSpy).toHaveBeenCalledWith(
+      'podName',
+      'namespace',
+      'containerName',
+      expect.objectContaining({ follow: false }),
+      expect.any(Function),
+    );
+  });
 });
 
 describe('pod with two containers', async () => {

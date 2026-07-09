@@ -30,6 +30,7 @@ const sinceSecondsAnnotations = $derived(annotations.getAnnotations(object.metad
 let selectedContainerName = $state<string>('');
 let selectedTimestamps = $derived<boolean>(timestampsAnnotations['logs-timestamps'] === 'true');
 let selectedPrevious = $state<boolean>(false);
+let selectedFollow = $state<boolean>(true);
 let tailLines = $derived<string>(tailLinesAnnotations['logs-tail-lines']);
 let sinceSeconds = $derived<string>(sinceSecondsAnnotations['logs-since-seconds']);
 
@@ -95,6 +96,9 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
           >Previous logs</Checkbox>
       </div>
       <div>
+        <Checkbox class="pt-2" name="follow" title="Stream logs" bind:checked={selectedFollow}>Stream logs</Checkbox>
+      </div>
+      <div>
         <Input
           type="number"
           placeholder="1000"
@@ -119,7 +123,7 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
     </div>
 
     <div class="flex w-full h-full min-h-0">
-      {#key [selectedContainerName, selectedColorizer, selectedTimestamps, selectedPrevious, tailLines, sinceSeconds]}
+      {#key [selectedContainerName, selectedColorizer, selectedTimestamps, selectedPrevious, selectedFollow, tailLines, sinceSeconds]}
         {#if selectedContainerName !== undefined}
           <PodLogs
             object={object}
@@ -127,6 +131,7 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
             colorizer={selectedColorizer}
             timestamps={selectedTimestamps}
             previous={selectedPrevious}
+            follow={selectedFollow}
             tailLines={tailLines}
             sinceSeconds={sinceSeconds} />
         {/if}

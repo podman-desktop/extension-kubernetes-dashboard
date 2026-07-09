@@ -90,6 +90,7 @@ test('renders with 2 containers running', async () => {
     colorizer: 'colorizer 1',
     timestamps: false,
     previous: false,
+    follow: true,
   });
 
   await userEvent.click(containerDropdownButton);
@@ -101,6 +102,7 @@ test('renders with 2 containers running', async () => {
     colorizer: 'colorizer 1',
     timestamps: false,
     previous: false,
+    follow: true,
   });
 
   await userEvent.click(colorizerDropdownButton);
@@ -112,6 +114,7 @@ test('renders with 2 containers running', async () => {
     colorizer: 'colorizer 2',
     timestamps: false,
     previous: false,
+    follow: true,
   });
 
   const previousCheckbox = screen.getByLabelText('Previous logs');
@@ -122,6 +125,7 @@ test('renders with 2 containers running', async () => {
     colorizer: 'colorizer 2',
     timestamps: false,
     previous: true,
+    follow: true,
   });
 
   // Tail lines waits for 1 second before dispatching the new value
@@ -138,6 +142,7 @@ test('renders with 2 containers running', async () => {
     colorizer: 'colorizer 2',
     timestamps: false,
     previous: true,
+    follow: true,
     tailLines: '10',
   });
 
@@ -155,6 +160,25 @@ test('renders with 2 containers running', async () => {
     colorizer: 'colorizer 2',
     timestamps: false,
     previous: true,
+    follow: true,
+    tailLines: '10',
+    sinceSeconds: '35',
+  });
+
+  // Stream logs checkbox is checked by default and disables follow when unchecked
+  const followCheckbox = screen.getByLabelText('Stream logs');
+  expect(followCheckbox).toBeChecked();
+  vi.mocked(PodLogs).mockClear();
+  await userEvent.click(followCheckbox);
+  expect(followCheckbox).not.toBeChecked();
+  expect(PodLogs).toHaveBeenCalledOnce();
+  expect(PodLogs).toHaveBeenCalledWith(expect.anything(), {
+    object: fakePod2containersRunning,
+    containerName: 'container2',
+    colorizer: 'colorizer 2',
+    timestamps: false,
+    previous: true,
+    follow: false,
     tailLines: '10',
     sinceSeconds: '35',
   });
@@ -176,6 +200,7 @@ test('renders with 1 container running', async () => {
     colorizer: 'colorizer 2',
     timestamps: false,
     previous: false,
+    follow: true,
   });
 });
 
@@ -191,6 +216,7 @@ test('renders with 1 container running with colors annotation', async () => {
     colorizer: 'colorizer 2',
     timestamps: false,
     previous: false,
+    follow: true,
   });
 });
 
@@ -212,6 +238,7 @@ test('renders with 1 container running with timestamps annotation', async () => 
     colorizer: 'colorizer 2',
     timestamps: true,
     previous: false,
+    follow: true,
   });
 });
 
@@ -233,6 +260,7 @@ test('renders with 1 container running with tailLines annotation', async () => {
     colorizer: 'colorizer 2',
     timestamps: false,
     previous: false,
+    follow: true,
     tailLines: '10',
   });
 });
@@ -255,6 +283,7 @@ test('renders with 1 container running with sinceSeconds annotation', async () =
     colorizer: 'colorizer 2',
     timestamps: false,
     previous: false,
+    follow: true,
     sinceSeconds: '35',
   });
 });
