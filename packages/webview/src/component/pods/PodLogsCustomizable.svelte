@@ -36,6 +36,13 @@ let selectedFollow = $state<boolean>(true);
 let tailLines = $derived<string>(tailLinesAnnotations['logs-tail-lines']);
 let sinceSeconds = $derived<string>(sinceSecondsAnnotations['logs-since-seconds']);
 
+// Follow/stream only makes sense for running containers; terminated containers have no new logs.
+let isRunning = $derived(
+  selectedContainerName === ''
+    ? containerStatuses.some(s => !!s.state?.running)
+    : !!containerStatuses.find(s => s.name === selectedContainerName)?.state?.running,
+);
+
 let containerSelection = $derived([
   { label: 'All containers', value: '' },
   ...containerStatuses.map(status => ({
@@ -97,9 +104,11 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
         <Checkbox class="pt-2" name="previous" title="Previous logs" bind:checked={selectedPrevious}
           >Previous logs</Checkbox>
       </div>
-      <div>
-        <Checkbox class="pt-2" name="follow" title="Stream logs" bind:checked={selectedFollow}>Stream logs</Checkbox>
-      </div>
+      {#if isRunning}
+        <div>
+          <Checkbox class="pt-2" name="follow" title="Stream logs" bind:checked={selectedFollow}>Stream logs</Checkbox>
+        </div>
+      {/if}
       <div>
         <Input
           type="number"
@@ -133,7 +142,7 @@ function debounce(func: (event: Event) => void, delay: number): (event: Event) =
             colorizer={selectedColorizer}
             timestamps={selectedTimestamps}
             previous={selectedPrevious}
-            follow={selectedFollow}
+            {...isRunning ? { follow: selectedFollow } : {}}
             tailLines={tailLines}
             sinceSeconds={sinceSeconds} />
         {/if}
