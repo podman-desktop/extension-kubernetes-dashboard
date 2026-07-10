@@ -239,14 +239,14 @@ test('expect to return one hostPathObject with ingress that has one host/path', 
     selected: false,
   };
   const result = ingressRouteHelper.getIngressHostPaths(ingressUI);
-  expect(result.length).toBe(1);
+  expect(result).toHaveLength(1);
   expect(result[0].label).toEqual('foo.bar.com/foo');
   expect(result[0].url).toEqual('https://foo.bar.com/foo');
 });
 
 test('expect to return one hostPathObject with ingress that has multiple host/path', async () => {
   const result = ingressRouteHelper.getIngressHostPaths(ingressUIWith2Paths);
-  expect(result.length).toBe(2);
+  expect(result).toHaveLength(2);
   expect(result[0].label).toEqual('foo.bar.com/foo');
   expect(result[0].url).toEqual('https://foo.bar.com/foo');
   expect(result[1].label).toEqual('foo.bar.com/foo2');
@@ -255,14 +255,14 @@ test('expect to return one hostPathObject with ingress that has multiple host/pa
 
 test('expect to return one hostPathObject without any link if ingress has no host defined', async () => {
   const result = ingressRouteHelper.getIngressHostPaths(ingressUI);
-  expect(result.length).toBe(1);
+  expect(result).toHaveLength(1);
   expect(result[0].label).toEqual('/foo');
   expect(result[0].url).toBeUndefined();
 });
 
 test('expect to return one hostPathObject if item is route', async () => {
   const result = ingressRouteHelper.getRouteHostPaths(routeUI);
-  expect(result.length).toBe(1);
+  expect(result).toHaveLength(1);
   expect(result[0].label).toEqual('foo.bar.com');
   expect(result[0].url).toEqual('https://foo.bar.com');
 });
@@ -293,19 +293,19 @@ test('expect getIngressBackends is not called with RouteUI object', async () => 
   const getIngressBackendsMock = vi.spyOn(ingressRouteHelper, 'getIngressBackends');
   const result = ingressRouteHelper.getBackends(routeUI);
   expect(getIngressBackendsMock).not.toHaveBeenCalled();
-  expect(result.length).toBe(1);
+  expect(result).toHaveLength(1);
   expect(result[0]).toEqual('Service service');
 });
 
 test('expect to return one item array with ingress that has one host/path', async () => {
   const result = ingressRouteHelper.getIngressBackends(ingressUI);
-  expect(result.length).toBe(1);
+  expect(result).toHaveLength(1);
   expect(result[0]).toEqual('StorageBucket bucket');
 });
 
 test('expect to return one hostPathObject with ingress that has multiple path', async () => {
   const result = ingressRouteHelper.getIngressBackends(ingressUIWith2Paths);
-  expect(result.length).toBe(2);
+  expect(result).toHaveLength(2);
   expect(result[0]).toEqual('StorageBucket bucket');
   expect(result[1]).toEqual('bucket-2:80');
 });

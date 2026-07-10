@@ -83,6 +83,7 @@ type SearchByTargetRefNamespacedObject = (
 export class ResourceFactoryBase {
   #resource: string;
   #kind: string;
+  #eagerStart: boolean;
   #permissions: ResourcePermissionsFactory | undefined;
   #informer: ResourceInformerFactory | undefined;
   #isActive: undefined | ((resource: KubernetesObject) => boolean);
@@ -96,6 +97,12 @@ export class ResourceFactoryBase {
   constructor(options: { resource: string; kind: string }) {
     this.#resource = options.resource;
     this.#kind = options.kind;
+    this.#eagerStart = false;
+  }
+
+  setEagerStart(): ResourceFactoryBase {
+    this.#eagerStart = true;
+    return this;
   }
 
   setPermissions(options: { permissionsRequests: V1ResourceAttributes[]; isNamespaced: boolean }): ResourceFactoryBase {
@@ -160,6 +167,10 @@ export class ResourceFactoryBase {
     return this.#kind;
   }
 
+  get eagerStart(): boolean {
+    return this.#eagerStart;
+  }
+
   get permissions(): ResourcePermissionsFactory | undefined {
     return this.#permissions;
   }
@@ -217,6 +228,7 @@ export class ResourceFactoryBase {
 export interface ResourceFactory {
   get resource(): string;
   get kind(): string;
+  get eagerStart(): boolean;
   permissions?: ResourcePermissionsFactory;
   informer?: ResourceInformerFactory;
   // isActive returns true if `resource` is considered active

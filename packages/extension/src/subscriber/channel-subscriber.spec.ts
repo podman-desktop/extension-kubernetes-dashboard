@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,17 @@ test('subscribe makes onSubscribe emit an event', async () => {
   subscriber.onSubscribe(listener);
   await subscriber.resetChannelSubscribers(channel);
   await subscriber.subscribeToChannel(channel, {}, uid);
+  expect(listener).toHaveBeenCalledWith(channel);
+});
+
+test('unsubscribe makes onUnsubscribe emit an event', async () => {
+  const channel = 'channel1';
+  const uid = 1;
+  const subscriber = new ChannelSubscriber();
+  const listener = vi.fn();
+  subscriber.onUnsubscribe(listener);
+  await subscriber.subscribeToChannel(channel, {}, uid);
+  await subscriber.unsubscribeFromChannel(channel, uid);
   expect(listener).toHaveBeenCalledWith(channel);
 });
 

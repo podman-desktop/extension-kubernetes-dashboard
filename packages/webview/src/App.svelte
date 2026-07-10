@@ -8,16 +8,32 @@ import NoSelectedContextPage from './component/dashboard/NoSelectedContextPage.s
 import NoContextPage from './component/dashboard/NoContextPage.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import AppWithContext from './AppWithContext.svelte';
+import { router } from 'tinro';
+import type { RouterState } from '/@/models/router-state';
+import type { WebviewApi } from '@podman-desktop/webview-api';
 
-let isMounted = false;
+let isMounted = $state(false);
 
+const webviewApi = getContext<WebviewApi>('WebviewApi');
 const states = getContext<States>(States);
 const currentContext = states.stateCurrentContextInfoUI;
 const availableContexts = states.stateAvailableContextsInfoUI;
 const currentContextName = $derived(currentContext.data?.contextName);
 
+function getRouterState(): RouterState {
+  const state = webviewApi.getState() as RouterState | undefined;
+  if (state?.url) {
+    return state;
+  }
+  return { url: '/' };
+}
+
 let unsubscribers: Unsubscriber[] = [];
 onMount(() => {
+  const state = getRouterState();
+  router.goto(state.url);
+  isMounted = true;
+
   unsubscribers.push(currentContext.subscribe());
 });
 

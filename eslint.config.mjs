@@ -267,4 +267,13 @@ export default [
       'sonarjs/no-hardcoded-ip': 'off',
     },
   },
+
+  {
+    files: ['tests/playwright/**'],
+
+    rules: {
+      'sonarjs/assertions-in-tests': 'off',
+      'sonarjs/no-skipped-tests': 'off',
+    },
+  },
 ];

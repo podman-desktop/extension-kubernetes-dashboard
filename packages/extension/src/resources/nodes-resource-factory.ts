@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ export class NodesResourceFactory extends ResourceFactoryBase implements Resourc
       kind: 'Node',
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: false,
       permissionsRequests: [

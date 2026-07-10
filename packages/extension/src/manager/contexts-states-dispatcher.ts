@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import {
   RESOURCES_COUNT,
   UPDATE_RESOURCE,
   KUBERNETES_PROVIDERS,
+  type UpdateResourceOptions,
 } from '@kubernetes-dashboard/channels';
 
 import type { ContextHealthState } from './context-health-checker.js';
@@ -114,13 +115,23 @@ export class ContextsStatesDispatcher {
     });
 
     this.#subscribers.forEach(subscriber => {
-      subscriber.onSubscribe(channelName => this.dispatchByChannelName(subscriber, channelName));
+      this.wireSubscriber(subscriber);
+    });
+  }
+
+  private wireSubscriber(subscriber: StateSubscriber): void {
+    subscriber.onSubscribe(channelName => {
+      this.dispatchByChannelName(subscriber, channelName).catch(console.error);
+      this.handleResourceSubscription(subscriber, channelName);
+    });
+    subscriber.onUnsubscribe(channelName => {
+      this.handleResourceUnsubscription(subscriber, channelName);
     });
   }
 
   addSubscriber(subscriber: StateSubscriber): void {
     this.#subscribers.push(subscriber);
-    subscriber.onSubscribe(channelName => this.dispatchByChannelName(subscriber, channelName));
+    this.wireSubscriber(subscriber);
   }
 
   /**
@@ -162,5 +173,61 @@ export class ContextsStatesDispatcher {
       return;
     }
     await dispatcher.dispatch(subscriber, subscriptions);
+  }
+
+  #subscriberResourceTracker: Map<StateSubscriber, Map<string, Set<string>>> = new Map();
+
+  private handleResourceSubscription(subscriber: StateSubscriber, channelName: string): void {
+    if (channelName !== UPDATE_RESOURCE.name) {
+      return;
+    }
+    const subscriptions = subscriber.getSubscriptions(channelName) as UpdateResourceOptions[];
+    const currentContextName = this.manager.currentContext?.getKubeConfig().currentContext;
+
+    for (const options of subscriptions) {
+      const contextName = options.contextName ?? currentContextName;
+      if (!contextName) continue;
+      const subscriptionId = `${subscriber.constructor.name}:${channelName}:${contextName}:${options.resourceName}`;
+
+      let tracked = this.#subscriberResourceTracker.get(subscriber);
+      if (!tracked) {
+        tracked = new Map();
+        this.#subscriberResourceTracker.set(subscriber, tracked);
+      }
+      const key = `${contextName}/${options.resourceName}`;
+      if (!tracked.has(key)) {
+        tracked.set(key, new Set());
+      }
+      tracked.get(key)!.add(subscriptionId);
+
+      this.manager.subscribeToResource(contextName, options.resourceName, subscriptionId);
+    }
+  }
+
+  private handleResourceUnsubscription(subscriber: StateSubscriber, channelName: string): void {
+    if (channelName !== UPDATE_RESOURCE.name) {
+      return;
+    }
+    const tracked = this.#subscriberResourceTracker.get(subscriber);
+    if (!tracked) return;
+
+    const currentSubscriptions = new Set(
+      (subscriber.getSubscriptions(channelName) as UpdateResourceOptions[])
+        .map(options => {
+          const contextName = options.contextName ?? this.manager.currentContext?.getKubeConfig().currentContext;
+          return contextName ? `${contextName}/${options.resourceName}` : undefined;
+        })
+        .filter((key): key is string => key !== undefined),
+    );
+
+    for (const [key, subscriptionIds] of tracked.entries()) {
+      if (!currentSubscriptions.has(key)) {
+        const [contextName, resourceName] = key.split('/');
+        for (const subscriptionId of subscriptionIds) {
+          this.manager.unsubscribeFromResource(contextName, resourceName, subscriptionId);
+        }
+        tracked.delete(key);
+      }
+    }
   }
 }

@@ -67,7 +67,7 @@ test('expect the events are displayed reactively', async () => {
   expect(table).toBeDefined();
   let rows = await within(table).findAllByRole('row');
   expect(rows).toBeDefined();
-  expect(rows.length).toBe(3);
+  expect(rows).toHaveLength(3);
 
   expect(within(rows[1]).getByText('25 seconds')).toBeInTheDocument();
   expect(within(rows[1]).getByText('Normal')).toBeInTheDocument();
@@ -96,7 +96,7 @@ test('expect the events are displayed reactively', async () => {
   vi.advanceTimersByTime(10_000);
   await rendered.rerender({ events: events });
   rows = await within(table).findAllByRole('row');
-  expect(rows.length).toBe(4);
+  expect(rows).toHaveLength(4);
 
   expect(within(rows[1]).getByText('35 seconds')).toBeInTheDocument();
   expect(within(rows[2]).getByText('30 seconds (2x over 35 seconds)')).toBeInTheDocument();

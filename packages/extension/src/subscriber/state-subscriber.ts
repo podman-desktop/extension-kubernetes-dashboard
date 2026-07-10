@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,5 +23,6 @@ export interface StateSubscriber {
   hasSubscribers(channelName: string): boolean;
   getSubscriptions(channelName: string): unknown[];
   onSubscribe: (listener: (e: string) => unknown) => IDisposable;
+  onUnsubscribe: (listener: (e: string) => unknown) => IDisposable;
   dispatch<T>(channel: RpcChannel<T>, data: T): Promise<void>;
 }

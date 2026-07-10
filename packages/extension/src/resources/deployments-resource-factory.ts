@@ -31,6 +31,7 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
       kind: 'Deployment',
     });
 
+    this.setEagerStart();
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [
