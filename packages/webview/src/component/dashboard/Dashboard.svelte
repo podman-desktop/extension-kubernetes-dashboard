@@ -1,5 +1,7 @@
 <script lang="ts">
-import { Expandable, Link } from '@podman-desktop/ui-svelte';
+import { Button, Expandable, Link } from '@podman-desktop/ui-svelte';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { router } from 'tinro';
 import DashboardResources from './DashboardResources.svelte';
 import CurrentContextConnectionBadge from '/@/component/connection/CurrentContextConnectionBadge.svelte';
 import { Remote } from '/@/remote/remote';
@@ -44,9 +46,13 @@ onDestroy(() => {
       {#snippet title()}
         <div class="flex flex-row w-full items-center">
           <div class="text-xl font-bold capitalize text-(--pd-content-header)">Dashboard</div>
-          <div class="flex grow justify-end"><CurrentContextConnectionBadge /></div>
+          <div class="flex grow justify-end items-center gap-3">
+            <CurrentContextConnectionBadge />
+            <Button on:click={(): void => router.goto('/newCluster')} icon={faPlus}>New Cluster…</Button>
+          </div>
         </div>
       {/snippet}
+
       <div class="flex flex-col gap-4">
         <div>
           Here you can manage and interact with Kubernetes clusters with features like connecting to clusters, and

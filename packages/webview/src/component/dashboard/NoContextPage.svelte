@@ -6,6 +6,12 @@ import type { Unsubscriber } from 'svelte/store';
 import KubernetesProviderCard from '/@/component/dashboard/KubernetesProviderCard.svelte';
 import NewProviderCard from '/@/component/dashboard/NewProviderCard.svelte';
 
+interface Props {
+  title?: string;
+}
+
+const { title = 'No Kubernetes cluster' }: Props = $props();
+
 const states = getContext<States>(States);
 const kubernetesProviders = states.stateKubernetesProvidersInfoUI;
 
@@ -25,7 +31,7 @@ onDestroy(() => {
     <div class="flex justify-center text-(--pd-details-empty-icon) py-2">
       <KubeIcon size="80" />
     </div>
-    <h1 class="text-xl text-(--pd-details-empty-header)">No Kubernetes cluster</h1>
+    <h1 class="text-xl text-(--pd-details-empty-header)">{title}</h1>
     <div class="text-(--pd-details-empty-sub-header) text-balance">
       A Kubernetes cluster is a group of nodes (virtual or physical) that run Kubernetes, a system for automating the
       deployment and management of containerized applications.
