@@ -13,7 +13,7 @@ import { States } from '/@/state/states';
 
 import type { Props } from './props';
 
-let { object, mode = 'button' }: Props = $props();
+let { object, mode = 'button', showInput = false }: Props = $props();
 
 const remote = getContext<Remote>(Remote);
 const contextsApi = remote.getProxy(API_CONTEXTS);
@@ -79,7 +79,7 @@ function onKeydown(event: KeyboardEvent): void {
 }
 </script>
 
-{#if mode === 'button'}
+{#if mode === 'button' && !(editing && showInput)}
   {#if editing}
     <IconButton title={`Cancel scaling ${object.kind}`} onClick={cancelEditing} icon={faTimes} />
   {:else}
@@ -90,6 +90,7 @@ function onKeydown(event: KeyboardEvent): void {
       icon={faArrowsUpDown} />
   {/if}
 {:else if editing}
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div class="flex flex-row items-center gap-1" role="group" onkeydown={onKeydown}>
     <Tooltip tip={`Scale the number of replicas for ${object.kind} ${object.name}`}>
       <NumberInput
@@ -107,5 +108,8 @@ function onKeydown(event: KeyboardEvent): void {
       onClick={scaleObject}
       inProgress={scaling}
       icon={faCheck} />
+    {#if showInput}
+      <IconButton title={`Cancel scaling ${object.kind}`} onClick={cancelEditing} icon={faTimes} />
+    {/if}
   </div>
 {/if}

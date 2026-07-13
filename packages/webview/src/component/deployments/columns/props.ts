@@ -21,4 +21,6 @@ import type { DeploymentUI } from '/@/component/deployments/DeploymentUI';
 export interface Props {
   object: DeploymentUI;
   mode?: 'button' | 'editor';
+  details?: boolean;
+  showInput?: boolean;
 }

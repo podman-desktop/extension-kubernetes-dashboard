@@ -91,6 +91,14 @@ test('shows cancel button instead of scale button while editing in button mode',
   expect(screen.queryByLabelText('Desired replica count for my-deployment')).toBeNull();
 });
 
+test('shows the inline editor in button mode when requested', () => {
+  scaleEditorMock.setData({ deploymentKey: 'ns1/my-deployment' });
+  render(ScaleAction, { object: fakeDeployment, mode: 'button', showInput: true });
+
+  expect(screen.getByLabelText('Desired replica count for my-deployment')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Cancel scaling Deployment' })).toBeInTheDocument();
+});
+
 test('shows the apply button only after the value changes', async () => {
   scaleEditorMock.setData({ deploymentKey: 'ns1/my-deployment' });
   render(ScaleAction, { object: fakeDeployment, mode: 'editor' });
