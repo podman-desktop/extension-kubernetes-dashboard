@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { ContainerModule } from 'inversify';
-import { DeploymentHelper } from './deployment-helper';
-import { ScaleEditorController } from './scale-editor-controller';
+import { inject, injectable } from 'inversify';
 
-const deploymentsModule = new ContainerModule(options => {
-  options.bind<DeploymentHelper>(DeploymentHelper).toSelf().inSingletonScope();
-  options.bind<ScaleEditorController>(ScaleEditorController).toSelf().inSingletonScope();
-});
+import { StateScaleEditorInfo } from '/@/state/scale-editor.svelte';
 
-export { deploymentsModule };
+@injectable()
+export class ScaleEditorController {
+  @inject(StateScaleEditorInfo)
+  private scaleEditorState: StateScaleEditorInfo;
+
+  startEditing(deploymentKey: string): void {
+    this.scaleEditorState.setDeploymentKey(deploymentKey);
+  }
+
+  stopEditing(): void {
+    this.scaleEditorState.setDeploymentKey();
+  }
+}

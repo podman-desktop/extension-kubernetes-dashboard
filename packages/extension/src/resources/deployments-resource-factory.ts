@@ -52,6 +52,7 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
     });
     this.setIsActive(this.isDeploymentActive);
     this.setDeleteObject(this.deleteDeployment);
+    this.setScaleObject(this.scaleDeployment);
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<V1Deployment> {
@@ -73,5 +74,19 @@ export class DeploymentsResourceFactory extends ResourceFactoryBase implements R
   ): Promise<V1Status | KubernetesObject> {
     const apiClient = kubeconfig.getKubeConfig().makeApiClient(AppsV1Api);
     return apiClient.deleteNamespacedDeployment({ name, namespace });
+  }
+
+  async scaleDeployment(
+    kubeconfig: KubeConfigSingleContext,
+    name: string,
+    namespace: string,
+    replicas: number,
+  ): Promise<void> {
+    const apiClient = kubeconfig.getKubeConfig().makeApiClient(AppsV1Api);
+    await apiClient.patchNamespacedDeploymentScale({
+      name,
+      namespace,
+      body: [{ op: 'add', path: '/spec/replicas', value: replicas }],
+    });
   }
 }

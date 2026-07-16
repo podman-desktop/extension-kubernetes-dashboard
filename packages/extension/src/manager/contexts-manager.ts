@@ -706,6 +706,31 @@ export class ContextsManager implements ContextsApi {
     return handler.restartObject(this.currentContext, name, ns);
   }
 
+  async scaleObject(kind: string, name: string, namespace: string, replicas: number): Promise<void> {
+    if (!this.currentContext) {
+      console.warn('scale object: no current context');
+      return;
+    }
+
+    const handler = this.#resourceFactoryHandler.getResourceFactoryByKind(kind);
+    if (!handler?.scaleObject) {
+      console.error(`scale object: no handler for kind ${kind}`);
+      return;
+    }
+
+    const ns = namespace ?? this.currentContext.getNamespace();
+
+    try {
+      await handler.scaleObject(this.currentContext, name, ns, replicas);
+      this.telemetryLogger.logUsage('scale.object', {
+        kind,
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      await window.showErrorMessage(`Unable to scale ${kind.toLowerCase()} ${name}: ${message}`);
+    }
+  }
+
   private handleResult(result: KubernetesObject | V1Status, actionMsg: string): void {
     if (this.isV1Status(result)) {
       this.handleStatus(result, actionMsg);
