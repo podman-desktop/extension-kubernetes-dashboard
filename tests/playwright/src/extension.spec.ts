@@ -195,6 +195,50 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => ingresssRoutesPage.isEmpty('No ingresses or routes')).toBeTruthy();
   });
 
+  test('go to endpoints page', async () => {
+    const endpointsPage = await navigation.openTabPage(KubernetesResources.Endpoints);
+    await playExpect(endpointsPage.heading).toBeVisible();
+    await playExpect.poll(async () => endpointsPage.rowsAreVisible()).toBeTruthy();
+  });
+
+  test('go to endpoint slices page', async () => {
+    const endpointSlicesPage = await navigation.openTabPage(KubernetesResources.EndpointSlices);
+    await playExpect(endpointSlicesPage.heading).toBeVisible();
+    await playExpect.poll(async () => endpointSlicesPage.rowsAreVisible()).toBeTruthy();
+  });
+
+  test('go to ingress classes page', async () => {
+    const ingressClassesPage = await navigation.openTabPage(KubernetesResources.IngressClasses);
+    await playExpect(ingressClassesPage.heading).toBeVisible();
+    await playExpect.poll(async () => ingressClassesPage.isEmpty('No ingressclasses')).toBeTruthy();
+  });
+
+  test('go to network policies page', async () => {
+    const networkPoliciesPage = await navigation.openTabPage(KubernetesResources.NetworkPolicies);
+    await playExpect(networkPoliciesPage.heading).toBeVisible();
+    await playExpect.poll(async () => networkPoliciesPage.isEmpty('No networkpolicies')).toBeTruthy();
+  });
+
+  test('go to httproutes page', async () => {
+    const httpRoutesPage = await navigation.openTabPage(KubernetesResources.HTTPRoutes);
+    await playExpect(httpRoutesPage.heading).toBeVisible();
+    await playExpect.poll(async () => httpRoutesPage.isEmpty('No httproutes'), { timeout: 15_000 }).toBeTruthy();
+  });
+
+  test('go to gateways page', async () => {
+    const gatewaysPage = await navigation.openTabPage(KubernetesResources.Gateways);
+    await playExpect(gatewaysPage.heading).toBeVisible();
+    await playExpect.poll(async () => gatewaysPage.isEmpty('No gateways'), { timeout: 15_000 }).toBeTruthy();
+  });
+
+  test('go to gateway classes page', async () => {
+    const gatewayClassesPage = await navigation.openTabPage(KubernetesResources.GatewayClasses);
+    await playExpect(gatewayClassesPage.heading).toBeVisible();
+    await playExpect
+      .poll(async () => gatewayClassesPage.isEmpty('No gatewayclasses'), { timeout: 15_000 })
+      .toBeTruthy();
+  });
+
   test('go to pvc page', async () => {
     const pvcPage = await navigation.openTabPage(KubernetesResources.PVCs);
     await playExpect(pvcPage.heading).toBeVisible();
@@ -507,6 +551,75 @@ test.describe('With resources', { tag: '@integration' }, () => {
       KubernetesResources.StorageClasses,
     );
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+  });
+
+  test('go to endpoint1 page', async () => {
+    const endpointsPage = await navigation.openTabPage(KubernetesResources.Endpoints);
+    await playExpect(endpointsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await endpointsPage.openResourceDetails(
+      'endpoint1',
+      KubernetesResources.Endpoints,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to network-policy1 page', async () => {
+    const networkPoliciesPage = await navigation.openTabPage(KubernetesResources.NetworkPolicies);
+    await playExpect(networkPoliciesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await networkPoliciesPage.openResourceDetails(
+      'network-policy1',
+      KubernetesResources.NetworkPolicies,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to ingress-class1 page', async () => {
+    const ingressClassesPage = await navigation.openTabPage(KubernetesResources.IngressClasses);
+    await playExpect(ingressClassesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await ingressClassesPage.openResourceDetails(
+      'ingress-class1',
+      KubernetesResources.IngressClasses,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to httproute1 page', async () => {
+    const httpRoutesPage = await navigation.openTabPage(KubernetesResources.HTTPRoutes);
+    await playExpect(httpRoutesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await httpRoutesPage.openResourceDetails(
+      'httproute1',
+      KubernetesResources.HTTPRoutes,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to gateway1 page', async () => {
+    const gatewaysPage = await navigation.openTabPage(KubernetesResources.Gateways);
+    await playExpect(gatewaysPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await gatewaysPage.openResourceDetails('gateway1', KubernetesResources.Gateways);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to gateway-class1 page', async () => {
+    const gatewayClassesPage = await navigation.openTabPage(KubernetesResources.GatewayClasses);
+    await playExpect(gatewayClassesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await gatewayClassesPage.openResourceDetails(
+      'gateway-class1',
+      KubernetesResources.GatewayClasses,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
   });
 });
 

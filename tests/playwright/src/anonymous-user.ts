@@ -44,7 +44,7 @@ export function anonymousUserTests(): void {
     const [, webview] = await handleWebview(runner, page, navigationBar);
 
     navigation = new KubernetesBar(webview);
-    await playExpect(navigation.title).toBeVisible();
+    await playExpect(navigation.title).toBeVisible({ timeout: 10_000 });
 
     const dashboardPage = await navigation.openKubernetesDashboardPage();
     const status = await dashboardPage.getStatus();

@@ -899,3 +899,101 @@ provisioner: kubernetes.io/no-provisioner
 reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
 ---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  creationTimestamp: '2026-02-09T10:15:00Z'
+  name: endpoint1
+  namespace: default
+  uid: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+subsets:
+  - addresses:
+      - ip: 10.0.0.1
+    ports:
+      - port: 8080
+        protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: '2026-02-09T10:16:00Z'
+  name: network-policy1
+  namespace: default
+  uid: b2c3d4e5-f6a7-8901-bcde-f12345678901
+spec:
+  podSelector:
+    matchLabels:
+      app: deploy1
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: deploy2
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: deploy2
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  creationTimestamp: '2026-02-09T10:17:00Z'
+  name: ingress-class1
+  uid: c3d4e5f6-a7b8-9012-cdef-123456789012
+spec:
+  controller: example.com/ingress-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  creationTimestamp: '2026-02-09T10:18:00Z'
+  name: gateway-class1
+  uid: d4e5f6a7-b8c9-0123-def0-234567890123
+spec:
+  controllerName: example.com/gateway-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  creationTimestamp: '2026-02-09T10:19:00Z'
+  name: gateway1
+  namespace: default
+  uid: e5f6a7b8-c9d0-1234-ef01-345678901234
+spec:
+  gatewayClassName: gateway-class1
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  creationTimestamp: '2026-02-09T10:20:00Z'
+  name: httproute1
+  namespace: default
+  uid: f6a7b8c9-d0e1-2345-f012-456789012345
+spec:
+  parentRefs:
+    - name: gateway1
+  hostnames:
+    - example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: svc1-clusterip
+          port: 8080
+---
