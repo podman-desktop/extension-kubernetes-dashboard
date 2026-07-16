@@ -41,7 +41,7 @@
     "@typescript-eslint/eslint-plugin": "^8.63.0",
     "@typescript-eslint/parser": "^8.63.0",
     "@vitest/coverage-v8": "^4",
-    "@vitest/eslint-plugin": "^1.6.22",
+    "@vitest/eslint-plugin": "^1.6.23",
     "autoprefixer": "^10.5.2",
     "concurrently": "^10.0.3",
     "cronstrue": "^3.24.0",
