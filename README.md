@@ -98,33 +98,113 @@ After each change, you may have to restart the extension from the `Extensions > 
 
 ## Running e2e tests
 
-### On the CI
+### On macOS (Apple Silicon)
 
-When creating a PR on the GitHub repository, the e2e tests are not executed by default. To run the e2e tests, you need to add the `area/ci/e2e` label to the PR.
+#### Pre-requisites
 
-### On Linux
+- Install Go and kubectl:
 
-#### Pre-requisites:
-
-- Install setup-envtest (see https://pkg.go.dev/sigs.k8s.io/controller-runtime/tools/setup-envtest#section-readme)
-
+```sh
+brew install go kubectl
 ```
+
+- Add Go binaries to your PATH (also add this to your `~/.zshrc`):
+
+```sh
+export PATH="$PATH:$(go env GOPATH)/bin"
+```
+
+- Install envtest tools:
+
+```sh
+go install github.com/feloy/envtest-start@v0.1.0
 go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
-
 ```
 
-- install envtest-start:
+#### Run the tests
 
+##### Step 1: Install a Podman Desktop testing binary
+
+Download and install the latest nightly build from https://github.com/podman-desktop/testing-prereleases:
+
+```sh
+LATEST_TAG=$(gh api repos/podman-desktop/testing-prereleases/releases \
+  --jq 'sort_by(.created_at) | reverse | first(.[] | select(.assets | length > 0)) | .tag_name')
+
+gh release download "$LATEST_TAG" \
+  --repo podman-desktop/testing-prereleases \
+  --pattern 'podman-desktop-[0-9]*-arm64.dmg'
+
+hdiutil attach podman-desktop-[0-9]*-arm64.dmg -mountpoint /tmp/podman-desktop-dmg
+mkdir -p tests/playwright/tests/PodmanDesktop
+cp -R "/tmp/podman-desktop-dmg/Podman Desktop.app" "tests/playwright/tests/PodmanDesktop/Podman Desktop.app"
+hdiutil detach /tmp/podman-desktop-dmg
+codesign --force --deep --sign - "tests/playwright/tests/PodmanDesktop/Podman Desktop.app"
 ```
-go install github.com/feloy/envtest-start@latest
+
+##### Step 2: Build the extension plugin
+
+```sh
+pnpm install
+pnpm build
+
+podman build -t local_image -f build/Containerfile ./
+CONTAINER_ID=$(podman create localhost/local_image --entrypoint "")
+mkdir -p tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins
+podman export $CONTAINER_ID | tar -x -C tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins/
+podman rm -f $CONTAINER_ID
+podman rmi -f localhost/local_image:latest
 ```
 
-#### To run the tests
+##### Step 3: Start the envtest Kubernetes cluster
 
-- Install a testing binary from https://github.com/podman-desktop/testing-prereleases
-- export the variable `PODMAN_DESKTOP_BINARY` with the path of the `podman-desktop` testing binary
-- execute `export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)`
-- run `envtest-start &`
-- copy the file `/tmp/envtest-kubeconfig` created by the previous command to the directory `tests/resources/`
-- run `pnpm test:e2e`. During the tests, the window may be hidden, you can open it using the Tray icon
-- once the extension is installed during the first test run, you can run `EXTENSION_PREINSTALLED=true pnpm test:e2e`
+```sh
+export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)
+
+envtest-start --users 1 /tmp/envtest-kubeconfig &
+ENVTEST_START_PID=$!
+
+while [ ! -f /tmp/envtest-kubeconfig ]; do sleep 1; done
+"$KUBEBUILDER_ASSETS/kubectl" --kubeconfig /tmp/envtest-kubeconfig get all | grep "service/kubernetes"
+```
+
+##### Step 4: Run the tests
+
+```sh
+cp /tmp/envtest-kubeconfig tests/resources/envtest-kubeconfig
+cp /tmp/user1-kubeconfig tests/resources/envtest-kubeconfig-user1
+
+EXTENSION_PREINSTALLED=true \
+PODMAN_DESKTOP_BINARY="$(pwd)/tests/playwright/tests/PodmanDesktop/Podman Desktop.app/Contents/MacOS/Podman Desktop" \
+KUBEBUILDER_ASSETS="$KUBEBUILDER_ASSETS" \
+NODE_OPTIONS=--no-experimental-strip-types \
+pnpm test:e2e:integration
+```
+
+##### Step 5: Stop the cluster when done
+
+```sh
+kill $ENVTEST_START_PID
+```
+
+#### Restarting the tests
+
+**Quick restart** — the extension is already installed in the Podman Desktop profile; only the cluster needs to be restarted: redo steps 3 and 4, keeping `EXTENSION_PREINSTALLED=true`.
+
+**Full clean restart** (e.g. after modifying extension sources) — after stopping the cluster, reset the Podman Desktop profile and reinstall the extension from scratch:
+
+```sh
+rm -rf tests/playwright/tests/playwright/
+```
+
+Then redo steps 2, 3, and 4.
+
+#### Cleanup
+
+After stopping the cluster (step 5), remove all generated files:
+
+```sh
+rm -rf tests/playwright/tests/
+rm -f tests/resources/envtest-kubeconfig tests/resources/envtest-kubeconfig-user1
+rm -f /tmp/envtest-kubeconfig /tmp/user1-kubeconfig
+```

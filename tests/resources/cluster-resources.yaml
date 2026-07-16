@@ -754,3 +754,124 @@ spec:
   suspend: false
 status: {}
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns2
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: daemonset1
+  namespace: default
+  labels:
+    app: daemonset1
+spec:
+  selector:
+    matchLabels:
+      app: daemonset1
+  template:
+    metadata:
+      labels:
+        app: daemonset1
+    spec:
+      containers:
+        - name: httpd
+          image: httpd
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: daemonset2
+  namespace: ns2
+  labels:
+    app: daemonset2
+spec:
+  selector:
+    matchLabels:
+      app: daemonset2
+  template:
+    metadata:
+      labels:
+        app: daemonset2
+    spec:
+      containers:
+        - name: httpd
+          image: httpd
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: replicaset1
+  namespace: default
+  labels:
+    app: replicaset1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: replicaset1
+  template:
+    metadata:
+      labels:
+        app: replicaset1
+    spec:
+      containers:
+        - name: httpd
+          image: httpd
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: replicaset2
+  namespace: ns2
+  labels:
+    app: replicaset2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: replicaset2
+  template:
+    metadata:
+      labels:
+        app: replicaset2
+    spec:
+      containers:
+        - name: httpd
+          image: httpd
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy3
+  namespace: ns2
+  labels:
+    app: deploy3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deploy3
+  template:
+    metadata:
+      labels:
+        app: deploy3
+    spec:
+      containers:
+        - name: httpd
+          image: httpd
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod3
+  namespace: ns2
+  labels:
+    run: pod3
+spec:
+  containers:
+    - name: pod3
+      image: httpd
+  restartPolicy: Always
+---

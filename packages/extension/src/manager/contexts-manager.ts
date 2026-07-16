@@ -210,12 +210,14 @@ export class ContextsManager implements ContextsApi {
   private onDelete(state: DispatcherEvent): void {
     if (this.isMonitored(state.contextName)) {
       this.stopMonitoring(state.contextName);
+      this.clearResourceSubscriptionsForContext(state.contextName);
     }
   }
 
   private async onCurrentChange(state: CurrentChangeEvent): Promise<void> {
     if (state.previous && this.isMonitored(state.previous)) {
       this.stopMonitoring(state.previous);
+      this.clearResourceSubscriptionsForContext(state.previous);
     }
     if (state.current && state.currentConfig) {
       await this.startMonitoring(state.currentConfig, state.current);
@@ -230,6 +232,42 @@ export class ContextsManager implements ContextsApi {
 
   private onPermissionResult(event: ContextPermissionResult): void {
     this.#onContextPermissionResult.fire(event);
+  }
+
+  private startInformerOnPermission(
+    resource: string,
+    event: ContextPermissionResult,
+    connectOptions: ConnectOptions | undefined,
+  ): void {
+    if (connectOptions?.resources && !connectOptions.resources.includes(resource)) {
+      return;
+    }
+    const contextName = event.kubeConfig.getKubeConfig().currentContext;
+    const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resource);
+    if (!factory) {
+      throw new Error(
+        `a permission for resource ${resource} has been received but no factory is handling it, this should not happen`,
+      );
+    }
+    if (!factory.informer) {
+      // no informer for this factory, skipping
+      // (we may want to check permissions on some resource, without having to start an informer)
+      return;
+    }
+    this.#grantedPermissions.set(contextName, resource, event.kubeConfig);
+    if (factory.eagerStart) {
+      console.log(`[informer] starting eager informer: ${resource} on ${contextName}`);
+      this.createAndStartInformer(contextName, resource, event.kubeConfig);
+    } else {
+      const key = `${contextName}/${resource}`;
+      const subs = this.#resourceSubscriptions.get(key);
+      if (subs && subs.size > 0) {
+        console.log(`[informer] starting lazy informer: ${resource} on ${contextName} (existing subscribers)`);
+        this.createAndStartInformer(contextName, resource, event.kubeConfig);
+      } else {
+        console.log(`[informer] permission granted for lazy resource: ${resource} on ${contextName} (deferred)`);
+      }
+    }
   }
 
   /* getHealthCheckersStates returns the current state of the health checkers */
@@ -424,30 +462,7 @@ export class ContextsManager implements ContextsApi {
             return;
           }
           for (const resource of event.resources) {
-            if (connectOptions?.resources && !connectOptions.resources.includes(resource)) {
-              continue;
-            }
-            const contextName = event.kubeConfig.getKubeConfig().currentContext;
-            const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resource);
-            if (!factory) {
-              throw new Error(
-                `a permission for resource ${resource} has been received but no factory is handling it, this should not happen`,
-              );
-            }
-            if (!factory.informer) {
-              // no informer for this factory, skipping
-              // (we may want to check permissions on some resource, without having to start an informer)
-              continue;
-            }
-
-            this.#grantedPermissions.set(contextName, resource, event.kubeConfig);
-
-            if (factory.eagerStart) {
-              console.log(`[informer] starting eager informer: ${resource} on ${contextName}`);
-              this.createAndStartInformer(contextName, resource, event.kubeConfig);
-            } else {
-              console.log(`[informer] permission granted for lazy resource: ${resource} on ${contextName} (deferred)`);
-            }
+            this.startInformerOnPermission(resource, event, connectOptions);
           }
         });
         await newPermissionChecker.start();
@@ -478,7 +493,6 @@ export class ContextsManager implements ContextsApi {
     this.#objectCaches.removeForContext(contextName);
     this.#grantedPermissions.removeForContext(contextName);
     this.clearGraceTimersForContext(contextName);
-    this.clearResourceSubscriptionsForContext(contextName);
   }
 
   protected createAndStartInformer(contextName: string, resource: string, kubeConfig: KubeConfigSingleContext): void {
