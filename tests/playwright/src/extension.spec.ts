@@ -256,7 +256,7 @@ test.describe('With resources', { tag: '@integration' }, () => {
     await playExpect.poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Nodes)).toBe(2);
     await playExpect
       .poll(async () => dashboardPage.getCurrentTotalCountForResource(KubernetesResources.Namespaces))
-      .toBe(4);
+      .toBe(5);
     await playExpect
       .poll(async () => dashboardPage.getCurrentActiveCountForResource(KubernetesResources.Deployments))
       .toBe(2);
@@ -476,6 +476,67 @@ test.describe('With resources', { tag: '@integration' }, () => {
     const kubernetesResourceDetails = await cronjobsPage.openResourceDetails('cronjob1', KubernetesResources.Cronjobs);
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
     await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+});
+
+test.describe('Namespace change', { tag: '@integration' }, () => {
+  let navigation: KubernetesBar;
+
+  test('open webview', async ({ runner, page, navigationBar }) => {
+    const [, webview] = await handleWebview(runner, page, navigationBar);
+    navigation = new KubernetesBar(webview);
+    const dashboardPage = await navigation.openKubernetesDashboardPage();
+    playExpect(await dashboardPage.getStatus()).toContain('Connected');
+  });
+
+  // Lazy resources: ReplicaSets and DaemonSets
+  test('replicasets page updates to ns2 resources when namespace changed on the same page', async () => {
+    const replicaSetsPage = await navigation.openTabPage(KubernetesResources.ReplicaSets);
+    await playExpect(replicaSetsPage.heading).toBeVisible();
+    await replicaSetsPage.fetchKubernetesResource('replicaset1');
+
+    await replicaSetsPage.changeNamespace('ns2');
+    await replicaSetsPage.fetchKubernetesResource('replicaset2');
+
+    await replicaSetsPage.changeNamespace('default');
+    await replicaSetsPage.fetchKubernetesResource('replicaset1');
+  });
+
+  test('daemonsets page updates to ns2 resources when namespace changed on the same page', async () => {
+    const daemonSetsPage = await navigation.openTabPage(KubernetesResources.DaemonSets);
+    await playExpect(daemonSetsPage.heading).toBeVisible();
+    await daemonSetsPage.fetchKubernetesResource('daemonset1');
+
+    await daemonSetsPage.changeNamespace('ns2');
+    await daemonSetsPage.fetchKubernetesResource('daemonset2');
+
+    await daemonSetsPage.changeNamespace('default');
+    await daemonSetsPage.fetchKubernetesResource('daemonset1');
+  });
+
+  // Eager resources: Deployments and Pods
+  test('deployments page updates to ns2 resources when namespace changed on the same page', async () => {
+    const deploymentsPage = await navigation.openTabPage(KubernetesResources.Deployments);
+    await playExpect(deploymentsPage.heading).toBeVisible();
+    await deploymentsPage.fetchKubernetesResource('deploy1');
+
+    await deploymentsPage.changeNamespace('ns2');
+    await deploymentsPage.fetchKubernetesResource('deploy3');
+
+    await deploymentsPage.changeNamespace('default');
+    await deploymentsPage.fetchKubernetesResource('deploy1');
+  });
+
+  test('pods page updates to ns2 resources when namespace changed on the same page', async () => {
+    const podsPage = await navigation.openTabPage(KubernetesResources.Pods);
+    await playExpect(podsPage.heading).toBeVisible();
+    await podsPage.fetchKubernetesResource('pod1');
+
+    await podsPage.changeNamespace('ns2');
+    await podsPage.fetchKubernetesResource('pod3');
+
+    await podsPage.changeNamespace('default');
+    await podsPage.fetchKubernetesResource('pod1');
   });
 });
 
