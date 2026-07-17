@@ -2,7 +2,7 @@
 import { faCircleCheck, faFolderOpen, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { Button, Dropdown, ErrorMessage, FormPage, Input } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
-import { getContext, onMount, type Snippet } from 'svelte';
+import { getContext, onMount } from 'svelte';
 import { router } from 'tinro';
 
 import MonacoEditor from '/@/component/editor/MonacoEditor.svelte';
@@ -222,7 +222,7 @@ function goBack(): void {
               </div>
             {/snippet}
 
-            {#snippet optionSnippet(option: 'file' | 'custom', label: string, content: Snippet)}
+            {#snippet optionSnippet(option: 'file' | 'custom', label: string)}
               <button
                 disabled={runStarted}
                 class="border-2 rounded-md p-5 cursor-pointer bg-(--pd-content-card-inset-bg)"
@@ -238,15 +238,17 @@ function goBack(): void {
                     class:text-(--pd-content-card-border)={userChoice !== option}>
                     <Icon icon={faCircleCheck} />
                   </div>
-                  {@render content()}
+                  {#if option === 'file'}
+                    {@render file()}
+                  {:else}
+                    {@render custom()}
+                  {/if}
                 </div>
               </button>
             {/snippet}
 
-            <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -->
-            {@render optionSnippet('file', '.yaml file to apply', file)}
-            <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -->
-            {@render optionSnippet('custom', 'Custom yaml to apply', custom)}
+            {@render optionSnippet('file', '.yaml file to apply')}
+            {@render optionSnippet('custom', 'Custom yaml to apply')}
           </div>
 
           {#if userChoice === 'custom'}
