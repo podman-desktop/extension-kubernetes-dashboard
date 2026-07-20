@@ -38,62 +38,20 @@ function createJobUI(condition: JobCondition): JobUI {
   };
 }
 
-test('Expect column styling completed', async () => {
-  const job = createJobUI('completed');
+test.each([
+  ['completed', 'Completed', 'text-(--pd-status-running)'],
+  ['failed', 'Failed', 'text-(--pd-status-dead)'],
+  ['running', 'Running', 'text-(--pd-status-running)'],
+  ['pending', 'Pending', 'text-(--pd-status-starting)'],
+  ['unknown', 'Unknown', 'text-(--pd-status-degraded)'],
+] as [JobCondition, string, string][])('Expect column styling %s', async (condition, expectedText, expectedClass) => {
+  const job = createJobUI(condition);
   render(Conditions, { object: job });
 
-  const text = screen.getByText('Completed');
+  const text = screen.getByText(expectedText);
   expect(text).toBeInTheDocument();
 
   const svg = text.parentElement?.querySelector('svg');
   expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-(--pd-status-running)');
-});
-
-test('Expect column styling failed', async () => {
-  const job = createJobUI('failed');
-  render(Conditions, { object: job });
-
-  const text = screen.getByText('Failed');
-  expect(text).toBeInTheDocument();
-
-  const svg = text.parentElement?.querySelector('svg');
-  expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-(--pd-status-dead)');
-});
-
-test('Expect column styling running', async () => {
-  const job = createJobUI('running');
-  render(Conditions, { object: job });
-
-  const text = screen.getByText('Running');
-  expect(text).toBeInTheDocument();
-
-  const svg = text.parentElement?.querySelector('svg');
-  expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-(--pd-status-running)');
-});
-
-test('Expect column styling pending', async () => {
-  const job = createJobUI('pending');
-  render(Conditions, { object: job });
-
-  const text = screen.getByText('Pending');
-  expect(text).toBeInTheDocument();
-
-  const svg = text.parentElement?.querySelector('svg');
-  expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-(--pd-status-starting)');
-});
-
-test('Expect column styling unknown', async () => {
-  const job = createJobUI('unknown');
-  render(Conditions, { object: job });
-
-  const text = screen.getByText('Unknown');
-  expect(text).toBeInTheDocument();
-
-  const svg = text.parentElement?.querySelector('svg');
-  expect(svg).toBeInTheDocument();
-  expect(svg).toHaveClass('text-(--pd-status-degraded)');
+  expect(svg).toHaveClass(expectedClass);
 });

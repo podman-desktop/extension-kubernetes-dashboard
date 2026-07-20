@@ -36,50 +36,18 @@ const service: ServiceUI = {
   ports: '',
 };
 
-test('Expect basic column styling', async () => {
-  const result = render(Type, { object: JSON.parse(JSON.stringify(service)) });
+test.each([
+  ['unknown', 'text-(--pd-badge-gray)'],
+  ['ClusterIP', 'text-(--pd-badge-sky)'],
+  ['LoadBalancer', 'text-(--pd-badge-purple)'],
+  ['NodePort', 'text-(--pd-badge-fuschia)'],
+])('Expect column styling for type %s', async (type, expectedClass) => {
+  render(Type, { object: { ...service, type } });
 
-  const text = screen.getByText(service.type);
+  const text = screen.getByText(type);
   expect(text).toBeInTheDocument();
 
   const dot = text.parentElement?.children[0];
   expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('text-(--pd-badge-gray)');
-  result.unmount();
-});
-
-test('Expect column styling ClusterIP', async () => {
-  service.type = 'ClusterIP';
-  render(Type, { object: JSON.parse(JSON.stringify(service)) });
-
-  const text = screen.getByText(service.type);
-  expect(text).toBeInTheDocument();
-
-  const dot = text.parentElement?.children[0];
-  expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('text-(--pd-badge-sky)');
-});
-
-test('Expect column styling LoadBalancer', async () => {
-  service.type = 'LoadBalancer';
-  render(Type, { object: JSON.parse(JSON.stringify(service)) });
-
-  const text = screen.getByText(service.type);
-  expect(text).toBeInTheDocument();
-
-  const dot = text.parentElement?.children[0];
-  expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('text-(--pd-badge-purple)');
-});
-
-test('Expect column styling NodePort', async () => {
-  service.type = 'NodePort';
-  render(Type, { object: JSON.parse(JSON.stringify(service)) });
-
-  const text = screen.getByText(service.type);
-  expect(text).toBeInTheDocument();
-
-  const dot = text.parentElement?.children[0];
-  expect(dot).toBeInTheDocument();
-  expect(dot).toHaveClass('text-(--pd-badge-fuschia)');
+  expect(dot).toHaveClass(expectedClass);
 });
