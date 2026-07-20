@@ -21,66 +21,26 @@ import { describe, expect, test } from 'vitest';
 import { colorizeLogLevel } from './terminal-colors.js';
 
 describe('colorizeLogLevel', () => {
-  test('should colorize INFO log level in cyan', () => {
-    const logLine = '[23:10:06 INF] Starting application';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain cyan ANSI code for INFO
-    expect(result).toContain('\u001b[36m');
-    // Should contain reset code
+  test.each<[string, string, string, string]>([
+    ['INF in cyan', '[23:10:06 INF] Starting application', '\u001b[36m', 'Starting application'],
+    ['DEBUG in green', '[DBG] Debug message', '\u001b[32m', 'Debug message'],
+    ['ERROR in red', '[ERROR] Something went wrong', '\u001b[31', 'Something went wrong'],
+    ['WARN in yellow', '[12:34:56 WARN] Warning message', '\u001b[33m', 'Warning message'],
+    ['FATAL in red', '[FATAL] Critical error', '\u001b[31m', 'Critical error'],
+    ['TRACE in bright cyan', '[TRACE] Trace information', '\u001b[36;1m', 'Trace information'],
+    [
+      'INF with K8s timestamp',
+      '2025-10-29T23:10:10.688386132-05:00 [23:10:10 INF] Server started',
+      '\u001b[36m',
+      'Server started',
+    ],
+    ['lowercase info in cyan', '[info] lowercase info', '\u001b[36m', 'lowercase info'],
+    ['mixed case Info in cyan', '[Info] Mixed case info', '\u001b[36m', 'Mixed case info'],
+  ])('should colorize %s', (_desc, input, expectedColor, expectedMessage) => {
+    const result = colorizeLogLevel(input);
+    expect(result).toContain(expectedColor);
     expect(result).toContain('\u001b[0m');
-    // Should preserve the rest of the message
-    expect(result).toContain('Starting application');
-  });
-
-  test('should colorize DEBUG log level in cyan', () => {
-    const logLine = '[DBG] Debug message';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain green ANSI code for DEBUG
-    expect(result).toContain('\u001b[32m');
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Debug message');
-  });
-
-  test('should colorize ERROR log level in red', () => {
-    const logLine = '[ERROR] Something went wrong';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain bright red ANSI code for ERROR
-    expect(result).toContain('\u001b[31'); // Match both \u001b[31m and \u001b[31;1m
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Something went wrong');
-  });
-
-  test('should colorize WARN log level in yellow', () => {
-    const logLine = '[12:34:56 WARN] Warning message';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain yellow ANSI code for WARN
-    expect(result).toContain('\u001b[33m');
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Warning message');
-  });
-
-  test('should colorize FATAL log level in bright red', () => {
-    const logLine = '[FATAL] Critical error';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain red ANSI code for FATAL
-    expect(result).toContain('\u001b[31m');
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Critical error');
-  });
-
-  test('should colorize TRACE log level in magenta', () => {
-    const logLine = '[TRACE] Trace information';
-    const result = colorizeLogLevel(logLine);
-
-    // Should contain bright cyan ANSI code for TRACE
-    expect(result).toContain('\u001b[36;1m');
-    expect(result).toContain('\u001b[0m');
-    expect(result).toContain('Trace information');
+    expect(result).toContain(expectedMessage);
   });
 
   test('should handle log line with Kubernetes timestamp prefix', () => {
@@ -92,16 +52,6 @@ describe('colorizeLogLevel', () => {
     // Should colorize the INFO level
     expect(result).toContain('\u001b[36m');
     expect(result).toContain('Server started');
-  });
-
-  test('should handle case-insensitive log levels', () => {
-    const logLine1 = '[info] lowercase info';
-    const result1 = colorizeLogLevel(logLine1);
-    expect(result1).toContain('\u001b[36m');
-
-    const logLine2 = '[Info] Mixed case info';
-    const result2 = colorizeLogLevel(logLine2);
-    expect(result2).toContain('\u001b[36m');
   });
 
   test('should handle abbreviated log levels', () => {
