@@ -176,8 +176,8 @@ importers:
         specifier: workspace:*
         version: link:../rpc
       '@podman-desktop/api':
-        specifier: 1.28.2
-        version: 1.28.2
+        specifier: 1.28.3
+        version: 1.28.3
       '@podman-desktop/kubernetes-dashboard-extension-api':
         specifier: workspace:*
         version: link:../api
@@ -1008,8 +1008,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@podman-desktop/api@1.28.2':
-    resolution: {integrity: sha512-kSBVWUSyuijS5a9HvqFAlihmy6D26nwTPZ0Yw9K/2W11grWeI/AvaS+THTmxHvXk8EbB9y8ydWpXhA8el67NKQ==}
+  '@podman-desktop/api@1.28.3':
+    resolution: {integrity: sha512-RCYrD90VfVn59oa8vTaDXj8Qy9BD0jxyiTNBhKNcloYf1hBCDMIKgqTcXYgNq15/5P1aGjRmgaG/jnhDEuux/g==}
 
   '@podman-desktop/tests-playwright@1.28.3':
     resolution: {integrity: sha512-xYjvseaP348xz6G3Uh9AepKB4eo6/vKpee73xumqp+zGTHCJo4PQqgbB1sQ4q4pSWq+wQkn6V1eQsQv/1TAkJA==}
@@ -5084,7 +5084,7 @@ snapshots:
     dependencies:
       playwright: 1.61.1
 
-  '@podman-desktop/api@1.28.2': {}
+  '@podman-desktop/api@1.28.3': {}
 
   '@podman-desktop/tests-playwright@1.28.3': {}
 
