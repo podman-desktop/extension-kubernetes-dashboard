@@ -201,6 +201,18 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => pvcPage.isEmpty('No persistentvolumeclaims')).toBeTruthy();
   });
 
+  test('go to persistent volumes page', async () => {
+    const pvPage = await navigation.openTabPage(KubernetesResources.PersistentVolumes);
+    await playExpect(pvPage.heading).toBeVisible();
+    await playExpect.poll(async () => pvPage.isEmpty('No persistentvolumes')).toBeTruthy();
+  });
+
+  test('go to storage classes page', async () => {
+    const storageClassesPage = await navigation.openTabPage(KubernetesResources.StorageClasses);
+    await playExpect(storageClassesPage.heading).toBeVisible();
+    await playExpect.poll(async () => storageClassesPage.isEmpty('No storageclasses')).toBeTruthy();
+  });
+
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
     await playExpect(configMapsSecretsPage.heading).toBeVisible();
@@ -476,6 +488,25 @@ test.describe('With resources', { tag: '@integration' }, () => {
     const kubernetesResourceDetails = await cronjobsPage.openResourceDetails('cronjob1', KubernetesResources.Cronjobs);
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
     await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to pv1 page', async () => {
+    const pvPage = await navigation.openTabPage(KubernetesResources.PersistentVolumes);
+    await playExpect(pvPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await pvPage.openResourceDetails('pv1', KubernetesResources.PersistentVolumes);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+  });
+
+  test('go to storage-class1 page', async () => {
+    const storageClassesPage = await navigation.openTabPage(KubernetesResources.StorageClasses);
+    await playExpect(storageClassesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await storageClassesPage.openResourceDetails(
+      'storage-class1',
+      KubernetesResources.StorageClasses,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
   });
 });
 
