@@ -7,11 +7,11 @@ export class MonacoManager {
     if (MonacoManager.monaco) return MonacoManager.monaco;
 
     // import monaco editor dynamically (languages are bundled in the main entry)
-    this.monaco = await import('monaco-editor');
-    this.registerTheme();
+    MonacoManager.monaco = await import('monaco-editor');
+    MonacoManager.registerTheme();
 
     // return the full monaco
-    return this.monaco;
+    return MonacoManager.monaco;
   }
 
   public static getThemeName(): string {
@@ -21,7 +21,7 @@ export class MonacoManager {
   protected static registerTheme(): void {
     if (!MonacoManager.monaco) throw new Error('cannot register theme if monaco is not imported');
 
-    const terminalBg = this.getTerminalBg();
+    const terminalBg = MonacoManager.getTerminalBg();
     const isDarkTheme: boolean = terminalBg === '#000000';
 
     // define custom theme
