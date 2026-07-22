@@ -33,6 +33,24 @@ import StatefulSetsList from '/@/component/statefulsets/StatefulSetsList.svelte'
 import StatefulSetDetails from '/@/component/statefulsets/StatefulSetDetails.svelte';
 import ReplicaSetsList from '/@/component/replicasets/ReplicaSetsList.svelte';
 import ReplicaSetDetails from '/@/component/replicasets/ReplicaSetDetails.svelte';
+import ResourceQuotasList from './component/resource-quotas/ResourceQuotasList.svelte';
+import ResourceQuotaDetails from './component/resource-quotas/ResourceQuotaDetails.svelte';
+import LimitRangesList from './component/limit-ranges/LimitRangesList.svelte';
+import LimitRangeDetails from './component/limit-ranges/LimitRangeDetails.svelte';
+import HpasList from './component/hpas/HpasList.svelte';
+import HpaDetails from './component/hpas/HpaDetails.svelte';
+import PdbsList from './component/pdbs/PdbsList.svelte';
+import PdbDetails from './component/pdbs/PdbDetails.svelte';
+import PriorityClassesList from './component/priority-classes/PriorityClassesList.svelte';
+import PriorityClassDetails from './component/priority-classes/PriorityClassDetails.svelte';
+import RuntimeClassesList from './component/runtime-classes/RuntimeClassesList.svelte';
+import RuntimeClassDetails from './component/runtime-classes/RuntimeClassDetails.svelte';
+import LeasesList from './component/leases/LeasesList.svelte';
+import LeaseDetails from './component/leases/LeaseDetails.svelte';
+import MutatingWebhooksList from './component/mutating-webhooks/MutatingWebhooksList.svelte';
+import MutatingWebhookDetails from './component/mutating-webhooks/MutatingWebhookDetails.svelte';
+import ValidatingWebhooksList from './component/validating-webhooks/ValidatingWebhooksList.svelte';
+import ValidatingWebhookDetails from './component/validating-webhooks/ValidatingWebhookDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -173,5 +191,77 @@ const { meta }: Props = $props();
 
   <Route path="/replicasets/:name/:namespace/*" let:meta>
     <ReplicaSetDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/resourcequotas">
+    <ResourceQuotasList />
+  </Route>
+
+  <Route path="/resourcequotas/:name/:namespace/*" let:meta>
+    <ResourceQuotaDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/limitranges">
+    <LimitRangesList />
+  </Route>
+
+  <Route path="/limitranges/:name/:namespace/*" let:meta>
+    <LimitRangeDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/horizontalpodautoscalers">
+    <HpasList />
+  </Route>
+
+  <Route path="/horizontalpodautoscalers/:name/:namespace/*" let:meta>
+    <HpaDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/poddisruptionbudgets">
+    <PdbsList />
+  </Route>
+
+  <Route path="/poddisruptionbudgets/:name/:namespace/*" let:meta>
+    <PdbDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/priorityclasses">
+    <PriorityClassesList />
+  </Route>
+
+  <Route path="/priorityclasses/:name/*" let:meta>
+    <PriorityClassDetails name={decodeURI(meta.params.name)} />
+  </Route>
+
+  <Route path="/runtimeclasses">
+    <RuntimeClassesList />
+  </Route>
+
+  <Route path="/runtimeclasses/:name/*" let:meta>
+    <RuntimeClassDetails name={decodeURI(meta.params.name)} />
+  </Route>
+
+  <Route path="/leases">
+    <LeasesList />
+  </Route>
+
+  <Route path="/leases/:name/:namespace/*" let:meta>
+    <LeaseDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/mutatingwebhookconfigurations">
+    <MutatingWebhooksList />
+  </Route>
+
+  <Route path="/mutatingwebhookconfigurations/:name/*" let:meta>
+    <MutatingWebhookDetails name={decodeURI(meta.params.name)} />
+  </Route>
+
+  <Route path="/validatingwebhookconfigurations">
+    <ValidatingWebhooksList />
+  </Route>
+
+  <Route path="/validatingwebhookconfigurations/:name/*" let:meta>
+    <ValidatingWebhookDetails name={decodeURI(meta.params.name)} />
   </Route>
 </div>

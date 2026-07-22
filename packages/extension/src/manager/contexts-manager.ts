@@ -76,6 +76,15 @@ import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-reso
 import { DaemonSetsResourceFactory } from '/@/resources/daemonsets-resource-factory.js';
 import { StatefulSetsResourceFactory } from '/@/resources/statefulsets-resource-factory.js';
 import { ReplicaSetsResourceFactory } from '/@/resources/replicasets-resource-factory.js';
+import { ResourceQuotasResourceFactory } from '/@/resources/resource-quotas-resource-factory.js';
+import { LimitRangesResourceFactory } from '/@/resources/limit-ranges-resource-factory.js';
+import { HpasResourceFactory } from '/@/resources/hpas-resource-factory.js';
+import { PdbsResourceFactory } from '/@/resources/pdbs-resource-factory.js';
+import { PriorityClassesResourceFactory } from '/@/resources/priority-classes-resource-factory.js';
+import { RuntimeClassesResourceFactory } from '/@/resources/runtime-classes-resource-factory.js';
+import { LeasesResourceFactory } from '/@/resources/leases-resource-factory.js';
+import { MutatingWebhooksResourceFactory } from '/@/resources/mutating-webhooks-resource-factory.js';
+import { ValidatingWebhooksResourceFactory } from '/@/resources/validating-webhooks-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -187,6 +196,15 @@ export class ContextsManager implements ContextsApi {
       new DaemonSetsResourceFactory(),
       new StatefulSetsResourceFactory(),
       new ReplicaSetsResourceFactory(),
+      new ResourceQuotasResourceFactory(),
+      new LimitRangesResourceFactory(),
+      new HpasResourceFactory(),
+      new PdbsResourceFactory(),
+      new PriorityClassesResourceFactory(),
+      new RuntimeClassesResourceFactory(),
+      new LeasesResourceFactory(),
+      new MutatingWebhooksResourceFactory(),
+      new ValidatingWebhooksResourceFactory(),
     ];
   }
 
