@@ -899,3 +899,17 @@ provisioner: kubernetes.io/no-provisioner
 reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
 ---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  creationTimestamp: '2026-02-09T10:15:00Z'
+  name: endpoint1
+  namespace: default
+  uid: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+subsets:
+  - addresses:
+      - ip: 10.0.0.1
+    ports:
+      - port: 8080
+        protocol: TCP
+---
