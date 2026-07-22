@@ -87,6 +87,8 @@ export class Navigator {
       return 'ingressclasses';
     } else if (kind === 'HTTPRoute') {
       return 'httproutes';
+    } else if (kind === 'GatewayClass') {
+      return 'gatewayclasses';
     }
     // otherwise do the simple conversion
     return kind.toLowerCase() + 's';

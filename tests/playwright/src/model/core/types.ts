@@ -37,6 +37,7 @@ export enum KubernetesResources {
   EndpointSlices = 'Endpoint Slices',
   NetworkPolicies = 'Network Policies',
   IngressClasses = 'Ingress Classes',
+  GatewayClasses = 'Gateway Classes',
   HTTPRoutes = 'HTTPRoutes',
   PVCs = 'Persistent Volume Claims',
   PersistentVolumes = 'Persistent Volumes',
@@ -84,6 +85,7 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Actions',
   ],
   [KubernetesResources.IngressClasses]: ['Status', 'Name', 'Controller', 'Default', 'Age'],
+  [KubernetesResources.GatewayClasses]: ['Status', 'Name', 'Controller', 'Age'],
   [KubernetesResources.HTTPRoutes]: [
     'Selected',
     'Status',
