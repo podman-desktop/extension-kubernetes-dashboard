@@ -51,6 +51,8 @@ import EndpointsList from './component/endpoints/EndpointsList.svelte';
 import EndpointDetails from './component/endpoints/EndpointDetails.svelte';
 import EndpointSlicesList from './component/endpoint-slices/EndpointSlicesList.svelte';
 import EndpointSliceDetails from './component/endpoint-slices/EndpointSliceDetails.svelte';
+import NetworkPoliciesList from './component/network-policies/NetworkPoliciesList.svelte';
+import NetworkPolicyDetails from './component/network-policies/NetworkPolicyDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -215,6 +217,12 @@ const { meta }: Props = $props();
 
   <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
     <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  <Route path="/networkpolicies">
+    <NetworkPoliciesList />
+  </Route>
+
+  <Route path="/networkpolicies/:name/:namespace/*" let:meta>
+    <NetworkPolicyDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
   </Route>
 
   <Route path="/clusterrolebindings">
