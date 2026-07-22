@@ -83,6 +83,8 @@ export class Navigator {
       return 'endpoints';
     } else if (kind === 'NetworkPolicy') {
       return 'networkpolicies';
+    } else if (kind === 'IngressClass') {
+      return 'ingressclasses';
     }
     // otherwise do the simple conversion
     return kind.toLowerCase() + 's';
