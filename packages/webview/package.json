@@ -7,7 +7,7 @@
   "scripts": {
     "preview": "vite preview",
     "build:deps": "pnpm --filter @kubernetes-dashboard/rpc run build && pnpm --filter @kubernetes-dashboard/channels run build",
-    "build": "pnpm run build:deps && vite build",
+    "build": "vite build",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
     "format:check": "prettier --check \"src/**/*.ts\"",
