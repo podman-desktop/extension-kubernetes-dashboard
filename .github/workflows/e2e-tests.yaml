@@ -176,6 +176,15 @@ jobs:
         run: |
           "$KUBEBUILDER_ASSETS/kubectl" get all | grep "service/kubernetes"
 
+      - name: install Gateway API CRDs
+        env:
+          KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
+          KUBECONFIG: '${{ steps.run-envtest.outputs.KUBECONFIG }}'
+        shell: bash
+        run: |
+          "$KUBEBUILDER_ASSETS/kubectl" apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
+          "$KUBEBUILDER_ASSETS/kubectl" wait --for=condition=Established crd gatewayclasses.gateway.networking.k8s.io gateways.gateway.networking.k8s.io httproutes.gateway.networking.k8s.io --timeout=30s
+
       - name: Install kubectl on macOS
         if: runner.os == 'macOS'
         shell: bash
