@@ -1,24 +1,17 @@
-import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
+import type * as Monaco from 'monaco-editor';
 
 export class MonacoManager {
   protected static monaco: typeof Monaco | undefined;
 
-  protected static async importLanguages(): Promise<Awaited<unknown>[]> {
-    return Promise.all([import('monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js')]);
-  }
-
   static async getMonaco(): Promise<typeof Monaco> {
     if (MonacoManager.monaco) return MonacoManager.monaco;
 
-    // import languages dynamically
-    await this.importLanguages();
-
-    // import monaco editor dynamically
-    this.monaco = await import('monaco-editor');
-    this.registerTheme();
+    // import monaco editor dynamically (languages are bundled in the main entry)
+    MonacoManager.monaco = await import('monaco-editor');
+    MonacoManager.registerTheme();
 
     // return the full monaco
-    return this.monaco;
+    return MonacoManager.monaco;
   }
 
   public static getThemeName(): string {
@@ -28,7 +21,7 @@ export class MonacoManager {
   protected static registerTheme(): void {
     if (!MonacoManager.monaco) throw new Error('cannot register theme if monaco is not imported');
 
-    const terminalBg = this.getTerminalBg();
+    const terminalBg = MonacoManager.getTerminalBg();
     const isDarkTheme: boolean = terminalBg === '#000000';
 
     // define custom theme
