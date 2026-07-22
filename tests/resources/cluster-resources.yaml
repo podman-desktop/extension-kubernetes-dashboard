@@ -899,3 +899,12 @@ provisioner: kubernetes.io/no-provisioner
 reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
 ---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  creationTimestamp: '2026-02-09T10:17:00Z'
+  name: ingress-class1
+  uid: c3d4e5f6-a7b8-9012-cdef-123456789012
+spec:
+  controller: example.com/ingress-controller
+---
