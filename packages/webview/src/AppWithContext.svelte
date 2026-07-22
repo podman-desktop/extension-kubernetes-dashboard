@@ -33,6 +33,16 @@ import StatefulSetsList from '/@/component/statefulsets/StatefulSetsList.svelte'
 import StatefulSetDetails from '/@/component/statefulsets/StatefulSetDetails.svelte';
 import ReplicaSetsList from '/@/component/replicasets/ReplicaSetsList.svelte';
 import ReplicaSetDetails from '/@/component/replicasets/ReplicaSetDetails.svelte';
+import ServiceAccountsList from './component/service-accounts/ServiceAccountsList.svelte';
+import ServiceAccountDetails from './component/service-accounts/ServiceAccountDetails.svelte';
+import ClusterRolesList from './component/cluster-roles/ClusterRolesList.svelte';
+import ClusterRoleDetails from './component/cluster-roles/ClusterRoleDetails.svelte';
+import RolesList from './component/roles/RolesList.svelte';
+import RoleDetails from './component/roles/RoleDetails.svelte';
+import ClusterRoleBindingsList from './component/cluster-role-bindings/ClusterRoleBindingsList.svelte';
+import ClusterRoleBindingDetails from './component/cluster-role-bindings/ClusterRoleBindingDetails.svelte';
+import RoleBindingsList from './component/role-bindings/RoleBindingsList.svelte';
+import RoleBindingDetails from './component/role-bindings/RoleBindingDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -173,5 +183,45 @@ const { meta }: Props = $props();
 
   <Route path="/replicasets/:name/:namespace/*" let:meta>
     <ReplicaSetDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/serviceaccounts">
+    <ServiceAccountsList />
+  </Route>
+
+  <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
+    <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/clusterroles">
+    <ClusterRolesList />
+  </Route>
+
+  <Route path="/clusterroles/:name/*" let:meta>
+    <ClusterRoleDetails name={decodeURI(meta.params.name)} />
+  </Route>
+
+  <Route path="/roles">
+    <RolesList />
+  </Route>
+
+  <Route path="/roles/:name/:namespace/*" let:meta>
+    <RoleDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/clusterrolebindings">
+    <ClusterRoleBindingsList />
+  </Route>
+
+  <Route path="/clusterrolebindings/:name/*" let:meta>
+    <ClusterRoleBindingDetails name={decodeURI(meta.params.name)} />
+  </Route>
+
+  <Route path="/rolebindings">
+    <RoleBindingsList />
+  </Route>
+
+  <Route path="/rolebindings/:name/:namespace/*" let:meta>
+    <RoleBindingDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
   </Route>
 </div>
