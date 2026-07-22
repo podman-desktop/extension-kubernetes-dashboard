@@ -85,6 +85,8 @@ export class Navigator {
       return 'networkpolicies';
     } else if (kind === 'IngressClass') {
       return 'ingressclasses';
+    } else if (kind === 'HTTPRoute') {
+      return 'httproutes';
     }
     // otherwise do the simple conversion
     return kind.toLowerCase() + 's';
