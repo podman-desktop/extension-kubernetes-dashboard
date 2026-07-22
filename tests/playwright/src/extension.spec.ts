@@ -195,6 +195,12 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => ingresssRoutesPage.isEmpty('No ingresses or routes')).toBeTruthy();
   });
 
+  test('go to endpoint slices page', async () => {
+    const endpointSlicesPage = await navigation.openTabPage(KubernetesResources.EndpointSlices);
+    await playExpect(endpointSlicesPage.heading).toBeVisible();
+    await playExpect.poll(async () => endpointSlicesPage.rowsAreVisible()).toBeTruthy();
+  });
+
   test('go to pvc page', async () => {
     const pvcPage = await navigation.openTabPage(KubernetesResources.PVCs);
     await playExpect(pvcPage.heading).toBeVisible();
