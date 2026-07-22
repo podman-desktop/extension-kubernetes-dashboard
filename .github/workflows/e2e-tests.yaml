@@ -123,6 +123,8 @@ jobs:
         if: steps.cache-pd.outputs.cache-hit != 'true'
         shell: bash
         working-directory: ${{ github.workspace }}/podman-desktop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm install
           pnpm test:e2e:build
