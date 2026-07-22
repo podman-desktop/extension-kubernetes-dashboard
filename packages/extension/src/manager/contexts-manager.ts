@@ -76,6 +76,8 @@ import { EndpointSlicesResourceFactory } from '/@/resources/endpoint-slices-reso
 import { DaemonSetsResourceFactory } from '/@/resources/daemonsets-resource-factory.js';
 import { StatefulSetsResourceFactory } from '/@/resources/statefulsets-resource-factory.js';
 import { ReplicaSetsResourceFactory } from '/@/resources/replicasets-resource-factory.js';
+import { PVsResourceFactory } from '/@/resources/pvs-resource-factory.js';
+import { StorageClassesResourceFactory } from '/@/resources/storage-classes-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -187,6 +189,8 @@ export class ContextsManager implements ContextsApi {
       new DaemonSetsResourceFactory(),
       new StatefulSetsResourceFactory(),
       new ReplicaSetsResourceFactory(),
+      new PVsResourceFactory(),
+      new StorageClassesResourceFactory(),
     ];
   }
 

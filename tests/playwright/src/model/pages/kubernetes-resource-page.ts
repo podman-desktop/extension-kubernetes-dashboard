@@ -72,7 +72,7 @@ export class KubernetesResourcePage extends MainPage {
       const resourceRow = await this.fetchKubernetesResource(resourceName, timeout);
 
       let resourceRowName: Locator;
-      if (resourceType === KubernetesResources.Nodes) {
+      if (resourceType === KubernetesResources.Nodes || resourceType === KubernetesResources.StorageClasses) {
         resourceRowName = resourceRow.getByRole('cell').nth(2);
       } else {
         resourceRowName = resourceRow.getByRole('cell').nth(3);

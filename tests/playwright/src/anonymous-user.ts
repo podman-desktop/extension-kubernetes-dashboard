@@ -104,6 +104,18 @@ export function anonymousUserTests(): void {
     await playExpect.poll(async () => pvcPage.isEmpty('Not accessible')).toBeTruthy();
   });
 
+  test('go to persistent volumes page', async () => {
+    const pvPage = await navigation.openTabPage(KubernetesResources.PersistentVolumes);
+    await playExpect(pvPage.heading).toBeVisible();
+    await playExpect.poll(async () => pvPage.isEmpty('Not accessible')).toBeTruthy();
+  });
+
+  test('go to storage classes page', async () => {
+    const storageClassesPage = await navigation.openTabPage(KubernetesResources.StorageClasses);
+    await playExpect(storageClassesPage.heading).toBeVisible();
+    await playExpect.poll(async () => storageClassesPage.isEmpty('Not accessible')).toBeTruthy();
+  });
+
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
     await playExpect(configMapsSecretsPage.heading).toBeVisible();
