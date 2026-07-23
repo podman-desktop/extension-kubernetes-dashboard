@@ -1,31 +1,28 @@
 packages:
   - packages/*
   - tests/*
-
-nodeLinker: hoisted
-
 overrides:
-  'minimatch>@isaacs/brace-expansion': ^5.0.1
-  'minimatch>brace-expansion': ^2.0.2
+  minimatch>@isaacs/brace-expansion: ^5.0.1
+  minimatch>brace-expansion: ^2.0.2
   '@microsoft/api-extractor>lodash': ^4.18.0
-  'test-exclude>glob': ^10.5.0
-  'node-gyp>tar': ^7.5.7
-  'minimatch@<3.1.4': ^3.1.4
-  'minimatch@>=9.0.0 <9.0.7': ^9.0.7
-  'minimatch@>=10.0.0 <10.2.3': ^10.2.3
-  'dompurify@<=3.4.10': '>=3.4.11'
-  'picomatch@>=4.0.0 <4.0.4': ^4.0.4
-  'ajv@>=8.0.0 <8.18.0': ^8.18.0
-  'postcss@<8.5.12': '>=8.5.12'
-  'rollup@>=4.0.0 <4.59.0': '>=4.59.0'
-  'ip-address@<=10.1.0': '>=10.1.1'
-  'esbuild@>=0.17.0 <0.28.1': '>=0.28.1'
-  'ws@>=8.0.0 <8.21.0': '>=8.21.0'
-  'form-data@>=4.0.0 <4.0.6': '>=4.0.6'
-  'undici@>=7.23.0 <7.28.0': ^7.28.0
-  'undici@>=6.0.0 <7': ~6.27.0
-  'shell-quote@<=1.8.4': '>=1.9.0'
-
+  test-exclude>glob: ^10.5.0
+  node-gyp>tar: ^7.5.7
+  minimatch@<3.1.4: ^3.1.4
+  minimatch@>=9.0.0 <9.0.7: ^9.0.7
+  minimatch@>=10.0.0 <10.2.3: ^10.2.3
+  dompurify@<=3.4.10: '>=3.4.11'
+  picomatch@>=4.0.0 <4.0.4: ^4.0.4
+  ajv@>=8.0.0 <8.18.0: ^8.18.0
+  postcss@<8.5.12: '>=8.5.12'
+  rollup@>=4.0.0 <4.59.0: '>=4.59.0'
+  ip-address@<=10.1.0: '>=10.1.1'
+  esbuild@>=0.17.0 <0.28.1: '>=0.28.1'
+  ws@>=8.0.0 <8.21.0: '>=8.21.0'
+  form-data@>=4.0.0 <4.0.6: '>=4.0.6'
+  undici@>=7.23.0 <7.28.0: ^7.28.0
+  undici@>=6.0.0 <7: ~6.27.0
+  shell-quote@<=1.8.4: '>=1.9.0'
+nodeLinker: hoisted
 allowBuilds:
   esbuild: true
   svelte-preprocess: true
