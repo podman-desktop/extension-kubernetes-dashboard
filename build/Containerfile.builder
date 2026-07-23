@@ -18,7 +18,7 @@
 # v10.1-1766363988
 FROM registry.access.redhat.com/ubi10/nodejs-24@sha256:5a3cea874f0555bcde27d979bbc8a067f1d75b4b324ef3274112c8270e951f5b
 USER root
-RUN dnf install -y jq
+RUN dnf install -y jq && npm i -g corepack && corepack enable
 USER default
 
 # change home directory to be at /opt/app-root
@@ -27,12 +27,11 @@ ENV HOME=/opt/app-root
 # copy the application files to the /opt/app-root/extension-source directory
 WORKDIR /opt/app-root/extension-source
 RUN mkdir -p /opt/app-root/extension-source
-COPY --chown=1001:root .npmrc /opt/app-root/extension-source/
 COPY --chown=1001:root package.json /opt/app-root/extension-source/
 COPY --chown=1001:root pnpm-lock.yaml /opt/app-root/extension-source/
 COPY --chown=1001:root pnpm-workspace.yaml /opt/app-root/extension-source/
 COPY --chown=1001:root packages/webview/package.json /opt/app-root/extension-source/packages/webview/package.json
 COPY --chown=1001:root packages/extension/package.json /opt/app-root/extension-source/packages/extension/package.json
 
-RUN npm install --global pnpm@10 && \
-    pnpm --frozen-lockfile install
+RUN corepack enable && corepack install && \
+    CI=true pnpm --frozen-lockfile install
