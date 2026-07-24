@@ -96,6 +96,7 @@ import { PriorityClassesResourceFactory } from '/@/resources/priority-classes-re
 import { RuntimeClassesResourceFactory } from '/@/resources/runtime-classes-resource-factory.js';
 import { LeasesResourceFactory } from '/@/resources/leases-resource-factory.js';
 import { MutatingWebhooksResourceFactory } from '/@/resources/mutating-webhooks-resource-factory.js';
+import { ValidatingWebhooksResourceFactory } from '/@/resources/validating-webhooks-resource-factory.js';
 import { HpasResourceFactory } from '/@/resources/hpas-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
@@ -228,6 +229,7 @@ export class ContextsManager implements ContextsApi {
       new RuntimeClassesResourceFactory(),
       new LeasesResourceFactory(),
       new MutatingWebhooksResourceFactory(),
+      new ValidatingWebhooksResourceFactory(),
       new HpasResourceFactory(),
     ];
   }

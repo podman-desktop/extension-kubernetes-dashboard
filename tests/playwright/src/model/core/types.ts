@@ -60,6 +60,7 @@ export enum KubernetesResources {
   RuntimeClasses = 'Runtime Classes',
   Leases = 'Leases',
   MutatingWebhookConfigs = 'Mutating Webhook Configs',
+  ValidatingWebhookConfigs = 'Validating Webhook Configs',
   HorizontalPodAutoscalers = 'Horizontal Pod Autoscalers',
 }
 
@@ -186,6 +187,15 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Actions',
   ],
   [KubernetesResources.MutatingWebhookConfigs]: [
+    'Selected',
+    'Status',
+    'Name',
+    'Webhooks',
+    'Failure Policy',
+    'Age',
+    'Actions',
+  ],
+  [KubernetesResources.ValidatingWebhookConfigs]: [
     'Selected',
     'Status',
     'Name',
