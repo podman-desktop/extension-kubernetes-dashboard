@@ -58,6 +58,7 @@ export enum KubernetesResources {
   PodDisruptionBudgets = 'Pod Disruption Budgets',
   PriorityClasses = 'Priority Classes',
   RuntimeClasses = 'Runtime Classes',
+  Leases = 'Leases',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -172,4 +173,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   ],
   [KubernetesResources.PriorityClasses]: ['Status', 'Name', 'Value', 'Global Default', 'Preemption Policy', 'Age'],
   [KubernetesResources.RuntimeClasses]: ['Status', 'Name', 'Handler', 'Age'],
+  [KubernetesResources.Leases]: ['Selected', 'Status', 'Name', 'Holder', 'Lease Duration', 'Renew Time', 'Age', 'Actions'],
 };

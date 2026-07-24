@@ -55,6 +55,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.PodDisruptionBudgets]: NavSection.Config,
   [KubernetesResources.PriorityClasses]: NavSection.Config,
   [KubernetesResources.RuntimeClasses]: NavSection.Config,
+  [KubernetesResources.Leases]: NavSection.Config,
 };
 
 export class KubernetesBar {
