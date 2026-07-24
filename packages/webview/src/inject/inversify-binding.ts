@@ -44,6 +44,7 @@ import { statefulSetsModule } from '/@/component/statefulsets/_statefulsets-modu
 import { replicaSetsModule } from '/@/component/replicasets/_replicasets-module';
 import { pvsModule } from '/@/component/pvs/_pvs-module';
 import { storageClassesModule } from '/@/component/storage-classes/_storage-classes-module';
+import { priorityClassesModule } from '/@/component/priority-classes/_priority-classes-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -82,6 +83,7 @@ export class InversifyBinding {
     await this.#container.load(replicaSetsModule);
     await this.#container.load(pvsModule);
     await this.#container.load(storageClassesModule);
+    await this.#container.load(priorityClassesModule);
 
     return this.#container;
   }
