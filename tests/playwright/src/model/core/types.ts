@@ -41,6 +41,7 @@ export enum KubernetesResources {
   Cronjobs = 'CronJobs',
   Jobs = 'Jobs',
   ServiceAccounts = 'Service Accounts',
+  HorizontalPodAutoscalers = 'Horizontal Pod Autoscalers',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -91,4 +92,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   ],
   [KubernetesResources.Jobs]: ['Selected', 'Status', 'Name', 'Conditions', 'Completions', 'Age', 'Actions'],
   [KubernetesResources.ServiceAccounts]: ['Selected', 'Status', 'Name', 'Secrets', 'Age', 'Actions'],
+  [KubernetesResources.HorizontalPodAutoscalers]: ['Selected', 'Status', 'Name', 'Metrics', 'Min Pods', 'Max Pods', 'Replicas', 'Desired', 'Age', 'Actions'],
 };
