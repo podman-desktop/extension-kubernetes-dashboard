@@ -65,6 +65,8 @@ import GatewaysList from './component/gateways/GatewaysList.svelte';
 import GatewayDetails from './component/gateways/GatewayDetails.svelte';
 import LimitRangesList from './component/limit-ranges/LimitRangesList.svelte';
 import LimitRangeDetails from './component/limit-ranges/LimitRangeDetails.svelte';
+import PdbsList from './component/pdbs/PdbsList.svelte';
+import PdbDetails from './component/pdbs/PdbDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -229,6 +231,12 @@ const { meta }: Props = $props();
 
   <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
     <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  <Route path="/poddisruptionbudgets">
+    <PdbsList />
+  </Route>
+
+  <Route path="/poddisruptionbudgets/:name/:namespace/*" let:meta>
+    <PdbDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
   </Route>
 
   <Route path="/limitranges">

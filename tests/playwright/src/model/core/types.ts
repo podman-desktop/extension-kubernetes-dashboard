@@ -55,6 +55,7 @@ export enum KubernetesResources {
   ClusterRoleBindings = 'Cluster Role Bindings',
   ResourceQuotas = 'Resource Quotas',
   LimitRanges = 'Limit Ranges',
+  PodDisruptionBudgets = 'Pod Disruption Budgets',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -154,4 +155,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   [KubernetesResources.ClusterRoleBindings]: ['Selected', 'Status', 'Name', 'Bindings', 'Role', 'Age', 'Actions'],
   [KubernetesResources.ResourceQuotas]: ['Selected', 'Status', 'Name', 'Request Count', 'Age', 'Actions'],
   [KubernetesResources.LimitRanges]: ['Selected', 'Status', 'Name', 'Type', 'Count', 'Age', 'Actions'],
+  [KubernetesResources.PodDisruptionBudgets]: ['Selected', 'Status', 'Name', 'Min Available', 'Max Unavailable', 'Current Healthy', 'Desired Healthy', 'Allowed Disruptions', 'Expected Pods', 'Age', 'Actions'],
 };

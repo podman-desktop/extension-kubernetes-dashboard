@@ -52,6 +52,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.ClusterRoleBindings]: NavSection.AccessControl,
   [KubernetesResources.ResourceQuotas]: NavSection.Config,
   [KubernetesResources.LimitRanges]: NavSection.Config,
+  [KubernetesResources.PodDisruptionBudgets]: NavSection.Config,
 };
 
 export class KubernetesBar {
@@ -112,6 +113,8 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'resource quotas');
       case 'Limit Ranges':
         return new KubernetesResourcePage(this.page, 'limit ranges');
+      case 'Pod Disruption Budgets':
+        return new KubernetesResourcePage(this.page, 'pod disruption budgets');
       default:
         return new KubernetesResourcePage(this.page, kubernetesResource);
     }

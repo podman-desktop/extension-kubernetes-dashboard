@@ -58,6 +58,7 @@ import { gatewayClassesModule } from '/@/component/gatewayclasses/_gatewayclasse
 import { resourceQuotasModule } from '/@/component/resource-quotas/_resource-quotas-module';
 import { gatewaysModule } from '/@/component/gateways/_gateways-module';
 import { limitRangesModule } from '/@/component/limit-ranges/_limit-ranges-module';
+import { pdbsModule } from '/@/component/pdbs/_pdbs-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -110,6 +111,7 @@ export class InversifyBinding {
     await this.#container.load(resourceQuotasModule);
     await this.#container.load(gatewaysModule);
     await this.#container.load(limitRangesModule);
+    await this.#container.load(pdbsModule);
 
     return this.#container;
   }
