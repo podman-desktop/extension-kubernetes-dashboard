@@ -78,6 +78,7 @@ import { StatefulSetsResourceFactory } from '/@/resources/statefulsets-resource-
 import { ReplicaSetsResourceFactory } from '/@/resources/replicasets-resource-factory.js';
 import { PVsResourceFactory } from '/@/resources/pvs-resource-factory.js';
 import { StorageClassesResourceFactory } from '/@/resources/storage-classes-resource-factory.js';
+import { ClusterRolesResourceFactory } from '/@/resources/cluster-roles-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -191,6 +192,7 @@ export class ContextsManager implements ContextsApi {
       new ReplicaSetsResourceFactory(),
       new PVsResourceFactory(),
       new StorageClassesResourceFactory(),
+      new ClusterRolesResourceFactory(),
     ];
   }
 
