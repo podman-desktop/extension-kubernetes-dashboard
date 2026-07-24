@@ -8,7 +8,6 @@ import {
   faLayerGroup,
   faNetworkWired,
   faServer,
-  faShieldHalved,
 } from '@fortawesome/free-solid-svg-icons';
 import { getContext, setContext } from 'svelte';
 import { Navigator } from '/@/navigation/navigator';
@@ -43,7 +42,7 @@ const workloadUrls = [
   navigator.kubernetesResourcesURL('CronJob'),
 ];
 
-const configUrls = [navigator.kubernetesResourcesURL('ConfigMap')];
+const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('ServiceAccount')];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
@@ -55,14 +54,6 @@ const storageUrls = [
   navigator.kubernetesResourcesURL('PersistentVolumeClaim'),
   navigator.kubernetesResourcesURL('PersistentVolume'),
   navigator.kubernetesResourcesURL('StorageClass'),
-];
-
-const accessControlUrls = [
-  navigator.kubernetesResourcesURL('ServiceAccount'),
-  navigator.kubernetesResourcesURL('ClusterRole'),
-  navigator.kubernetesResourcesURL('Role'),
-  navigator.kubernetesResourcesURL('ClusterRoleBinding'),
-  navigator.kubernetesResourcesURL('RoleBinding'),
 ];
 
 const STORAGE_KEY = 'nav-sections-expanded';
@@ -91,14 +82,12 @@ let workloadsExpanded = $state(initExpanded('compute', workloadUrls));
 let configExpanded = $state(initExpanded('config', configUrls));
 let networkExpanded = $state(initExpanded('network', networkUrls));
 let storageExpanded = $state(initExpanded('storage', storageUrls));
-let accessControlExpanded = $state(initExpanded('accessControl', accessControlUrls));
 
 $effect(() => {
   if (isUnderSection(workloadUrls)) workloadsExpanded = true;
   if (isUnderSection(configUrls)) configExpanded = true;
   if (isUnderSection(networkUrls)) networkExpanded = true;
   if (isUnderSection(storageUrls)) storageExpanded = true;
-  if (isUnderSection(accessControlUrls)) accessControlExpanded = true;
 });
 
 $effect(() => {
@@ -112,9 +101,6 @@ $effect(() => {
 });
 $effect(() => {
   saveExpanded('storage', storageExpanded);
-});
-$effect(() => {
-  saveExpanded('accessControl', accessControlExpanded);
 });
 </script>
 
@@ -150,6 +136,7 @@ $effect(() => {
     <NavItem title="Config" icon={faGear} section={true} bind:expanded={configExpanded} href="" />
     {#if configExpanded}
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
+      <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
     {/if}
 
     <!-- Network section -->
@@ -169,17 +156,6 @@ $effect(() => {
         href={navigator.kubernetesResourcesURL('PersistentVolumeClaim')} />
       <NavItem title="Persistent Volumes" child={true} href={navigator.kubernetesResourcesURL('PersistentVolume')} />
       <NavItem title="Storage Classes" child={true} href={navigator.kubernetesResourcesURL('StorageClass')} />
-    {/if}
-
-    <!-- Access Control section -->
-    <NavItem
-      title="Access Control"
-      icon={faShieldHalved}
-      section={true}
-      bind:expanded={accessControlExpanded}
-      href="" />
-    {#if accessControlExpanded}
-
     {/if}
 
     <NavItem title="Namespaces" icon={faLayerGroup} href={navigator.kubernetesResourcesURL('Namespace')} />
