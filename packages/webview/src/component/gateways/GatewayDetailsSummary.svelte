@@ -1,0 +1,20 @@
+<script lang="ts">
+import type { KubernetesObject } from '@kubernetes/client-node';
+import type { EventUI } from '/@/component/objects/EventUI';
+import Table from '/@/component/details/Table.svelte';
+import ObjectMetaDetails from '/@/component/objects/details/ObjectMetaDetails.svelte';
+import EventsDetails from '/@/component/objects/details/EventsDetails.svelte';
+
+interface Props {
+  object: KubernetesObject;
+  events: readonly EventUI[];
+}
+let { object, events }: Props = $props();
+</script>
+
+<Table>
+  {#if object.metadata}
+    <ObjectMetaDetails artifact={object.metadata} />
+  {/if}
+  <EventsDetails events={events} />
+</Table>
