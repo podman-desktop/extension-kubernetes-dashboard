@@ -195,6 +195,12 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => ingresssRoutesPage.isEmpty('No ingresses or routes')).toBeTruthy();
   });
 
+  test('go to network policies page', async () => {
+    const networkPoliciesPage = await navigation.openTabPage(KubernetesResources.NetworkPolicies);
+    await playExpect(networkPoliciesPage.heading).toBeVisible();
+    await playExpect.poll(async () => networkPoliciesPage.isEmpty('No networkpolicies')).toBeTruthy();
+  });
+
   test('go to pvc page', async () => {
     const pvcPage = await navigation.openTabPage(KubernetesResources.PVCs);
     await playExpect(pvcPage.heading).toBeVisible();
@@ -507,6 +513,18 @@ test.describe('With resources', { tag: '@integration' }, () => {
       KubernetesResources.StorageClasses,
     );
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+  });
+
+  test('go to network-policy1 page', async () => {
+    const networkPoliciesPage = await navigation.openTabPage(KubernetesResources.NetworkPolicies);
+    await playExpect(networkPoliciesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await networkPoliciesPage.openResourceDetails(
+      'network-policy1',
+      KubernetesResources.NetworkPolicies,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
   });
 });
 
