@@ -39,6 +39,8 @@ import StorageClassesList from './component/storage-classes/StorageClassesList.s
 import StorageClassDetails from './component/storage-classes/StorageClassDetails.svelte';
 import ServiceAccountsList from './component/service-accounts/ServiceAccountsList.svelte';
 import ServiceAccountDetails from './component/service-accounts/ServiceAccountDetails.svelte';
+import ValidatingWebhooksList from './component/validating-webhooks/ValidatingWebhooksList.svelte';
+import ValidatingWebhookDetails from './component/validating-webhooks/ValidatingWebhookDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -203,5 +205,11 @@ const { meta }: Props = $props();
 
   <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
     <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  <Route path="/validatingwebhookconfigurations">
+    <ValidatingWebhooksList />
+  </Route>
+
+  <Route path="/validatingwebhookconfigurations/:name/*" let:meta>
+    <ValidatingWebhookDetails name={decodeURI(meta.params.name)} />
   </Route>
 </div>

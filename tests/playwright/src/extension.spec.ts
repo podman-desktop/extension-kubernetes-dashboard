@@ -217,6 +217,10 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     const serviceAccountsPage = await navigation.openTabPage(KubernetesResources.ServiceAccounts);
     await playExpect(serviceAccountsPage.heading).toBeVisible();
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
+  test('go to validatingWebhooks page', async () => {
+    const validatingWebhooksPage = await navigation.openTabPage(KubernetesResources.ValidatingWebhookConfigs);
+    await playExpect(validatingWebhooksPage.heading).toBeVisible();
+    await playExpect.poll(async () => validatingWebhooksPage.isEmpty('No validatingwebhookconfigurations')).toBeTruthy();
   });
 
   test('go to configmaps & secrets page', async () => {
