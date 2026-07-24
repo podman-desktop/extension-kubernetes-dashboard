@@ -89,6 +89,8 @@ export class Navigator {
       return 'httproutes';
     } else if (kind === 'GatewayClass') {
       return 'gatewayclasses';
+    } else if (kind === 'PriorityClass') {
+      return 'priorityclasses';
     }
     // otherwise do the simple conversion
     return kind.toLowerCase() + 's';

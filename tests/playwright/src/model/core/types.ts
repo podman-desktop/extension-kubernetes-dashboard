@@ -56,6 +56,7 @@ export enum KubernetesResources {
   ResourceQuotas = 'Resource Quotas',
   LimitRanges = 'Limit Ranges',
   PodDisruptionBudgets = 'Pod Disruption Budgets',
+  PriorityClasses = 'Priority Classes',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -168,4 +169,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Age',
     'Actions',
   ],
+  [KubernetesResources.PriorityClasses]: ['Status', 'Name', 'Value', 'Global Default', 'Preemption Policy', 'Age'],
 };

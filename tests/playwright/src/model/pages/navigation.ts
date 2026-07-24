@@ -53,6 +53,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.ResourceQuotas]: NavSection.Config,
   [KubernetesResources.LimitRanges]: NavSection.Config,
   [KubernetesResources.PodDisruptionBudgets]: NavSection.Config,
+  [KubernetesResources.PriorityClasses]: NavSection.Config,
 };
 
 export class KubernetesBar {
@@ -115,6 +116,8 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'limit ranges');
       case 'Pod Disruption Budgets':
         return new KubernetesResourcePage(this.page, 'pod disruption budgets');
+      case 'Priority Classes':
+        return new KubernetesResourcePage(this.page, 'priority classes');
       default:
         return new KubernetesResourcePage(this.page, kubernetesResource);
     }
