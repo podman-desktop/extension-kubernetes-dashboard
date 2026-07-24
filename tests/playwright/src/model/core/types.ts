@@ -53,6 +53,7 @@ export enum KubernetesResources {
   ClusterRoles = 'Cluster Roles',
   ClusterRoleBindings = 'Cluster Role Bindings',
   ResourceQuotas = 'Resource Quotas',
+  Leases = 'Leases',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -141,4 +142,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   [KubernetesResources.ClusterRoles]: ['Selected', 'Status', 'Name', 'Rules', 'Age', 'Actions'],
   [KubernetesResources.ClusterRoleBindings]: ['Selected', 'Status', 'Name', 'Bindings', 'Role', 'Age', 'Actions'],
   [KubernetesResources.ResourceQuotas]: ['Selected', 'Status', 'Name', 'Request Count', 'Age', 'Actions'],
+  [KubernetesResources.Leases]: ['Selected', 'Status', 'Name', 'Holder', 'Lease Duration', 'Renew Time', 'Age', 'Actions'],
 };
