@@ -256,6 +256,10 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     const serviceAccountsPage = await navigation.openTabPage(KubernetesResources.ServiceAccounts);
     await playExpect(serviceAccountsPage.heading).toBeVisible();
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
+  test('go to mutatingWebhooks page', async () => {
+    const mutatingWebhooksPage = await navigation.openTabPage(KubernetesResources.MutatingWebhookConfigs);
+    await playExpect(mutatingWebhooksPage.heading).toBeVisible();
+    await playExpect.poll(async () => mutatingWebhooksPage.isEmpty('No mutatingwebhookconfigurations')).toBeTruthy();
   });
   test('go to resourceQuotas page', async () => {
     const resourceQuotasPage = await navigation.openTabPage(KubernetesResources.ResourceQuotas);
