@@ -217,6 +217,11 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     const serviceAccountsPage = await navigation.openTabPage(KubernetesResources.ServiceAccounts);
     await playExpect(serviceAccountsPage.heading).toBeVisible();
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
+
+  test('go to roleBindings page', async () => {
+    const roleBindingsPage = await navigation.openTabPage(KubernetesResources.RoleBindings);
+    await playExpect(roleBindingsPage.heading).toBeVisible();
+    await playExpect.poll(async () => roleBindingsPage.isEmpty('No rolebindings')).toBeTruthy();
   });
 
   test('go to roles page', async () => {
