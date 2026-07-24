@@ -179,6 +179,7 @@ $effect(() => {
       bind:expanded={accessControlExpanded}
       href="" />
     {#if accessControlExpanded}
+      <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
     {/if}
 
     <NavItem title="Namespaces" icon={faLayerGroup} href={navigator.kubernetesResourcesURL('Namespace')} />
