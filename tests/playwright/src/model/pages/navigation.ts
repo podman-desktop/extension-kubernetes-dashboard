@@ -39,6 +39,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.PersistentVolumes]: NavSection.Storage,
   [KubernetesResources.StorageClasses]: NavSection.Storage,
   [KubernetesResources.ServiceAccounts]: NavSection.Config,
+  [KubernetesResources.MutatingWebhookConfigs]: NavSection.Config,
 };
 
 export class KubernetesBar {
@@ -87,6 +88,8 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'persistent volumes');
       case 'Storage Classes':
         return new KubernetesResourcePage(this.page, 'storage classes');
+      case 'Mutating Webhook Configs':
+        return new KubernetesResourcePage(this.page, 'mutating webhook configurations');
       default:
         return new KubernetesResourcePage(this.page, kubernetesResource);
     }
