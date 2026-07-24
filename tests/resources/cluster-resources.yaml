@@ -899,3 +899,24 @@ provisioner: kubernetes.io/no-provisioner
 reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
 ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  creationTimestamp: '2026-02-09T10:20:00Z'
+  name: httproute1
+  namespace: default
+  uid: f6a7b8c9-d0e1-2345-f012-456789012345
+spec:
+  parentRefs:
+    - name: gateway1
+  hostnames:
+    - example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: svc1-clusterip
+          port: 8080
+---
