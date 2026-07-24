@@ -142,7 +142,7 @@ jobs:
 
       - name: build builder image
         id: builder-image
-        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 #v2.13
+        uses: redhat-actions/buildah-build@5d8479758cc72ed82df28daba521d27e20ff8c8a #v3.0.0
         with:
           image: podman-desktop-extension-kubernetes-dashboard-builder
           tags: latest ${{ needs.tag.outputs.extVersion }}
@@ -192,7 +192,7 @@ jobs:
 
       - name: build extension image
         id: extension-image
-        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 #v2.13
+        uses: redhat-actions/buildah-build@5d8479758cc72ed82df28daba521d27e20ff8c8a #v3.0.0
         with:
           image: podman-desktop-extension-kubernetes-dashboard
           tags: latest ${{ needs.tag.outputs.extVersion }}
