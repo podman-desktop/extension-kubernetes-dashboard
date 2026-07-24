@@ -158,6 +158,17 @@ $effect(() => {
       <NavItem title="Storage Classes" child={true} href={navigator.kubernetesResourcesURL('StorageClass')} />
     {/if}
 
+    <!-- Access Control section -->
+    <NavItem
+      title="Access Control"
+      icon={faShieldHalved}
+      section={true}
+      bind:expanded={accessControlExpanded}
+      href="" />
+    {#if accessControlExpanded}
+      <NavItem title="Roles" child={true} href={navigator.kubernetesResourcesURL('Role')} />
+    {/if}
+
     <NavItem title="Namespaces" icon={faLayerGroup} href={navigator.kubernetesResourcesURL('Namespace')} />
   </div>
 </nav>

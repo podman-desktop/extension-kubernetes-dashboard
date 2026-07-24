@@ -39,6 +39,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.PersistentVolumes]: NavSection.Storage,
   [KubernetesResources.StorageClasses]: NavSection.Storage,
   [KubernetesResources.ServiceAccounts]: NavSection.Config,
+  [KubernetesResources.Roles]: NavSection.AccessControl,
 };
 
 export class KubernetesBar {
