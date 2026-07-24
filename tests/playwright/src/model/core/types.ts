@@ -60,6 +60,7 @@ export enum KubernetesResources {
   RuntimeClasses = 'Runtime Classes',
   Leases = 'Leases',
   MutatingWebhookConfigs = 'Mutating Webhook Configs',
+  HorizontalPodAutoscalers = 'Horizontal Pod Autoscalers',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -193,4 +194,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Age',
     'Actions',
   ],
+  [KubernetesResources.HorizontalPodAutoscalers]: ['Selected', 'Status', 'Name', 'Metrics', 'Min Pods', 'Max Pods', 'Replicas', 'Desired', 'Age', 'Actions'],
 };

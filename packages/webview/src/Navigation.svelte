@@ -53,6 +53,7 @@ const configUrls = [
   navigator.kubernetesResourcesURL('RuntimeClass'),
   navigator.kubernetesResourcesURL('Lease'),
   navigator.kubernetesResourcesURL('MutatingWebhookConfiguration'),
+  navigator.kubernetesResourcesURL('HorizontalPodAutoscaler'),
 ];
 
 const networkUrls = [
@@ -180,6 +181,10 @@ $effect(() => {
         title="Mutating Webhook Configs"
         child={true}
         href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
+      <NavItem
+        title="Horizontal Pod Autoscalers"
+        child={true}
+        href={navigator.kubernetesResourcesURL('HorizontalPodAutoscaler')} />
     {/if}
 
     <!-- Network section -->
