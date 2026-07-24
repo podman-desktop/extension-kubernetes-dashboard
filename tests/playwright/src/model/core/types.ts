@@ -40,6 +40,7 @@ export enum KubernetesResources {
   Pods = 'Pods',
   Cronjobs = 'CronJobs',
   Jobs = 'Jobs',
+  PodDisruptionBudgets = 'Pod Disruption Budgets',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -89,4 +90,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Actions',
   ],
   [KubernetesResources.Jobs]: ['Selected', 'Status', 'Name', 'Conditions', 'Completions', 'Age', 'Actions'],
+  [KubernetesResources.PodDisruptionBudgets]: ['Selected', 'Status', 'Name', 'Min Available', 'Max Unavailable', 'Current Healthy', 'Desired Healthy', 'Allowed Disruptions', 'Expected Pods', 'Age', 'Actions'],
 };
