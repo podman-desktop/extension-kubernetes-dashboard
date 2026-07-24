@@ -213,6 +213,12 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => storageClassesPage.isEmpty('No storageclasses')).toBeTruthy();
   });
 
+  test('go to hpas page', async () => {
+    const hpasPage = await navigation.openTabPage(KubernetesResources.HorizontalPodAutoscalers);
+    await playExpect(hpasPage.heading).toBeVisible();
+    await playExpect.poll(async () => hpasPage.isEmpty('No horizontalpodautoscalers')).toBeTruthy();
+  });
+
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
     await playExpect(configMapsSecretsPage.heading).toBeVisible();
