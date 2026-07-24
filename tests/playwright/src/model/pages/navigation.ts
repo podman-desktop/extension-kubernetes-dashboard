@@ -38,6 +38,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.PVCs]: NavSection.Storage,
   [KubernetesResources.PersistentVolumes]: NavSection.Storage,
   [KubernetesResources.StorageClasses]: NavSection.Storage,
+  [KubernetesResources.PodDisruptionBudgets]: NavSection.Config,
 };
 
 export class KubernetesBar {
@@ -86,6 +87,8 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'persistent volumes');
       case 'Storage Classes':
         return new KubernetesResourcePage(this.page, 'storage classes');
+      case 'Pod Disruption Budgets':
+        return new KubernetesResourcePage(this.page, 'pod disruption budgets');
       default:
         return new KubernetesResourcePage(this.page, kubernetesResource);
     }
