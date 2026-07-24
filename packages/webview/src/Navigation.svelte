@@ -50,6 +50,7 @@ const configUrls = [
   navigator.kubernetesResourcesURL('LimitRange'),
   navigator.kubernetesResourcesURL('PodDisruptionBudget'),
   navigator.kubernetesResourcesURL('PriorityClass'),
+  navigator.kubernetesResourcesURL('RuntimeClass'),
 ];
 
 const networkUrls = [
@@ -171,6 +172,7 @@ $effect(() => {
         child={true}
         href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
       <NavItem title="Priority Classes" child={true} href={navigator.kubernetesResourcesURL('PriorityClass')} />
+      <NavItem title="Runtime Classes" child={true} href={navigator.kubernetesResourcesURL('RuntimeClass')} />
     {/if}
 
     <!-- Network section -->
