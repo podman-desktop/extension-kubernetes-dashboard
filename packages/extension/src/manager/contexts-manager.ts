@@ -82,6 +82,7 @@ import { ServiceAccountsResourceFactory } from '/@/resources/service-accounts-re
 import { RolesResourceFactory } from '/@/resources/roles-resource-factory.js';
 import { RoleBindingsResourceFactory } from '/@/resources/role-bindings-resource-factory.js';
 import { ClusterRolesResourceFactory } from '/@/resources/cluster-roles-resource-factory.js';
+import { ClusterRoleBindingsResourceFactory } from '/@/resources/cluster-role-bindings-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -199,6 +200,7 @@ export class ContextsManager implements ContextsApi {
       new RolesResourceFactory(),
       new RoleBindingsResourceFactory(),
       new ClusterRolesResourceFactory(),
+      new ClusterRoleBindingsResourceFactory(),
     ];
   }
 
