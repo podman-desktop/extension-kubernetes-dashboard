@@ -61,6 +61,8 @@ import GatewayClassesList from './component/gatewayclasses/GatewayClassesList.sv
 import GatewayClassDetails from './component/gatewayclasses/GatewayClassDetails.svelte';
 import ResourceQuotasList from './component/resource-quotas/ResourceQuotasList.svelte';
 import ResourceQuotaDetails from './component/resource-quotas/ResourceQuotaDetails.svelte';
+import LimitRangesList from './component/limit-ranges/LimitRangesList.svelte';
+import LimitRangeDetails from './component/limit-ranges/LimitRangeDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -225,6 +227,12 @@ const { meta }: Props = $props();
 
   <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
     <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  <Route path="/limitranges">
+    <LimitRangesList />
+  </Route>
+
+  <Route path="/limitranges/:name/:namespace/*" let:meta>
+    <LimitRangeDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
   </Route>
 
   <Route path="/resourcequotas">
