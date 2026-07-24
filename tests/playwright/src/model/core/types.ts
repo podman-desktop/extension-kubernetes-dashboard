@@ -41,6 +41,7 @@ export enum KubernetesResources {
   Pods = 'Pods',
   Cronjobs = 'CronJobs',
   Jobs = 'Jobs',
+  Roles = 'Roles',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -90,4 +91,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Actions',
   ],
   [KubernetesResources.Jobs]: ['Selected', 'Status', 'Name', 'Conditions', 'Completions', 'Age', 'Actions'],
+  [KubernetesResources.Roles]: ['Selected', 'Status', 'Name', 'Rules', 'Age', 'Actions'],
 };
