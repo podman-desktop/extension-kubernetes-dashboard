@@ -43,6 +43,10 @@ const workloadUrls = [
 ];
 
 const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('ServiceAccount')];
+const configUrls = [
+  navigator.kubernetesResourcesURL('ConfigMap'),
+  navigator.kubernetesResourcesURL('LimitRange'),
+];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
@@ -137,6 +141,7 @@ $effect(() => {
     {#if configExpanded}
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
       <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
+      <NavItem title="Limit Ranges" child={true} href={navigator.kubernetesResourcesURL('LimitRange')} />
     {/if}
 
     <!-- Network section -->
