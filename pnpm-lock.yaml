@@ -288,8 +288,8 @@ importers:
         specifier: workspace:*
         version: link:../api
       '@podman-desktop/ui-svelte':
-        specifier: 1.28.3
-        version: 1.28.3(svelte-fa@4.0.4(svelte@5.56.8(@typescript-eslint/types@8.65.0)))(svelte@5.56.8(@typescript-eslint/types@8.65.0))
+        specifier: 1.29.0
+        version: 1.29.0(svelte-fa@4.0.4(svelte@5.56.8(@typescript-eslint/types@8.65.0)))(svelte@5.56.8(@typescript-eslint/types@8.65.0))
       '@podman-desktop/webview-api':
         specifier: 1.29.0
         version: 1.29.0
@@ -1020,8 +1020,8 @@ packages:
   '@podman-desktop/tests-playwright@1.29.0':
     resolution: {integrity: sha512-6ylSJkx59cwlQQ2KelxuobKRYp/UAhLV7VTcJtEsenJHWWcU4IxN4sEG822LsSwCnXnAFQbqFv8Ao/VG8I/LSw==}
 
-  '@podman-desktop/ui-svelte@1.28.3':
-    resolution: {integrity: sha512-kodRltBjRKVkd40YNZRnU50TDGEmG/rW9YgnDk5S+w35WPglea8LOMP4fUZKRsXmFhj4OTqIyNgVHyXo01d0jQ==}
+  '@podman-desktop/ui-svelte@1.29.0':
+    resolution: {integrity: sha512-jdBTk5qK/Txl3+lO9IbbzkxFo6VzXJ8zpcxL9Y3HRjnoyelaFMckAiFyivijHBhXeT1bpRQNCzGHGGFbogznQg==}
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0
       svelte-fa: ^4.0.0
@@ -5138,7 +5138,7 @@ snapshots:
 
   '@podman-desktop/tests-playwright@1.29.0': {}
 
-  '@podman-desktop/ui-svelte@1.28.3(svelte-fa@4.0.4(svelte@5.56.8(@typescript-eslint/types@8.65.0)))(svelte@5.56.8(@typescript-eslint/types@8.65.0))':
+  '@podman-desktop/ui-svelte@1.29.0(svelte-fa@4.0.4(svelte@5.56.8(@typescript-eslint/types@8.65.0)))(svelte@5.56.8(@typescript-eslint/types@8.65.0))':
     dependencies:
       '@floating-ui/dom': 1.8.0
       '@fortawesome/fontawesome-free': 7.3.1
