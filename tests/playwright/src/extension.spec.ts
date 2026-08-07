@@ -213,6 +213,13 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => storageClassesPage.isEmpty('No storageclasses')).toBeTruthy();
   });
 
+
+  test('go to clusterRoleBindings page', async () => {
+    const clusterRoleBindingsPage = await navigation.openTabPage(KubernetesResources.ClusterRoleBindings);
+    await playExpect(clusterRoleBindingsPage.heading).toBeVisible();
+    await playExpect.poll(async () => clusterRoleBindingsPage.isEmpty('No clusterrolebindings')).toBeTruthy();
+  });
+
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
     await playExpect(configMapsSecretsPage.heading).toBeVisible();
