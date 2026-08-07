@@ -32,6 +32,7 @@ export enum KubernetesResources {
   ReplicaSets = 'ReplicaSets',
   Services = 'Services',
   IngressesRoutes = 'Ingresses & Routes',
+  IngressClasses = 'Ingress Classes',
   PVCs = 'Persistent Volume Claims',
   PersistentVolumes = 'Persistent Volumes',
   StorageClasses = 'Storage Classes',
@@ -51,6 +52,7 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   [KubernetesResources.ReplicaSets]: ['Status', 'Name', 'Desired', 'Current', 'Ready', 'Owner', 'Age'],
   [KubernetesResources.Services]: ['Selected', 'Status', 'Name', 'Type', 'Cluster IP', 'Ports', 'Age', 'Actions'],
   [KubernetesResources.IngressesRoutes]: ['Selected', 'Status', 'Name', 'Host/Path', 'Backend', 'Age', 'Actions'],
+  [KubernetesResources.IngressClasses]: ['Status', 'Name', 'Controller', 'Default', 'Age'],
   [KubernetesResources.PVCs]: ['Selected', 'Status', 'Name', 'Environment', 'Age', 'Size', 'Actions'],
   [KubernetesResources.PersistentVolumes]: [
     'Selected',
