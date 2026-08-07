@@ -213,6 +213,12 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => storageClassesPage.isEmpty('No storageclasses')).toBeTruthy();
   });
 
+  test('go to validatingWebhooks page', async () => {
+    const validatingWebhooksPage = await navigation.openTabPage(KubernetesResources.ValidatingWebhookConfigs);
+    await playExpect(validatingWebhooksPage.heading).toBeVisible();
+    await playExpect.poll(async () => validatingWebhooksPage.isEmpty('No validatingwebhookconfigurations')).toBeTruthy();
+  });
+
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
     await playExpect(configMapsSecretsPage.heading).toBeVisible();
