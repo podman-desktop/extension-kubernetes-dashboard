@@ -42,7 +42,10 @@ const workloadUrls = [
   navigator.kubernetesResourcesURL('CronJob'),
 ];
 
-const configUrls = [navigator.kubernetesResourcesURL('ConfigMap')];
+const configUrls = [
+  navigator.kubernetesResourcesURL('ConfigMap'),
+  navigator.kubernetesResourcesURL('PriorityClass'),
+];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
@@ -136,6 +139,7 @@ $effect(() => {
     <NavItem title="Config" icon={faGear} section={true} bind:expanded={configExpanded} href="" />
     {#if configExpanded}
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
+      <NavItem title="Priority Classes" child={true} href={navigator.kubernetesResourcesURL('PriorityClass')} />
     {/if}
 
     <!-- Network section -->

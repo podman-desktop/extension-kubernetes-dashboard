@@ -213,6 +213,12 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => storageClassesPage.isEmpty('No storageclasses')).toBeTruthy();
   });
 
+  test('go to priorityClasses page', async () => {
+    const priorityClassesPage = await navigation.openTabPage(KubernetesResources.PriorityClasses);
+    await playExpect(priorityClassesPage.heading).toBeVisible();
+    await playExpect.poll(async () => priorityClassesPage.isEmpty('No priorityclasses')).toBeTruthy();
+  });
+
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
     await playExpect(configMapsSecretsPage.heading).toBeVisible();

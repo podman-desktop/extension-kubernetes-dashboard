@@ -37,6 +37,8 @@ import PvsList from './component/pvs/PvsList.svelte';
 import PvDetails from './component/pvs/PvDetails.svelte';
 import StorageClassesList from './component/storage-classes/StorageClassesList.svelte';
 import StorageClassDetails from './component/storage-classes/StorageClassDetails.svelte';
+import PriorityClassesList from './component/priority-classes/PriorityClassesList.svelte';
+import PriorityClassDetails from './component/priority-classes/PriorityClassDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -193,5 +195,13 @@ const { meta }: Props = $props();
 
   <Route path="/storageclasses/:name/*" let:meta>
     <StorageClassDetails name={decodeURI(meta.params.name)} />
+  </Route>
+
+  <Route path="/priorityclasses">
+    <PriorityClassesList />
+  </Route>
+
+  <Route path="/priorityclasses/:name/*" let:meta>
+    <PriorityClassDetails name={decodeURI(meta.params.name)} />
   </Route>
 </div>
