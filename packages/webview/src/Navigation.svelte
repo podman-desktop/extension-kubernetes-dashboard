@@ -47,6 +47,7 @@ const configUrls = [navigator.kubernetesResourcesURL('ConfigMap')];
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
   navigator.kubernetesResourcesURL('Ingress'),
+  navigator.kubernetesResourcesURL('Gateway'),
   '/portForward',
 ];
 
@@ -143,6 +144,7 @@ $effect(() => {
     {#if networkExpanded}
       <NavItem title="Services" child={true} href={navigator.kubernetesResourcesURL('Service')} />
       <NavItem title="Ingresses &amp; Routes" child={true} href={navigator.kubernetesResourcesURL('Ingress')} />
+      <NavItem title="Gateways" child={true} href={navigator.kubernetesResourcesURL('Gateway')} />
       <NavItem title="Port Forwarding" child={true} href="/portForward" />
     {/if}
 
