@@ -213,6 +213,13 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => storageClassesPage.isEmpty('No storageclasses')).toBeTruthy();
   });
 
+
+  test('go to clusterRoles page', async () => {
+    const clusterRolesPage = await navigation.openTabPage(KubernetesResources.ClusterRoles);
+    await playExpect(clusterRolesPage.heading).toBeVisible();
+    await playExpect.poll(async () => clusterRolesPage.isEmpty('No clusterroles')).toBeTruthy();
+  });
+
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
     await playExpect(configMapsSecretsPage.heading).toBeVisible();
