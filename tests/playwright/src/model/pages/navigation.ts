@@ -34,6 +34,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.ConfigMapsSecrets]: NavSection.Config,
   [KubernetesResources.Services]: NavSection.Network,
   [KubernetesResources.IngressesRoutes]: NavSection.Network,
+  [KubernetesResources.GatewayClasses]: NavSection.Network,
   [KubernetesResources.PortForwarding]: NavSection.Network,
   [KubernetesResources.PVCs]: NavSection.Storage,
   [KubernetesResources.PersistentVolumes]: NavSection.Storage,
@@ -86,6 +87,8 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'persistent volumes');
       case 'Storage Classes':
         return new KubernetesResourcePage(this.page, 'storage classes');
+      case 'Gateway Classes':
+        return new KubernetesResourcePage(this.page, 'gateway classes');
       default:
         return new KubernetesResourcePage(this.page, kubernetesResource);
     }

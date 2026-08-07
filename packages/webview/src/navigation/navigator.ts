@@ -79,6 +79,8 @@ export class Navigator {
       return 'configmapsSecrets';
     } else if (kind === 'StorageClass') {
       return 'storageclasses';
+    } else if (kind === 'GatewayClass') {
+      return 'gatewayclasses';
     }
     // otherwise do the simple conversion
     return kind.toLowerCase() + 's';
