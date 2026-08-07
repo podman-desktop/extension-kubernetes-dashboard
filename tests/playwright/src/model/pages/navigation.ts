@@ -34,6 +34,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.ConfigMapsSecrets]: NavSection.Config,
   [KubernetesResources.Services]: NavSection.Network,
   [KubernetesResources.IngressesRoutes]: NavSection.Network,
+  [KubernetesResources.Endpoints]: NavSection.Network,
   [KubernetesResources.PortForwarding]: NavSection.Network,
   [KubernetesResources.PVCs]: NavSection.Storage,
   [KubernetesResources.PersistentVolumes]: NavSection.Storage,
