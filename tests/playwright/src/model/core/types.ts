@@ -40,6 +40,7 @@ export enum KubernetesResources {
   Pods = 'Pods',
   Cronjobs = 'CronJobs',
   Jobs = 'Jobs',
+  MutatingWebhookConfigs = 'Mutating Webhook Configs',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -89,4 +90,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Actions',
   ],
   [KubernetesResources.Jobs]: ['Selected', 'Status', 'Name', 'Conditions', 'Completions', 'Age', 'Actions'],
+  [KubernetesResources.MutatingWebhookConfigs]: ['Selected', 'Status', 'Name', 'Webhooks', 'Failure Policy', 'Age', 'Actions'],
 };
