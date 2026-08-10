@@ -11,7 +11,6 @@ import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.sv
 import { icon } from '/@/component/icons/icon';
 import type { EndpointSliceUI } from './EndpointSliceUI';
 import { EndpointSliceHelper } from './endpoint-slice-helper';
-import ActionsColumn from './columns/Actions.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const endpointSliceHelper = dependencyAccessor.get<EndpointSliceHelper>(EndpointSliceHelper);
@@ -54,22 +53,9 @@ let ageColumn = new TableColumn<EndpointSliceUI, Date | undefined>('Age', {
   comparator: (a, b): number => moment(b.created).diff(moment(a.created)),
 });
 
-const columns = [
-  statusColumn,
-  nameColumn,
-  addressTypeColumn,
-  portsColumn,
-  endpointsColumn,
-  ageColumn,
-  new TableColumn<EndpointSliceUI>('Actions', {
-    align: 'right',
-    width: '150px',
-    renderer: ActionsColumn,
-    overflow: true,
-  }),
-];
+const columns = [statusColumn, nameColumn, addressTypeColumn, portsColumn, endpointsColumn, ageColumn];
 
-const row = new TableRow<EndpointSliceUI>({ selectable: (_obj): boolean => true });
+const row = new TableRow<EndpointSliceUI>({});
 </script>
 
 <KubernetesObjectsList
