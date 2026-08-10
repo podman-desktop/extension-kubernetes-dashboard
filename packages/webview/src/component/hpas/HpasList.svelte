@@ -84,7 +84,7 @@ const row = new TableRow<HpaUI>({ selectable: (_obj): boolean => true });
   kinds={[
     {
       resource: 'horizontalpodautoscalers',
-      transformer: hpaHelper.getHpaUI,
+      transformer: hpaHelper.getHpaUI.bind(hpaHelper),
     },
   ]}
   singular="horizontal pod autoscaler"
