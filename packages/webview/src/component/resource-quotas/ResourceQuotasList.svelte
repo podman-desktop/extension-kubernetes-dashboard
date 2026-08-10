@@ -61,7 +61,7 @@ const row = new TableRow<ResourceQuotaUI>({ selectable: (_obj): boolean => true 
   kinds={[
     {
       resource: 'resourcequotas',
-      transformer: resourceQuotaHelper.getResourceQuotaUI,
+      transformer: resourceQuotaHelper.getResourceQuotaUI.bind(resourceQuotaHelper),
     },
   ]}
   singular="resource quota"
