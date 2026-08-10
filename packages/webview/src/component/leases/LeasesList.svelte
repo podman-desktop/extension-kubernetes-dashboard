@@ -70,7 +70,7 @@ const row = new TableRow<LeaseUI>({ selectable: (_obj): boolean => true });
   kinds={[
     {
       resource: 'leases',
-      transformer: leaseHelper.getLeaseUI,
+      transformer: leaseHelper.getLeaseUI.bind(leaseHelper),
     },
   ]}
   singular="lease"
