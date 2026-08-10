@@ -63,7 +63,7 @@ const row = new TableRow<LimitRangeUI>({ selectable: (_obj): boolean => true });
   kinds={[
     {
       resource: 'limitranges',
-      transformer: limitRangeHelper.getLimitRangeUI,
+      transformer: limitRangeHelper.getLimitRangeUI.bind(limitRangeHelper),
     },
   ]}
   singular="limit range"
