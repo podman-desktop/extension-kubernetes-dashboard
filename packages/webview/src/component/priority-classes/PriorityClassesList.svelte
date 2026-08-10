@@ -11,6 +11,7 @@ import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.sv
 import { icon } from '/@/component/icons/icon';
 import type { PriorityClassUI } from './PriorityClassUI';
 import { PriorityClassHelper } from './priority-class-helper';
+import ActionsColumn from './columns/Actions.svelte';
 import GlobalDefaultColumn from './columns/GlobalDefault.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
@@ -52,9 +53,21 @@ let ageColumn = new TableColumn<PriorityClassUI, Date | undefined>('Age', {
   comparator: (a, b): number => moment(b.created).diff(moment(a.created)),
 });
 
-const columns = [statusColumn, nameColumn, valueColumn, globalDefaultColumn, preemptionPolicyColumn, ageColumn];
+const columns = [
+  statusColumn,
+  nameColumn,
+  valueColumn,
+  globalDefaultColumn,
+  preemptionPolicyColumn,
+  ageColumn,
+  new TableColumn<PriorityClassUI>('Actions', {
+    align: 'right',
+    renderer: ActionsColumn,
+    overflow: true,
+  }),
+];
 
-const row = new TableRow<PriorityClassUI>({});
+const row = new TableRow<PriorityClassUI>({ selectable: (_obj): boolean => true });
 </script>
 
 <KubernetesObjectsList
