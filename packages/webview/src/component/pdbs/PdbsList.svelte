@@ -91,7 +91,7 @@ const row = new TableRow<PdbUI>({ selectable: (_obj): boolean => true });
   kinds={[
     {
       resource: 'poddisruptionbudgets',
-      transformer: pdbHelper.getPdbUI,
+      transformer: pdbHelper.getPdbUI.bind(pdbHelper),
     },
   ]}
   singular="pod disruption budget"
