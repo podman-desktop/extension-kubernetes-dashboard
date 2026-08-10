@@ -71,7 +71,7 @@ const row = new TableRow<GatewayUI>({ selectable: (_obj): boolean => true });
   kinds={[
     {
       resource: 'gateways',
-      transformer: gatewayHelper.getGatewayUI,
+      transformer: gatewayHelper.getGatewayUI.bind(gatewayHelper),
     },
   ]}
   singular="gateway"
