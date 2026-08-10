@@ -11,6 +11,7 @@ import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.sv
 import { icon } from '/@/component/icons/icon';
 import type { RuntimeClassUI } from './RuntimeClassUI';
 import { RuntimeClassHelper } from './runtime-class-helper';
+import ActionsColumn from './columns/Actions.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const runtimeClassHelper = dependencyAccessor.get<RuntimeClassHelper>(RuntimeClassHelper);
@@ -40,9 +41,19 @@ let ageColumn = new TableColumn<RuntimeClassUI, Date | undefined>('Age', {
   comparator: (a, b): number => moment(b.created).diff(moment(a.created)),
 });
 
-const columns = [statusColumn, nameColumn, handlerColumn, ageColumn];
+const columns = [
+  statusColumn,
+  nameColumn,
+  handlerColumn,
+  ageColumn,
+  new TableColumn<RuntimeClassUI>('Actions', {
+    align: 'right',
+    renderer: ActionsColumn,
+    overflow: true,
+  }),
+];
 
-const row = new TableRow<RuntimeClassUI>({});
+const row = new TableRow<RuntimeClassUI>({ selectable: (_obj): boolean => true });
 </script>
 
 <KubernetesObjectsList
