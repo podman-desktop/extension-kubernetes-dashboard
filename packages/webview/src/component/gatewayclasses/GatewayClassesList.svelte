@@ -11,6 +11,7 @@ import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.sv
 import { icon } from '/@/component/icons/icon';
 import type { GatewayClassUI } from './GatewayClassUI';
 import { GatewayClassHelper } from './gatewayclass-helper';
+import ActionsColumn from './columns/Actions.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const gatewayClassHelper = dependencyAccessor.get<GatewayClassHelper>(GatewayClassHelper);
@@ -41,9 +42,19 @@ let ageColumn = new TableColumn<GatewayClassUI, Date | undefined>('Age', {
   comparator: (a, b): number => moment(b.created).diff(moment(a.created)),
 });
 
-const columns = [statusColumn, nameColumn, controllerColumn, ageColumn];
+const columns = [
+  statusColumn,
+  nameColumn,
+  controllerColumn,
+  ageColumn,
+  new TableColumn<GatewayClassUI>('Actions', {
+    align: 'right',
+    renderer: ActionsColumn,
+    overflow: true,
+  }),
+];
 
-const row = new TableRow<GatewayClassUI>({});
+const row = new TableRow<GatewayClassUI>({ selectable: (_obj): boolean => true });
 </script>
 
 <KubernetesObjectsList
