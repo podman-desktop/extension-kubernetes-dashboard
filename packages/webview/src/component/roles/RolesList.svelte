@@ -56,7 +56,7 @@ const row = new TableRow<RoleUI>({ selectable: (_obj): boolean => true });
   kinds={[
     {
       resource: 'roles',
-      transformer: roleHelper.getRoleUI,
+      transformer: roleHelper.getRoleUI.bind(roleHelper),
     },
   ]}
   singular="role"
