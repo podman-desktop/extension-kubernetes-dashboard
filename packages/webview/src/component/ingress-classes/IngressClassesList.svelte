@@ -11,6 +11,7 @@ import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.sv
 import { icon } from '/@/component/icons/icon';
 import type { IngressClassUI } from './IngressClassUI';
 import { IngressClassHelper } from './ingress-class-helper';
+import ActionsColumn from './columns/Actions.svelte';
 import DefaultColumn from './columns/Default.svelte';
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
@@ -47,9 +48,20 @@ let ageColumn = new TableColumn<IngressClassUI, Date | undefined>('Age', {
   comparator: (a, b): number => moment(b.created).diff(moment(a.created)),
 });
 
-const columns = [statusColumn, nameColumn, controllerColumn, isDefaultColumn, ageColumn];
+const columns = [
+  statusColumn,
+  nameColumn,
+  controllerColumn,
+  isDefaultColumn,
+  ageColumn,
+  new TableColumn<IngressClassUI>('Actions', {
+    align: 'right',
+    renderer: ActionsColumn,
+    overflow: true,
+  }),
+];
 
-const row = new TableRow<IngressClassUI>({});
+const row = new TableRow<IngressClassUI>({ selectable: (_obj): boolean => true });
 </script>
 
 <KubernetesObjectsList
