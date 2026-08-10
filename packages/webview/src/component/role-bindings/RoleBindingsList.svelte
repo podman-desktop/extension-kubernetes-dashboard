@@ -69,7 +69,7 @@ const row = new TableRow<RoleBindingUI>({ selectable: (_obj): boolean => true })
   kinds={[
     {
       resource: 'rolebindings',
-      transformer: roleBindingHelper.getRoleBindingUI,
+      transformer: roleBindingHelper.getRoleBindingUI.bind(roleBindingHelper),
     },
   ]}
   singular="role binding"
