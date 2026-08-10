@@ -106,7 +106,7 @@ describe('current context is reachable', () => {
     const tooltipTrigger = screen.getByTestId('tooltip-trigger');
     fireEvent.mouseEnter(tooltipTrigger);
 
-    expect(screen.queryByLabelText('tooltip')).toBeNull();
+    expect(screen.queryByRole('tooltip')).toBeNull();
   });
 });
 
@@ -153,7 +153,7 @@ describe('current context is not reachable', () => {
     const tooltipTrigger = screen.getByTestId('tooltip-trigger');
     fireEvent.mouseEnter(tooltipTrigger);
 
-    expect(screen.getByLabelText('tooltip')).toBeDefined();
+    expect(screen.getByRole('tooltip')).toBeDefined();
   });
 });
 
@@ -200,7 +200,7 @@ describe('current context is offline', () => {
     const tooltipTrigger = screen.getByTestId('tooltip-trigger');
     fireEvent.mouseEnter(tooltipTrigger);
 
-    const tooltip = screen.getByLabelText('tooltip');
+    const tooltip = screen.getByRole('tooltip');
     expect(tooltip).toHaveTextContent('connection lost, you can try to reconnect');
   });
 });
