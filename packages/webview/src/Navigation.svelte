@@ -47,6 +47,7 @@ const configUrls = [
   navigator.kubernetesResourcesURL('ConfigMap'),
   navigator.kubernetesResourcesURL('RuntimeClass'),
 ];
+const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('RuntimeClass')];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
