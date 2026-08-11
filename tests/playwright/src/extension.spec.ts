@@ -259,7 +259,9 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
   test('go to validatingWebhooks page', async () => {
     const validatingWebhooksPage = await navigation.openTabPage(KubernetesResources.ValidatingWebhookConfigs);
     await playExpect(validatingWebhooksPage.heading).toBeVisible();
-    await playExpect.poll(async () => validatingWebhooksPage.isEmpty('No validatingwebhookconfigurations')).toBeTruthy();
+    await playExpect
+      .poll(async () => validatingWebhooksPage.isEmpty('No validatingwebhookconfigurations'))
+      .toBeTruthy();
   });
   test('go to resourceQuotas page', async () => {
     const resourceQuotasPage = await navigation.openTabPage(KubernetesResources.ResourceQuotas);
