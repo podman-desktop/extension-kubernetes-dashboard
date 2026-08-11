@@ -143,4 +143,14 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   [KubernetesResources.ClusterRoleBindings]: ['Selected', 'Status', 'Name', 'Bindings', 'Role', 'Age', 'Actions'],
   [KubernetesResources.ResourceQuotas]: ['Selected', 'Status', 'Name', 'Request Count', 'Age', 'Actions'],
   [KubernetesResources.Leases]: ['Selected', 'Status', 'Name', 'Holder', 'Lease Duration', 'Renew Time', 'Age', 'Actions'],
+  [KubernetesResources.Leases]: [
+    'Selected',
+    'Status',
+    'Name',
+    'Holder',
+    'Lease Duration',
+    'Renew Time',
+    'Age',
+    'Actions',
+  ],
 };
