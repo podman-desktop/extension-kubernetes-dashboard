@@ -177,6 +177,10 @@ $effect(() => {
       <NavItem title="Runtime Classes" child={true} href={navigator.kubernetesResourcesURL('RuntimeClass')} />
       <NavItem title="Leases" child={true} href={navigator.kubernetesResourcesURL('Lease')} />
       <NavItem title="Mutating Webhook Configs" child={true} href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
+      <NavItem
+        title="Mutating Webhook Configs"
+        child={true}
+        href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
     {/if}
 
     <!-- Network section -->
