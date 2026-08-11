@@ -47,6 +47,7 @@ const configUrls = [
   navigator.kubernetesResourcesURL('ConfigMap'),
   navigator.kubernetesResourcesURL('LimitRange'),
 ];
+const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('LimitRange')];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
