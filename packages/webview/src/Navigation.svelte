@@ -142,6 +142,10 @@ $effect(() => {
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
       <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
       <NavItem title="Mutating Webhook Configs" child={true} href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
+      <NavItem
+        title="Mutating Webhook Configs"
+        child={true}
+        href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
     {/if}
 
     <!-- Network section -->
