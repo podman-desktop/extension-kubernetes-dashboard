@@ -166,6 +166,10 @@ $effect(() => {
       <NavItem title="Resource Quotas" child={true} href={navigator.kubernetesResourcesURL('ResourceQuota')} />
       <NavItem title="Limit Ranges" child={true} href={navigator.kubernetesResourcesURL('LimitRange')} />
       <NavItem title="Pod Disruption Budgets" child={true} href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
+      <NavItem
+        title="Pod Disruption Budgets"
+        child={true}
+        href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
     {/if}
 
     <!-- Network section -->
