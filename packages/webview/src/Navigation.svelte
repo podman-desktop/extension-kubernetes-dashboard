@@ -48,6 +48,7 @@ const configUrls = [
   navigator.kubernetesResourcesURL('ServiceAccount'),
   navigator.kubernetesResourcesURL('ResourceQuota'),
   navigator.kubernetesResourcesURL('LimitRange'),
+];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
