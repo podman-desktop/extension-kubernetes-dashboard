@@ -51,6 +51,7 @@ const configUrls = [
   navigator.kubernetesResourcesURL('PodDisruptionBudget'),
   navigator.kubernetesResourcesURL('PriorityClass'),
 ];
+const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('PriorityClass')];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
