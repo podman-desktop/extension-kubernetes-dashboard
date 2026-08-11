@@ -1,4 +1,4 @@
-/**********************************************************************
+<!--********************************************************************
  * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- ***********************************************************************/
+ **********************************************************************-->
 <script lang="ts">
 import DeleteAction from '/@/component/objects/columns/DeleteAction.svelte';
 import type { Props } from './props';
