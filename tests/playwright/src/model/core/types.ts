@@ -93,4 +93,17 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   [KubernetesResources.Jobs]: ['Selected', 'Status', 'Name', 'Conditions', 'Completions', 'Age', 'Actions'],
   [KubernetesResources.ServiceAccounts]: ['Selected', 'Status', 'Name', 'Secrets', 'Age', 'Actions'],
   [KubernetesResources.PodDisruptionBudgets]: ['Selected', 'Status', 'Name', 'Min Available', 'Max Unavailable', 'Current Healthy', 'Desired Healthy', 'Allowed Disruptions', 'Expected Pods', 'Age', 'Actions'],
+  [KubernetesResources.PodDisruptionBudgets]: [
+    'Selected',
+    'Status',
+    'Name',
+    'Min Available',
+    'Max Unavailable',
+    'Current Healthy',
+    'Desired Healthy',
+    'Allowed Disruptions',
+    'Expected Pods',
+    'Age',
+    'Actions',
+  ],
 };
