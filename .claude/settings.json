@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm exec prettier --cache --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+            "command": "[ -n \"$CLAUDE_FILE_PATH\" ] && pnpm exec prettier --cache --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
           }
         ]
       },
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm exec eslint --cache --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+            "command": "[ -n \"$CLAUDE_FILE_PATH\" ] && pnpm exec eslint --cache --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
           }
         ]
       }
