@@ -3,13 +3,6 @@
 
 set -euo pipefail
 
-# Go PATH
-if ! echo "$PATH" | grep -q "$(go env GOPATH)/bin"; then
-  export PATH="$PATH:$(go env GOPATH)/bin"
-  echo 'export PATH="$PATH:$(go env GOPATH)/bin"' >> ~/.bashrc
-  echo "Added Go bin to PATH"
-fi
-
 # kubectl
 if ! command -v kubectl &>/dev/null; then
   cat <<'REPO' | sudo tee /etc/yum.repos.d/kubernetes.repo
@@ -37,4 +30,5 @@ sudo dnf install -y \
   cairo gtk3 pango \
   libXcomposite libXdamage libXfixes libXrandr \
   mesa-libgbm alsa-lib \
-  dbus-x11
+  dbus-x11 \
+  xdpyinfo xdotool

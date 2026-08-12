@@ -38,7 +38,7 @@ and install anything missing.
 Run the prerequisites install script to install everything:
 
 ```sh
-bash .agents/skills/e2e-container/scripts/install-prerequisites.sh
+bash skills/e2e-container/scripts/install-prerequisites.sh
 ```
 
 This installs Go PATH setup, envtest tools, Xvfb with Electron shared
@@ -53,7 +53,7 @@ that passes `--disable-dev-shm-usage` to work around the 64 MB `/dev/shm`
 limit in containers:
 
 ```sh
-bash .agents/skills/e2e-container/scripts/install-pd-binary.sh
+bash skills/e2e-container/scripts/install-pd-binary.sh
 ```
 
 ### Step 2: Build the extension plugin
@@ -62,7 +62,7 @@ Without `podman`, this replicates the container export by copying build output
 directly into the plugins directory:
 
 ```sh
-bash .agents/skills/e2e-container/scripts/build-extension-plugin.sh
+bash skills/e2e-container/scripts/build-extension-plugin.sh
 ```
 
 ### Step 3: Start the envtest Kubernetes cluster
@@ -71,7 +71,7 @@ Starts a local Kubernetes API server via envtest and waits for the kubeconfig
 to be written:
 
 ```sh
-bash .agents/skills/e2e-container/scripts/start-envtest.sh
+bash skills/e2e-container/scripts/start-envtest.sh
 ```
 
 The script exports `KUBEBUILDER_ASSETS` and backgrounds the `envtest-start`
@@ -82,7 +82,7 @@ process. The PID is saved to `/tmp/envtest-start.pid` for later cleanup.
 Copies kubeconfigs and runs the E2E suite using CDP mode:
 
 ```sh
-bash .agents/skills/e2e-container/scripts/run-tests.sh
+bash skills/e2e-container/scripts/run-tests.sh
 ```
 
 **How it works:** Setting `DEBUGGING_PORT` switches the test runner to
@@ -95,7 +95,7 @@ blocks the compositor in GPU-less containers.
 ### Step 5: Stop the cluster
 
 ```sh
-bash .agents/skills/e2e-container/scripts/stop-envtest.sh
+bash skills/e2e-container/scripts/stop-envtest.sh
 ```
 
 ## Restarting the Tests
@@ -117,5 +117,5 @@ Then redo steps 2, 3, and 4.
 After stopping the cluster (step 5), remove all generated files:
 
 ```sh
-bash .agents/skills/e2e-container/scripts/cleanup.sh
+bash skills/e2e-container/scripts/cleanup.sh
 ```
