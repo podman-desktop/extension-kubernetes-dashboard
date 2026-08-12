@@ -265,7 +265,7 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
   test('go to priorityClasses page', async () => {
     const priorityClassesPage = await navigation.openTabPage(KubernetesResources.PriorityClasses);
     await playExpect(priorityClassesPage.heading).toBeVisible();
-    await playExpect.poll(async () => priorityClassesPage.isEmpty('No priorityclasses')).toBeTruthy();
+    await playExpect.poll(async () => priorityClassesPage.rowsAreVisible()).toBeTruthy();
   });
   test('go to pdbs page', async () => {
     const pdbsPage = await navigation.openTabPage(KubernetesResources.PodDisruptionBudgets);
