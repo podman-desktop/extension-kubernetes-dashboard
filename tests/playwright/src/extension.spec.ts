@@ -654,6 +654,7 @@ test.describe('With resources', { tag: '@integration' }, () => {
   test('go to gateway1 page', async () => {
     const gatewaysPage = await navigation.openTabPage(KubernetesResources.Gateways);
     await playExpect(gatewaysPage.heading).toBeVisible();
+    await playExpect.poll(async () => gatewaysPage.rowsAreVisible()).toBeTruthy();
 
     const kubernetesResourceDetails = await gatewaysPage.openResourceDetails('gateway1', KubernetesResources.Gateways);
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
