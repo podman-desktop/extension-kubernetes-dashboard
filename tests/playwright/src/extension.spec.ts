@@ -526,6 +526,7 @@ test.describe('With resources', { tag: '@integration' }, () => {
   test('go to gateway-class1 page', async () => {
     const gatewayClassesPage = await navigation.openTabPage(KubernetesResources.GatewayClasses);
     await playExpect(gatewayClassesPage.heading).toBeVisible();
+    await playExpect.poll(async () => gatewayClassesPage.rowsAreVisible()).toBeTruthy();
 
     const kubernetesResourceDetails = await gatewayClassesPage.openResourceDetails(
       'gateway-class1',
