@@ -38,9 +38,3 @@ sudo dnf install -y \
   libXcomposite libXdamage libXfixes libXrandr \
   mesa-libgbm alsa-lib \
   dbus-x11
-
-# For Debian / Ubuntu-based containers, comment the dnf block above and
-# uncomment the following:
-# sudo apt-get install -y xvfb libnss3 libatk1.0-0 libatk-bridge2.0-0 \
-#   libcups2 libdbus-1-3 dbus dbus-x11 libcairo2 libgtk-3-0 libpango-1.0-0 \
-#   libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2 libatspi2.0-0

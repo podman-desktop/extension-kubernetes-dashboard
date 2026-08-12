@@ -42,8 +42,7 @@ bash .agents/skills/e2e-container/scripts/install-prerequisites.sh
 ```
 
 This installs Go PATH setup, envtest tools, Xvfb with Electron shared
-libraries, and `dbus-x11` (for `dbus-launch`). For Debian/Ubuntu containers,
-follow the commented instructions in the script.
+libraries, and `dbus-x11` (for `dbus-launch`).
 
 ## Step-by-Step Workflow
 
