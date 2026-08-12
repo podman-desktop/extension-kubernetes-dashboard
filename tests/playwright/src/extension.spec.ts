@@ -590,6 +590,7 @@ test.describe('With resources', { tag: '@integration' }, () => {
   test('go to ingress-class1 page', async () => {
     const ingressClassesPage = await navigation.openTabPage(KubernetesResources.IngressClasses);
     await playExpect(ingressClassesPage.heading).toBeVisible();
+    await playExpect.poll(async () => ingressClassesPage.rowsAreVisible()).toBeTruthy();
 
     const kubernetesResourceDetails = await ingressClassesPage.openResourceDetails(
       'ingress-class1',
