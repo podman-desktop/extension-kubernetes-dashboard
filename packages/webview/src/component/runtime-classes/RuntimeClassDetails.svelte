@@ -6,6 +6,7 @@ import { RuntimeClassHelper } from './runtime-class-helper';
 import type { RuntimeClassUI } from './RuntimeClassUI';
 import type { V1RuntimeClass } from '@kubernetes/client-node';
 import RuntimeClassDetailsSummary from './RuntimeClassDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -24,4 +25,5 @@ const runtimeClassHelper = dependencyAccessor.get<RuntimeClassHelper>(RuntimeCla
   listName="Runtime Classes"
   name={name}
   transformer={runtimeClassHelper.getRuntimeClassUI.bind(runtimeClassHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={RuntimeClassDetailsSummary} />
