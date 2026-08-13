@@ -6,6 +6,7 @@ import { ValidatingWebhookHelper } from './validating-webhook-helper';
 import type { ValidatingWebhookUI } from './ValidatingWebhookUI';
 import type { V1ValidatingWebhookConfiguration } from '@kubernetes/client-node';
 import ValidatingWebhookDetailsSummary from './ValidatingWebhookDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -24,4 +25,5 @@ const validatingWebhookHelper = dependencyAccessor.get<ValidatingWebhookHelper>(
   listName="Validating Webhook Configurations"
   name={name}
   transformer={validatingWebhookHelper.getValidatingWebhookUI.bind(validatingWebhookHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={ValidatingWebhookDetailsSummary} />
