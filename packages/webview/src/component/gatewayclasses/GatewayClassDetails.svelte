@@ -6,6 +6,7 @@ import { GatewayClassHelper } from './gatewayclass-helper';
 import type { GatewayClassUI } from './GatewayClassUI';
 import type { KubernetesObject } from '@kubernetes/client-node';
 import GatewayClassDetailsSummary from './GatewayClassDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -24,4 +25,5 @@ const gatewayClassHelper = dependencyAccessor.get<GatewayClassHelper>(GatewayCla
   listName="Gateway Classes"
   name={name}
   transformer={gatewayClassHelper.getGatewayClassUI.bind(gatewayClassHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={GatewayClassDetailsSummary} />
