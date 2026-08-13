@@ -6,6 +6,7 @@ import { RoleBindingHelper } from './role-binding-helper';
 import type { RoleBindingUI } from './RoleBindingUI';
 import type { V1RoleBinding } from '@kubernetes/client-node';
 import RoleBindingDetailsSummary from './RoleBindingDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const roleBindingHelper = dependencyAccessor.get<RoleBindingHelper>(RoleBindingH
   name={name}
   namespace={namespace}
   transformer={roleBindingHelper.getRoleBindingUI.bind(roleBindingHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={RoleBindingDetailsSummary} />
