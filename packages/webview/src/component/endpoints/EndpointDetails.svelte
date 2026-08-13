@@ -6,6 +6,7 @@ import { EndpointHelper } from './endpoint-helper';
 import type { EndpointUI } from './EndpointUI';
 import type { V1Endpoints } from '@kubernetes/client-node';
 import EndpointDetailsSummary from './EndpointDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const endpointHelper = dependencyAccessor.get<EndpointHelper>(EndpointHelper);
   name={name}
   namespace={namespace}
   transformer={endpointHelper.getEndpointUI.bind(endpointHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={EndpointDetailsSummary} />
