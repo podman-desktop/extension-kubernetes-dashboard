@@ -6,6 +6,7 @@ import { ResourceQuotaHelper } from './resource-quota-helper';
 import type { ResourceQuotaUI } from './ResourceQuotaUI';
 import type { V1ResourceQuota } from '@kubernetes/client-node';
 import ResourceQuotaDetailsSummary from './ResourceQuotaDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const resourceQuotaHelper = dependencyAccessor.get<ResourceQuotaHelper>(Resource
   name={name}
   namespace={namespace}
   transformer={resourceQuotaHelper.getResourceQuotaUI.bind(resourceQuotaHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={ResourceQuotaDetailsSummary} />
