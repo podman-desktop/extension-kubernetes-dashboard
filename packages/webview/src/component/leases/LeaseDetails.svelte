@@ -6,6 +6,7 @@ import { LeaseHelper } from './lease-helper';
 import type { LeaseUI } from './LeaseUI';
 import type { V1Lease } from '@kubernetes/client-node';
 import LeaseDetailsSummary from './LeaseDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const leaseHelper = dependencyAccessor.get<LeaseHelper>(LeaseHelper);
   name={name}
   namespace={namespace}
   transformer={leaseHelper.getLeaseUI.bind(leaseHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={LeaseDetailsSummary} />
