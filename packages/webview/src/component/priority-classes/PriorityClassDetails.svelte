@@ -6,6 +6,7 @@ import { PriorityClassHelper } from './priority-class-helper';
 import type { PriorityClassUI } from './PriorityClassUI';
 import type { V1PriorityClass } from '@kubernetes/client-node';
 import PriorityClassDetailsSummary from './PriorityClassDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -24,4 +25,5 @@ const priorityClassHelper = dependencyAccessor.get<PriorityClassHelper>(Priority
   listName="Priority Classes"
   name={name}
   transformer={priorityClassHelper.getPriorityClassUI.bind(priorityClassHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={PriorityClassDetailsSummary} />
