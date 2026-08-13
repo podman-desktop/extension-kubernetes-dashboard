@@ -6,6 +6,7 @@ import { LimitRangeHelper } from './limit-range-helper';
 import type { LimitRangeUI } from './LimitRangeUI';
 import type { V1LimitRange } from '@kubernetes/client-node';
 import LimitRangeDetailsSummary from './LimitRangeDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const limitRangeHelper = dependencyAccessor.get<LimitRangeHelper>(LimitRangeHelp
   name={name}
   namespace={namespace}
   transformer={limitRangeHelper.getLimitRangeUI.bind(limitRangeHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={LimitRangeDetailsSummary} />
