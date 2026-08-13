@@ -6,6 +6,7 @@ import { MutatingWebhookHelper } from './mutating-webhook-helper';
 import type { MutatingWebhookUI } from './MutatingWebhookUI';
 import type { V1MutatingWebhookConfiguration } from '@kubernetes/client-node';
 import MutatingWebhookDetailsSummary from './MutatingWebhookDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -24,4 +25,5 @@ const mutatingWebhookHelper = dependencyAccessor.get<MutatingWebhookHelper>(Muta
   listName="Mutating Webhook Configurations"
   name={name}
   transformer={mutatingWebhookHelper.getMutatingWebhookUI.bind(mutatingWebhookHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={MutatingWebhookDetailsSummary} />
