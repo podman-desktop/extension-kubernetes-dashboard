@@ -6,6 +6,7 @@ import { ServiceAccountHelper } from './service-account-helper';
 import type { ServiceAccountUI } from './ServiceAccountUI';
 import type { V1ServiceAccount } from '@kubernetes/client-node';
 import ServiceAccountDetailsSummary from './ServiceAccountDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const serviceAccountHelper = dependencyAccessor.get<ServiceAccountHelper>(Servic
   name={name}
   namespace={namespace}
   transformer={serviceAccountHelper.getServiceAccountUI.bind(serviceAccountHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={ServiceAccountDetailsSummary} />
