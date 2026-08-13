@@ -961,6 +961,7 @@ metadata:
 spec:
   controllerName: example.com/gateway-controller
 ---
+apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   creationTimestamp: '2026-02-09T10:19:00Z'

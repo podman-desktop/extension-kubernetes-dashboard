@@ -6,6 +6,7 @@ import { GatewayHelper } from './gateway-helper';
 import type { GatewayUI } from './GatewayUI';
 import type { KubernetesObject } from '@kubernetes/client-node';
 import GatewayDetailsSummary from './GatewayDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const gatewayHelper = dependencyAccessor.get<GatewayHelper>(GatewayHelper);
   name={name}
   namespace={namespace}
   transformer={gatewayHelper.getGatewayUI.bind(gatewayHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={GatewayDetailsSummary} />
