@@ -6,6 +6,7 @@ import { HpaHelper } from './hpa-helper';
 import type { HpaUI } from './HpaUI';
 import type { V2HorizontalPodAutoscaler } from '@kubernetes/client-node';
 import HpaDetailsSummary from './HpaDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const hpaHelper = dependencyAccessor.get<HpaHelper>(HpaHelper);
   name={name}
   namespace={namespace}
   transformer={hpaHelper.getHpaUI.bind(hpaHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={HpaDetailsSummary} />
