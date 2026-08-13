@@ -6,6 +6,7 @@ import { ClusterRoleBindingHelper } from './cluster-role-binding-helper';
 import type { ClusterRoleBindingUI } from './ClusterRoleBindingUI';
 import type { V1ClusterRoleBinding } from '@kubernetes/client-node';
 import ClusterRoleBindingDetailsSummary from './ClusterRoleBindingDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -24,4 +25,5 @@ const clusterRoleBindingHelper = dependencyAccessor.get<ClusterRoleBindingHelper
   listName="Cluster Role Bindings"
   name={name}
   transformer={clusterRoleBindingHelper.getClusterRoleBindingUI.bind(clusterRoleBindingHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={ClusterRoleBindingDetailsSummary} />
