@@ -6,6 +6,7 @@ import { PdbHelper } from './pdb-helper';
 import type { PdbUI } from './PdbUI';
 import type { V1PodDisruptionBudget } from '@kubernetes/client-node';
 import PdbDetailsSummary from './PdbDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const pdbHelper = dependencyAccessor.get<PdbHelper>(PdbHelper);
   name={name}
   namespace={namespace}
   transformer={pdbHelper.getPdbUI.bind(pdbHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={PdbDetailsSummary} />
