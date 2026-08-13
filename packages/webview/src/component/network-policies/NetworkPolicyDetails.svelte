@@ -6,6 +6,7 @@ import { NetworkPolicyHelper } from './network-policy-helper';
 import type { NetworkPolicyUI } from './NetworkPolicyUI';
 import type { V1NetworkPolicy } from '@kubernetes/client-node';
 import NetworkPolicyDetailsSummary from './NetworkPolicyDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const networkPolicyHelper = dependencyAccessor.get<NetworkPolicyHelper>(NetworkP
   name={name}
   namespace={namespace}
   transformer={networkPolicyHelper.getNetworkPolicyUI.bind(networkPolicyHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={NetworkPolicyDetailsSummary} />
