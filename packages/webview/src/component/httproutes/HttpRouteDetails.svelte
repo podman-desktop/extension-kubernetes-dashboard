@@ -6,6 +6,7 @@ import { HttpRouteHelper } from './httproute-helper';
 import type { HttpRouteUI } from './HttpRouteUI';
 import type { KubernetesObject } from '@kubernetes/client-node';
 import HttpRouteDetailsSummary from './HttpRouteDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const httpRouteHelper = dependencyAccessor.get<HttpRouteHelper>(HttpRouteHelper)
   name={name}
   namespace={namespace}
   transformer={httpRouteHelper.getHttpRouteUI.bind(httpRouteHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={HttpRouteDetailsSummary} />
