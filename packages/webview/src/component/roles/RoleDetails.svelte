@@ -6,6 +6,7 @@ import { RoleHelper } from './role-helper';
 import type { RoleUI } from './RoleUI';
 import type { V1Role } from '@kubernetes/client-node';
 import RoleDetailsSummary from './RoleDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -26,4 +27,5 @@ const roleHelper = dependencyAccessor.get<RoleHelper>(RoleHelper);
   name={name}
   namespace={namespace}
   transformer={roleHelper.getRoleUI.bind(roleHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={RoleDetailsSummary} />
