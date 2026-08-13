@@ -6,6 +6,7 @@ import { IngressClassHelper } from './ingress-class-helper';
 import type { IngressClassUI } from './IngressClassUI';
 import type { V1IngressClass } from '@kubernetes/client-node';
 import IngressClassDetailsSummary from './IngressClassDetailsSummary.svelte';
+import Actions from './columns/Actions.svelte';
 
 interface Props {
   name: string;
@@ -24,4 +25,5 @@ const ingressClassHelper = dependencyAccessor.get<IngressClassHelper>(IngressCla
   listName="Ingress Classes"
   name={name}
   transformer={ingressClassHelper.getIngressClassUI.bind(ingressClassHelper)}
+  ActionsComponent={Actions}
   SummaryComponent={IngressClassDetailsSummary} />
