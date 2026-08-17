@@ -34,6 +34,10 @@ test('expect basic UI conversion', async () => {
       name: 'my-cronjob',
       namespace: 'test-namespace',
     },
+    spec: {
+      schedule: '*/5 * * * *',
+      jobTemplate: {},
+    },
     status: {},
   } as V1CronJob;
   const cronjobUI = cronjobHelper.getCronJobUI(cronjob);
