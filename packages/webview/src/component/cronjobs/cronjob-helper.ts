@@ -29,8 +29,8 @@ export class CronJobHelper {
       namespace: cronjob.metadata?.namespace ?? '',
       created: cronjob.metadata?.creationTimestamp,
       selected: false,
-      schedule: cronjob.spec?.schedule ?? '',
-      suspended: cronjob.spec?.suspend ?? false,
+      schedule: cronjob.spec.schedule ?? '',
+      suspended: cronjob.spec.suspend ?? false,
       lastScheduleTime: cronjob.status?.lastScheduleTime,
       // Get the number of "active" jobs, we just get the length of the array
       active: cronjob.status?.active?.length ?? 0,
