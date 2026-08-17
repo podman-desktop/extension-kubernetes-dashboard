@@ -11,8 +11,16 @@ import ActionsColumn from '/@/component/cronjobs/columns/Actions.svelte';
 import ScheduleColumn from '/@/component/cronjobs/columns/Schedule.svelte';
 import { CronJobHelper } from './cronjob-helper';
 import type { CronJobUI } from './CronJobUI';
+import type { KubernetesObject, V1CronJob } from '@kubernetes/client-node';
+
 import CronJobIcon from '/@/component/icons/CronJobIcon.svelte';
 import { KubernetesObjectUIHelper } from '/@/component/objects/kubernetes-object-ui-helper';
+import type { KubernetesObjectUI } from '/@/component/objects/KubernetesObjectUI';
+
+// V1CronJob requires spec (unlike most K8s types where spec is optional)
+function isV1CronJob(o: KubernetesObject): o is V1CronJob {
+  return 'spec' in o && o.spec !== undefined;
+}
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const cronjobHelper = dependencyAccessor.get<CronJobHelper>(CronJobHelper);
@@ -80,7 +88,12 @@ const row = new TableRow<CronJobUI>({ selectable: (_cronjob): boolean => true })
   kinds={[
     {
       resource: 'cronjobs',
-      transformer: cronjobHelper.getCronJobUI.bind(cronjobHelper),
+      transformer: (o: KubernetesObject): KubernetesObjectUI => {
+        if (!isV1CronJob(o)) {
+          throw new Error(`CronJob ${o.metadata?.name} is missing spec`);
+        }
+        return cronjobHelper.getCronJobUI.bind(cronjobHelper)(o);
+      },
     },
   ]}
   singular="CronJob"
