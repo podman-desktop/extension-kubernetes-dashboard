@@ -52,7 +52,7 @@
     "@podman-desktop/kubernetes-dashboard-extension-api": "workspace:*"
   },
   "dependencies": {
-    "@kubernetes/client-node": "^1.4.0",
+    "@kubernetes/client-node": "^2.0.0",
     "inversify": "^7.11.0",
     "reflect-metadata": "^0.2.2",
     "yaml": "^2.9.0",
