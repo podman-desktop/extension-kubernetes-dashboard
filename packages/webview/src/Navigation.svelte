@@ -162,11 +162,6 @@ $effect(() => {
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
       <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
       <NavItem title="Resource Quotas" child={true} href={navigator.kubernetesResourcesURL('ResourceQuota')} />
-      <NavItem title="Pod Disruption Budgets" child={true} href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
-      <NavItem
-        title="Pod Disruption Budgets"
-        child={true}
-        href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
       <NavItem
         title="Pod Disruption Budgets"
         child={true}
