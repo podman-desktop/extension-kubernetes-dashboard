@@ -142,7 +142,6 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   [KubernetesResources.ClusterRoles]: ['Selected', 'Status', 'Name', 'Rules', 'Age', 'Actions'],
   [KubernetesResources.ClusterRoleBindings]: ['Selected', 'Status', 'Name', 'Bindings', 'Role', 'Age', 'Actions'],
   [KubernetesResources.ResourceQuotas]: ['Selected', 'Status', 'Name', 'Request Count', 'Age', 'Actions'],
-  [KubernetesResources.ValidatingWebhookConfigs]: ['Selected', 'Status', 'Name', 'Webhooks', 'Failure Policy', 'Age', 'Actions'],
   [KubernetesResources.ValidatingWebhookConfigs]: [
     'Selected',
     'Status',
