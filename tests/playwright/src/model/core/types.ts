@@ -21,6 +21,7 @@ export enum NavSection {
   Config = 'Config',
   Network = 'Network',
   Storage = 'Storage',
+  AccessControl = 'Access Control',
 }
 
 export enum KubernetesResources {

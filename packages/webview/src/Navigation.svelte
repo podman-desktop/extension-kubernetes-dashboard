@@ -8,6 +8,7 @@ import {
   faLayerGroup,
   faNetworkWired,
   faServer,
+  faShieldHalved,
 } from '@fortawesome/free-solid-svg-icons';
 import { getContext, setContext } from 'svelte';
 import { Navigator } from '/@/navigation/navigator';
@@ -56,6 +57,10 @@ const storageUrls = [
   navigator.kubernetesResourcesURL('StorageClass'),
 ];
 
+
+const accessControlUrls = [
+  navigator.kubernetesResourcesURL('Role'),
+];
 const STORAGE_KEY = 'nav-sections-expanded';
 
 function loadExpanded(): Record<string, boolean> {
@@ -82,12 +87,14 @@ let workloadsExpanded = $state(initExpanded('compute', workloadUrls));
 let configExpanded = $state(initExpanded('config', configUrls));
 let networkExpanded = $state(initExpanded('network', networkUrls));
 let storageExpanded = $state(initExpanded('storage', storageUrls));
+let accessControlExpanded = $state(initExpanded('accessControl', accessControlUrls));
 
 $effect(() => {
   if (isUnderSection(workloadUrls)) workloadsExpanded = true;
   if (isUnderSection(configUrls)) configExpanded = true;
   if (isUnderSection(networkUrls)) networkExpanded = true;
   if (isUnderSection(storageUrls)) storageExpanded = true;
+  if (isUnderSection(accessControlUrls)) accessControlExpanded = true;
 });
 
 $effect(() => {
@@ -101,6 +108,9 @@ $effect(() => {
 });
 $effect(() => {
   saveExpanded('storage', storageExpanded);
+});
+$effect(() => {
+  saveExpanded('accessControl', accessControlExpanded);
 });
 </script>
 
