@@ -41,6 +41,7 @@ export enum KubernetesResources {
   Cronjobs = 'CronJobs',
   Jobs = 'Jobs',
   ServiceAccounts = 'Service Accounts',
+  PriorityClasses = 'Priority Classes',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -91,4 +92,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   ],
   [KubernetesResources.Jobs]: ['Selected', 'Status', 'Name', 'Conditions', 'Completions', 'Age', 'Actions'],
   [KubernetesResources.ServiceAccounts]: ['Selected', 'Status', 'Name', 'Secrets', 'Age', 'Actions'],
+  [KubernetesResources.PriorityClasses]: ['Status', 'Name', 'Value', 'Global Default', 'Preemption Policy', 'Age'],
 };

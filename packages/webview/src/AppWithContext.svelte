@@ -39,6 +39,8 @@ import StorageClassesList from './component/storage-classes/StorageClassesList.s
 import StorageClassDetails from './component/storage-classes/StorageClassDetails.svelte';
 import ServiceAccountsList from './component/service-accounts/ServiceAccountsList.svelte';
 import ServiceAccountDetails from './component/service-accounts/ServiceAccountDetails.svelte';
+import PriorityClassesList from './component/priority-classes/PriorityClassesList.svelte';
+import PriorityClassDetails from './component/priority-classes/PriorityClassDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -203,5 +205,13 @@ const { meta }: Props = $props();
 
   <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
     <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/priorityclasses">
+    <PriorityClassesList />
+  </Route>
+
+  <Route path="/priorityclasses/:name/*" let:meta>
+    <PriorityClassDetails name={decodeURI(meta.params.name)} />
   </Route>
 </div>
