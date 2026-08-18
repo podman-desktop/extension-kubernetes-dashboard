@@ -45,6 +45,7 @@ import { replicaSetsModule } from '/@/component/replicasets/_replicasets-module'
 import { pvsModule } from '/@/component/pvs/_pvs-module';
 import { storageClassesModule } from '/@/component/storage-classes/_storage-classes-module';
 import { serviceAccountsModule } from '/@/component/service-accounts/_service-accounts-module';
+import { leasesModule } from '/@/component/leases/_leases-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -84,6 +85,7 @@ export class InversifyBinding {
     await this.#container.load(pvsModule);
     await this.#container.load(storageClassesModule);
     await this.#container.load(serviceAccountsModule);
+    await this.#container.load(leasesModule);
 
     return this.#container;
   }
