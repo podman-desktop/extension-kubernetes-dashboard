@@ -219,6 +219,12 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
   });
 
+  test('go to roles page', async () => {
+    const rolesPage = await navigation.openTabPage(KubernetesResources.Roles);
+    await playExpect(rolesPage.heading).toBeVisible();
+    await playExpect.poll(async () => rolesPage.isEmpty('No roles')).toBeTruthy();
+  });
+
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
     await playExpect(configMapsSecretsPage.heading).toBeVisible();

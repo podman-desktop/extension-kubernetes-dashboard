@@ -21,6 +21,7 @@ export enum NavSection {
   Config = 'Config',
   Network = 'Network',
   Storage = 'Storage',
+  AccessControl = 'Access Control',
 }
 
 export enum KubernetesResources {
@@ -41,6 +42,7 @@ export enum KubernetesResources {
   Cronjobs = 'CronJobs',
   Jobs = 'Jobs',
   ServiceAccounts = 'Service Accounts',
+  Roles = 'Roles',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -91,4 +93,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   ],
   [KubernetesResources.Jobs]: ['Selected', 'Status', 'Name', 'Conditions', 'Completions', 'Age', 'Actions'],
   [KubernetesResources.ServiceAccounts]: ['Selected', 'Status', 'Name', 'Secrets', 'Age', 'Actions'],
+  [KubernetesResources.Roles]: ['Selected', 'Status', 'Name', 'Rules', 'Age', 'Actions'],
 };
