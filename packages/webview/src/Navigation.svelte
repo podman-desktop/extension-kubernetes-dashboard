@@ -42,7 +42,11 @@ const workloadUrls = [
   navigator.kubernetesResourcesURL('CronJob'),
 ];
 
-const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('ServiceAccount'), navigator.kubernetesResourcesURL('HorizontalPodAutoscaler')];
+const configUrls = [
+  navigator.kubernetesResourcesURL('ConfigMap'),
+  navigator.kubernetesResourcesURL('ServiceAccount'),
+  navigator.kubernetesResourcesURL('HorizontalPodAutoscaler'),
+];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
