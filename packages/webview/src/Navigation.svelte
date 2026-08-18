@@ -42,11 +42,7 @@ const workloadUrls = [
   navigator.kubernetesResourcesURL('CronJob'),
 ];
 
-const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('ServiceAccount')];
-const configUrls = [
-  navigator.kubernetesResourcesURL('ConfigMap'),
-  navigator.kubernetesResourcesURL('PodDisruptionBudget'),
-];
+const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('ServiceAccount'), navigator.kubernetesResourcesURL('PodDisruptionBudget')];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
