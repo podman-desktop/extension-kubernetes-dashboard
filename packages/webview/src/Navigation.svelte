@@ -167,6 +167,10 @@ $effect(() => {
         title="Pod Disruption Budgets"
         child={true}
         href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
+      <NavItem
+        title="Pod Disruption Budgets"
+        child={true}
+        href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
     {/if}
 
     <!-- Network section -->
