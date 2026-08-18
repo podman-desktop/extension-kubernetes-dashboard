@@ -173,7 +173,6 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   ],
   [KubernetesResources.PriorityClasses]: ['Status', 'Name', 'Value', 'Global Default', 'Preemption Policy', 'Age'],
   [KubernetesResources.RuntimeClasses]: ['Status', 'Name', 'Handler', 'Age'],
-  [KubernetesResources.Leases]: ['Selected', 'Status', 'Name', 'Holder', 'Lease Duration', 'Renew Time', 'Age', 'Actions'],
   [KubernetesResources.Leases]: [
     'Selected',
     'Status',
