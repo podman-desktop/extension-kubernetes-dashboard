@@ -42,12 +42,7 @@ const workloadUrls = [
   navigator.kubernetesResourcesURL('CronJob'),
 ];
 
-const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('ServiceAccount')];
-const configUrls = [
-  navigator.kubernetesResourcesURL('ConfigMap'),
-  navigator.kubernetesResourcesURL('RuntimeClass'),
-];
-const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('RuntimeClass')];
+const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('ServiceAccount'), navigator.kubernetesResourcesURL('RuntimeClass')];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
