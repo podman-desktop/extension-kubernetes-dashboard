@@ -92,7 +92,16 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   ],
   [KubernetesResources.Jobs]: ['Selected', 'Status', 'Name', 'Conditions', 'Completions', 'Age', 'Actions'],
   [KubernetesResources.ServiceAccounts]: ['Selected', 'Status', 'Name', 'Secrets', 'Age', 'Actions'],
-  [KubernetesResources.Leases]: ['Selected', 'Status', 'Name', 'Holder', 'Lease Duration', 'Renew Time', 'Age', 'Actions'],
+  [KubernetesResources.Leases]: [
+    'Selected',
+    'Status',
+    'Name',
+    'Holder',
+    'Lease Duration',
+    'Renew Time',
+    'Age',
+    'Actions',
+  ],
   [KubernetesResources.Leases]: [
     'Selected',
     'Status',
