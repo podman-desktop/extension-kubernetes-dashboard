@@ -194,7 +194,6 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Age',
     'Actions',
   ],
-  [KubernetesResources.HorizontalPodAutoscalers]: ['Selected', 'Status', 'Name', 'Metrics', 'Min Pods', 'Max Pods', 'Replicas', 'Desired', 'Age', 'Actions'],
   [KubernetesResources.HorizontalPodAutoscalers]: [
     'Selected',
     'Status',
