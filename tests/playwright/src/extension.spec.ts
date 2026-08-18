@@ -256,6 +256,7 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     const serviceAccountsPage = await navigation.openTabPage(KubernetesResources.ServiceAccounts);
     await playExpect(serviceAccountsPage.heading).toBeVisible();
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
+  });
   test('go to resourceQuotas page', async () => {
     const resourceQuotasPage = await navigation.openTabPage(KubernetesResources.ResourceQuotas);
     await playExpect(resourceQuotasPage.heading).toBeVisible();
