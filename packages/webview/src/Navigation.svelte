@@ -42,7 +42,11 @@ const workloadUrls = [
   navigator.kubernetesResourcesURL('CronJob'),
 ];
 
-const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('ServiceAccount')];
+const configUrls = [
+  navigator.kubernetesResourcesURL('ConfigMap'),
+  navigator.kubernetesResourcesURL('ServiceAccount'),
+  navigator.kubernetesResourcesURL('MutatingWebhookConfiguration'),
+];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
@@ -137,6 +141,14 @@ $effect(() => {
     {#if configExpanded}
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
       <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
+      <NavItem
+        title="Mutating Webhook Configs"
+        child={true}
+        href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
+      <NavItem
+        title="Mutating Webhook Configs"
+        child={true}
+        href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
     {/if}
 
     <!-- Network section -->

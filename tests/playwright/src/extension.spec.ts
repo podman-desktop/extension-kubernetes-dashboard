@@ -218,6 +218,11 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect(serviceAccountsPage.heading).toBeVisible();
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
   });
+  test('go to mutatingWebhooks page', async () => {
+    const mutatingWebhooksPage = await navigation.openTabPage(KubernetesResources.MutatingWebhookConfigs);
+    await playExpect(mutatingWebhooksPage.heading).toBeVisible();
+    await playExpect.poll(async () => mutatingWebhooksPage.isEmpty('No mutatingwebhookconfigurations')).toBeTruthy();
+  });
 
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);
