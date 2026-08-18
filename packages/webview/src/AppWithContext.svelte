@@ -235,6 +235,8 @@ const { meta }: Props = $props();
 
   <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
     <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
   <Route path="/runtimeclasses">
     <RuntimeClassesList />
   </Route>
