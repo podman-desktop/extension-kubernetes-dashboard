@@ -57,10 +57,7 @@ const storageUrls = [
   navigator.kubernetesResourcesURL('StorageClass'),
 ];
 
-
-const accessControlUrls = [
-  navigator.kubernetesResourcesURL('Role'),
-];
+const accessControlUrls = [navigator.kubernetesResourcesURL('Role')];
 const STORAGE_KEY = 'nav-sections-expanded';
 
 function loadExpanded(): Record<string, boolean> {
