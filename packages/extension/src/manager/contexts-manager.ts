@@ -79,6 +79,7 @@ import { ReplicaSetsResourceFactory } from '/@/resources/replicasets-resource-fa
 import { PVsResourceFactory } from '/@/resources/pvs-resource-factory.js';
 import { StorageClassesResourceFactory } from '/@/resources/storage-classes-resource-factory.js';
 import { ServiceAccountsResourceFactory } from '/@/resources/service-accounts-resource-factory.js';
+import { HpasResourceFactory } from '/@/resources/hpas-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -193,6 +194,7 @@ export class ContextsManager implements ContextsApi {
       new PVsResourceFactory(),
       new StorageClassesResourceFactory(),
       new ServiceAccountsResourceFactory(),
+      new HpasResourceFactory(),
     ];
   }
 
