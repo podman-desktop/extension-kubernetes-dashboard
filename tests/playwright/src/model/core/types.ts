@@ -184,7 +184,6 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Age',
     'Actions',
   ],
-  [KubernetesResources.MutatingWebhookConfigs]: ['Selected', 'Status', 'Name', 'Webhooks', 'Failure Policy', 'Age', 'Actions'],
   [KubernetesResources.MutatingWebhookConfigs]: [
     'Selected',
     'Status',
