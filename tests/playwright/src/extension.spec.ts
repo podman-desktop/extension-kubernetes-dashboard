@@ -218,6 +218,11 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect(serviceAccountsPage.heading).toBeVisible();
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
   });
+  test('go to pdbs page', async () => {
+    const pdbsPage = await navigation.openTabPage(KubernetesResources.PodDisruptionBudgets);
+    await playExpect(pdbsPage.heading).toBeVisible();
+    await playExpect.poll(async () => pdbsPage.isEmpty('No poddisruptionbudgets')).toBeTruthy();
+  });
 
   test('go to configmaps & secrets page', async () => {
     const configMapsSecretsPage = await navigation.openTabPage(KubernetesResources.ConfigMapsSecrets);

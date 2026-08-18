@@ -42,7 +42,11 @@ const workloadUrls = [
   navigator.kubernetesResourcesURL('CronJob'),
 ];
 
-const configUrls = [navigator.kubernetesResourcesURL('ConfigMap'), navigator.kubernetesResourcesURL('ServiceAccount')];
+const configUrls = [
+  navigator.kubernetesResourcesURL('ConfigMap'),
+  navigator.kubernetesResourcesURL('ServiceAccount'),
+  navigator.kubernetesResourcesURL('PodDisruptionBudget'),
+];
 
 const networkUrls = [
   navigator.kubernetesResourcesURL('Service'),
@@ -137,6 +141,14 @@ $effect(() => {
     {#if configExpanded}
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
       <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
+      <NavItem
+        title="Pod Disruption Budgets"
+        child={true}
+        href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
+      <NavItem
+        title="Pod Disruption Budgets"
+        child={true}
+        href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
     {/if}
 
     <!-- Network section -->
