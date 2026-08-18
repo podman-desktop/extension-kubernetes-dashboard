@@ -217,6 +217,7 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     const serviceAccountsPage = await navigation.openTabPage(KubernetesResources.ServiceAccounts);
     await playExpect(serviceAccountsPage.heading).toBeVisible();
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
+  });
   test('go to priorityClasses page', async () => {
     const priorityClassesPage = await navigation.openTabPage(KubernetesResources.PriorityClasses);
     await playExpect(priorityClassesPage.heading).toBeVisible();
