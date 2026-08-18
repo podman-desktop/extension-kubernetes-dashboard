@@ -61,6 +61,7 @@ const accessControlUrls = [
   navigator.kubernetesResourcesURL('Role'),
   navigator.kubernetesResourcesURL('RoleBinding'),
   navigator.kubernetesResourcesURL('ClusterRole'),
+  navigator.kubernetesResourcesURL('ClusterRoleBinding'),
 ];
 
 const STORAGE_KEY = 'nav-sections-expanded';
