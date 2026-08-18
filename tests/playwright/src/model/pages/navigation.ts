@@ -39,6 +39,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.PersistentVolumes]: NavSection.Storage,
   [KubernetesResources.StorageClasses]: NavSection.Storage,
   [KubernetesResources.ServiceAccounts]: NavSection.Config,
+  [KubernetesResources.RuntimeClasses]: NavSection.Config,
 };
 
 export class KubernetesBar {
@@ -87,6 +88,8 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'persistent volumes');
       case 'Storage Classes':
         return new KubernetesResourcePage(this.page, 'storage classes');
+      case 'Runtime Classes':
+        return new KubernetesResourcePage(this.page, 'runtime classes');
       default:
         return new KubernetesResourcePage(this.page, kubernetesResource);
     }
