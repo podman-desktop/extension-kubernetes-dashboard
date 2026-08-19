@@ -43,6 +43,7 @@ export enum KubernetesResources {
   Jobs = 'Jobs',
   ServiceAccounts = 'Service Accounts',
   Roles = 'Roles',
+  RoleBindings = 'Role Bindings',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -94,4 +95,5 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   [KubernetesResources.Jobs]: ['Selected', 'Status', 'Name', 'Conditions', 'Completions', 'Age', 'Actions'],
   [KubernetesResources.ServiceAccounts]: ['Selected', 'Status', 'Name', 'Secrets', 'Age', 'Actions'],
   [KubernetesResources.Roles]: ['Selected', 'Status', 'Name', 'Rules', 'Age', 'Actions'],
+  [KubernetesResources.RoleBindings]: ['Selected', 'Status', 'Name', 'Bindings', 'Role', 'Age', 'Actions'],
 };
