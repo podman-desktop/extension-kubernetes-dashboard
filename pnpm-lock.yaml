@@ -22,6 +22,7 @@ overrides:
   esbuild@>=0.17.0 <0.28.1: '>=0.28.1'
   ws@>=8.0.0 <8.21.0: '>=8.21.0'
   form-data@>=4.0.0 <4.0.6: '>=4.0.6'
+  undici@>=8.0.0 <8.9.0: '>=8.9.0'
   undici@>=7.23.0 <7.28.0: ^7.28.0
   undici@>=6.0.0 <7: ~6.27.0
   shell-quote@<=1.8.4: '>=1.9.0'
@@ -4249,10 +4250,6 @@ packages:
     resolution: {integrity: sha512-HvltHd7avK13QIw/oLe4qoOLyoVSoafqJ2jYOrtMRBkbYT31eiBQ8O0ehRKZiEZCMEyLFQNIADpgCWC5fALvYQ==}
     engines: {node: '>=22.19.0'}
 
-  undici@8.6.0:
-    resolution: {integrity: sha512-l2FlC6I510GawyEd1qgcE/okihKrzy+BRTEBlu6T0fdbM9m5yxtIH5Oa3ysRsH0zC4EhmWUEaSDsy2QngBeRlw==}
-    engines: {node: '>=22.19.0'}
-
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
@@ -7693,7 +7690,7 @@ snapshots:
       semver: 7.8.5
       tar: 7.5.22
       tinyglobby: 0.2.17
-      undici: 8.6.0
+      undici: 8.10.0
       which: 7.0.0
 
   node-releases@2.0.51: {}
@@ -8547,8 +8544,6 @@ snapshots:
   undici-types@8.3.0: {}
 
   undici@8.10.0: {}
-
-  undici@8.6.0: {}
 
   universalify@2.0.1:
     optional: true
