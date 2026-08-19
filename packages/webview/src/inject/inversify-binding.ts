@@ -47,6 +47,7 @@ import { storageClassesModule } from '/@/component/storage-classes/_storage-clas
 import { serviceAccountsModule } from '/@/component/service-accounts/_service-accounts-module';
 import { rolesModule } from '/@/component/roles/_roles-module';
 import { roleBindingsModule } from '/@/component/role-bindings/_role-bindings-module';
+import { clusterRolesModule } from '/@/component/cluster-roles/_cluster-roles-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -88,6 +89,7 @@ export class InversifyBinding {
     await this.#container.load(serviceAccountsModule);
     await this.#container.load(rolesModule);
     await this.#container.load(roleBindingsModule);
+    await this.#container.load(clusterRolesModule);
 
     return this.#container;
   }

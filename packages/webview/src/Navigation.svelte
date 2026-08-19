@@ -57,7 +57,11 @@ const storageUrls = [
   navigator.kubernetesResourcesURL('StorageClass'),
 ];
 
-const accessControlUrls = [navigator.kubernetesResourcesURL('Role'), navigator.kubernetesResourcesURL('RoleBinding')];
+const accessControlUrls = [
+  navigator.kubernetesResourcesURL('Role'),
+  navigator.kubernetesResourcesURL('RoleBinding'),
+  navigator.kubernetesResourcesURL('ClusterRole'),
+];
 
 const STORAGE_KEY = 'nav-sections-expanded';
 
@@ -176,6 +180,7 @@ $effect(() => {
     {#if accessControlExpanded}
       <NavItem title="Roles" child={true} href={navigator.kubernetesResourcesURL('Role')} />
       <NavItem title="Role Bindings" child={true} href={navigator.kubernetesResourcesURL('RoleBinding')} />
+      <NavItem title="Cluster Roles" child={true} href={navigator.kubernetesResourcesURL('ClusterRole')} />
     {/if}
 
     <NavItem title="Namespaces" icon={faLayerGroup} href={navigator.kubernetesResourcesURL('Namespace')} />
