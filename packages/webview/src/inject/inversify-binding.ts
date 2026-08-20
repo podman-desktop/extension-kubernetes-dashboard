@@ -49,6 +49,7 @@ import { rolesModule } from '/@/component/roles/_roles-module';
 import { roleBindingsModule } from '/@/component/role-bindings/_role-bindings-module';
 import { clusterRolesModule } from '/@/component/cluster-roles/_cluster-roles-module';
 import { clusterRoleBindingsModule } from '/@/component/cluster-role-bindings/_cluster-role-bindings-module';
+import { endpointSlicesModule } from '/@/component/endpoint-slices/_endpoint-slices-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -92,6 +93,7 @@ export class InversifyBinding {
     await this.#container.load(roleBindingsModule);
     await this.#container.load(clusterRolesModule);
     await this.#container.load(clusterRoleBindingsModule);
+    await this.#container.load(endpointSlicesModule);
 
     return this.#container;
   }
