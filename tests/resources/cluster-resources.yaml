@@ -899,3 +899,34 @@ provisioner: kubernetes.io/no-provisioner
 reclaimPolicy: Retain
 volumeBindingMode: WaitForFirstConsumer
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: '2026-02-09T10:16:00Z'
+  name: network-policy1
+  namespace: default
+  uid: b2c3d4e5-f6a7-8901-bcde-f12345678901
+spec:
+  podSelector:
+    matchLabels:
+      app: deploy1
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: deploy2
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: deploy2
+      ports:
+        - protocol: TCP
+          port: 8080
+---
