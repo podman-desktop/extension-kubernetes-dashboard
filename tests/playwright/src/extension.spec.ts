@@ -34,6 +34,7 @@ import { KubernetesBar } from './model/pages/navigation';
 import { KubernetesResources } from './model/core/types';
 import { createKubernetesResource } from '/@/utility/kubernetes';
 import { anonymousUserTests } from './anonymous-user';
+import { podLogsTests } from './pod-logs';
 
 const EXTENSION_OCI_IMAGE =
   process.env.EXTENSION_OCI_IMAGE ?? 'ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest';
@@ -569,6 +570,10 @@ test.describe('Namespace change', { tag: '@integration' }, () => {
     await podsPage.changeNamespace('default');
     await podsPage.fetchKubernetesResource('pod1');
   });
+});
+
+test.describe.serial('Pod logs', { tag: ['@integration'] }, () => {
+  podLogsTests();
 });
 
 test.describe(`Anonymous user`, { tag: ['@integration', '@anonymous'] }, () => {
