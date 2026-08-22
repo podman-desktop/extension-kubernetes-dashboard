@@ -42,28 +42,39 @@ export class PodLogsApiImpl implements PodLogsApi, IDisposable {
     containerName: string,
     options?: PodLogsOptions,
   ): Promise<void> {
+    console.log(`[pod-logs-api] streamPodLogs called for ${podName}/${namespace}/${containerName}`);
     if (!this.contextsManager.currentContext) {
       throw new Error('No current context found');
     }
-    const instance = this.#instances.get(this.getKey(podName, namespace, containerName)) ?? {
+    const key = this.getKey(podName, namespace, containerName);
+    const instance = this.#instances.get(key) ?? {
       counter: 0,
       service: new PodLogsService(this.contextsManager.currentContext, this.rpcExtension),
     };
     instance.counter++;
+    console.log(`[pod-logs-api] instance counter for ${key}: ${instance.counter}`);
     if (instance.counter === 1) {
+      console.log(`[pod-logs-api] starting stream for ${key}`);
       await instance.service.startStream(podName, namespace, containerName, options);
+      console.log(`[pod-logs-api] stream started for ${key}`);
     }
-    this.#instances.set(this.getKey(podName, namespace, containerName), instance);
+    this.#instances.set(key, instance);
   }
 
   async stopStreamPodLogs(podName: string, namespace: string, containerName: string): Promise<void> {
-    const instance = this.#instances.get(this.getKey(podName, namespace, containerName));
+    const key = this.getKey(podName, namespace, containerName);
+    console.log(`[pod-logs-api] stopStreamPodLogs called for ${key}`);
+    const instance = this.#instances.get(key);
     if (instance) {
       instance.counter--;
+      console.log(`[pod-logs-api] instance counter for ${key}: ${instance.counter}`);
       if (instance.counter === 0) {
+        console.log(`[pod-logs-api] stopping stream for ${key}`);
         instance.service.stopStream();
-        this.#instances.delete(this.getKey(podName, namespace, containerName));
+        this.#instances.delete(key);
       }
+    } else {
+      console.log(`[pod-logs-api] no instance found for ${key}`);
     }
   }
 
@@ -72,7 +83,11 @@ export class PodLogsApiImpl implements PodLogsApi, IDisposable {
   }
 
   dispose(): void {
-    this.#instances.forEach(instance => instance.service.stopStream());
+    console.log(`[pod-logs-api] dispose called, ${this.#instances.size} instances`);
+    this.#instances.forEach((instance, key) => {
+      console.log(`[pod-logs-api] disposing stream for ${key}`);
+      instance.service.stopStream();
+    });
     this.#instances.clear();
   }
 }

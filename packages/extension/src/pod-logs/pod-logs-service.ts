@@ -43,11 +43,14 @@ export class PodLogsService {
 
     this.#logStream = new PassThrough();
 
+    console.log(`[pod-logs] startStream called for ${namespace}/${podName}/${containerName}, follow=${options?.follow ?? true}`);
+
     this.#logStream.on('data', (chunk: unknown) => {
       if (!Buffer.isBuffer(chunk)) {
-        console.error('chunk is not a buffer', chunk);
+        console.error('[pod-logs] chunk is not a buffer', chunk);
         return;
       }
+      console.log(`[pod-logs] received data chunk (${chunk.length} bytes) for ${namespace}/${podName}/${containerName}`);
       this.rpcExtension
         .fire(POD_LOGS, {
           podName,
@@ -55,8 +58,23 @@ export class PodLogsService {
           containerName,
           data: chunk.toString('utf-8'),
         })
-        .catch(console.error);
+        .then(() => {
+          console.log(`[pod-logs] fire completed for ${namespace}/${podName}/${containerName}`);
+        })
+        .catch(err => {
+          console.error(`[pod-logs] fire error for ${namespace}/${podName}/${containerName}:`, err);
+        });
     });
+
+    this.#logStream.on('end', () => {
+      console.log(`[pod-logs] stream ended for ${namespace}/${podName}/${containerName}`);
+    });
+
+    this.#logStream.on('error', (err: unknown) => {
+      console.error(`[pod-logs] stream error for ${namespace}/${podName}/${containerName}:`, err);
+    });
+
+    console.log(`[pod-logs] calling log.log for ${namespace}/${podName}/${containerName}`);
     this.#abortController = await log.log(namespace, podName, containerName, this.#logStream, {
       follow: options?.follow ?? true,
       previous: options?.previous,
@@ -64,9 +82,12 @@ export class PodLogsService {
       sinceSeconds: options?.sinceSeconds,
       timestamps: options?.timestamps,
     });
+    console.log(`[pod-logs] log.log returned for ${namespace}/${podName}/${containerName}`);
   }
 
   stopStream(): void {
+    console.log('[pod-logs] stopStream called');
     this.#abortController.abort();
+    console.log('[pod-logs] abortController.abort() called');
   }
 }

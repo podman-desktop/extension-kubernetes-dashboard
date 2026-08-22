@@ -44,7 +44,7 @@ E2E tests require a local Kubernetes API server via envtest (Kubebuilder):
 3. Set up assets and start:
    ```sh
    export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)
-   envtest-start &
+   envtest-start --fake-kubelet &
    ```
 4. Copy kubeconfig:
    ```sh
