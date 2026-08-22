@@ -57,4 +57,13 @@ export function podLogsTests(): void {
     await playExpect(terminal).toBeVisible();
     await playExpect(terminal).toContainText(INITIAL_LOG, { timeout: 10_000 });
   });
+
+  test('Click Show timestamps and verify logs contain timestamp', async () => {
+    const timestampsCheckbox = navigation.page.getByTitle('Show timestamps');
+    await timestampsCheckbox.click();
+
+    const terminal = navigation.page.getByRole('term');
+    await playExpect(terminal).toBeVisible();
+    await playExpect(terminal).toContainText('2026', { timeout: 10_000 });
+  });
 }
