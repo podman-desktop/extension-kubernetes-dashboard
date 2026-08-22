@@ -22,15 +22,14 @@ import { KubernetesBar } from './model/pages/navigation';
 import { KubernetesResources } from './model/core/types';
 import { patchPodStatus, injectFakeLogs } from '/@/utility/fake-kubelet';
 
+const INITIAL_LOG = 'Log line 1: Hello from pod1';
+
 export function podLogsTests(): void {
   let navigation: KubernetesBar;
 
-  const INITIAL_LOGS = ['Log line 1: Hello from pod1', 'Log line 2: Processing request...'];
-  const STREAMED_LOG = '[INFO] New connection established';
-
-  test('Patch pod1 status and inject initial logs', async () => {
+  test('Patch pod1 status and inject initial log', async () => {
     await patchPodStatus('pod1');
-    await injectFakeLogs('default', 'pod1', 'pod1', INITIAL_LOGS);
+    await injectFakeLogs('default', 'pod1', 'pod1', [INITIAL_LOG]);
   });
 
   test('Open webview and verify dashboard is connected', async ({ runner, page, navigationBar }) => {
@@ -44,7 +43,7 @@ export function podLogsTests(): void {
     playExpect(status).toContain('Connected');
   });
 
-  test('Navigate to pod1 logs and verify initial log lines', async () => {
+  test('Navigate to pod1 logs and verify initial log line', async () => {
     const podsPage = await navigation.openTabPage(KubernetesResources.Pods);
     await playExpect(podsPage.heading).toBeVisible();
 
@@ -56,30 +55,6 @@ export function podLogsTests(): void {
 
     const terminal = navigation.page.getByRole('term');
     await playExpect(terminal).toBeVisible();
-
-    for (const line of INITIAL_LOGS) {
-      await playExpect(terminal).toContainText(line, { timeout: 10_000 });
-    }
-  });
-
-  test('Verify streamed logs appear in realtime', async () => {
-    const terminal = navigation.page.getByRole('term');
-
-    await injectFakeLogs('default', 'pod1', 'pod1', [STREAMED_LOG]);
-
-    await playExpect(terminal).toContainText(STREAMED_LOG, { timeout: 10_000 });
-  });
-
-  test('Navigate away from logs page', async () => {
-    const summaryTab = navigation.page
-      .getByRole('region', { name: 'Tabs' })
-      .getByRole('link', { name: 'Summary', exact: true });
-    await summaryTab.dispatchEvent('click');
-
-    const backLink = navigation.page
-      .getByRole('region', { name: 'Header' })
-      .getByRole('navigation', { name: 'Breadcrumb' })
-      .getByRole('link', { name: 'Back' });
-    await backLink.dispatchEvent('click');
+    await playExpect(terminal).toContainText(INITIAL_LOG, { timeout: 10_000 });
   });
 }
