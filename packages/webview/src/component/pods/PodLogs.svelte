@@ -3,7 +3,7 @@ import type { IDisposable } from '@kubernetes-dashboard/channels';
 import type { V1Pod } from '@kubernetes/client-node';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import type { Terminal } from '@xterm/xterm';
-import { getContext, onDestroy, onMount, tick } from 'svelte';
+import { getContext, onDestroy, onMount } from 'svelte';
 import NoLogIcon from '/@/component/icons/NoLogIcon.svelte';
 import TerminalWindow from '/@/component/terminal/TerminalWindow.svelte';
 import { Streams } from '/@/stream/streams';
@@ -69,11 +69,6 @@ onMount(async () => {
           const data = podLogsHelper.transformPodLogs(name, chunk.data);
           noLogs = false;
           logsTerminal?.write(data + '\r');
-          tick()
-            .then(() => {
-              window.dispatchEvent(new Event('resize'));
-            })
-            .catch(console.error);
         },
       ),
     );
