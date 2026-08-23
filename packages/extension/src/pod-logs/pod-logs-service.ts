@@ -18,6 +18,7 @@
 
 import { Log } from '@kubernetes/client-node';
 import { injectable } from 'inversify';
+import type { Readable } from 'node:stream';
 import { PassThrough } from 'node:stream';
 import { RpcExtension } from '@kubernetes-dashboard/rpc';
 import { POD_LOGS, PodLogsOptions } from '@kubernetes-dashboard/channels';
@@ -57,6 +58,20 @@ export class PodLogsService {
         })
         .catch(console.error);
     });
+
+    // Log.log pipes the response body into this stream without ever attaching an error
+    // handler to the source (`Readable.fromWeb(response.body).pipe(stream)`), and pipe()
+    // does not forward source errors to the destination. Aborting the request in
+    // stopStream therefore makes that source emit an 'error' with no listener, which
+    // Node rethrows as an uncaught exception. In Electron's main process that pops the
+    // default modal error dialog and freezes the whole application.
+    // Listening for 'pipe' is the only way to get a reference to the source stream.
+    this.#logStream.on('pipe', (source: Readable) => {
+      source.on('error', (error: unknown) => {
+        console.debug(`log stream of ${namespace}/${podName}/${containerName} ended`, error);
+      });
+    });
+
     this.#abortController = await log.log(namespace, podName, containerName, this.#logStream, {
       follow: options?.follow ?? true,
       previous: options?.previous,

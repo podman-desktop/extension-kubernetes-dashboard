@@ -16,8 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
+import * as fs from 'node:fs';
 import * as http from 'node:http';
+import * as os from 'node:os';
+import * as path from 'node:path';
 
 import test from '@playwright/test';
 
@@ -43,12 +46,29 @@ export async function patchPodStatus(podName: string, namespace: string = 'defau
       },
     });
 
+    // The patch is passed through a file instead of the command line: cmd.exe does not
+    // treat single quotes as quoting characters, so an inline `-p '{...}'` reaches the
+    // API server with the quotes included and fails to decode on Windows.
+    const patchFile = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'kd-patch-')), 'patch.json');
+    fs.writeFileSync(patchFile, patch);
     try {
-      // eslint-disable-next-line sonarjs/os-command
-      execSync(`kubectl patch pod ${podName} -n ${namespace} --subresource=status --type=merge -p '${patch}'`);
+      // eslint-disable-next-line sonarjs/os-command, sonarjs/no-os-command-from-path
+      execFileSync('kubectl', [
+        'patch',
+        'pod',
+        podName,
+        '-n',
+        namespace,
+        '--subresource=status',
+        '--type=merge',
+        '--patch-file',
+        patchFile,
+      ]);
       console.log(`Pod ${podName} status patched successfully`);
     } catch (error) {
       throw new Error(`Failed to patch pod ${podName} status: ${error}`, { cause: error });
+    } finally {
+      fs.rmSync(path.dirname(patchFile), { recursive: true, force: true });
     }
   });
 }

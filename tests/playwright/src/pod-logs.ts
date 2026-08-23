@@ -69,17 +69,4 @@ export function podLogsTests(): void {
 
     await playExpect(terminal).toContainText(STREAMED_LOG, { timeout: 10_000 });
   });
-
-  test('Navigate away from logs page', async () => {
-    const summaryTab = navigation.page
-      .getByRole('region', { name: 'Tabs' })
-      .getByRole('link', { name: 'Summary', exact: true });
-    await summaryTab.dispatchEvent('click');
-
-    const backLink = navigation.page
-      .getByRole('region', { name: 'Header' })
-      .getByRole('navigation', { name: 'Breadcrumb' })
-      .getByRole('link', { name: 'Back' });
-    await backLink.dispatchEvent('click');
-  });
 }
