@@ -85,6 +85,7 @@ import { ClusterRolesResourceFactory } from '/@/resources/cluster-roles-resource
 import { ClusterRoleBindingsResourceFactory } from '/@/resources/cluster-role-bindings-resource-factory.js';
 import { EndpointsResourceFactory } from '/@/resources/endpoints-resource-factory.js';
 import { NetworkPoliciesResourceFactory } from '/@/resources/network-policies-resource-factory.js';
+import { IngressClassesResourceFactory } from '/@/resources/ingress-classes-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -205,6 +206,7 @@ export class ContextsManager implements ContextsApi {
       new ClusterRoleBindingsResourceFactory(),
       new EndpointsResourceFactory(),
       new NetworkPoliciesResourceFactory(),
+      new IngressClassesResourceFactory(),
     ];
   }
 

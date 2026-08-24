@@ -37,6 +37,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.Endpoints]: NavSection.Network,
   [KubernetesResources.EndpointSlices]: NavSection.Network,
   [KubernetesResources.NetworkPolicies]: NavSection.Network,
+  [KubernetesResources.IngressClasses]: NavSection.Network,
   [KubernetesResources.PortForwarding]: NavSection.Network,
   [KubernetesResources.PVCs]: NavSection.Storage,
   [KubernetesResources.PersistentVolumes]: NavSection.Storage,
@@ -98,6 +99,8 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'endpoint slices');
       case 'Network Policies':
         return new KubernetesResourcePage(this.page, 'network policies');
+      case 'Ingress Classes':
+        return new KubernetesResourcePage(this.page, 'ingress classes');
       default:
         return new KubernetesResourcePage(this.page, kubernetesResource);
     }

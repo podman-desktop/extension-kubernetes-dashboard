@@ -53,6 +53,8 @@ import EndpointSlicesList from './component/endpoint-slices/EndpointSlicesList.s
 import EndpointSliceDetails from './component/endpoint-slices/EndpointSliceDetails.svelte';
 import NetworkPoliciesList from './component/network-policies/NetworkPoliciesList.svelte';
 import NetworkPolicyDetails from './component/network-policies/NetworkPolicyDetails.svelte';
+import IngressClassesList from './component/ingress-classes/IngressClassesList.svelte';
+import IngressClassDetails from './component/ingress-classes/IngressClassDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -217,6 +219,14 @@ const { meta }: Props = $props();
 
   <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
     <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/ingressclasses">
+    <IngressClassesList />
+  </Route>
+
+  <Route path="/ingressclasses/:name/*" let:meta>
+    <IngressClassDetails name={decodeURI(meta.params.name)} />
   </Route>
 
   <Route path="/networkpolicies">
