@@ -47,6 +47,8 @@ import ClusterRolesList from './component/cluster-roles/ClusterRolesList.svelte'
 import ClusterRoleDetails from './component/cluster-roles/ClusterRoleDetails.svelte';
 import ClusterRoleBindingsList from './component/cluster-role-bindings/ClusterRoleBindingsList.svelte';
 import ClusterRoleBindingDetails from './component/cluster-role-bindings/ClusterRoleBindingDetails.svelte';
+import EndpointsList from './component/endpoints/EndpointsList.svelte';
+import EndpointDetails from './component/endpoints/EndpointDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -243,5 +245,13 @@ const { meta }: Props = $props();
 
   <Route path="/roles/:name/:namespace/*" let:meta>
     <RoleDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/endpoints">
+    <EndpointsList />
+  </Route>
+
+  <Route path="/endpoints/:name/:namespace/*" let:meta>
+    <EndpointDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
   </Route>
 </div>
