@@ -81,6 +81,8 @@ export class Navigator {
       return 'storageclasses';
     } else if (kind === 'Endpoints') {
       return 'endpoints';
+    } else if (kind === 'NetworkPolicy') {
+      return 'networkpolicies';
     }
     // otherwise do the simple conversion
     return kind.toLowerCase() + 's';
