@@ -53,6 +53,7 @@ import { endpointsModule } from '/@/component/endpoints/_endpoints-module';
 import { endpointSlicesModule } from '/@/component/endpoint-slices/_endpoint-slices-module';
 import { networkPoliciesModule } from '/@/component/network-policies/_network-policies-module';
 import { ingressClassesModule } from '/@/component/ingress-classes/_ingress-classes-module';
+import { httpRoutesModule } from '/@/component/httproutes/_httproutes-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -100,6 +101,7 @@ export class InversifyBinding {
     await this.#container.load(endpointSlicesModule);
     await this.#container.load(networkPoliciesModule);
     await this.#container.load(ingressClassesModule);
+    await this.#container.load(httpRoutesModule);
 
     return this.#container;
   }

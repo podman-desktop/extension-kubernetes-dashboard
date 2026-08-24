@@ -219,6 +219,12 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect.poll(async () => ingressClassesPage.isEmpty('No ingressclasses')).toBeTruthy();
   });
 
+  test('go to httproutes page', async () => {
+    const httpRoutesPage = await navigation.openTabPage(KubernetesResources.HTTPRoutes);
+    await playExpect(httpRoutesPage.heading).toBeVisible();
+    await playExpect.poll(async () => httpRoutesPage.isEmpty('No httproutes'), { timeout: 15_000 }).toBeTruthy();
+  });
+
   test('go to pvc page', async () => {
     const pvcPage = await navigation.openTabPage(KubernetesResources.PVCs);
     await playExpect(pvcPage.heading).toBeVisible();
@@ -595,6 +601,18 @@ test.describe('With resources', { tag: '@integration' }, () => {
     const kubernetesResourceDetails = await ingressClassesPage.openResourceDetails(
       'ingress-class1',
       KubernetesResources.IngressClasses,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to httproute1 page', async () => {
+    const httpRoutesPage = await navigation.openTabPage(KubernetesResources.HTTPRoutes);
+    await playExpect(httpRoutesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await httpRoutesPage.openResourceDetails(
+      'httproute1',
+      KubernetesResources.HTTPRoutes,
     );
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
     await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
