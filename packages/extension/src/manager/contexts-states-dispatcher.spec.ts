@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import {
 } from '@kubernetes-dashboard/channels';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber.js';
+import { ApiSubscriber } from '/@/subscriber/api-subscriber.js';
 
 let container: Container;
 const contextsManagerMock: ContextsManager = {
@@ -63,6 +64,8 @@ const contextsManagerMock: ContextsManager = {
   isContextOffline: vi.fn(),
   onCurrentContextChange: vi.fn(),
   onEndpointsChange: vi.fn(),
+  subscribeToResource: vi.fn(),
+  unsubscribeFromResource: vi.fn(),
 } as unknown as ContextsManager;
 const rpcExtension: RpcExtension = {
   fire: vi.fn(),
@@ -242,4 +245,22 @@ test('ContextsStatesDispatcher should dispatch KUBERNETES_PROVIDERS when onKuber
     expect(dispatcherSpy).toHaveBeenCalledTimes(1);
   });
   expect(dispatcherSpy).toHaveBeenCalledWith(KUBERNETES_PROVIDERS);
+});
+
+test('removeSubscriber should clean up resource subscriptions', () => {
+  vi.spyOn(dispatcher, 'dispatchByChannelName').mockResolvedValue();
+  dispatcher.init();
+
+  const apiSubscriber = new ApiSubscriber();
+  Object.defineProperty(contextsManagerMock, 'currentContext', {
+    get: () => ({ getKubeConfig: (): { currentContext: string } => ({ currentContext: 'ctx1' }) }),
+    configurable: true,
+  });
+  dispatcher.addSubscriber(apiSubscriber);
+
+  apiSubscriber.subscribe(UPDATE_RESOURCE, { resourceName: 'pods', contextName: 'ctx1' }, () => {});
+  expect(contextsManagerMock.subscribeToResource).toHaveBeenCalledWith('ctx1', 'pods', expect.any(String));
+
+  dispatcher.removeSubscriber(apiSubscriber);
+  expect(contextsManagerMock.unsubscribeFromResource).toHaveBeenCalledWith('ctx1', 'pods', expect.any(String));
 });

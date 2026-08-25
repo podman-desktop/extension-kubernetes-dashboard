@@ -52,6 +52,7 @@ export class ApiSubscriber implements StateSubscriber, IDisposable {
       this.#subscribers[channelName] = (this.#subscribers[channelName] ?? []).filter(
         subscriber => subscriber.listener !== listener,
       );
+      this.#onUnsubscribe.fire(channelName);
     });
   }
 
