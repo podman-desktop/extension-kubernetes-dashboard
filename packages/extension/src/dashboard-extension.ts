@@ -42,7 +42,9 @@ import {
   CONTEXTS_PERMISSIONS,
   IDisposable,
   RESOURCES_COUNT,
+  UPDATE_RESOURCE,
 } from '@kubernetes-dashboard/channels';
+import type { UpdateResourceInfo } from '@kubernetes-dashboard/channels';
 import { SystemApiImpl } from './manager/system-api';
 import { OpenDialogApiImpl } from './manager/open-dialog-api';
 import { PortForwardApiImpl } from './manager/port-forward-api-impl';
@@ -59,6 +61,8 @@ import type {
   KubernetesDashboardExtensionApi,
   KubernetesDashboardSubscriber,
   ResourcesCountInfo,
+  ResourceUpdateInfo,
+  ResourceUpdateOptions,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { ApiSubscriber } from '/@/subscriber/api-subscriber';
 import { TelemetryApiImpl } from './manager/telemetry-api';
@@ -156,6 +160,12 @@ export class DashboardExtension {
           },
           onResourcesCount: (listener: (event: ResourcesCountInfo) => void): IDisposable => {
             return subscriber.subscribe(RESOURCES_COUNT, undefined, listener);
+          },
+          onResourceUpdate: (
+            options: ResourceUpdateOptions,
+            listener: (event: ResourceUpdateInfo) => void,
+          ): IDisposable => {
+            return subscriber.subscribe(UPDATE_RESOURCE, options, listener as (event: UpdateResourceInfo) => void);
           },
           dispose: () => {
             this.#contextsStatesDispatcher.removeSubscriber(subscriber);

@@ -69,6 +69,48 @@ export interface ResourcesCountInfo {
 }
 
 /**
+ * Options for subscribing to resource updates.
+ */
+export interface ResourceUpdateOptions {
+  /**
+   * The resource name to subscribe to (e.g., 'pods', 'deployments', 'services').
+   */
+  resourceName: string;
+  /**
+   * The context name to subscribe to. If not set, defaults to the current context.
+   */
+  contextName?: string;
+}
+
+/**
+ * A Kubernetes resource object.
+ * Consumer extensions should cast items to specific types from `@kubernetes/client-node`
+ * (e.g., `items as V1Pod[]` for `'pods'` resources).
+ */
+export interface KubernetesObject {
+  apiVersion?: string;
+  kind?: string;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+/**
+ * Resource items for a specific context and resource type.
+ */
+export interface ContextResourceItems {
+  contextName?: string;
+  resourceName: string;
+  items: readonly KubernetesObject[];
+}
+
+/**
+ * The payload for resource update events.
+ */
+export interface ResourceUpdateInfo {
+  resources: ContextResourceItems[];
+}
+
+/**
  * The subscriber for the events emitted by the Kubernetes Dashboard extension.
  */
 export interface KubernetesDashboardSubscriber {
@@ -86,6 +128,17 @@ export interface KubernetesDashboardSubscriber {
    * Subscribes to the events emitted every time the resources count changes.
    */
   onResourcesCount(listener: (event: ResourcesCountInfo) => void): Disposable;
+
+  /**
+   * Subscribes to the events emitted every time the resources of the specified type are updated.
+   *
+   * The listener receives the full list of resources for the specified resource type and context.
+   * An initial event is emitted immediately with the current cached data.
+   *
+   * Consumer extensions should cast the received items to specific types from `@kubernetes/client-node`
+   * (e.g., `items as V1Pod[]` for `'pods'` resources).
+   */
+  onResourceUpdate(options: ResourceUpdateOptions, listener: (event: ResourceUpdateInfo) => void): Disposable;
 
   /**
    * Disposes the subscriber and unsubscribes from all the events emitted by the Kubernetes Dashboard extension.
