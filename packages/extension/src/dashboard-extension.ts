@@ -154,6 +154,16 @@ export class DashboardExtension {
       deleteResource: (kind: string, name: string, namespace?: string) => {
         return this.#contextsManager.deleteObjectImmediately(kind, name, namespace);
       },
+      patchSubresource: (
+        apiVersion: string,
+        resource: string,
+        name: string,
+        subresource: string,
+        body: object,
+        namespace?: string,
+      ) => {
+        return this.#contextsManager.patchSubresource(apiVersion, resource, name, subresource, body, namespace);
+      },
       getSubscriber: () => {
         const subscriber = new ApiSubscriber();
         this.#contextsStatesDispatcher.addSubscriber(subscriber);

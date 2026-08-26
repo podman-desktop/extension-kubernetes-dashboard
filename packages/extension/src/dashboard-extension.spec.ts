@@ -159,6 +159,23 @@ test('api.deleteResource should delegate to ContextsManager.deleteObjectImmediat
   expect(ContextsManager.prototype.deleteObjectImmediately).toHaveBeenCalledWith('Pod', 'my-pod', 'default');
 });
 
+test('api.patchSubresource should delegate to ContextsManager.patchSubresource', async () => {
+  ContextsManager.prototype.patchSubresource = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  const body = { status: { conditions: [{ type: 'Approved', status: 'True' }] } };
+  await api.patchSubresource('certificates.k8s.io/v1', 'certificatesigningrequests', 'my-csr', 'approval', body);
+
+  expect(ContextsManager.prototype.patchSubresource).toHaveBeenCalledWith(
+    'certificates.k8s.io/v1',
+    'certificatesigningrequests',
+    'my-csr',
+    'approval',
+    body,
+    undefined,
+  );
+});
+
 test('subscriber.onResourceUpdate should subscribe to UPDATE_RESOURCE channel', async () => {
   const api = await dashboardExtension.activate();
   const subscriber = api.getSubscriber();

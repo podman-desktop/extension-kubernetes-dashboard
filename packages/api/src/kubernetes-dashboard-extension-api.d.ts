@@ -197,6 +197,28 @@ export interface KubernetesDashboardExtensionApi {
    */
   deleteResource(kind: string, name: string, namespace?: string): Promise<void>;
 
+  /**
+   * Patches a Kubernetes subresource using a merge patch.
+   *
+   * Builds the subresource URL from the provided parameters and sends a raw HTTP PATCH
+   * with content-type `application/merge-patch+json`.
+   *
+   * @param apiVersion - The API version (e.g., 'v1', 'certificates.k8s.io/v1').
+   * @param resource - The resource plural name (e.g., 'pods', 'certificatesigningrequests').
+   * @param name - The name of the resource.
+   * @param subresource - The subresource to patch (e.g., 'status', 'approval', 'scale').
+   * @param body - The patch body object.
+   * @param namespace - The namespace of the resource. Omit for cluster-scoped resources.
+   */
+  patchSubresource(
+    apiVersion: string,
+    resource: string,
+    name: string,
+    subresource: string,
+    body: object,
+    namespace?: string,
+  ): Promise<void>;
+
   readonly contexts: typeof contexts;
 }
 

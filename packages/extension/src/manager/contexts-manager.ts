@@ -28,6 +28,8 @@ import {
   type KubernetesObject,
   type ObjectCache,
 } from '@kubernetes/client-node';
+import { request as httpsRequest } from 'node:https';
+import { request as httpRequest } from 'node:http';
 
 import type {
   IDisposable,
@@ -1051,6 +1053,77 @@ export class ContextsManager implements ContextsApi {
       kinds: manifests?.map(manifest => manifest.kind).join(','),
     };
     this.telemetryLogger.logUsage('apply.resources', telemetryOptions);
+  }
+
+  async patchSubresource(
+    apiVersion: string,
+    resource: string,
+    name: string,
+    subresource: string,
+    body: object,
+    namespace?: string,
+  ): Promise<void> {
+    const kubeConfig = this.currentContext?.getKubeConfig();
+    if (!kubeConfig) {
+      throw new Error('patch subresource: no current context');
+    }
+
+    const cluster = kubeConfig.getCurrentCluster();
+    if (!cluster) {
+      throw new Error('patch subresource: no current cluster');
+    }
+
+    const slashIndex = apiVersion.indexOf('/');
+    let basePath: string;
+    if (slashIndex === -1) {
+      basePath = `/api/${apiVersion}`;
+    } else {
+      const group = apiVersion.substring(0, slashIndex);
+      const version = apiVersion.substring(slashIndex + 1);
+      basePath = `/apis/${group}/${version}`;
+    }
+
+    let path: string;
+    if (namespace) {
+      path = `${basePath}/namespaces/${namespace}/${resource}/${name}/${subresource}`;
+    } else {
+      path = `${basePath}/${resource}/${name}/${subresource}`;
+    }
+
+    const serverUrl = new URL(path, cluster.server);
+    const jsonBody = JSON.stringify(body);
+
+    const opts: Record<string, unknown> = {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/merge-patch+json',
+        'Content-Length': Buffer.byteLength(jsonBody),
+      },
+    };
+    await kubeConfig.applyToHTTPSOptions(opts);
+
+    const doRequest = serverUrl.protocol === 'https:' ? httpsRequest : httpRequest;
+
+    await new Promise<void>((resolve, reject) => {
+      const req = doRequest(serverUrl, opts, res => {
+        const chunks: Buffer[] = [];
+        res.on('data', (chunk: Buffer) => chunks.push(chunk));
+        res.on('end', () => {
+          const statusCode = res.statusCode ?? 0;
+          if (statusCode >= 200 && statusCode < 300) {
+            resolve();
+          } else {
+            const responseBody = Buffer.concat(chunks).toString();
+            reject(new Error(`patch subresource failed with status ${statusCode}: ${responseBody}`));
+          }
+        });
+      });
+      req.on('error', reject);
+      req.write(jsonBody);
+      req.end();
+    });
+
+    this.telemetryLogger.logUsage('patch.subresource', { resource, subresource });
   }
 
   async applyYaml(yamlDocuments: string): Promise<{ kind?: string }[]> {
