@@ -178,6 +178,15 @@ export interface KubernetesDashboardExtensionApi {
    */
   getSubscriber(): KubernetesDashboardSubscriber;
 
+  /**
+   * Deletes a Kubernetes resource.
+   *
+   * @param kind - The kind of the resource to delete (e.g., 'Pod', 'Deployment').
+   * @param name - The name of the resource to delete.
+   * @param namespace - The namespace of the resource. If not set, defaults to the current namespace.
+   */
+  deleteResource(kind: string, name: string, namespace?: string): Promise<void>;
+
   readonly contexts: typeof contexts;
 
   /**
