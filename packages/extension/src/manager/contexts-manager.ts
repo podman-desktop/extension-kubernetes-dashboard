@@ -86,6 +86,7 @@ import { ClusterRoleBindingsResourceFactory } from '/@/resources/cluster-role-bi
 import { EndpointsResourceFactory } from '/@/resources/endpoints-resource-factory.js';
 import { NetworkPoliciesResourceFactory } from '/@/resources/network-policies-resource-factory.js';
 import { IngressClassesResourceFactory } from '/@/resources/ingress-classes-resource-factory.js';
+import { CertificateSigningRequestsResourceFactory } from '/@/resources/certificate-signing-requests-resource-factory.js';
 import { HttpRoutesResourceFactory } from '/@/resources/httproutes-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
@@ -209,6 +210,7 @@ export class ContextsManager implements ContextsApi {
       new NetworkPoliciesResourceFactory(),
       new IngressClassesResourceFactory(),
       new HttpRoutesResourceFactory(),
+      new CertificateSigningRequestsResourceFactory(),
     ];
   }
 
