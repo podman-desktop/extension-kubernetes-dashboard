@@ -672,10 +672,10 @@ export class ContextsManager implements ContextsApi {
       return;
     }
 
-    await this.deleteObjectInternal(kind, name, namespace);
+    await this.deleteObjectImmediately(kind, name, namespace);
   }
 
-  private async deleteObjectInternal(kind: string, name: string, namespace?: string): Promise<void> {
+  async deleteObjectImmediately(kind: string, name: string, namespace?: string): Promise<void> {
     if (!this.currentContext) {
       console.warn('delete object: no current context');
       return;
@@ -818,11 +818,11 @@ export class ContextsManager implements ContextsApi {
     }
     for (const object of objects) {
       try {
-        await this.deleteObjectInternal(object.kind, object.name, object.namespace);
+        await this.deleteObjectImmediately(object.kind, object.name, object.namespace);
       } catch {
         // do nothing here:
         // - we don't want to stop the deletion of other objects
-        // - the error is already handled by deleteObjectInternal
+        // - the error is already handled by deleteObjectImmediately
       }
     }
   }
