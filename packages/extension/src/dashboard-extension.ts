@@ -162,6 +162,9 @@ export class DashboardExtension {
       ) => {
         return this.#contextsManager.patchSubresource(apiVersion, resource, name, subresource, body, namespace);
       },
+      deleteResource: (kind: string, name: string, namespace?: string) => {
+        return this.#contextsManager.deleteObjectImmediately(kind, name, namespace);
+      },
       getSubscriber: () => {
         const subscriber = new ApiSubscriber();
         this.#contextsStatesDispatcher.addSubscriber(subscriber);
