@@ -157,6 +157,17 @@ test('api.getApiResources should delegate to ContextsManager.getApiResources', a
   expect(ContextsManager.prototype.getApiResources).toHaveBeenCalledWith('apps/v1', undefined);
 });
 
+test('api.patchResources should delegate to ContextsManager.applyResources', async () => {
+  ContextsManager.prototype.applyResources = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  await api.patchResources('apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test');
+
+  expect(ContextsManager.prototype.applyResources).toHaveBeenCalledWith(
+    'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test',
+  );
+});
+
 test('subscriber.onResourceUpdate should subscribe to UPDATE_RESOURCE channel', async () => {
   const api = await dashboardExtension.activate();
   const subscriber = api.getSubscriber();
