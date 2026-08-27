@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,17 @@ test('subscribe makes onSubscribe emit an event', async () => {
   subscriber.onSubscribe(listener);
   await subscriber.resetApiSubscribers(channel.name);
   subscriber.subscribe(channel, {}, () => {});
+  expect(listener).toHaveBeenCalledWith(channel.name);
+});
+
+test('disposing a subscription fires onUnsubscribe', () => {
+  const channel = new RpcChannel('channel1');
+  const subscriber = new ApiSubscriber();
+  const listener = vi.fn();
+  subscriber.onUnsubscribe(listener);
+  const disposable = subscriber.subscribe(channel, {}, () => {});
+  expect(listener).not.toHaveBeenCalled();
+  disposable.dispose();
   expect(listener).toHaveBeenCalledWith(channel.name);
 });
 

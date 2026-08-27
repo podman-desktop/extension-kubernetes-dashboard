@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,4 +137,20 @@ test('activate should return a KubernetesDashboardExtensionApi', async () => {
   expect(ContextsStatesDispatcher.prototype.removeSubscriber).toHaveBeenCalled();
   expect(apiSubscriber).toBeDefined();
   expect((apiSubscriber as ApiSubscriber).dispose).toHaveBeenCalledOnce();
+});
+
+test('subscriber.onResourceUpdate should subscribe to UPDATE_RESOURCE channel', async () => {
+  const api = await dashboardExtension.activate();
+  const subscriber = api.getSubscriber();
+  const apiSubscriber = vi.mocked(ContextsStatesDispatcher.prototype.addSubscriber).mock.lastCall?.[0] as ApiSubscriber;
+
+  const listener = vi.fn();
+  const options = { resourceName: 'pods', contextName: 'my-context' };
+  subscriber.onResourceUpdate(options, listener);
+
+  expect(apiSubscriber.subscribe).toHaveBeenCalledWith(
+    expect.objectContaining({ name: 'UpdateResource' }),
+    options,
+    listener,
+  );
 });

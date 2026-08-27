@@ -139,6 +139,18 @@ export class ContextsStatesDispatcher {
    * Should be called when a subscriber is disposed.
    */
   removeSubscriber(subscriber: StateSubscriber): void {
+    // Clean up resource subscriptions for this subscriber
+    const tracked = this.#subscriberResourceTracker.get(subscriber);
+    if (tracked) {
+      for (const [key, subscriptionIds] of tracked.entries()) {
+        const [contextName, resourceName] = key.split('/');
+        for (const subscriptionId of subscriptionIds) {
+          this.manager.unsubscribeFromResource(contextName, resourceName, subscriptionId);
+        }
+      }
+      this.#subscriberResourceTracker.delete(subscriber);
+    }
+
     // Clean up timers for this subscriber in all dispatchers
     for (const dispatcher of this.#dispatchers.values()) {
       if (dispatcher instanceof AbsDispatcherObjectImpl) {
