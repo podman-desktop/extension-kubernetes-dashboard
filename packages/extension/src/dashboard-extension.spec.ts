@@ -147,6 +147,22 @@ test('api.patchResources should delegate to ContextsManager.applyResources', asy
 
   expect(ContextsManager.prototype.applyResources).toHaveBeenCalledWith(
     'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test',
+    undefined,
+  );
+});
+
+test('api.patchResources should forward options to ContextsManager.applyResources', async () => {
+  ContextsManager.prototype.applyResources = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  await api.patchResources('apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test', {
+    strategy: 'merge-patch',
+    fieldManager: 'custom-manager',
+  });
+
+  expect(ContextsManager.prototype.applyResources).toHaveBeenCalledWith(
+    'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test',
+    { strategy: 'merge-patch', fieldManager: 'custom-manager' },
   );
 });
 

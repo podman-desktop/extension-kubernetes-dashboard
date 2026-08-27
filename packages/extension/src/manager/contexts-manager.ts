@@ -38,6 +38,7 @@ import type {
   V1Route,
   KubernetesTroubleshootingInformation,
   ContextsApi,
+  ApplyResourcesOptions,
 } from '@kubernetes-dashboard/channels';
 import { kubernetes, TelemetryLogger, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
@@ -99,6 +100,13 @@ const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 const DEFAULT_NAMESPACE = 'default';
 const FIELD_MANAGER = 'kubernetes-dashboard';
 const LAZY_INFORMER_GRACE_PERIOD_MS = 30_000;
+
+const PATCH_STRATEGY_MAP: Record<NonNullable<ApplyResourcesOptions['strategy']>, PatchStrategy> = {
+  'json-patch': PatchStrategy.JsonPatch,
+  'merge-patch': PatchStrategy.MergePatch,
+  'strategic-merge-patch': PatchStrategy.StrategicMergePatch,
+  'server-side-apply': PatchStrategy.ServerSideApply,
+};
 
 /**
  * ContextsManager receives new KubeConfig updates
@@ -1023,11 +1031,13 @@ export class ContextsManager implements ContextsApi {
     return '';
   }
 
-  async applyResources(yamlDocuments: string): Promise<void> {
+  async applyResources(yamlDocuments: string, options?: ApplyResourcesOptions): Promise<void> {
     const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
     if (!client) {
       throw new Error('apply resources: unable to get client for current context');
     }
+    const strategy = PATCH_STRATEGY_MAP[options?.strategy ?? 'strategic-merge-patch'];
+    const fieldManager = options?.fieldManager ?? FIELD_MANAGER;
     const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
     for (const manifest of manifests) {
       manifest.metadata ??= {};
@@ -1039,9 +1049,9 @@ export class ContextsManager implements ContextsApi {
           manifest,
           undefined, // pretty
           undefined, // dryRun
-          FIELD_MANAGER,
+          fieldManager,
           undefined, // force
-          PatchStrategy.StrategicMergePatch,
+          strategy,
         );
         this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
       } catch (error: unknown) {
