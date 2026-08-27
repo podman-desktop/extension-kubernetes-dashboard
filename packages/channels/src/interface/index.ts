@@ -16,7 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type AppliedResource, type ContextsApi } from './contexts-api';
+import {
+  type AppliedResource,
+  type ApplyResourcesOptions,
+  type ContextsApi,
+  type PatchStrategyType,
+} from './contexts-api';
 import { type OpenDialogApi } from './open-dialog-api';
 import { type PodLogsApi } from './pod-logs-api';
 import { type PodTerminalsApi } from './pod-terminals-api';
@@ -28,7 +33,9 @@ import { type TelemetryApi } from './telemetry-api';
 
 export type {
   AppliedResource,
+  ApplyResourcesOptions,
   ContextsApi,
+  PatchStrategyType,
   OpenDialogApi,
   PodLogsApi,
   PodTerminalsApi,
