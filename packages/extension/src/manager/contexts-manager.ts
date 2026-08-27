@@ -39,6 +39,7 @@ import type {
   V1Route,
   KubernetesTroubleshootingInformation,
   ContextsApi,
+  ApplyResourcesOptions,
 } from '@kubernetes-dashboard/channels';
 import { kubernetes, TelemetryLogger, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
@@ -118,6 +119,13 @@ const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 const DEFAULT_NAMESPACE = 'default';
 const FIELD_MANAGER = 'kubernetes-dashboard';
 const LAZY_INFORMER_GRACE_PERIOD_MS = 30_000;
+
+const PATCH_STRATEGY_MAP: Record<NonNullable<ApplyResourcesOptions['strategy']>, PatchStrategy> = {
+  'json-patch': PatchStrategy.JsonPatch,
+  'merge-patch': PatchStrategy.MergePatch,
+  'strategic-merge-patch': PatchStrategy.StrategicMergePatch,
+  'server-side-apply': PatchStrategy.ServerSideApply,
+};
 
 /**
  * ContextsManager receives new KubeConfig updates
@@ -1060,11 +1068,12 @@ export class ContextsManager implements ContextsApi {
     return '';
   }
 
-  async applyResources(yamlDocuments: string): Promise<void> {
+  async applyResources(yamlDocuments: string, options?: ApplyResourcesOptions): Promise<void> {
     const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
     if (!client) {
       throw new Error('apply resources: unable to get client for current context');
     }
+    const fieldManager = options?.fieldManager ?? FIELD_MANAGER;
     const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
     for (const manifest of manifests) {
       // the API server does not serve strategic merge patch for kinds provided by a
@@ -1072,7 +1081,8 @@ export class ContextsManager implements ContextsApi {
       // these resources are patched using server-side apply instead
       const factory = this.#resourceFactoryHandler.getResourceFactoryByKind(manifest.kind ?? '');
       const serverSideApply = factory?.isCustomResource ?? false;
-      const strategy = serverSideApply ? PatchStrategy.ServerSideApply : PatchStrategy.StrategicMergePatch;
+      const defaultStrategy = serverSideApply ? PatchStrategy.ServerSideApply : PatchStrategy.StrategicMergePatch;
+      const strategy = options?.strategy ? PATCH_STRATEGY_MAP[options.strategy] : defaultStrategy;
 
       manifest.metadata ??= {};
       manifest.metadata.namespace ??= this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
@@ -1087,7 +1097,7 @@ export class ContextsManager implements ContextsApi {
           manifest,
           undefined, // pretty
           undefined, // dryRun
-          FIELD_MANAGER,
+          fieldManager,
           serverSideApply ? true : undefined, // force: take ownership from the other field managers
           strategy,
         );

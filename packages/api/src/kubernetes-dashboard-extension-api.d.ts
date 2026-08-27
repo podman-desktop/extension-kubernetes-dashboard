@@ -32,6 +32,28 @@ export interface ContextHealth {
   errorMessage?: string;
 }
 
+/**
+ * Patch strategy for Kubernetes resource operations.
+ *
+ * - `'json-patch'` — `application/json-patch+json` (RFC 6902)
+ * - `'merge-patch'` — `application/merge-patch+json` (RFC 7386)
+ * - `'strategic-merge-patch'` — `application/strategic-merge-patch+json` (Kubernetes-specific)
+ * - `'server-side-apply'` — `application/apply-patch+yaml` (server-side field management)
+ */
+export type PatchStrategyType = 'json-patch' | 'merge-patch' | 'strategic-merge-patch' | 'server-side-apply';
+
+export interface PatchResourcesOptions {
+  /**
+   * The patch strategy to use. Defaults to `'strategic-merge-patch'`.
+   */
+  strategy?: PatchStrategyType;
+  /**
+   * The field manager name for server-side field ownership tracking.
+   * Defaults to `'kubernetes-dashboard'`.
+   */
+  fieldManager?: string;
+}
+
 export interface ContextsHealthsInfo {
   healths: ContextHealth[];
 }
@@ -179,14 +201,15 @@ export interface KubernetesDashboardExtensionApi {
   getSubscriber(): KubernetesDashboardSubscriber;
 
   /**
-   * Patches Kubernetes resources using a strategic merge patch.
+   * Patches Kubernetes resources.
    *
    * Accepts one or more YAML documents (separated by `---`) describing the resources to patch.
    * Each resource must have `apiVersion`, `kind`, and `metadata.name` set.
    *
    * @param yamlDocuments - The YAML documents describing the resources to patch.
+   * @param options - Options controlling patch strategy and field manager.
    */
-  patchResources(yamlDocuments: string): Promise<void>;
+  patchResources(yamlDocuments: string, options?: PatchResourcesOptions): Promise<void>;
 
   /**
    * Deletes a Kubernetes resource.

@@ -2193,6 +2193,63 @@ describe('applyResources patch strategy', () => {
   });
 });
 
+test('applyResources uses default strategy and field manager', async () => {
+  const patchMock = vi.fn();
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue({
+    getKubeConfig: vi.fn().mockReturnValue({
+      makeApiClient: vi.fn().mockReturnValue({
+        patch: patchMock,
+      } as unknown as KubernetesObjectApi),
+    }),
+    getNamespace: vi.fn().mockReturnValue('ns1'),
+  } as unknown as KubeConfigSingleContext);
+  await manager.update(kc);
+  await manager.applyResources('apiVersion: v1\nkind: Namespace\nmetadata:\n  name: ns1\n');
+  expect(patchMock).toHaveBeenCalledWith(
+    expect.anything(),
+    undefined,
+    undefined,
+    'kubernetes-dashboard',
+    undefined,
+    PatchStrategy.StrategicMergePatch,
+  );
+});
+
+test('applyResources uses custom strategy and field manager from options', async () => {
+  const patchMock = vi.fn();
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue({
+    getKubeConfig: vi.fn().mockReturnValue({
+      makeApiClient: vi.fn().mockReturnValue({
+        patch: patchMock,
+      } as unknown as KubernetesObjectApi),
+    }),
+    getNamespace: vi.fn().mockReturnValue('ns1'),
+  } as unknown as KubeConfigSingleContext);
+  await manager.update(kc);
+  await manager.applyResources('apiVersion: v1\nkind: Namespace\nmetadata:\n  name: ns1\n', {
+    strategy: 'merge-patch',
+    fieldManager: 'custom-manager',
+  });
+  expect(patchMock).toHaveBeenCalledWith(
+    expect.anything(),
+    undefined,
+    undefined,
+    'custom-manager',
+    undefined,
+    PatchStrategy.MergePatch,
+  );
+});
+
 describe('lazy informer lifecycle', () => {
   const createdLazyInformerMock = {
     onCacheUpdated: vi.fn(),
