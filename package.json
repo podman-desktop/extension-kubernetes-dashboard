@@ -58,7 +58,7 @@
     "eslint-plugin-sonarjs": "^4.2.0",
     "eslint-plugin-svelte": "^3.23.0",
     "eslint-plugin-unicorn": "^73.0.0",
-    "node-gyp": "^13.0.1",
+    "node-gyp": "^13.0.2",
     "prettier": "^3.9.6",
     "prettier-plugin-svelte": "^4.1.1",
     "svelte": "5.56.10",
