@@ -32,6 +32,28 @@ export interface ContextHealth {
   errorMessage?: string;
 }
 
+/**
+ * Patch strategy for Kubernetes resource operations.
+ *
+ * - `'json-patch'` — `application/json-patch+json` (RFC 6902)
+ * - `'merge-patch'` — `application/merge-patch+json` (RFC 7386)
+ * - `'strategic-merge-patch'` — `application/strategic-merge-patch+json` (Kubernetes-specific)
+ * - `'server-side-apply'` — `application/apply-patch+yaml` (server-side field management)
+ */
+export type PatchStrategyType = 'json-patch' | 'merge-patch' | 'strategic-merge-patch' | 'server-side-apply';
+
+export interface PatchResourcesOptions {
+  /**
+   * The patch strategy to use. Defaults to `'strategic-merge-patch'`.
+   */
+  strategy?: PatchStrategyType;
+  /**
+   * The field manager name for server-side field ownership tracking.
+   * Defaults to `'kubernetes-dashboard'`.
+   */
+  fieldManager?: string;
+}
+
 export interface ContextsHealthsInfo {
   healths: ContextHealth[];
 }
@@ -177,6 +199,48 @@ export interface KubernetesDashboardExtensionApi {
    * The subscriber is used to subscribe to the events emitted by the Kubernetes Dashboard extension.
    */
   getSubscriber(): KubernetesDashboardSubscriber;
+
+  /**
+   * Patches Kubernetes resources.
+   *
+   * Accepts one or more YAML documents (separated by `---`) describing the resources to patch.
+   * Each resource must have `apiVersion`, `kind`, and `metadata.name` set.
+   *
+   * @param yamlDocuments - The YAML documents describing the resources to patch.
+   * @param options - Options controlling patch strategy and field manager.
+   */
+  patchResources(yamlDocuments: string, options?: PatchResourcesOptions): Promise<void>;
+
+  /**
+   * Deletes a Kubernetes resource.
+   *
+   * @param kind - The kind of the resource to delete (e.g., 'Pod', 'Deployment').
+   * @param name - The name of the resource to delete.
+   * @param namespace - The namespace of the resource. If not set, defaults to the current namespace.
+   */
+  deleteResource(kind: string, name: string, namespace?: string): Promise<void>;
+
+  /**
+   * Patches a Kubernetes subresource using a merge patch.
+   *
+   * Builds the subresource URL from the provided parameters and sends a raw HTTP PATCH
+   * with content-type `application/merge-patch+json`.
+   *
+   * @param apiVersion - The API version (e.g., 'v1', 'certificates.k8s.io/v1').
+   * @param resource - The resource plural name (e.g., 'pods', 'certificatesigningrequests').
+   * @param name - The name of the resource.
+   * @param subresource - The subresource to patch (e.g., 'status', 'approval', 'scale').
+   * @param body - The patch body object.
+   * @param namespace - The namespace of the resource. Omit for cluster-scoped resources.
+   */
+  patchSubresource(
+    apiVersion: string,
+    resource: string,
+    name: string,
+    subresource: string,
+    body: object,
+    namespace?: string,
+  ): Promise<void>;
 
   readonly contexts: typeof contexts;
 }

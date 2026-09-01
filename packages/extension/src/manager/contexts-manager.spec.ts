@@ -24,7 +24,7 @@ import type {
   ObjectCache,
   V1Status,
 } from '@kubernetes/client-node';
-import { ApiException, KubeConfig } from '@kubernetes/client-node';
+import { ApiException, KubeConfig, PatchStrategy } from '@kubernetes/client-node';
 import { type Uri, Disposable, type TelemetryLogger } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
 import { kubernetes, window } from '@podman-desktop/api';
@@ -44,6 +44,8 @@ import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
 import type { CacheUpdatedEvent, ObjectDeletedEvent, ResourceInformer } from '/@/types/resource-informer.js';
 import { vol } from 'memfs';
 import type { ConnectOptions } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { request as httpsRequest } from 'node:https';
+import type { IncomingMessage, ClientRequest } from 'node:http';
 
 const resource4DeleteObjectMock = vi.fn();
 const resource4SearchBySelectorMock = vi.fn();
@@ -325,6 +327,8 @@ const kcWithNoCurrentContext = {
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:fs'));
+vi.mock(import('node:https'));
+vi.mock(import('node:http'));
 vi.mock(import('./context-health-checker.js'));
 vi.mock(import('./context-permissions-checker.js'));
 
@@ -1466,6 +1470,124 @@ test('deleteObject handler throws a non-ApiException', async () => {
   expect(manager.handleStatus).not.toHaveBeenCalled();
 });
 
+describe('patchSubresource', () => {
+  function createMockResponse(statusCode: number, body: string): void {
+    vi.mocked(httpsRequest).mockImplementation(
+      (_url: unknown, _opts: unknown, callback?: (res: IncomingMessage) => void) => {
+        const res = {
+          statusCode,
+          on: vi.fn((event: string, handler: (chunk?: Buffer) => void) => {
+            if (event === 'data') {
+              handler(Buffer.from(body));
+            }
+            if (event === 'end') {
+              handler();
+            }
+          }),
+        } as unknown as IncomingMessage;
+        callback?.(res);
+        return {
+          on: vi.fn(),
+          write: vi.fn(),
+          end: vi.fn(),
+        } as unknown as ClientRequest;
+      },
+    );
+  }
+
+  async function createManagerWithCluster(server: string): Promise<TestContextsManager> {
+    const kc = new KubeConfig();
+    kc.loadFromOptions({
+      contexts: [{ name: 'ctx', cluster: 'cluster', user: 'user', namespace: 'ns1' }],
+      clusters: [{ name: 'cluster', server }],
+      users: [{ name: 'user' }],
+      currentContext: 'ctx',
+    });
+    const manager = new TestContextsManager();
+    vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+    vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+    await manager.update(kc);
+    return manager;
+  }
+
+  test('throws when no current context', async () => {
+    const kc = new KubeConfig();
+    kc.loadFromOptions(kcWithNoCurrentContext);
+    const manager = new TestContextsManager();
+    vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+    vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+    await manager.update(kc);
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toThrow('no current context');
+  });
+
+  test('builds correct URL for grouped API version with namespace', async () => {
+    createMockResponse(200, '{}');
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await manager.patchSubresource(
+      'certificates.k8s.io/v1',
+      'certificatesigningrequests',
+      'my-csr',
+      'approval',
+      { status: {} },
+      'my-ns',
+    );
+
+    expect(httpsRequest).toHaveBeenCalledWith(
+      new URL(
+        '/apis/certificates.k8s.io/v1/namespaces/my-ns/certificatesigningrequests/my-csr/approval',
+        'https://k8s.example.com',
+      ),
+      expect.objectContaining({ method: 'PATCH' }),
+      expect.any(Function),
+    );
+  });
+
+  test('builds correct URL for core API version without namespace', async () => {
+    createMockResponse(200, '{}');
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await manager.patchSubresource('v1', 'nodes', 'my-node', 'status', { status: {} });
+
+    expect(httpsRequest).toHaveBeenCalledWith(
+      new URL('/api/v1/nodes/my-node/status', 'https://k8s.example.com'),
+      expect.objectContaining({ method: 'PATCH' }),
+      expect.any(Function),
+    );
+  });
+
+  test('sends merge-patch content type and JSON body', async () => {
+    createMockResponse(200, '{}');
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+    const body = { spec: { replicas: 3 } };
+
+    await manager.patchSubresource('apps/v1', 'deployments', 'my-deploy', 'scale', body, 'default');
+
+    expect(httpsRequest).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        method: 'PATCH',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/merge-patch+json',
+        }),
+      }),
+      expect.any(Function),
+    );
+    const mockReq = vi.mocked(httpsRequest).mock.results[0]?.value as ClientRequest;
+    expect(mockReq.write).toHaveBeenCalledWith(JSON.stringify(body));
+  });
+
+  test('rejects on non-2xx status', async () => {
+    createMockResponse(409, '{"message":"conflict"}');
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toThrow(
+      'patch subresource failed with status 409',
+    );
+  });
+});
+
 test('searchBySelector when no current context', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithNoCurrentContext);
@@ -1932,6 +2054,63 @@ test('applyResources sends telemetry', async () => {
     manifestsSize: 1,
     kinds: 'Namespace',
   });
+});
+
+test('applyResources uses default strategy and field manager', async () => {
+  const patchMock = vi.fn();
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue({
+    getKubeConfig: vi.fn().mockReturnValue({
+      makeApiClient: vi.fn().mockReturnValue({
+        patch: patchMock,
+      } as unknown as KubernetesObjectApi),
+    }),
+    getNamespace: vi.fn().mockReturnValue('ns1'),
+  } as unknown as KubeConfigSingleContext);
+  await manager.update(kc);
+  await manager.applyResources('apiVersion: v1\nkind: Namespace\nmetadata:\n  name: ns1\n');
+  expect(patchMock).toHaveBeenCalledWith(
+    expect.anything(),
+    undefined,
+    undefined,
+    'kubernetes-dashboard',
+    undefined,
+    PatchStrategy.StrategicMergePatch,
+  );
+});
+
+test('applyResources uses custom strategy and field manager from options', async () => {
+  const patchMock = vi.fn();
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue({
+    getKubeConfig: vi.fn().mockReturnValue({
+      makeApiClient: vi.fn().mockReturnValue({
+        patch: patchMock,
+      } as unknown as KubernetesObjectApi),
+    }),
+    getNamespace: vi.fn().mockReturnValue('ns1'),
+  } as unknown as KubeConfigSingleContext);
+  await manager.update(kc);
+  await manager.applyResources('apiVersion: v1\nkind: Namespace\nmetadata:\n  name: ns1\n', {
+    strategy: 'merge-patch',
+    fieldManager: 'custom-manager',
+  });
+  expect(patchMock).toHaveBeenCalledWith(
+    expect.anything(),
+    undefined,
+    undefined,
+    'custom-manager',
+    undefined,
+    PatchStrategy.MergePatch,
+  );
 });
 
 describe('lazy informer lifecycle', () => {

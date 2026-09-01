@@ -139,6 +139,59 @@ test('activate should return a KubernetesDashboardExtensionApi', async () => {
   expect((apiSubscriber as ApiSubscriber).dispose).toHaveBeenCalledOnce();
 });
 
+test('api.patchResources should delegate to ContextsManager.applyResources', async () => {
+  ContextsManager.prototype.applyResources = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  await api.patchResources('apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test');
+
+  expect(ContextsManager.prototype.applyResources).toHaveBeenCalledWith(
+    'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test',
+    undefined,
+  );
+});
+
+test('api.patchResources should forward options to ContextsManager.applyResources', async () => {
+  ContextsManager.prototype.applyResources = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  await api.patchResources('apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test', {
+    strategy: 'merge-patch',
+    fieldManager: 'custom-manager',
+  });
+
+  expect(ContextsManager.prototype.applyResources).toHaveBeenCalledWith(
+    'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test',
+    { strategy: 'merge-patch', fieldManager: 'custom-manager' },
+  );
+});
+
+test('api.deleteResource should delegate to ContextsManager.deleteObjectImmediately', async () => {
+  ContextsManager.prototype.deleteObjectImmediately = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  await api.deleteResource('Pod', 'my-pod', 'default');
+
+  expect(ContextsManager.prototype.deleteObjectImmediately).toHaveBeenCalledWith('Pod', 'my-pod', 'default');
+});
+
+test('api.patchSubresource should delegate to ContextsManager.patchSubresource', async () => {
+  ContextsManager.prototype.patchSubresource = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  const body = { status: { conditions: [{ type: 'Approved', status: 'True' }] } };
+  await api.patchSubresource('certificates.k8s.io/v1', 'certificatesigningrequests', 'my-csr', 'approval', body);
+
+  expect(ContextsManager.prototype.patchSubresource).toHaveBeenCalledWith(
+    'certificates.k8s.io/v1',
+    'certificatesigningrequests',
+    'my-csr',
+    'approval',
+    body,
+    undefined,
+  );
+});
+
 test('subscriber.onResourceUpdate should subscribe to UPDATE_RESOURCE channel', async () => {
   const api = await dashboardExtension.activate();
   const subscriber = api.getSubscriber();
