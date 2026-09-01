@@ -22,10 +22,8 @@ spec:
     - 10.244.0.0/24
 status:
   addresses:
-    - address: 192.168.1.52
+    - address: 127.0.0.1
       type: InternalIP
-    - address: node1
-      type: Hostname
   allocatable:
     cpu: '4'
     ephemeral-storage: '229909918545'
@@ -418,6 +416,7 @@ metadata:
   namespace: default
   uid: b7a5a6d9-8f6f-4982-ba15-9e295dc043f1
 spec:
+  nodeName: node1
   containers:
     - image: httpd
       imagePullPolicy: Always

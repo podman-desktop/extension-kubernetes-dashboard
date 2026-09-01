@@ -117,7 +117,7 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 - Install envtest tools:
 
 ```sh
-go install github.com/feloy/envtest-start@v0.1.0
+go install github.com/feloy/envtest-start@v0.3.0
 go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
 ```
 
@@ -161,7 +161,7 @@ podman rmi -f localhost/local_image:latest
 ```sh
 export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)
 
-envtest-start --users 1 /tmp/envtest-kubeconfig &
+envtest-start --fake-kubelet --users 1 /tmp/envtest-kubeconfig &
 ENVTEST_START_PID=$!
 
 while [ ! -f /tmp/envtest-kubeconfig ]; do sleep 1; done
