@@ -19,7 +19,7 @@ fi
 
 # envtest tools
 go install github.com/feloy/envtest-start@v0.1.0
-go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
+go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.24
 
 # Xvfb and Electron shared libraries (Fedora / RHEL-based)
 sudo dnf install -y \

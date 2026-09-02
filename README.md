@@ -118,7 +118,7 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 
 ```sh
 go install github.com/feloy/envtest-start@v0.3.0
-go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
+go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.24
 ```
 
 #### Run the tests
