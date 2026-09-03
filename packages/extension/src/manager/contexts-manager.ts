@@ -88,6 +88,7 @@ import { NetworkPoliciesResourceFactory } from '/@/resources/network-policies-re
 import { IngressClassesResourceFactory } from '/@/resources/ingress-classes-resource-factory.js';
 import { HttpRoutesResourceFactory } from '/@/resources/httproutes-resource-factory.js';
 import { GatewayClassesResourceFactory } from '/@/resources/gatewayclasses-resource-factory.js';
+import { ResourceQuotasResourceFactory } from '/@/resources/resource-quotas-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -211,6 +212,7 @@ export class ContextsManager implements ContextsApi {
       new IngressClassesResourceFactory(),
       new HttpRoutesResourceFactory(),
       new GatewayClassesResourceFactory(),
+      new ResourceQuotasResourceFactory(),
     ];
   }
 
