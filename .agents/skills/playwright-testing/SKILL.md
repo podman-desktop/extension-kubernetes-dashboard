@@ -35,7 +35,7 @@ E2E tests require a local Kubernetes API server via envtest (Kubebuilder):
 
 1. Install `setup-envtest`:
    ```sh
-   go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.22
+   go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.24
    ```
 2. Install `envtest-start`:
    ```sh
