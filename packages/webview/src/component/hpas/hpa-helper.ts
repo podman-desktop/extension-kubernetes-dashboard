@@ -22,7 +22,7 @@ import type { HpaUI } from './HpaUI';
 
 export class HpaHelper {
   getHpaUI(hpa: V2HorizontalPodAutoscaler): HpaUI {
-    const specMetrics = hpa.spec?.metrics ?? [];
+    const specMetrics = hpa.spec.metrics ?? [];
     const currentMetrics = hpa.status?.currentMetrics ?? [];
 
     const metrics = specMetrics
@@ -59,8 +59,8 @@ export class HpaHelper {
       created: hpa.metadata?.creationTimestamp,
       selected: false,
       metrics: metrics || 'N/A',
-      minReplicas: hpa.spec?.minReplicas ?? 1,
-      maxReplicas: hpa.spec?.maxReplicas ?? 0,
+      minReplicas: hpa.spec.minReplicas ?? 1,
+      maxReplicas: hpa.spec.maxReplicas ?? 0,
       currentReplicas: hpa.status?.currentReplicas ?? 0,
       desiredReplicas: hpa.status?.desiredReplicas ?? 0,
     };

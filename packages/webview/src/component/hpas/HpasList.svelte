@@ -1,17 +1,24 @@
 <script lang="ts">
+import type { KubernetesObject, V2HorizontalPodAutoscaler } from '@kubernetes/client-node';
 import { TableColumn, TableDurationColumn, TableRow, TableSimpleColumn } from '@podman-desktop/ui-svelte';
 import moment from 'moment';
+import { getContext } from 'svelte';
 
+import { icon } from '/@/component/icons/icon';
 import NameColumn from '/@/component/objects/columns/Name.svelte';
 import StatusColumn from '/@/component/objects/columns/Status.svelte';
-import KubernetesObjectsList from '/@/component/objects/KubernetesObjectsList.svelte';
-import ActionsColumn from './columns/Actions.svelte';
-import { getContext } from 'svelte';
-import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import KubernetesEmptyScreen from '/@/component/objects/KubernetesEmptyScreen.svelte';
-import { icon } from '/@/component/icons/icon';
-import type { HpaUI } from './HpaUI';
+import KubernetesObjectsList from '/@/component/objects/KubernetesObjectsList.svelte';
+import type { KubernetesObjectUI } from '/@/component/objects/KubernetesObjectUI';
+import { DependencyAccessor } from '/@/inject/dependency-accessor';
+
+import ActionsColumn from './columns/Actions.svelte';
 import { HpaHelper } from './hpa-helper';
+import type { HpaUI } from './HpaUI';
+
+function isV2HorizontalPodAutoscaler(o: KubernetesObject): o is V2HorizontalPodAutoscaler {
+  return 'spec' in o && o.spec !== undefined;
+}
 
 const dependencyAccessor = getContext<DependencyAccessor>(DependencyAccessor);
 const hpaHelper = dependencyAccessor.get<HpaHelper>(HpaHelper);
@@ -84,7 +91,12 @@ const row = new TableRow<HpaUI>({ selectable: (_obj): boolean => true });
   kinds={[
     {
       resource: 'horizontalpodautoscalers',
-      transformer: hpaHelper.getHpaUI.bind(hpaHelper),
+      transformer: (o: KubernetesObject): KubernetesObjectUI => {
+        if (!isV2HorizontalPodAutoscaler(o)) {
+          throw new Error(`HorizontalPodAutoscaler ${o.metadata?.name} is missing spec`);
+        }
+        return hpaHelper.getHpaUI.bind(hpaHelper)(o);
+      },
     },
   ]}
   singular="horizontal pod autoscaler"
