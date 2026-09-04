@@ -1372,7 +1372,50 @@ test('deleteObject handler returns KubernetesObject', async () => {
   expect(manager.handleStatus).not.toHaveBeenCalled();
 });
 
-test('deleteObject handler returns Status', async () => {
+test('deleteObject handler returns a failure Status', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(manager, 'handleStatus');
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  const status = {
+    kind: 'Status',
+    status: 'Failure',
+    message: 'an error message',
+  };
+  resource4DeleteObjectMock.mockReturnValue(status);
+  await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
+  expect(window.showInformationMessage).toHaveBeenCalled();
+  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+  expect(manager.handleStatus).toHaveBeenCalledWith(status, 'deletion of Resource4 resource-name');
+});
+
+// Some kinds (Ingress, ConfigMap, etc.) return a successful Status instead of the deleted object
+test('deleteObject handler returns a successful Status', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWithContext1asDefault);
+  const manager = new TestContextsManager();
+  vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+  vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+  vi.spyOn(manager, 'handleStatus');
+  await manager.update(kc);
+  vi.mocked(window.showInformationMessage).mockImplementation(async (): Promise<string> => 'Yes');
+  resource4DeleteObjectMock.mockReturnValue({
+    kind: 'Status',
+    status: 'Success',
+    details: { name: 'resource-name' },
+  });
+  await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
+  expect(window.showInformationMessage).toHaveBeenCalled();
+  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+  expect(manager.handleStatus).not.toHaveBeenCalled();
+  expect(window.showNotification).not.toHaveBeenCalled();
+});
+
+test('deleteObject handler returns a Status without status field', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithContext1asDefault);
   const manager = new TestContextsManager();
@@ -1386,8 +1429,6 @@ test('deleteObject handler returns Status', async () => {
   };
   resource4DeleteObjectMock.mockReturnValue(status);
   await manager.deleteObject('Resource4', 'resource-name', 'other-ns');
-  expect(window.showInformationMessage).toHaveBeenCalled();
-  expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
   expect(manager.handleStatus).toHaveBeenCalledWith(status, 'deletion of Resource4 resource-name');
 });
 
