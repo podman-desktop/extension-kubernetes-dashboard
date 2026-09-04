@@ -88,6 +88,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
   #retryCount: number = 0;
   // date of the last retry after a 429, used to detect the end of an incident
   #lastRetryTime: number = 0;
+  #disposed: boolean = false;
 
   #onCacheUpdated = new Emitter<CacheUpdatedEvent>();
   onCacheUpdated: Event<CacheUpdatedEvent> = this.#onCacheUpdated.event;
@@ -154,6 +155,11 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     });
     // This is issued when there is an error
     this.#informer.on(ERROR, (error: unknown) => {
+      // an error can still be received after the informer has been stopped,
+      // for instance the error caused by the abortion of the watch request
+      if (this.#disposed) {
+        return;
+      }
       const statusCode = getStatusCode(error);
       if (statusCode === 404) {
         // starting from kubernetes-client v1.1, informer is correctly started even if resource does not exist in API
@@ -197,6 +203,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
   }
 
   dispose(): void {
+    this.#disposed = true;
     this.#cancelRetry();
     this.#onCacheUpdated.dispose();
     this.#onOffline.dispose();

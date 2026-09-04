@@ -521,6 +521,23 @@ test('ResourceInformer should not restart the informer after a 429 if it has bee
   expect(startMock).not.toHaveBeenCalled();
 });
 
+test('ResourceInformer should not schedule a retry for a 429 received after being disposed', () => {
+  vi.useFakeTimers();
+  const { informer, startMock, fireError } = createInformerWithMock();
+  const onOfflineCB = vi.fn();
+  informer.onOffline(onOfflineCB);
+  informer.start();
+  startMock.mockClear();
+
+  informer.dispose();
+  // the request in flight when the informer was disposed returns after the disposal
+  fireError(new ApiException(429, 'Too Many Requests', {}, {}));
+
+  vi.advanceTimersByTime(60_000);
+  expect(startMock).not.toHaveBeenCalled();
+  expect(onOfflineCB).not.toHaveBeenCalled();
+});
+
 test('ResourceInformer should cancel a pending retry when reconnecting', () => {
   vi.useFakeTimers();
   const { informer, startMock, fireError } = createInformerWithMock();
