@@ -47,6 +47,7 @@ const configUrls = [
   navigator.kubernetesResourcesURL('ConfigMap'),
   navigator.kubernetesResourcesURL('ServiceAccount'),
   navigator.kubernetesResourcesURL('ResourceQuota'),
+  navigator.kubernetesResourcesURL('MutatingWebhookConfiguration'),
 ];
 
 const networkUrls = [
@@ -161,6 +162,10 @@ $effect(() => {
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
       <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
       <NavItem title="Resource Quotas" child={true} href={navigator.kubernetesResourcesURL('ResourceQuota')} />
+      <NavItem
+        title="Mutating Webhook Configs"
+        child={true}
+        href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
     {/if}
 
     <!-- Network section -->

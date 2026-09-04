@@ -53,6 +53,7 @@ export enum KubernetesResources {
   ClusterRoles = 'Cluster Roles',
   ClusterRoleBindings = 'Cluster Role Bindings',
   ResourceQuotas = 'Resource Quotas',
+  MutatingWebhookConfigs = 'Mutating Webhook Configs',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -141,4 +142,13 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   [KubernetesResources.ClusterRoles]: ['Selected', 'Status', 'Name', 'Rules', 'Age', 'Actions'],
   [KubernetesResources.ClusterRoleBindings]: ['Selected', 'Status', 'Name', 'Bindings', 'Role', 'Age', 'Actions'],
   [KubernetesResources.ResourceQuotas]: ['Selected', 'Status', 'Name', 'Request Count', 'Age', 'Actions'],
+  [KubernetesResources.MutatingWebhookConfigs]: [
+    'Selected',
+    'Status',
+    'Name',
+    'Webhooks',
+    'Failure Policy',
+    'Age',
+    'Actions',
+  ],
 };
