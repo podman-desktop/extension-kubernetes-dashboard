@@ -84,6 +84,7 @@ export class ResourceFactoryBase {
   #resource: string;
   #kind: string;
   #eagerStart: boolean;
+  #isCustomResource: boolean;
   #permissions: ResourcePermissionsFactory | undefined;
   #informer: ResourceInformerFactory | undefined;
   #isActive: undefined | ((resource: KubernetesObject) => boolean);
@@ -98,10 +99,19 @@ export class ResourceFactoryBase {
     this.#resource = options.resource;
     this.#kind = options.kind;
     this.#eagerStart = false;
+    this.#isCustomResource = false;
   }
 
   setEagerStart(): ResourceFactoryBase {
     this.#eagerStart = true;
+    return this;
+  }
+
+  // declares that the kind is provided by a CustomResourceDefinition.
+  // the API server does not serve strategic merge patch for these kinds,
+  // they are patched using server-side apply instead
+  setIsCustomResource(): ResourceFactoryBase {
+    this.#isCustomResource = true;
     return this;
   }
 
@@ -171,6 +181,10 @@ export class ResourceFactoryBase {
     return this.#eagerStart;
   }
 
+  get isCustomResource(): boolean {
+    return this.#isCustomResource;
+  }
+
   get permissions(): ResourcePermissionsFactory | undefined {
     return this.#permissions;
   }
@@ -229,6 +243,8 @@ export interface ResourceFactory {
   get resource(): string;
   get kind(): string;
   get eagerStart(): boolean;
+  // isCustomResource is true if the kind is provided by a CustomResourceDefinition
+  get isCustomResource(): boolean;
   permissions?: ResourcePermissionsFactory;
   informer?: ResourceInformerFactory;
   // isActive returns true if `resource` is considered active

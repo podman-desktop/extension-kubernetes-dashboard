@@ -35,6 +35,8 @@ export class HttpRoutesResourceFactory extends ResourceFactoryBase implements Re
       kind: 'HTTPRoute',
     });
 
+    this.setIsCustomResource();
+
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [

@@ -151,6 +151,36 @@ crashing.
 
 ---
 
+##### `setIsCustomResource()`
+
+**Purpose**: declares that the kind is provided by a CustomResourceDefinition.
+The Kubernetes API server does not serve strategic merge patch for those kinds —
+it accepts only `application/json-patch+json`, `application/merge-patch+json` and
+`application/apply-patch+yaml` — so `ContextsManager.applyResources()` patches
+them with a server-side apply (`PatchStrategy.ServerSideApply`, with `force` set
+so the `kubernetes-dashboard` field manager takes ownership) instead of the
+strategic merge patch used for the other kinds. Without this declaration, the
+"Patch resource" button of the YAML tab fails with `the body of the request was
+in an unknown format`.
+
+**When to define it**: whenever the kind comes from a CRD installed in the
+cluster, such as the Gateway API resources (`gateway.networking.k8s.io`).
+
+**When to omit it**: for every kind served natively by the API server. Using
+`CustomObjectsApi` in the informer is *not* the criterion: OpenShift Routes
+(`route.openshift.io`) are read with `CustomObjectsApi` but are served by the
+OpenShift aggregated API server from typed Go objects, so they do support
+strategic merge patch and must not be declared as custom resources.
+
+**Existing examples**: `HttpRoutesResourceFactory`, `GatewayClassesResourceFactory`.
+
+**Signature**:
+```typescript
+setIsCustomResource()
+```
+
+---
+
 ##### `setIsActive(fn: (obj) => boolean)`
 
 **Purpose**: enables the "Active" metric column on the dashboard home page cards.
@@ -966,6 +996,7 @@ When reviewing a PR that adds a new resource, verify each item:
 - [ ] Factory import added to `contexts-manager.ts`
 - [ ] Factory unit test exists and covers `isActive` logic (if applicable)
 - [ ] `setDeleteObject` is defined only if the UI will expose a delete action; omit for admin resources (Nodes, StorageClasses) and system resources (Events, EndpointSlices)
+- [ ] `setIsCustomResource()` is called if the kind is provided by a CRD (Gateway API and other cluster-installed CRDs), so that patching uses server-side apply; not called for kinds served natively, including OpenShift Routes
 
 ### Webview
 

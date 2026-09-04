@@ -1037,18 +1037,29 @@ export class ContextsManager implements ContextsApi {
     }
     const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
     for (const manifest of manifests) {
+      // the API server does not serve strategic merge patch for kinds provided by a
+      // CustomResourceDefinition (it accepts only json-patch, merge-patch and apply-patch),
+      // these resources are patched using server-side apply instead
+      const factory = this.#resourceFactoryHandler.getResourceFactoryByKind(manifest.kind ?? '');
+      const serverSideApply = factory?.isCustomResource ?? false;
+      const strategy = serverSideApply ? PatchStrategy.ServerSideApply : PatchStrategy.StrategicMergePatch;
+
       manifest.metadata ??= {};
-      manifest.metadata.annotations ??= {};
-      manifest.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(manifest);
       manifest.metadata.namespace ??= this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
+      if (!serverSideApply) {
+        // last-applied-configuration is a client-side apply artifact,
+        // server-side apply tracks ownership in metadata.managedFields instead
+        manifest.metadata.annotations ??= {};
+        manifest.metadata.annotations['kubectl.kubernetes.io/last-applied-configuration'] = JSON.stringify(manifest);
+      }
       try {
         const result = await client.patch(
           manifest,
           undefined, // pretty
           undefined, // dryRun
           FIELD_MANAGER,
-          undefined, // force
-          PatchStrategy.StrategicMergePatch,
+          serverSideApply ? true : undefined, // force: take ownership from the other field managers
+          strategy,
         );
         this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
       } catch (error: unknown) {
