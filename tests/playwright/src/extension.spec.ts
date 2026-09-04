@@ -234,6 +234,12 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
       .toBeTruthy();
   });
 
+  test('go to gateways page', async () => {
+    const gatewaysPage = await navigation.openTabPage(KubernetesResources.Gateways);
+    await playExpect(gatewaysPage.heading).toBeVisible();
+    await playExpect.poll(async () => gatewaysPage.isEmpty('No gateways'), { timeout: 15_000 }).toBeTruthy();
+  });
+
   test('go to pvc page', async () => {
     const pvcPage = await navigation.openTabPage(KubernetesResources.PVCs);
     await playExpect(pvcPage.heading).toBeVisible();
@@ -641,6 +647,16 @@ test.describe('With resources', { tag: '@integration' }, () => {
       'gateway-class1',
       KubernetesResources.GatewayClasses,
     );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to gateway1 page', async () => {
+    const gatewaysPage = await navigation.openTabPage(KubernetesResources.Gateways);
+    await playExpect(gatewaysPage.heading).toBeVisible();
+    await playExpect.poll(async () => gatewaysPage.rowsAreVisible()).toBeTruthy();
+
+    const kubernetesResourceDetails = await gatewaysPage.openResourceDetails('gateway1', KubernetesResources.Gateways);
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
     await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
   });

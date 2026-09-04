@@ -57,6 +57,7 @@ const networkUrls = [
   navigator.kubernetesResourcesURL('NetworkPolicy'),
   navigator.kubernetesResourcesURL('IngressClass'),
   navigator.kubernetesResourcesURL('GatewayClass'),
+  navigator.kubernetesResourcesURL('Gateway'),
   navigator.kubernetesResourcesURL('HTTPRoute'),
   '/portForward',
 ];
@@ -173,6 +174,7 @@ $effect(() => {
       <NavItem title="Network Policies" child={true} href={navigator.kubernetesResourcesURL('NetworkPolicy')} />
       <NavItem title="Ingress Classes" child={true} href={navigator.kubernetesResourcesURL('IngressClass')} />
       <NavItem title="Gateway Classes" child={true} href={navigator.kubernetesResourcesURL('GatewayClass')} />
+      <NavItem title="Gateways" child={true} href={navigator.kubernetesResourcesURL('Gateway')} />
       <NavItem title="HTTPRoutes" child={true} href={navigator.kubernetesResourcesURL('HTTPRoute')} />
       <NavItem title="Port Forwarding" child={true} href="/portForward" />
     {/if}

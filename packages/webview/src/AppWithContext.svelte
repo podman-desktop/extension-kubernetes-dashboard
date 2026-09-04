@@ -61,6 +61,8 @@ import GatewayClassesList from './component/gatewayclasses/GatewayClassesList.sv
 import GatewayClassDetails from './component/gatewayclasses/GatewayClassDetails.svelte';
 import ResourceQuotasList from './component/resource-quotas/ResourceQuotasList.svelte';
 import ResourceQuotaDetails from './component/resource-quotas/ResourceQuotaDetails.svelte';
+import GatewaysList from './component/gateways/GatewaysList.svelte';
+import GatewayDetails from './component/gateways/GatewayDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -241,6 +243,14 @@ const { meta }: Props = $props();
 
   <Route path="/gatewayclasses/:name/*" let:meta>
     <GatewayClassDetails name={decodeURI(meta.params.name)} />
+  </Route>
+
+  <Route path="/gateways">
+    <GatewaysList />
+  </Route>
+
+  <Route path="/gateways/:name/:namespace/*" let:meta>
+    <GatewayDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
   </Route>
 
   <Route path="/httproutes">
