@@ -495,7 +495,9 @@ test('ResourceInformer should increase the delay between retries and go offline 
   expect(onOfflineCB).not.toHaveBeenCalled();
 
   // the retries are exhausted, the informer goes offline
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
   fireError(error);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('after 5 retries, going offline'));
   expect(onOfflineCB).toHaveBeenCalledWith({
     kubeconfig,
     resourceName: 'myresources',
@@ -505,6 +507,7 @@ test('ResourceInformer should increase the delay between retries and go offline 
   expect(informer.isOffline()).toBeTruthy();
   vi.advanceTimersByTime(60_000);
   expect(startMock).not.toHaveBeenCalled();
+  consoleErrorSpy.mockRestore();
 });
 
 test('ResourceInformer should not restart the informer after a 429 if it has been disposed', () => {

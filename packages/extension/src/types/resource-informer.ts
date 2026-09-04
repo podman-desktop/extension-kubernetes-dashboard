@@ -168,9 +168,14 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
       }
       // the server asks us to slow down: retry instead of declaring the informer offline,
       // as going offline drops the caches of every resource of the context
-      if (statusCode === 429 && this.#getRetryCount() < MAX_RETRIES_ON_THROTTLING) {
-        this.#scheduleRetry(error);
-        return;
+      if (statusCode === 429) {
+        if (this.#getRetryCount() < MAX_RETRIES_ON_THROTTLING) {
+          this.#scheduleRetry(error);
+          return;
+        }
+        console.error(
+          `[informer] ${this.#pluralName} on context ${this.#kubeConfig.getKubeConfig().currentContext} is still receiving 429 (Too Many Requests) after ${MAX_RETRIES_ON_THROTTLING} retries, going offline`,
+        );
       }
       this.#offline = true;
       this.#onOffline.fire({
