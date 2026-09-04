@@ -257,6 +257,11 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect(serviceAccountsPage.heading).toBeVisible();
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
   });
+  test('go to hpas page', async () => {
+    const hpasPage = await navigation.openTabPage(KubernetesResources.HorizontalPodAutoscalers);
+    await playExpect(hpasPage.heading).toBeVisible();
+    await playExpect.poll(async () => hpasPage.isEmpty('No horizontalpodautoscalers')).toBeTruthy();
+  });
   test('go to resourceQuotas page', async () => {
     const resourceQuotasPage = await navigation.openTabPage(KubernetesResources.ResourceQuotas);
     await playExpect(resourceQuotasPage.heading).toBeVisible();
