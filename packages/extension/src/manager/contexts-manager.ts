@@ -758,10 +758,10 @@ export class ContextsManager implements ContextsApi {
   }
 
   private handleResult(result: KubernetesObject | V1Status, actionMsg: string): void {
-    if (this.isV1Status(result)) {
+    if (this.isV1Status(result) && this.isFailureStatus(result)) {
       this.handleStatus(result, actionMsg);
     }
-    // Ignore if result is a KubernetesObject
+    // Ignore if result is a KubernetesObject or a successful Status
   }
 
   private handleApiException(error: unknown, actionMsg: string): void {
@@ -791,6 +791,13 @@ export class ContextsManager implements ContextsApi {
 
   private isConflict(error: unknown): boolean {
     return error instanceof ApiException && error.code === 409;
+  }
+
+  // The API returns a Status object as the result of a successful operation for some kinds
+  // (Ingress, ConfigMap, Deployment, etc.), while others return the object itself.
+  // Only a Status not explicitly marked as successful is an error.
+  private isFailureStatus(status: V1Status): boolean {
+    return status.status !== 'Success';
   }
 
   private isV1Status(status: unknown): status is V1Status {
