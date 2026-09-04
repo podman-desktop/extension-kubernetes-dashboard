@@ -24,7 +24,7 @@ import type {
   ObjectCache,
   V1Status,
 } from '@kubernetes/client-node';
-import { ApiException, KubeConfig } from '@kubernetes/client-node';
+import { ApiException, KubeConfig, PatchStrategy } from '@kubernetes/client-node';
 import { type Uri, Disposable, type TelemetryLogger } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
 import { kubernetes, window } from '@podman-desktop/api';
@@ -218,6 +218,21 @@ class TestContextsManager extends ContextsManager {
           ],
         })
         .setReadObject(resource5ReadObjectMock),
+      new ResourceFactoryBase({
+        kind: 'CustomResource1',
+        resource: 'customresource1',
+      })
+        .setIsCustomResource()
+        .setPermissions({
+          isNamespaced: true,
+          permissionsRequests: [
+            {
+              group: '*',
+              resource: '*',
+              verb: 'watch',
+            },
+          ],
+        }),
       new ResourceFactoryBase({
         kind: 'Event',
         resource: 'events',
@@ -1931,6 +1946,84 @@ test('applyResources sends telemetry', async () => {
   expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('apply.resources', {
     manifestsSize: 1,
     kinds: 'Namespace',
+  });
+});
+
+describe('applyResources patch strategy', () => {
+  const patchMock = vi.fn();
+
+  async function createManager(): Promise<TestContextsManager> {
+    const kc = new KubeConfig();
+    kc.loadFromOptions(kcWithContext1asDefault);
+    const manager = new TestContextsManager();
+    vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+    vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+    vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue({
+      getKubeConfig: vi.fn().mockReturnValue({
+        makeApiClient: vi.fn().mockReturnValue({
+          patch: patchMock,
+        } as unknown as KubernetesObjectApi),
+      }),
+      getNamespace: vi.fn().mockReturnValue('ns1'),
+    } as unknown as KubeConfigSingleContext);
+    await manager.update(kc);
+    return manager;
+  }
+
+  test('a resource not provided by a CRD is patched with a strategic merge patch', async () => {
+    const manager = await createManager();
+
+    await manager.applyResources('apiVersion: v1\nkind: Resource2\nmetadata:\n  name: resource-name\n');
+
+    expect(patchMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: 'Resource2',
+        metadata: expect.objectContaining({
+          namespace: 'ns1',
+          annotations: expect.objectContaining({
+            'kubectl.kubernetes.io/last-applied-configuration': expect.any(String),
+          }),
+        }),
+      }),
+      undefined, // pretty
+      undefined, // dryRun
+      'kubernetes-dashboard',
+      undefined, // force
+      PatchStrategy.StrategicMergePatch,
+    );
+  });
+
+  test('a resource provided by a CRD is patched with a server-side apply', async () => {
+    const manager = await createManager();
+
+    await manager.applyResources(
+      'apiVersion: example.com/v1\nkind: CustomResource1\nmetadata:\n  name: resource-name\n',
+    );
+
+    expect(patchMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: 'CustomResource1',
+        metadata: expect.objectContaining({
+          namespace: 'ns1',
+        }),
+      }),
+      undefined, // pretty
+      undefined, // dryRun
+      'kubernetes-dashboard',
+      true, // force
+      PatchStrategy.ServerSideApply,
+    );
+  });
+
+  test('the last-applied-configuration annotation is not added for a resource provided by a CRD', async () => {
+    const manager = await createManager();
+
+    await manager.applyResources(
+      'apiVersion: example.com/v1\nkind: CustomResource1\nmetadata:\n  name: resource-name\n',
+    );
+
+    const patchedManifest = patchMock.mock.calls[0]?.[0] as KubernetesObject;
+    expect(patchedManifest.metadata?.annotations).toBeUndefined();
   });
 });
 

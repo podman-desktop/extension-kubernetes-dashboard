@@ -74,7 +74,7 @@ async function applyToCluster(): Promise<void> {
   class="flex flex-row-reverse p-6 bg-transparent fixed bottom-0 right-0 mb-0 pr-10 max-h-20 bg-opacity-90 z-50"
   role="group"
   aria-label="Edit Buttons">
-  <Tooltip topLeft tip="Patch resource using Strategic Merge">
+  <Tooltip topLeft tip="Patch resource using Strategic Merge (Server-Side Apply for custom resources)">
     <Button
       type="primary"
       aria-label="Patch resource"
