@@ -50,6 +50,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.ClusterRoles]: NavSection.AccessControl,
   [KubernetesResources.ClusterRoleBindings]: NavSection.AccessControl,
   [KubernetesResources.ResourceQuotas]: NavSection.Config,
+  [KubernetesResources.Leases]: NavSection.Config,
 };
 
 export class KubernetesBar {
