@@ -133,5 +133,5 @@ jobs:
           github-token: ${{ github.token }}
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ secrets.GITHUB_TOKEN }}
-          image-name: podman-desktop-extension-kubernetes-dashboard
+          image-name: ${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard
           tags: next ${{ github.sha }}
