@@ -87,6 +87,7 @@ import { ClusterRoleBindingsResourceFactory } from '/@/resources/cluster-role-bi
 import { EndpointsResourceFactory } from '/@/resources/endpoints-resource-factory.js';
 import { NetworkPoliciesResourceFactory } from '/@/resources/network-policies-resource-factory.js';
 import { IngressClassesResourceFactory } from '/@/resources/ingress-classes-resource-factory.js';
+import { CertificateSigningRequestsResourceFactory } from '/@/resources/certificate-signing-requests-resource-factory.js';
 import { HttpRoutesResourceFactory } from '/@/resources/httproutes-resource-factory.js';
 import { GatewayClassesResourceFactory } from '/@/resources/gatewayclasses-resource-factory.js';
 import { ResourceQuotasResourceFactory } from '/@/resources/resource-quotas-resource-factory.js';
@@ -239,6 +240,7 @@ export class ContextsManager implements ContextsApi {
       new MutatingWebhooksResourceFactory(),
       new ValidatingWebhooksResourceFactory(),
       new HpasResourceFactory(),
+      new CertificateSigningRequestsResourceFactory(),
     ];
   }
 
