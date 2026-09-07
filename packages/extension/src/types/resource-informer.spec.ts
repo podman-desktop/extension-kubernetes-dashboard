@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024, 2025 Red Hat, Inc.
+ * Copyright (C) 2024 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,21 @@
 
 import type { Cluster, Context, ListWatch, User, V1ObjectMeta } from '@kubernetes/client-node';
 import { ApiException, DELETE, ERROR, KubeConfig, UPDATE } from '@kubernetes/client-node';
-import { expect, test, vi } from 'vitest';
+import type { Mock } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 
 import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 import { ResourceInformer } from './resource-informer.js';
+
+// the jitter added to the retry delays would make the tests non-deterministic
+vi.mock(import('node:crypto'), async importOriginal => ({
+  ...(await importOriginal()),
+  randomInt: vi.fn().mockReturnValue(0),
+}));
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 interface MyResource {
   apiVersion?: string;
@@ -356,4 +367,195 @@ test('ResourceInformer should fire onObjectDeleted event when a resource is dele
       namespace: 'ns1',
     });
   });
+});
+
+interface InformerMock {
+  informer: ResourceInformer<MyResource>;
+  kubeconfig: KubeConfigSingleContext;
+  startMock: Mock;
+  stopMock: Mock;
+  fireError: (error: unknown) => void;
+}
+
+// creates a ResourceInformer with a mocked internal informer,
+// giving access to the ERROR callback registered by the ResourceInformer
+function createInformerWithMock(): InformerMock {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
+  const informer = new ResourceInformer<MyResource>({
+    kubeconfig,
+    path: '/a/path',
+    listFn: vi.fn(),
+    kind: 'MyResource',
+    plural: 'myresources',
+  });
+  const callbacks = new Map<string, (arg: unknown) => void>();
+  const startMock = vi.fn().mockResolvedValue(undefined);
+  const stopMock = vi.fn().mockResolvedValue(undefined);
+  vi.spyOn(informer, 'makeInformer').mockReturnValue({
+    on: vi.fn().mockImplementation((event: string, cb: (arg: unknown) => void) => {
+      callbacks.set(event, cb);
+    }),
+    start: startMock,
+    stop: stopMock,
+  } as unknown as ListWatch<MyResource>);
+  return {
+    informer,
+    kubeconfig,
+    startMock,
+    stopMock,
+    fireError: (error: unknown): void => callbacks.get(ERROR)?.(error),
+  };
+}
+
+test('ResourceInformer should not go offline but restart the informer when the list request returns 429', () => {
+  vi.useFakeTimers();
+  const { informer, startMock, fireError } = createInformerWithMock();
+  const onOfflineCB = vi.fn();
+  informer.onOffline(onOfflineCB);
+  informer.start();
+  expect(startMock).toHaveBeenCalledOnce();
+  startMock.mockClear();
+
+  fireError(new ApiException(429, 'Too Many Requests', {}, {}));
+  expect(onOfflineCB).not.toHaveBeenCalled();
+  expect(informer.isOffline()).toBeFalsy();
+
+  // first retry happens after the base delay
+  vi.advanceTimersByTime(999);
+  expect(startMock).not.toHaveBeenCalled();
+  vi.advanceTimersByTime(1);
+  expect(startMock).toHaveBeenCalledOnce();
+});
+
+test('ResourceInformer should restart the informer when the watch request returns 429', () => {
+  vi.useFakeTimers();
+  const { informer, startMock, fireError } = createInformerWithMock();
+  const onOfflineCB = vi.fn();
+  informer.onOffline(onOfflineCB);
+  informer.start();
+  startMock.mockClear();
+
+  // the watch request does not report the error as an ApiException,
+  // but as an Error carrying a statusCode
+  fireError(Object.assign(new Error('Too Many Requests'), { statusCode: 429 }));
+  expect(onOfflineCB).not.toHaveBeenCalled();
+
+  vi.advanceTimersByTime(1000);
+  expect(startMock).toHaveBeenCalledOnce();
+});
+
+test('ResourceInformer should honour the Retry-After header', () => {
+  vi.useFakeTimers();
+  const { informer, startMock, fireError } = createInformerWithMock();
+  informer.start();
+  startMock.mockClear();
+
+  fireError(new ApiException(429, 'Too Many Requests', {}, { 'Retry-After': '7' }));
+
+  vi.advanceTimersByTime(6_999);
+  expect(startMock).not.toHaveBeenCalled();
+  vi.advanceTimersByTime(1);
+  expect(startMock).toHaveBeenCalledOnce();
+});
+
+test('ResourceInformer should honour retryAfterSeconds in the body when there is no Retry-After header', () => {
+  vi.useFakeTimers();
+  const { informer, startMock, fireError } = createInformerWithMock();
+  informer.start();
+  startMock.mockClear();
+
+  fireError(new ApiException(429, 'Too Many Requests', JSON.stringify({ details: { retryAfterSeconds: 4 } }), {}));
+
+  vi.advanceTimersByTime(3_999);
+  expect(startMock).not.toHaveBeenCalled();
+  vi.advanceTimersByTime(1);
+  expect(startMock).toHaveBeenCalledOnce();
+});
+
+test('ResourceInformer should increase the delay between retries and go offline after too many 429', () => {
+  vi.useFakeTimers();
+  const { informer, kubeconfig, startMock, fireError } = createInformerWithMock();
+  const onOfflineCB = vi.fn();
+  informer.onOffline(onOfflineCB);
+  informer.start();
+  startMock.mockClear();
+
+  const error = new ApiException(429, 'Too Many Requests', {}, {});
+  // the delay doubles at each retry
+  for (const expectedDelay of [1_000, 2_000, 4_000, 8_000, 16_000]) {
+    fireError(error);
+    vi.advanceTimersByTime(expectedDelay - 1);
+    expect(startMock).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(startMock).toHaveBeenCalledOnce();
+    startMock.mockClear();
+  }
+  expect(onOfflineCB).not.toHaveBeenCalled();
+
+  // the retries are exhausted, the informer goes offline
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
+  fireError(error);
+  expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('after 5 retries, going offline'));
+  expect(onOfflineCB).toHaveBeenCalledWith({
+    kubeconfig,
+    resourceName: 'myresources',
+    offline: true,
+    reason: String(error),
+  });
+  expect(informer.isOffline()).toBeTruthy();
+  vi.advanceTimersByTime(60_000);
+  expect(startMock).not.toHaveBeenCalled();
+  consoleErrorSpy.mockRestore();
+});
+
+test('ResourceInformer should not restart the informer after a 429 if it has been disposed', () => {
+  vi.useFakeTimers();
+  const { informer, startMock, stopMock, fireError } = createInformerWithMock();
+  informer.start();
+  startMock.mockClear();
+
+  fireError(new ApiException(429, 'Too Many Requests', {}, {}));
+  informer.dispose();
+  expect(stopMock).toHaveBeenCalled();
+
+  vi.advanceTimersByTime(60_000);
+  expect(startMock).not.toHaveBeenCalled();
+});
+
+test('ResourceInformer should not schedule a retry for a 429 received after being disposed', () => {
+  vi.useFakeTimers();
+  const { informer, startMock, fireError } = createInformerWithMock();
+  const onOfflineCB = vi.fn();
+  informer.onOffline(onOfflineCB);
+  informer.start();
+  startMock.mockClear();
+
+  informer.dispose();
+  // the request in flight when the informer was disposed returns after the disposal
+  fireError(new ApiException(429, 'Too Many Requests', {}, {}));
+
+  vi.advanceTimersByTime(60_000);
+  expect(startMock).not.toHaveBeenCalled();
+  expect(onOfflineCB).not.toHaveBeenCalled();
+});
+
+test('ResourceInformer should cancel a pending retry when reconnecting', () => {
+  vi.useFakeTimers();
+  const { informer, startMock, fireError } = createInformerWithMock();
+  informer.start();
+  startMock.mockClear();
+
+  // the informer is offline, and a retry is pending after a 429
+  fireError(new ApiException(500, 'an error', {}, {}));
+  fireError(new ApiException(429, 'Too Many Requests', {}, {}));
+
+  informer.reconnect();
+  expect(startMock).toHaveBeenCalledOnce();
+  startMock.mockClear();
+
+  // the pending retry has been cancelled, the informer is not started twice
+  vi.advanceTimersByTime(60_000);
+  expect(startMock).not.toHaveBeenCalled();
 });
