@@ -39,6 +39,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.NetworkPolicies]: NavSection.Network,
   [KubernetesResources.IngressClasses]: NavSection.Network,
   [KubernetesResources.GatewayClasses]: NavSection.Network,
+  [KubernetesResources.Gateways]: NavSection.Network,
   [KubernetesResources.HTTPRoutes]: NavSection.Network,
   [KubernetesResources.PortForwarding]: NavSection.Network,
   [KubernetesResources.PVCs]: NavSection.Storage,

@@ -56,6 +56,7 @@ import { ingressClassesModule } from '/@/component/ingress-classes/_ingress-clas
 import { httpRoutesModule } from '/@/component/httproutes/_httproutes-module';
 import { gatewayClassesModule } from '/@/component/gatewayclasses/_gatewayclasses-module';
 import { resourceQuotasModule } from '/@/component/resource-quotas/_resource-quotas-module';
+import { gatewaysModule } from '/@/component/gateways/_gateways-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -106,6 +107,7 @@ export class InversifyBinding {
     await this.#container.load(httpRoutesModule);
     await this.#container.load(gatewayClassesModule);
     await this.#container.load(resourceQuotasModule);
+    await this.#container.load(gatewaysModule);
 
     return this.#container;
   }

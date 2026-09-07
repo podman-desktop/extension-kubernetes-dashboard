@@ -962,6 +962,20 @@ spec:
   controllerName: example.com/gateway-controller
 ---
 apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  creationTimestamp: '2026-02-09T10:19:00Z'
+  name: gateway1
+  namespace: default
+  uid: e5f6a7b8-c9d0-1234-ef01-345678901234
+spec:
+  gatewayClassName: gateway-class1
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+---
+apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   creationTimestamp: '2026-02-09T10:20:00Z'
