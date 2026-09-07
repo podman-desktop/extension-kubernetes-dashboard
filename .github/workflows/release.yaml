@@ -186,6 +186,7 @@ jobs:
         uses: podman-desktop/gh-extensions-actions/.github/actions/oci-build@2e7a02e8c8e9256a2fa466fb166e215175130dd7 # v0.1.2
         with:
           ref: ${{ needs.tag.outputs.githubTag }}
+          containerfile: build/Containerfile
 
   extension-publish:
     name: publish oci image
