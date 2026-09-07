@@ -121,7 +121,9 @@ jobs:
       contents: read
       id-token: write
       attestations: write
+      actions: read
       packages: write
+      checks: write
     steps:
       - name: Publish OCI
         uses: podman-desktop/gh-extensions-actions/.github/actions/oci-publish@2e7a02e8c8e9256a2fa466fb166e215175130dd7 # v0.1.2
@@ -131,5 +133,5 @@ jobs:
           github-token: ${{ github.token }}
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ secrets.GITHUB_TOKEN }}
-          image-name: ${{ github.repository }}
+          image-name: podman-desktop-extension-kubernetes-dashboard
           tags: next ${{ github.sha }}

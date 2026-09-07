@@ -41,6 +41,6 @@ jobs:
     with:
       run-id: ${{ github.event.workflow_run.id }}
       head-sha: ${{ github.event.workflow_run.head_sha }}
-      image-name: ${{ github.repository }}
+      image-name: podman-desktop-extension-kubernetes-dashboard
     secrets:
       registry-password: ${{ secrets.GITHUB_TOKEN }}
