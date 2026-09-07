@@ -210,7 +210,7 @@ jobs:
           github-token: ${{ github.token }}
           registry-username: ${{ github.repository_owner }}
           registry-password: ${{ secrets.GITHUB_TOKEN }}
-          image-name: ghcr.io/${{ github.repository }}
+          image-name: ${{ github.repository }}
           tags: ${{ steps.version.outputs.version }} latest
 
   release:
