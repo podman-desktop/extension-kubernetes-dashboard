@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2025 Red Hat, Inc.
+# Copyright (C) 2025 - 2026 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -99,52 +99,39 @@ jobs:
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
           push-to-registry: true
 
-  extension-image:
-    name: Build and publish extension OCI image
-    if: always()
+  extension-build:
+    name: build oci image
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-24.04
     needs: builder-image
-
+    outputs:
+      artifact-id: ${{ steps.build.outputs.artifact-id }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build OCI
+        id: build
+        uses: podman-desktop/gh-extensions-actions/.github/actions/oci-build@2e7a02e8c8e9256a2fa466fb166e215175130dd7 # v0.1.2
         with:
-          fetch-depth: 0
+          containerfile: build/Containerfile
 
-      - name: Install qemu dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-
-      - name: build extension image
-        id: extension-image
-        uses: redhat-actions/buildah-build@719e3c40d8af9790c23eca13f7daa339f2867034 #v3.1.0
+  extension-publish:
+    name: publish oci image
+    needs: extension-build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      actions: read
+      packages: write
+      checks: write
+    steps:
+      - name: Publish OCI
+        uses: podman-desktop/gh-extensions-actions/.github/actions/oci-publish@2e7a02e8c8e9256a2fa466fb166e215175130dd7 # v0.1.2
         with:
-          image: podman-desktop-extension-kubernetes-dashboard
+          run-id: ${{ github.run_id }}
+          artifact-id: ${{ needs.extension-build.outputs.artifact-id }}
+          github-token: ${{ github.token }}
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          image-name: ${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard
           tags: next ${{ github.sha }}
-          archs: amd64, arm64
-          containerfiles: |
-            build/Containerfile
-          context: .
-          oci: true
-
-      - name: Log in to ghcr.io
-        uses: redhat-actions/podman-login@50c2d9a331bb67c8fdab99b86455fad05e2e3252 # v2.0
-        with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ghcr.io
-
-      - name: publish extension to ghcr.io
-        id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@94ade333c38ecc0e60e94785125d9a52ca423b37 #v3.0.0
-        with:
-          image: ${{ steps.extension-image.outputs.image }}
-          tags: ${{ steps.extension-image.outputs.tags }}
-          registry: ghcr.io/${{ github.repository_owner }}
-
-      - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-name: ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-kubernetes-dashboard
-          subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
-          push-to-registry: true

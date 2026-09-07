@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2025 Red Hat, Inc.
+# Copyright (C) 2025 - 2026 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -78,31 +78,13 @@ jobs:
         run: pnpm build
         timeout-minutes: 40
 
-  ## the builder image is not built as part of this workflow
-  ## but is built in the release workflow
-  ## Changes to the builder image must be merged before to use these changes in the extension image
-  extension-image:
-    name: Build extension OCI image
+  build-oci:
+    name: build oci image
     runs-on: ubuntu-24.04
-
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build OCI
+        id: build
+        uses: podman-desktop/gh-extensions-actions/.github/actions/oci-build@2e7a02e8c8e9256a2fa466fb166e215175130dd7 # v0.1.2
         with:
-          fetch-depth: 0
-
-      - name: Install qemu dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-
-      - name: build extension image
-        id: extension-image
-        uses: redhat-actions/buildah-build@719e3c40d8af9790c23eca13f7daa339f2867034 #v3.1.0
-        with:
-          image: podman-desktop-extension-kubernetes-dashboard
-          tags: next ${{ github.sha }}
-          archs: amd64, arm64
-          containerfiles: |
-            build/Containerfile
-          context: .
-          oci: true
+          ref: ${{ github.ref }}
+          containerfile: build/Containerfile
