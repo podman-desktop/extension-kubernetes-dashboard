@@ -75,6 +75,8 @@ import LeasesList from './component/leases/LeasesList.svelte';
 import LeaseDetails from './component/leases/LeaseDetails.svelte';
 import MutatingWebhooksList from './component/mutating-webhooks/MutatingWebhooksList.svelte';
 import MutatingWebhookDetails from './component/mutating-webhooks/MutatingWebhookDetails.svelte';
+import HpasList from './component/hpas/HpasList.svelte';
+import HpaDetails from './component/hpas/HpaDetails.svelte';
 // import globally the monaco environment
 import './monaco-environment';
 import type { TinroRouteMeta } from 'tinro';
@@ -239,6 +241,14 @@ const { meta }: Props = $props();
 
   <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
     <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/horizontalpodautoscalers">
+    <HpasList />
+  </Route>
+
+  <Route path="/horizontalpodautoscalers/:name/:namespace/*" let:meta>
+    <HpaDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
   </Route>
 
   <Route path="/mutatingwebhookconfigurations">
