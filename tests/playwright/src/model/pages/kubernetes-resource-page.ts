@@ -75,7 +75,8 @@ export class KubernetesResourcePage extends MainPage {
       if (
         resourceType === KubernetesResources.Nodes ||
         resourceType === KubernetesResources.StorageClasses ||
-        resourceType === KubernetesResources.PriorityClasses
+        resourceType === KubernetesResources.PriorityClasses ||
+        resourceType === KubernetesResources.RuntimeClasses
       ) {
         resourceRowName = resourceRow.getByRole('cell').nth(2);
       } else {

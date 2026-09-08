@@ -91,6 +91,8 @@ export class Navigator {
       return 'gatewayclasses';
     } else if (kind === 'PriorityClass') {
       return 'priorityclasses';
+    } else if (kind === 'RuntimeClass') {
+      return 'runtimeclasses';
     }
     // otherwise do the simple conversion
     return kind.toLowerCase() + 's';
