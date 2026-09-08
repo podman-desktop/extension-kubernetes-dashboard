@@ -59,6 +59,7 @@ export enum KubernetesResources {
   PriorityClasses = 'Priority Classes',
   RuntimeClasses = 'Runtime Classes',
   Leases = 'Leases',
+  MutatingWebhookConfigs = 'Mutating Webhook Configs',
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
@@ -180,6 +181,15 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Holder',
     'Lease Duration',
     'Renew Time',
+    'Age',
+    'Actions',
+  ],
+  [KubernetesResources.MutatingWebhookConfigs]: [
+    'Selected',
+    'Status',
+    'Name',
+    'Webhooks',
+    'Failure Policy',
     'Age',
     'Actions',
   ],

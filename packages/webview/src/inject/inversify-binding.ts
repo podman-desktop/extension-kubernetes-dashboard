@@ -62,6 +62,7 @@ import { pdbsModule } from '/@/component/pdbs/_pdbs-module';
 import { priorityClassesModule } from '/@/component/priority-classes/_priority-classes-module';
 import { runtimeClassesModule } from '/@/component/runtime-classes/_runtime-classes-module';
 import { leasesModule } from '/@/component/leases/_leases-module';
+import { mutatingWebhooksModule } from '/@/component/mutating-webhooks/_mutating-webhooks-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -118,6 +119,7 @@ export class InversifyBinding {
     await this.#container.load(priorityClassesModule);
     await this.#container.load(runtimeClassesModule);
     await this.#container.load(leasesModule);
+    await this.#container.load(mutatingWebhooksModule);
 
     return this.#container;
   }

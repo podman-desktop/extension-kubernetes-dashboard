@@ -56,6 +56,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.PriorityClasses]: NavSection.Config,
   [KubernetesResources.RuntimeClasses]: NavSection.Config,
   [KubernetesResources.Leases]: NavSection.Config,
+  [KubernetesResources.MutatingWebhookConfigs]: NavSection.Config,
 };
 
 export class KubernetesBar {
@@ -122,6 +123,8 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'priority classes');
       case 'Runtime Classes':
         return new KubernetesResourcePage(this.page, 'runtime classes');
+      case 'Mutating Webhook Configs':
+        return new KubernetesResourcePage(this.page, 'mutating webhook configurations');
       default:
         return new KubernetesResourcePage(this.page, kubernetesResource);
     }
