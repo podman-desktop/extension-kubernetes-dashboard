@@ -115,6 +115,7 @@ jobs:
 
   extension-publish:
     name: publish oci image
+    if: ${{ !failure() && !cancelled() }}
     needs: extension-build
     runs-on: ubuntu-24.04
     permissions:
