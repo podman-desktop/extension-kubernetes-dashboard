@@ -94,6 +94,7 @@ import { LimitRangesResourceFactory } from '/@/resources/limit-ranges-resource-f
 import { PdbsResourceFactory } from '/@/resources/pdbs-resource-factory.js';
 import { PriorityClassesResourceFactory } from '/@/resources/priority-classes-resource-factory.js';
 import { RuntimeClassesResourceFactory } from '/@/resources/runtime-classes-resource-factory.js';
+import { LeasesResourceFactory } from '/@/resources/leases-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
 import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -223,6 +224,7 @@ export class ContextsManager implements ContextsApi {
       new PdbsResourceFactory(),
       new PriorityClassesResourceFactory(),
       new RuntimeClassesResourceFactory(),
+      new LeasesResourceFactory(),
     ];
   }
 

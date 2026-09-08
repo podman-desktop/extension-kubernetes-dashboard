@@ -61,6 +61,7 @@ import { limitRangesModule } from '/@/component/limit-ranges/_limit-ranges-modul
 import { pdbsModule } from '/@/component/pdbs/_pdbs-module';
 import { priorityClassesModule } from '/@/component/priority-classes/_priority-classes-module';
 import { runtimeClassesModule } from '/@/component/runtime-classes/_runtime-classes-module';
+import { leasesModule } from '/@/component/leases/_leases-module';
 
 export class InversifyBinding {
   #container: Container | undefined;
@@ -116,6 +117,7 @@ export class InversifyBinding {
     await this.#container.load(pdbsModule);
     await this.#container.load(priorityClassesModule);
     await this.#container.load(runtimeClassesModule);
+    await this.#container.load(leasesModule);
 
     return this.#container;
   }
