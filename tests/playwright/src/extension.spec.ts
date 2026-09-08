@@ -263,6 +263,11 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     await playExpect(serviceAccountsPage.heading).toBeVisible();
     await playExpect.poll(async () => serviceAccountsPage.isEmpty('No serviceaccounts')).toBeTruthy();
   });
+  test('go to priorityClasses page', async () => {
+    const priorityClassesPage = await navigation.openTabPage(KubernetesResources.PriorityClasses);
+    await playExpect(priorityClassesPage.heading).toBeVisible();
+    await playExpect.poll(async () => priorityClassesPage.rowsAreVisible()).toBeTruthy();
+  });
   test('go to pdbs page', async () => {
     const pdbsPage = await navigation.openTabPage(KubernetesResources.PodDisruptionBudgets);
     await playExpect(pdbsPage.heading).toBeVisible();
