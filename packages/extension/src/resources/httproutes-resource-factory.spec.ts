@@ -26,6 +26,11 @@ test('factory has correct resource name and kind', () => {
   expect(factory.kind).toBe('HTTPRoute');
 });
 
+test('factory is declared as a custom resource', () => {
+  const factory = new HttpRoutesResourceFactory();
+  expect(factory.isCustomResource).toBeTruthy();
+});
+
 test('deleteObject is defined', () => {
   const factory = new HttpRoutesResourceFactory();
   expect(factory.deleteObject).toBeDefined();

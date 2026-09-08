@@ -35,6 +35,8 @@ export class GatewayClassesResourceFactory extends ResourceFactoryBase implement
       kind: 'GatewayClass',
     });
 
+    this.setIsCustomResource();
+
     this.setPermissions({
       isNamespaced: false,
       permissionsRequests: [

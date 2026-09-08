@@ -47,6 +47,18 @@ test('ResourceFactoryBase set permissions', () => {
   expect(isResourceFactoryWithPermissions(factory)).toBeTruthy();
 });
 
+test('ResourceFactoryBase is not a custom resource by default', () => {
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
+
+  expect(factory.isCustomResource).toBeFalsy();
+});
+
+test('ResourceFactoryBase set is custom resource', () => {
+  const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' }).setIsCustomResource();
+
+  expect(factory.isCustomResource).toBeTruthy();
+});
+
 test('copyWithSlicedPermissions', () => {
   const factory = new ResourceFactoryBase({ resource: 'resource1', kind: 'kind1' });
 
