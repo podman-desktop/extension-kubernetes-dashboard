@@ -2287,3 +2287,24 @@ describe('lazy informer lifecycle', () => {
     expect(createdLazyInformerMock.start).not.toHaveBeenCalled();
   });
 });
+
+describe('validateGroupVersion', () => {
+  test.each(['v1', 'apps/v1', 'batch/v1', 'networking.k8s.io/v1', 'rbac.authorization.k8s.io/v1beta1'])(
+    'accepts valid groupVersion %s',
+    (gv: string) => {
+      expect(() => ContextsManager.validateGroupVersion(gv)).not.toThrow();
+    },
+  );
+
+  test.each([
+    '../../api/v1/secrets',
+    '../api/v1/namespaces/kube-system/secrets',
+    'apps/../v1/secrets',
+    './v1',
+    '',
+    'apps/',
+    '/v1',
+  ])('rejects invalid groupVersion %s', (gv: string) => {
+    expect(() => ContextsManager.validateGroupVersion(gv)).toThrow('invalid groupVersion');
+  });
+});

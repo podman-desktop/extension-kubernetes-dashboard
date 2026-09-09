@@ -1211,7 +1211,16 @@ export class ContextsManager implements ContextsApi {
     };
   }
 
+  static validateGroupVersion(groupVersion: string): void {
+    for (const part of groupVersion.split('/')) {
+      if (part === '' || part === '.' || part === '..') {
+        throw new Error(`invalid groupVersion: ${JSON.stringify(groupVersion)}`);
+      }
+    }
+  }
+
   async getApiResources(groupVersion: string): Promise<ApiResourceList> {
+    ContextsManager.validateGroupVersion(groupVersion);
     const kubeConfig = this.getCurrentKubeConfig();
     const cluster = kubeConfig.getCurrentCluster();
     if (!cluster) {
