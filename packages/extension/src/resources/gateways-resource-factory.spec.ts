@@ -25,3 +25,8 @@ test('factory has correct resource name and kind', () => {
   expect(factory.resource).toBe('gateways');
   expect(factory.kind).toBe('Gateway');
 });
+
+test('factory is declared as a custom resource', () => {
+  const factory = new GatewaysResourceFactory();
+  expect(factory.isCustomResource).toBeTruthy();
+});

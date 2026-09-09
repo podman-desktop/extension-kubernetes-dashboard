@@ -35,6 +35,8 @@ export class GatewaysResourceFactory extends ResourceFactoryBase implements Reso
       kind: 'Gateway',
     });
 
+    this.setIsCustomResource();
+
     this.setPermissions({
       isNamespaced: true,
       permissionsRequests: [
