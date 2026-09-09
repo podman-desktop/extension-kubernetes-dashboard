@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import {
+  ApisApi,
   ApiException,
   CoreV1Event,
   KubeConfig,
@@ -100,7 +101,14 @@ import { ValidatingWebhooksResourceFactory } from '/@/resources/validating-webho
 import { HpasResourceFactory } from '/@/resources/hpas-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
-import { ConnectOptions, ContextPermission, ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import https from 'node:https';
+import {
+  ConnectOptions,
+  ContextPermission,
+  ResourceCount,
+  type ApiGroupList,
+  type ApiResourceList,
+} from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { TelemetryLoggerSymbol } from '/@/inject/symbol.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
@@ -1193,5 +1201,58 @@ export class ContextsManager implements ContextsApi {
     const yamlString = jsYaml.dump(JSON.parse(jsonString));
     const kubeconfigUri = kubernetes.getKubeconfig();
     await writeFile(kubeconfigUri.path, yamlString);
+  }
+
+  async getApiVersions(): Promise<ApiGroupList> {
+    const kubeConfig = this.getCurrentKubeConfig();
+    const result = await kubeConfig.makeApiClient(ApisApi).getAPIVersions();
+    return {
+      groups: result.groups,
+    };
+  }
+
+  async getApiResources(groupVersion: string): Promise<ApiResourceList> {
+    const kubeConfig = this.getCurrentKubeConfig();
+    const cluster = kubeConfig.getCurrentCluster();
+    if (!cluster) {
+      throw new Error('no current cluster');
+    }
+    const apiPath = groupVersion === 'v1' ? '/api/v1' : `/apis/${groupVersion}`;
+    const url = new URL(cluster.server + apiPath);
+    const opts: https.RequestOptions = {
+      hostname: url.hostname,
+      port: url.port,
+      path: url.pathname,
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    };
+    await kubeConfig.applyToHTTPSOptions(opts);
+
+    return new Promise<ApiResourceList>((resolve, reject) => {
+      const req = https.request(url, opts, res => {
+        let data = '';
+        res.on('data', chunk => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(JSON.parse(data) as ApiResourceList);
+          } else {
+            reject(
+              new Error(`Failed to get API resources for ${groupVersion}: ${res.statusCode} ${res.statusMessage}`),
+            );
+          }
+        });
+      });
+      req.on('error', reject);
+      req.end();
+    });
+  }
+
+  private getCurrentKubeConfig(): KubeConfig {
+    if (!this.currentContext) {
+      throw new Error('no current Kubernetes context');
+    }
+    return this.currentContext.getKubeConfig();
   }
 }

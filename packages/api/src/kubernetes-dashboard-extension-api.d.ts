@@ -179,6 +179,70 @@ export interface KubernetesDashboardExtensionApi {
   getSubscriber(): KubernetesDashboardSubscriber;
 
   readonly contexts: typeof contexts;
+
+  /**
+   * Returns the list of API groups/versions served by the Kubernetes API server.
+   *
+   * The returned value maps the value returned by the `/apis` endpoint directly.
+   */
+  getApiVersions(): Promise<ApiGroupList>;
+
+  /**
+   * Returns the list of resources for a specific API group/version.
+   *
+   * The returned value maps the value returned by the `/apis/<groupVersion>` or `/api/<version>` endpoint directly.
+   *
+   * @param groupVersion - The group/version to get resources for (e.g., 'v1', 'apps/v1').
+   */
+  getApiResources(groupVersion: string): Promise<ApiResourceList>;
+}
+
+/**
+ * A version of an API group.
+ */
+export interface ApiGroupVersion {
+  groupVersion: string;
+  version: string;
+}
+
+/**
+ * An API group served by the Kubernetes API server.
+ */
+export interface ApiGroup {
+  name: string;
+  versions: ApiGroupVersion[];
+  preferredVersion?: ApiGroupVersion;
+}
+
+/**
+ * The list of API groups served by the Kubernetes API server.
+ */
+export interface ApiGroupList {
+  groups: ApiGroup[];
+}
+
+/**
+ * A resource served by a specific API group/version.
+ */
+export interface ApiResource {
+  name: string;
+  singularName: string;
+  namespaced: boolean;
+  kind: string;
+  verbs: string[];
+  shortNames?: string[];
+  categories?: string[];
+  group?: string;
+  version?: string;
+  storageVersionHash?: string;
+}
+
+/**
+ * The list of resources served by a specific API group/version.
+ */
+export interface ApiResourceList {
+  groupVersion: string;
+  resources: ApiResource[];
 }
 
 /**

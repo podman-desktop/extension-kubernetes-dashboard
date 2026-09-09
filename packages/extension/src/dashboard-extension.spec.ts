@@ -139,6 +139,24 @@ test('activate should return a KubernetesDashboardExtensionApi', async () => {
   expect((apiSubscriber as ApiSubscriber).dispose).toHaveBeenCalledOnce();
 });
 
+test('api.getApiVersions should delegate to ContextsManager.getApiVersions', async () => {
+  ContextsManager.prototype.getApiVersions = vi.fn().mockResolvedValue({ groups: [] });
+  const api = await dashboardExtension.activate();
+
+  await api.getApiVersions();
+
+  expect(ContextsManager.prototype.getApiVersions).toHaveBeenCalled();
+});
+
+test('api.getApiResources should delegate to ContextsManager.getApiResources', async () => {
+  ContextsManager.prototype.getApiResources = vi.fn().mockResolvedValue({ groupVersion: 'apps/v1', resources: [] });
+  const api = await dashboardExtension.activate();
+
+  await api.getApiResources('apps/v1');
+
+  expect(ContextsManager.prototype.getApiResources).toHaveBeenCalledWith('apps/v1');
+});
+
 test('subscriber.onResourceUpdate should subscribe to UPDATE_RESOURCE channel', async () => {
   const api = await dashboardExtension.activate();
   const subscriber = api.getSubscriber();
