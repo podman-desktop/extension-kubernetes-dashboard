@@ -1243,9 +1243,14 @@ export class ContextsManager implements ContextsApi {
         res.on('data', chunk => {
           data += chunk;
         });
+        res.on('error', reject);
         res.on('end', () => {
           if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
-            resolve(JSON.parse(data) as ApiResourceList);
+            try {
+              resolve(JSON.parse(data) as ApiResourceList);
+            } catch (err: unknown) {
+              reject(new Error(`Failed to parse API resources response for ${groupVersion}: ${String(err)}`));
+            }
           } else {
             reject(
               new Error(`Failed to get API resources for ${groupVersion}: ${res.statusCode} ${res.statusMessage}`),
