@@ -148,7 +148,7 @@ codesign --force --deep --sign - "tests/playwright/tests/PodmanDesktop/Podman De
 pnpm install
 pnpm build
 
-podman build -t local_image -f build/Containerfile ./
+podman build -t local_image -f Containerfile ./
 CONTAINER_ID=$(podman create localhost/local_image --entrypoint "")
 mkdir -p tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins
 podman export $CONTAINER_ID | tar -x -C tests/playwright/tests/playwright/output/kubernetes-dashboard-tests/plugins/

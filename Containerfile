@@ -15,24 +15,22 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard-builder:next AS builder
+# v10.1-1766363988
+FROM registry.access.redhat.com/ubi10/nodejs-24@sha256:5a3cea874f0555bcde27d979bbc8a067f1d75b4b324ef3274112c8270e951f5b AS builder
+USER root
+RUN dnf install -y jq && npm i -g corepack && corepack enable
+USER default
+
+ENV HOME=/opt/app-root
 
 WORKDIR /opt/app-root/extension-source
+COPY --chown=1001:root . .
 
-# copy source code
-COPY --chown=1001:root *.ts /opt/app-root/extension-source/
-COPY --chown=1001:root pnpm-workspace.yaml /opt/app-root/extension-source/
-COPY --chown=1001:root pnpm-lock.yaml /opt/app-root/extension-source/
-COPY --chown=1001:root .gitignore /opt/app-root/extension-source/
-COPY --chown=1001:root package.json /opt/app-root/extension-source/
-COPY --chown=1001:root packages /opt/app-root/extension-source/packages
+RUN corepack enable && corepack install && \
+    CI=true pnpm --frozen-lockfile install
 
-# refresh dependencies (if needed)
-# and build the extension
-RUN CI=true pnpm install && \
-    pnpm build
+RUN pnpm build
 
-# copy output of the build + required files
 RUN mkdir /opt/app-root/extension && \
       cp -r packages/extension/dist /opt/app-root/extension/ && \
       cp packages/extension/package.json /opt/app-root/extension/ && \
@@ -54,7 +52,6 @@ RUN eval 'dep_version() { pnpm list -P $1 --json --depth 0 |jq -r ".[0].dependen
         echo adding isomorphic-ws version ${ISOMORPHIC_WS_VERSION} && \
         pnpm --dir /opt/app-root/extension --workspace-root add isomorphic-ws@${ISOMORPHIC_WS_VERSION} --prod
 
-# Copy the extension to a new image
 FROM scratch
 
 LABEL org.opencontainers.image.title="Kubernetes Dashboard extension" \

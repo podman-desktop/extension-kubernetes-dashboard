@@ -29,7 +29,7 @@ jobs:
       - name: Build Image and Extract Files
         id: build-image
         run: |
-          podman build -t local_image -f build/Containerfile ./
+          podman build -t local_image -f Containerfile ./
           CONTAINER_ID=$(podman create localhost/local_image --entrypoint "")
           mkdir -p output/plugins
           podman export $CONTAINER_ID | tar -x -C output/plugins/
