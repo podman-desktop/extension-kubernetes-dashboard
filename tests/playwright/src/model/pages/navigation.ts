@@ -57,6 +57,7 @@ const RESOURCE_SECTION: Partial<Record<KubernetesResources, NavSection>> = {
   [KubernetesResources.RuntimeClasses]: NavSection.Config,
   [KubernetesResources.Leases]: NavSection.Config,
   [KubernetesResources.MutatingWebhookConfigs]: NavSection.Config,
+  [KubernetesResources.ValidatingWebhookConfigs]: NavSection.Config,
   [KubernetesResources.HorizontalPodAutoscalers]: NavSection.Config,
 };
 
@@ -126,6 +127,8 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'runtime classes');
       case 'Mutating Webhook Configs':
         return new KubernetesResourcePage(this.page, 'mutating webhook configurations');
+      case 'Validating Webhook Configs':
+        return new KubernetesResourcePage(this.page, 'validating webhook configurations');
       case 'Horizontal Pod Autoscalers':
         return new KubernetesResourcePage(this.page, 'horizontal pod autoscalers');
       default:

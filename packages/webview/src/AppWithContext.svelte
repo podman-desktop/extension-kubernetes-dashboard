@@ -75,6 +75,8 @@ import LeasesList from './component/leases/LeasesList.svelte';
 import LeaseDetails from './component/leases/LeaseDetails.svelte';
 import MutatingWebhooksList from './component/mutating-webhooks/MutatingWebhooksList.svelte';
 import MutatingWebhookDetails from './component/mutating-webhooks/MutatingWebhookDetails.svelte';
+import ValidatingWebhooksList from './component/validating-webhooks/ValidatingWebhooksList.svelte';
+import ValidatingWebhookDetails from './component/validating-webhooks/ValidatingWebhookDetails.svelte';
 import HpasList from './component/hpas/HpasList.svelte';
 import HpaDetails from './component/hpas/HpaDetails.svelte';
 // import globally the monaco environment
@@ -241,6 +243,14 @@ const { meta }: Props = $props();
 
   <Route path="/serviceaccounts/:name/:namespace/*" let:meta>
     <ServiceAccountDetails name={decodeURI(meta.params.name)} namespace={decodeURI(meta.params.namespace)} />
+  </Route>
+
+  <Route path="/validatingwebhookconfigurations">
+    <ValidatingWebhooksList />
+  </Route>
+
+  <Route path="/validatingwebhookconfigurations/:name/*" let:meta>
+    <ValidatingWebhookDetails name={decodeURI(meta.params.name)} />
   </Route>
 
   <Route path="/horizontalpodautoscalers">
