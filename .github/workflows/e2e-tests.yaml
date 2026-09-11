@@ -48,13 +48,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2025, ubuntu-24.04, macos-26]
+        os: [windows-2025, ubuntu-24.04, macos-26, macos-26-intel]
     env:
       SKIP_INSTALLATION: true
       EXTENSION_PREINSTALLED: true
-      PODMAN_DESKTOP_ARGS: ${{ github.workspace }}/podman-desktop
-      # by default playwright cache browsers binaries in ~/.cache/ms-playwright on Linux and %USERPROFILE%\AppData\Local\ms-playwright on Windows
-      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/podman-desktop/pw-browsers
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -67,6 +64,11 @@ jobs:
       # ==============================================
       # Installing Podman Desktop
       # ==============================================
+      - name: Install Podman Desktop
+        uses: podman-desktop/gh-extensions-actions/.github/actions/podman-desktop-install@6a1e01e0cf57c02823ca551445465f7097860080 # podman-desktop/gh-extensions-actions#28
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         name: Install pnpm
         with:
@@ -81,53 +83,6 @@ jobs:
       # Install npm packages for extension
       - name: Execute pnpm in Extension
         run: pnpm install
-
-      # Extract @podman-desktop/api version used (and store to $GITHUB_OUTPUT)
-      - name: Extract @podman-desktop/api version
-        id: pd-api-version
-        shell: bash
-        run: |
-          # Using pnpm list to get the resolved version (E.g. getting 1.15.0 when ^1.15.0)
-          PD_VERSION=$(pnpm list --filter kubernetes-dashboard --json --depth 0 | jq -r '.[0].devDependencies."@podman-desktop/api".version')
-          echo "PD_VERSION=$PD_VERSION" >> $GITHUB_OUTPUT
-          echo "Using @podman-desktop/api $PD_VERSION"
-
-      # Check cache for existing podman-desktop
-      - name: Cache Podman Desktop
-        id: cache-pd
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ github.workspace }}/podman-desktop
-          key: pd-${{ steps.pd-api-version.outputs.PD_VERSION }}-${{ runner.os }}
-
-      # If not cached, download Podman Desktop repository based on version defined in package.json
-      - name: Download Podman Desktop
-        if: steps.cache-pd.outputs.cache-hit != 'true'
-        shell: bash
-        env:
-          PD_VERSION: ${{ steps.pd-api-version.outputs.PD_VERSION }}
-        run: |
-          echo "Downloading PD desktop to ${{ github.workspace }}/podman-desktop"
-          # Stable release are available podman-desktop/podman-desktop
-          # Prerelease are available under podman-desktop/prereleases
-          if [[ "$PD_VERSION" =~ - ]]; then
-            curl -sL "https://github.com/podman-desktop/prereleases/archive/refs/tags/v$PD_VERSION.tar.gz" | tar xvz
-          else
-            curl -sL "https://github.com/podman-desktop/podman-desktop/archive/refs/tags/v$PD_VERSION.tar.gz" | tar xvz
-          fi
-          # Move the extracted folder to the podman-desktop folder
-          mv podman-desktop-$PD_VERSION/ podman-desktop/
-
-      # Install and build podman-desktop
-      - name: If not cached, install pnpm deps and build Podman Desktop
-        if: steps.cache-pd.outputs.cache-hit != 'true'
-        shell: bash
-        working-directory: ${{ github.workspace }}/podman-desktop
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          pnpm install
-          pnpm test:e2e:build
 
       # Install the extension
       - name: Download Extension Plugin
@@ -204,6 +159,8 @@ jobs:
           KUBEBUILDER_ASSETS: ${{ steps.setup-envtest.outputs.KUBEBUILDER_ASSETS }}
           KUBECONFIG: ${{ steps.run-envtest.outputs.KUBECONFIG }}
           KUBECONFIG_USER1: ${{ steps.run-envtest.outputs.KUBECONFIG_USER1 }}
+          DEBUGGING_PORT: 9222
+          PODMAN_DESKTOP_BINARY: ${{ env.PODMAN_DESKTOP_BINARY }}
 
       - name: stop envtest cluster on non-macOS
         if: always() && runner.os != 'macOS'
