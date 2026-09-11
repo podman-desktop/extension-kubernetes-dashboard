@@ -74,16 +74,7 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   [KubernetesResources.Services]: ['Selected', 'Status', 'Name', 'Type', 'Cluster IP', 'Ports', 'Age', 'Actions'],
   [KubernetesResources.IngressesRoutes]: ['Selected', 'Status', 'Name', 'Host/Path', 'Backend', 'Age', 'Actions'],
   [KubernetesResources.Endpoints]: ['Selected', 'Status', 'Name', 'Endpoints', 'Ports', 'Age', 'Actions'],
-  [KubernetesResources.EndpointSlices]: [
-    'Selected',
-    'Status',
-    'Name',
-    'Address Type',
-    'Ports',
-    'Endpoints',
-    'Age',
-    'Actions',
-  ],
+  [KubernetesResources.EndpointSlices]: ['Status', 'Name', 'Address Type', 'Ports', 'Endpoints', 'Age'],
 
   [KubernetesResources.NetworkPolicies]: [
     'Selected',
@@ -174,8 +165,17 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Age',
     'Actions',
   ],
-  [KubernetesResources.PriorityClasses]: ['Status', 'Name', 'Value', 'Global Default', 'Preemption Policy', 'Age'],
-  [KubernetesResources.RuntimeClasses]: ['Status', 'Name', 'Handler', 'Age'],
+  [KubernetesResources.PriorityClasses]: [
+    'Selected',
+    'Status',
+    'Name',
+    'Value',
+    'Global Default',
+    'Preemption Policy',
+    'Age',
+    'Actions',
+  ],
+  [KubernetesResources.RuntimeClasses]: ['Selected', 'Status', 'Name', 'Handler', 'Age', 'Actions'],
   [KubernetesResources.Leases]: [
     'Selected',
     'Status',

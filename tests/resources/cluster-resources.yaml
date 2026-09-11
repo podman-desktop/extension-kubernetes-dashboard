@@ -996,3 +996,290 @@ spec:
         - name: svc1-clusterip
           port: 8080
 ---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  creationTimestamp: '2026-02-09T10:21:00Z'
+  generation: 1
+  labels:
+    app: statefulset1
+  name: statefulset1
+  namespace: default
+  uid: a1a2a3a4-b1b2-c1c2-d1d2-e1e2e3e4e5e6
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: statefulset1
+  serviceName: statefulset1
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: statefulset1
+    spec:
+      containers:
+        - image: httpd
+          imagePullPolicy: Always
+          name: httpd
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+status: {}
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  creationTimestamp: '2026-02-09T10:22:00Z'
+  labels:
+    kubernetes.io/service-name: svc1-clusterip
+  name: endpointslice1
+  namespace: default
+  uid: b2b3b4b5-c2c3-d2d3-e2e3-f2f3f4f5f6f7
+addressType: IPv4
+endpoints:
+  - addresses:
+      - 10.0.0.1
+    conditions:
+      ready: true
+ports:
+  - name: 8080-8080
+    port: 8080
+    protocol: TCP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: '2026-02-09T10:23:00Z'
+  name: serviceaccount1
+  namespace: default
+  uid: c3c4c5c6-d3d4-e3e4-f3f4-a3a4a5a6a7a8
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: '2026-02-09T10:24:00Z'
+  name: role1
+  namespace: default
+  uid: d4d5d6d7-e4e5-f4f5-a4a5-b4b5b6b7b8b9
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  creationTimestamp: '2026-02-09T10:25:00Z'
+  name: rolebinding1
+  namespace: default
+  uid: e5e6e7e8-f5f6-a5a6-b5b6-c5c6c7c8c9ca
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: role1
+subjects:
+  - kind: ServiceAccount
+    name: serviceaccount1
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: '2026-02-09T10:26:00Z'
+  name: clusterrole1
+  uid: f6f7f8f9-a6a7-b6b7-c6c7-d6d7d8d9dadb
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  creationTimestamp: '2026-02-09T10:27:00Z'
+  name: clusterrolebinding1
+  uid: a7a8a9aa-b7b8-c7c8-d7d8-e7e8e9eaebec
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: clusterrole1
+subjects:
+  - kind: ServiceAccount
+    name: serviceaccount1
+    namespace: default
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  creationTimestamp: '2026-02-09T10:28:00Z'
+  name: resourcequota1
+  namespace: default
+  uid: b8b9babb-c8c9-d8d9-e8e9-f8f9fafbfcfd
+spec:
+  hard:
+    pods: '10'
+    requests.cpu: '4'
+    requests.memory: 4Gi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  creationTimestamp: '2026-02-09T10:29:00Z'
+  name: limitrange1
+  namespace: default
+  uid: c9cacbcc-d9da-e9ea-f9fa-a9aaabacadae
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  creationTimestamp: '2026-02-09T10:30:00Z'
+  generation: 1
+  name: pdb1
+  namespace: default
+  uid: dadbdcdd-eaeb-fafc-abac-babbbcbdbebf
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: deploy1
+status:
+  conditions: []
+  currentHealthy: 0
+  desiredHealthy: 1
+  disruptionsAllowed: 0
+  expectedPods: 0
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  creationTimestamp: '2026-02-09T10:31:00Z'
+  name: priorityclass1
+  uid: ebecedee-fbfc-abac-bcbd-cbcccdcecfd0
+value: 1000
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority
+description: Test priority class for E2E
+---
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  creationTimestamp: '2026-02-09T10:32:00Z'
+  name: runtimeclass1
+  uid: fcfdfeff-abac-bcbd-cdce-dbdcdddedfe0
+handler: runc
+---
+apiVersion: coordination.k8s.io/v1
+kind: Lease
+metadata:
+  creationTimestamp: '2026-02-09T10:33:00Z'
+  name: lease1
+  namespace: default
+  uid: adaeafb0-bcbd-cdce-dedf-ebecedeef0f1
+spec:
+  holderIdentity: lease-holder-1
+  leaseDurationSeconds: 60
+  renewTime: '2026-02-09T10:33:00.000000Z'
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  creationTimestamp: '2026-02-09T10:34:00Z'
+  name: mutatingwebhook1
+  uid: beafb0b1-cdce-dedf-eff0-fcfdfeff0102
+webhooks:
+  - name: mutating.example.com
+    admissionReviewVersions:
+      - v1
+    clientConfig:
+      url: https://example.com/mutate
+    rules:
+      - apiGroups:
+          - ''
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+        resources:
+          - pods
+    sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  creationTimestamp: '2026-02-09T10:35:00Z'
+  name: validatingwebhook1
+  uid: cfb0b1b2-dedf-eff0-f0f1-adbebfd0d1d2
+webhooks:
+  - name: validating.example.com
+    admissionReviewVersions:
+      - v1
+    clientConfig:
+      url: https://example.com/validate
+    rules:
+      - apiGroups:
+          - ''
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+        resources:
+          - pods
+    sideEffects: None
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  creationTimestamp: '2026-02-09T10:36:00Z'
+  generation: 1
+  name: hpa1
+  namespace: default
+  uid: d0b1b2b3-eff0-f0f1-a1a2-becfd0d1d2d3
+spec:
+  maxReplicas: 10
+  metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 50
+          type: Utilization
+      type: Resource
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: deploy1
+status:
+  conditions: []
+  currentMetrics: []
+  currentReplicas: 0
+  desiredReplicas: 0
+---

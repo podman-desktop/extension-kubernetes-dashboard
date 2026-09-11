@@ -702,6 +702,225 @@ test.describe('With resources', { tag: '@integration' }, () => {
     await playExpect(kubernetesResourceDetails.heading).toBeVisible();
     await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
   });
+
+  test('go to daemonset1 page', async () => {
+    const daemonSetsPage = await navigation.openTabPage(KubernetesResources.DaemonSets);
+    await playExpect(daemonSetsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await daemonSetsPage.openResourceDetails(
+      'daemonset1',
+      KubernetesResources.DaemonSets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Stopped);
+  });
+
+  test('go to statefulset1 page', async () => {
+    const statefulSetsPage = await navigation.openTabPage(KubernetesResources.StatefulSets);
+    await playExpect(statefulSetsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await statefulSetsPage.openResourceDetails(
+      'statefulset1',
+      KubernetesResources.StatefulSets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe('DEGRADED');
+  });
+
+  test('go to replicaset1 page', async () => {
+    const replicaSetsPage = await navigation.openTabPage(KubernetesResources.ReplicaSets);
+    await playExpect(replicaSetsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await replicaSetsPage.openResourceDetails(
+      'replicaset1',
+      KubernetesResources.ReplicaSets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe('DEGRADED');
+  });
+
+  test('go to pvc1 page', async () => {
+    const pvcsPage = await navigation.openTabPage(KubernetesResources.PVCs);
+    await playExpect(pvcsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await pvcsPage.openResourceDetails('pvc1', KubernetesResources.PVCs);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Stopped);
+  });
+
+  test('go to endpointslice1 page', async () => {
+    const endpointSlicesPage = await navigation.openTabPage(KubernetesResources.EndpointSlices);
+    await playExpect(endpointSlicesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await endpointSlicesPage.openResourceDetails(
+      'endpointslice1',
+      KubernetesResources.EndpointSlices,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to serviceaccount1 page', async () => {
+    const serviceAccountsPage = await navigation.openTabPage(KubernetesResources.ServiceAccounts);
+    await playExpect(serviceAccountsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await serviceAccountsPage.openResourceDetails(
+      'serviceaccount1',
+      KubernetesResources.ServiceAccounts,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to role1 page', async () => {
+    const rolesPage = await navigation.openTabPage(KubernetesResources.Roles);
+    await playExpect(rolesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await rolesPage.openResourceDetails('role1', KubernetesResources.Roles);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to rolebinding1 page', async () => {
+    const roleBindingsPage = await navigation.openTabPage(KubernetesResources.RoleBindings);
+    await playExpect(roleBindingsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await roleBindingsPage.openResourceDetails(
+      'rolebinding1',
+      KubernetesResources.RoleBindings,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to clusterrole1 page', async () => {
+    const clusterRolesPage = await navigation.openTabPage(KubernetesResources.ClusterRoles);
+    await playExpect(clusterRolesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await clusterRolesPage.openResourceDetails(
+      'clusterrole1',
+      KubernetesResources.ClusterRoles,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to clusterrolebinding1 page', async () => {
+    const clusterRoleBindingsPage = await navigation.openTabPage(KubernetesResources.ClusterRoleBindings);
+    await playExpect(clusterRoleBindingsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await clusterRoleBindingsPage.openResourceDetails(
+      'clusterrolebinding1',
+      KubernetesResources.ClusterRoleBindings,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to resourcequota1 page', async () => {
+    const resourceQuotasPage = await navigation.openTabPage(KubernetesResources.ResourceQuotas);
+    await playExpect(resourceQuotasPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await resourceQuotasPage.openResourceDetails(
+      'resourcequota1',
+      KubernetesResources.ResourceQuotas,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to limitrange1 page', async () => {
+    const limitRangesPage = await navigation.openTabPage(KubernetesResources.LimitRanges);
+    await playExpect(limitRangesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await limitRangesPage.openResourceDetails(
+      'limitrange1',
+      KubernetesResources.LimitRanges,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to pdb1 page', async () => {
+    const pdbsPage = await navigation.openTabPage(KubernetesResources.PodDisruptionBudgets);
+    await playExpect(pdbsPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await pdbsPage.openResourceDetails(
+      'pdb1',
+      KubernetesResources.PodDisruptionBudgets,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to priorityclass1 page', async () => {
+    const priorityClassesPage = await navigation.openTabPage(KubernetesResources.PriorityClasses);
+    await playExpect(priorityClassesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await priorityClassesPage.openResourceDetails(
+      'priorityclass1',
+      KubernetesResources.PriorityClasses,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to runtimeclass1 page', async () => {
+    const runtimeClassesPage = await navigation.openTabPage(KubernetesResources.RuntimeClasses);
+    await playExpect(runtimeClassesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await runtimeClassesPage.openResourceDetails(
+      'runtimeclass1',
+      KubernetesResources.RuntimeClasses,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to lease1 page', async () => {
+    const leasesPage = await navigation.openTabPage(KubernetesResources.Leases);
+    await playExpect(leasesPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await leasesPage.openResourceDetails('lease1', KubernetesResources.Leases);
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to mutatingwebhook1 page', async () => {
+    const mutatingWebhooksPage = await navigation.openTabPage(KubernetesResources.MutatingWebhookConfigs);
+    await playExpect(mutatingWebhooksPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await mutatingWebhooksPage.openResourceDetails(
+      'mutatingwebhook1',
+      KubernetesResources.MutatingWebhookConfigs,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to validatingwebhook1 page', async () => {
+    const validatingWebhooksPage = await navigation.openTabPage(KubernetesResources.ValidatingWebhookConfigs);
+    await playExpect(validatingWebhooksPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await validatingWebhooksPage.openResourceDetails(
+      'validatingwebhook1',
+      KubernetesResources.ValidatingWebhookConfigs,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
+
+  test('go to hpa1 page', async () => {
+    const hpasPage = await navigation.openTabPage(KubernetesResources.HorizontalPodAutoscalers);
+    await playExpect(hpasPage.heading).toBeVisible();
+
+    const kubernetesResourceDetails = await hpasPage.openResourceDetails(
+      'hpa1',
+      KubernetesResources.HorizontalPodAutoscalers,
+    );
+    await playExpect(kubernetesResourceDetails.heading).toBeVisible();
+    await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
+  });
 });
 
 test.describe('Namespace change', { tag: '@integration' }, () => {
