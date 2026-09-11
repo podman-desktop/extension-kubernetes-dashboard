@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2025, ubuntu-24.04, macos-26]
+        os: [windows-2025, ubuntu-24.04, macos-26, macos-26-intel]
     env:
       SKIP_INSTALLATION: true
       EXTENSION_PREINSTALLED: true
@@ -65,7 +65,7 @@ jobs:
       # Installing Podman Desktop
       # ==============================================
       - name: Install Podman Desktop
-        uses: podman-desktop/gh-extensions-actions/.github/actions/podman-desktop-install@70a326d6b40ef4e8da6088cc49717f2260bf1917
+        uses: podman-desktop/gh-extensions-actions/.github/actions/podman-desktop-install@6a1e01e0cf57c02823ca551445465f7097860080 # podman-desktop/gh-extensions-actions#28
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
