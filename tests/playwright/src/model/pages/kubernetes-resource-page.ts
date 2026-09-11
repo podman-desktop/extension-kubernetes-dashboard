@@ -18,7 +18,7 @@
 
 import test, { expect as playExpect, type Locator, type Page } from '@playwright/test';
 
-import { KubernetesResourceAttributes, KubernetesResources } from '/@/model/core/types';
+import { KubernetesResourceAttributes, type KubernetesResources } from '/@/model/core/types';
 import { MainPage } from '@podman-desktop/tests-playwright';
 import { KubernetesResourceDetailsPage } from '/@/model/pages/kubernetes-resource-details-page';
 
@@ -70,18 +70,7 @@ export class KubernetesResourcePage extends MainPage {
   ): Promise<KubernetesResourceDetailsPage> {
     return test.step(`Open ${resourceType}: ${resourceName} details`, async () => {
       const resourceRow = await this.fetchKubernetesResource(resourceName, timeout);
-
-      let resourceRowName: Locator;
-      if (
-        resourceType === KubernetesResources.Nodes ||
-        resourceType === KubernetesResources.StorageClasses ||
-        resourceType === KubernetesResources.PriorityClasses ||
-        resourceType === KubernetesResources.RuntimeClasses
-      ) {
-        resourceRowName = resourceRow.getByRole('cell').nth(2);
-      } else {
-        resourceRowName = resourceRow.getByRole('cell').nth(3);
-      }
+      const resourceRowName = await this.getAttributeByRow(resourceRow, 'Name', resourceType);
 
       await playExpect(resourceRowName).toBeEnabled();
       await resourceRowName.click();
