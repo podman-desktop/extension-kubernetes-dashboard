@@ -29,6 +29,8 @@ import {
   type KubernetesObject,
   type ObjectCache,
 } from '@kubernetes/client-node';
+import { request as httpsRequest } from 'node:https';
+import { request as httpRequest } from 'node:http';
 
 import type {
   IDisposable,
@@ -37,6 +39,7 @@ import type {
   V1Route,
   KubernetesTroubleshootingInformation,
   ContextsApi,
+  ApplyResourcesOptions,
 } from '@kubernetes-dashboard/channels';
 import { kubernetes, TelemetryLogger, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
@@ -87,6 +90,7 @@ import { ClusterRoleBindingsResourceFactory } from '/@/resources/cluster-role-bi
 import { EndpointsResourceFactory } from '/@/resources/endpoints-resource-factory.js';
 import { NetworkPoliciesResourceFactory } from '/@/resources/network-policies-resource-factory.js';
 import { IngressClassesResourceFactory } from '/@/resources/ingress-classes-resource-factory.js';
+import { CertificateSigningRequestsResourceFactory } from '/@/resources/certificate-signing-requests-resource-factory.js';
 import { HttpRoutesResourceFactory } from '/@/resources/httproutes-resource-factory.js';
 import { GatewayClassesResourceFactory } from '/@/resources/gatewayclasses-resource-factory.js';
 import { ResourceQuotasResourceFactory } from '/@/resources/resource-quotas-resource-factory.js';
@@ -115,6 +119,13 @@ const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 const DEFAULT_NAMESPACE = 'default';
 const FIELD_MANAGER = 'kubernetes-dashboard';
 const LAZY_INFORMER_GRACE_PERIOD_MS = 30_000;
+
+const PATCH_STRATEGY_MAP: Record<NonNullable<ApplyResourcesOptions['strategy']>, PatchStrategy> = {
+  'json-patch': PatchStrategy.JsonPatch,
+  'merge-patch': PatchStrategy.MergePatch,
+  'strategic-merge-patch': PatchStrategy.StrategicMergePatch,
+  'server-side-apply': PatchStrategy.ServerSideApply,
+};
 
 /**
  * ContextsManager receives new KubeConfig updates
@@ -239,6 +250,7 @@ export class ContextsManager implements ContextsApi {
       new MutatingWebhooksResourceFactory(),
       new ValidatingWebhooksResourceFactory(),
       new HpasResourceFactory(),
+      new CertificateSigningRequestsResourceFactory(),
     ];
   }
 
@@ -700,10 +712,10 @@ export class ContextsManager implements ContextsApi {
       return;
     }
 
-    await this.deleteObjectInternal(kind, name, namespace);
+    await this.deleteObjectImmediately(kind, name, namespace);
   }
 
-  private async deleteObjectInternal(kind: string, name: string, namespace?: string): Promise<void> {
+  async deleteObjectImmediately(kind: string, name: string, namespace?: string): Promise<void> {
     if (!this.currentContext) {
       console.warn('delete object: no current context');
       return;
@@ -853,11 +865,11 @@ export class ContextsManager implements ContextsApi {
     }
     for (const object of objects) {
       try {
-        await this.deleteObjectInternal(object.kind, object.name, object.namespace);
+        await this.deleteObjectImmediately(object.kind, object.name, object.namespace);
       } catch {
         // do nothing here:
         // - we don't want to stop the deletion of other objects
-        // - the error is already handled by deleteObjectInternal
+        // - the error is already handled by deleteObjectImmediately
       }
     }
   }
@@ -1056,11 +1068,12 @@ export class ContextsManager implements ContextsApi {
     return '';
   }
 
-  async applyResources(yamlDocuments: string): Promise<void> {
+  async applyResources(yamlDocuments: string, options?: ApplyResourcesOptions): Promise<void> {
     const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
     if (!client) {
       throw new Error('apply resources: unable to get client for current context');
     }
+    const fieldManager = options?.fieldManager ?? FIELD_MANAGER;
     const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
     for (const manifest of manifests) {
       // the API server does not serve strategic merge patch for kinds provided by a
@@ -1068,7 +1081,8 @@ export class ContextsManager implements ContextsApi {
       // these resources are patched using server-side apply instead
       const factory = this.#resourceFactoryHandler.getResourceFactoryByKind(manifest.kind ?? '');
       const serverSideApply = factory?.isCustomResource ?? false;
-      const strategy = serverSideApply ? PatchStrategy.ServerSideApply : PatchStrategy.StrategicMergePatch;
+      const defaultStrategy = serverSideApply ? PatchStrategy.ServerSideApply : PatchStrategy.StrategicMergePatch;
+      const strategy = options?.strategy ? PATCH_STRATEGY_MAP[options.strategy] : defaultStrategy;
 
       manifest.metadata ??= {};
       manifest.metadata.namespace ??= this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
@@ -1083,7 +1097,7 @@ export class ContextsManager implements ContextsApi {
           manifest,
           undefined, // pretty
           undefined, // dryRun
-          FIELD_MANAGER,
+          fieldManager,
           serverSideApply ? true : undefined, // force: take ownership from the other field managers
           strategy,
         );
@@ -1097,6 +1111,77 @@ export class ContextsManager implements ContextsApi {
       kinds: manifests?.map(manifest => manifest.kind).join(','),
     };
     this.telemetryLogger.logUsage('apply.resources', telemetryOptions);
+  }
+
+  async patchSubresource(
+    apiVersion: string,
+    resource: string,
+    name: string,
+    subresource: string,
+    body: object,
+    namespace?: string,
+  ): Promise<void> {
+    const kubeConfig = this.currentContext?.getKubeConfig();
+    if (!kubeConfig) {
+      throw new Error('patch subresource: no current context');
+    }
+
+    const cluster = kubeConfig.getCurrentCluster();
+    if (!cluster) {
+      throw new Error('patch subresource: no current cluster');
+    }
+
+    const slashIndex = apiVersion.indexOf('/');
+    let basePath: string;
+    if (slashIndex === -1) {
+      basePath = `/api/${apiVersion}`;
+    } else {
+      const group = apiVersion.substring(0, slashIndex);
+      const version = apiVersion.substring(slashIndex + 1);
+      basePath = `/apis/${group}/${version}`;
+    }
+
+    let path: string;
+    if (namespace) {
+      path = `${basePath}/namespaces/${namespace}/${resource}/${name}/${subresource}`;
+    } else {
+      path = `${basePath}/${resource}/${name}/${subresource}`;
+    }
+
+    const serverUrl = new URL(path, cluster.server);
+    const jsonBody = JSON.stringify(body);
+
+    const opts: Record<string, unknown> = {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/merge-patch+json',
+        'Content-Length': Buffer.byteLength(jsonBody),
+      },
+    };
+    await kubeConfig.applyToHTTPSOptions(opts);
+
+    const doRequest = serverUrl.protocol === 'https:' ? httpsRequest : httpRequest;
+
+    await new Promise<void>((resolve, reject) => {
+      const req = doRequest(serverUrl, opts, res => {
+        const chunks: Buffer[] = [];
+        res.on('data', (chunk: Buffer) => chunks.push(chunk));
+        res.on('end', () => {
+          const statusCode = res.statusCode ?? 0;
+          if (statusCode >= 200 && statusCode < 300) {
+            resolve();
+          } else {
+            const responseBody = Buffer.concat(chunks).toString();
+            reject(new Error(`patch subresource failed with status ${statusCode}: ${responseBody}`));
+          }
+        });
+      });
+      req.on('error', reject);
+      req.write(jsonBody);
+      req.end();
+    });
+
+    this.telemetryLogger.logUsage('patch.subresource', { resource, subresource });
   }
 
   async applyYaml(yamlDocuments: string): Promise<{ kind?: string }[]> {
