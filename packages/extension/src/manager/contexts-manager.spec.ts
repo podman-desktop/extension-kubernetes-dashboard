@@ -25,6 +25,9 @@ import type {
   V1Status,
 } from '@kubernetes/client-node';
 import { ApiException, KubeConfig, PatchStrategy } from '@kubernetes/client-node';
+import { EventEmitter } from 'node:events';
+import https from 'node:https';
+
 import { type Uri, Disposable, type TelemetryLogger } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
 import { kubernetes, window } from '@podman-desktop/api';
@@ -2285,5 +2288,147 @@ describe('lazy informer lifecycle', () => {
     });
 
     expect(createdLazyInformerMock.start).not.toHaveBeenCalled();
+  });
+});
+
+describe('validateGroupVersion', () => {
+  test.each(['v1', 'apps/v1', 'batch/v1', 'networking.k8s.io/v1', 'rbac.authorization.k8s.io/v1beta1'])(
+    'accepts valid groupVersion %s',
+    (gv: string) => {
+      expect(() => ContextsManager.validateGroupVersion(gv)).not.toThrow();
+    },
+  );
+
+  test.each([
+    '../../api/v1/secrets',
+    '../api/v1/namespaces/kube-system/secrets',
+    'apps/../v1/secrets',
+    './v1',
+    '',
+    'apps/',
+    '/v1',
+  ])('rejects invalid groupVersion %s', (gv: string) => {
+    expect(() => ContextsManager.validateGroupVersion(gv)).toThrow('invalid groupVersion');
+  });
+});
+
+describe('getApiResources', () => {
+  let manager: TestContextsManager;
+
+  function mockHttpsRequest(respond: (res: EventEmitter, req: EventEmitter) => void): void {
+    vi.spyOn(https, 'request').mockImplementation((...args: unknown[]) => {
+      const cb = args[args.length - 1] as (res: unknown) => void;
+      const res = new EventEmitter();
+      const req = new EventEmitter();
+      Object.assign(req, { end: vi.fn() });
+      cb(res);
+      respond(res, req);
+      return req as unknown as ReturnType<typeof https.request>;
+    });
+  }
+
+  beforeEach(() => {
+    manager = new TestContextsManager();
+    const context = { name: 'ctx', cluster: 'c', user: 'u' };
+    const kubeConfig = new KubeConfig();
+    kubeConfig.loadFromOptions({
+      clusters: [{ name: 'c', server: 'https://localhost:6443' }],
+      users: [{ name: 'u' }],
+      contexts: [context],
+      currentContext: 'ctx',
+    });
+    const singleContext = new KubeConfigSingleContext(kubeConfig, context);
+    vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue(singleContext);
+  });
+
+  test('throws when there is no current cluster', async () => {
+    const context = { name: 'ctx', cluster: 'missing', user: 'u' };
+    const kubeConfig = new KubeConfig();
+    kubeConfig.loadFromOptions({
+      clusters: [],
+      users: [{ name: 'u' }],
+      contexts: [context],
+      currentContext: 'ctx',
+    });
+    const singleContext = new KubeConfigSingleContext(kubeConfig, context);
+    vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue(singleContext);
+
+    await expect(manager.getApiResources('v1')).rejects.toThrow('no current cluster');
+  });
+
+  test('resolves with parsed resources on successful response', async () => {
+    const payload = { apiVersion: 'v1', kind: 'APIResourceList', resources: [] };
+    mockHttpsRequest(res => {
+      Object.assign(res, { statusCode: 200 });
+      res.emit('data', JSON.stringify(payload));
+      res.emit('end');
+    });
+
+    const result = await manager.getApiResources('apps/v1');
+    expect(result).toEqual(payload);
+  });
+
+  test('uses /api/ path for core v1 groupVersion', async () => {
+    const payload = { apiVersion: 'v1', kind: 'APIResourceList', resources: [] };
+    mockHttpsRequest(res => {
+      Object.assign(res, { statusCode: 200 });
+      res.emit('data', JSON.stringify(payload));
+      res.emit('end');
+    });
+
+    await manager.getApiResources('v1');
+    const url = vi.mocked(https.request).mock.calls[0]![0] as URL;
+    expect(url.pathname).toBe('/api/v1');
+  });
+
+  test('uses /apis/ path for named group groupVersion', async () => {
+    const payload = { apiVersion: 'v1', kind: 'APIResourceList', resources: [] };
+    mockHttpsRequest(res => {
+      Object.assign(res, { statusCode: 200 });
+      res.emit('data', JSON.stringify(payload));
+      res.emit('end');
+    });
+
+    await manager.getApiResources('apps/v1');
+    const url = vi.mocked(https.request).mock.calls[0]![0] as URL;
+    expect(url.pathname).toBe('/apis/apps/v1');
+  });
+
+  test('rejects with status error on non-2xx response', async () => {
+    mockHttpsRequest(res => {
+      Object.assign(res, { statusCode: 403, statusMessage: 'Forbidden' });
+      res.emit('end');
+    });
+
+    await expect(manager.getApiResources('apps/v1')).rejects.toThrow(
+      'Failed to get API resources for apps/v1: 403 Forbidden',
+    );
+  });
+
+  test('rejects when the request emits an error', async () => {
+    mockHttpsRequest((_res, req) => {
+      req.emit('error', new Error('ECONNREFUSED'));
+    });
+
+    await expect(manager.getApiResources('apps/v1')).rejects.toThrow('ECONNREFUSED');
+  });
+
+  test('rejects with parse error when response body is invalid JSON', async () => {
+    mockHttpsRequest(res => {
+      Object.assign(res, { statusCode: 200 });
+      res.emit('data', 'not-json');
+      res.emit('end');
+    });
+
+    await expect(manager.getApiResources('apps/v1')).rejects.toThrow('Failed to parse API resources response');
+  });
+
+  test('rejects when the response stream emits an error', async () => {
+    mockHttpsRequest(res => {
+      Object.assign(res, { statusCode: 200 });
+      res.emit('error', new Error('connection reset'));
+    });
+
+    await expect(manager.getApiResources('apps/v1')).rejects.toThrow('connection reset');
   });
 });

@@ -178,6 +178,12 @@ export class DashboardExtension {
           return this.#contextsManager.refreshContextState(contextName, options);
         },
       },
+      getApiVersions: () => {
+        return this.#contextsManager.getApiVersions();
+      },
+      getApiResources: (groupVersion: string) => {
+        return this.#contextsManager.getApiResources(groupVersion);
+      },
     } as KubernetesDashboardExtensionApi;
   }
 
