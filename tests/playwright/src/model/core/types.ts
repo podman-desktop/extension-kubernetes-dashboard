@@ -65,12 +65,12 @@ export enum KubernetesResources {
 }
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
-  [KubernetesResources.Namespaces]: ['Status', 'Name', 'Age', 'Actions'],
+  [KubernetesResources.Namespaces]: ['Selected', 'Status', 'Name', 'Age', 'Actions'],
   [KubernetesResources.Nodes]: ['Status', 'Name', 'Roles', 'Version', 'OS', 'Kernel', 'Age'],
   [KubernetesResources.Deployments]: ['Selected', 'Status', 'Name', 'Conditions', 'Pods', 'Age', 'Actions'],
-  [KubernetesResources.DaemonSets]: ['Status', 'Name', 'Ready', 'Up-to-date', 'Node Selector', 'Age'],
-  [KubernetesResources.StatefulSets]: ['Selected', 'Status', 'Name', 'Replicas', 'Age', 'Actions'],
-  [KubernetesResources.ReplicaSets]: ['Status', 'Name', 'Desired', 'Current', 'Ready', 'Owner', 'Age'],
+  [KubernetesResources.DaemonSets]: ['Selected', 'Status', 'Name', 'Ready', 'Up-to-date', 'Node Selector', 'Age'],
+  [KubernetesResources.StatefulSets]: ['Selected', 'Status', 'Name', 'Ready', 'Up-to-date', 'Age'],
+  [KubernetesResources.ReplicaSets]: ['Selected', 'Status', 'Name', 'Desired', 'Current', 'Ready', 'Owner', 'Age'],
   [KubernetesResources.Services]: ['Selected', 'Status', 'Name', 'Type', 'Cluster IP', 'Ports', 'Age', 'Actions'],
   [KubernetesResources.IngressesRoutes]: ['Selected', 'Status', 'Name', 'Host/Path', 'Backend', 'Age', 'Actions'],
   [KubernetesResources.Endpoints]: ['Selected', 'Status', 'Name', 'Endpoints', 'Ports', 'Age', 'Actions'],
@@ -85,8 +85,8 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Age',
     'Actions',
   ],
-  [KubernetesResources.IngressClasses]: ['Status', 'Name', 'Controller', 'Default', 'Age'],
-  [KubernetesResources.GatewayClasses]: ['Status', 'Name', 'Controller', 'Age'],
+  [KubernetesResources.IngressClasses]: ['Selected', 'Status', 'Name', 'Controller', 'Default', 'Age', 'Actions'],
+  [KubernetesResources.GatewayClasses]: ['Selected', 'Status', 'Name', 'Controller', 'Age', 'Actions'],
   [KubernetesResources.Gateways]: [
     'Selected',
     'Status',
@@ -107,7 +107,7 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
     'Age',
     'Actions',
   ],
-  [KubernetesResources.PVCs]: ['Selected', 'Status', 'Name', 'Environment', 'Age', 'Size', 'Actions'],
+  [KubernetesResources.PVCs]: ['Selected', 'Status', 'Name', 'Mode', 'Storage', 'Size', 'Age', 'Actions'],
   [KubernetesResources.PersistentVolumes]: [
     'Selected',
     'Status',
@@ -132,7 +132,18 @@ export const KubernetesResourceAttributes: Record<KubernetesResources, string[]>
   ],
   [KubernetesResources.ConfigMapsSecrets]: ['Selected', 'Status', 'Name', 'Type', 'Keys', 'Age', 'Actions'],
   [KubernetesResources.PortForwarding]: ['Status', 'Name', 'Type', 'Local Port', 'Remote Port', 'Actions'],
-  [KubernetesResources.Pods]: ['Selected', 'Status', 'Name', 'Containers', 'Age', 'Actions'],
+  [KubernetesResources.Pods]: [
+    'Selected',
+    'Status',
+    'Name',
+    'Containers',
+    'Restarts',
+    'Controlled By',
+    'Node',
+    'QoS',
+    'Age',
+    'Actions',
+  ],
   [KubernetesResources.Cronjobs]: [
     'Selected',
     'Status',
