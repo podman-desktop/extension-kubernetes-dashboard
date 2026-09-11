@@ -18,12 +18,7 @@
 name: release
 
 permissions:
-  contents: write
-  packages: write
-  attestations: write
-  id-token: write
-  pull-requests: write
-  repository-projects: write
+  contents: read
 
 on:
   workflow_dispatch:
@@ -35,13 +30,14 @@ on:
         description: 'Branch to use for the release'
         required: true
         default: main
-env:
-  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
   tag:
     name: Tagging
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       githubTag: ${{ steps.TAG_UTIL.outputs.githubTag}}
       extVersion: ${{ steps.TAG_UTIL.outputs.extVersion}}
@@ -51,7 +47,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.inputs.branch }}
-          token: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
+          persist-credentials: false
 
       - name: Generate tag utilities
         id: TAG_UTIL
@@ -61,9 +57,12 @@ jobs:
           echo "extVersion=$TAG_PATTERN" >> ${GITHUB_OUTPUT}
 
       - name: tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --local user.name ${{ github.actor }}
           git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
 
           # Add the new version in package.json file
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.extVersion }}\",#g" package.json
@@ -95,6 +94,7 @@ jobs:
         if: ${{ github.event.inputs.branch == 'main' }}
         run: |
           git config --local user.name ${{ github.actor }}
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
           CURRENT_VERSION=$(echo "${{ steps.TAG_UTIL.outputs.extVersion }}")
           tmp=${CURRENT_VERSION%.*}
           minor=${tmp#*.}
@@ -125,7 +125,7 @@ jobs:
 
   extension-build:
     name: build oci image
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: tag
     outputs:
       artifact-id: ${{ steps.build.outputs.artifact-id }}
@@ -140,7 +140,7 @@ jobs:
   extension-publish:
     name: publish oci image
     needs: [extension-build, tag]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       id-token: write
@@ -163,7 +163,9 @@ jobs:
   release:
     needs: [tag, extension-publish]
     name: Release
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
     steps:
       - name: id
         run: echo the release id is ${{ needs.tag.outputs.releaseId}}

@@ -19,9 +19,6 @@ name: build and publish next image
 
 permissions:
   contents: read
-  packages: write
-  attestations: write
-  id-token: write
 
 on:
   workflow_dispatch:
@@ -32,7 +29,7 @@ on:
 jobs:
   extension-build:
     name: build oci image
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       artifact-id: ${{ steps.build.outputs.artifact-id }}
     steps:
@@ -46,7 +43,7 @@ jobs:
     name: publish oci image
     if: ${{ !failure() && !cancelled() }}
     needs: extension-build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       id-token: write
