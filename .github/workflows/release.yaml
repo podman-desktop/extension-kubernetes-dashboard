@@ -150,7 +150,7 @@ jobs:
       checks: write
     steps:
       - name: Publish OCI
-        uses: podman-desktop/gh-extensions-actions/.github/actions/oci-publish@2e7a02e8c8e9256a2fa466fb166e215175130dd7 # v0.1.2
+        uses: podman-desktop/gh-extensions-actions/.github/actions/oci-publish@0abcba929bec797400b7fc1d6229f2907e1d4c1d # v0.2.0
         with:
           run-id: ${{ github.run_id }}
           artifact-id: ${{ needs.extension-build.outputs.artifact-id }}
