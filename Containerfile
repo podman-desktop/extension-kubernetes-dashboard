@@ -27,7 +27,7 @@ WORKDIR /opt/app-root/extension-source
 COPY --chown=1001:root . .
 
 RUN corepack enable && corepack install && \
-    CI=true pnpm --frozen-lockfile install
+    CI=true pnpm install
 
 RUN pnpm build
 
