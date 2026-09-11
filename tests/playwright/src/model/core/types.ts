@@ -59,8 +59,8 @@ export enum KubernetesResources {
   PriorityClasses = 'Priority Classes',
   RuntimeClasses = 'Runtime Classes',
   Leases = 'Leases',
-  MutatingWebhookConfigs = 'Mutating Webhook Configs',
-  ValidatingWebhookConfigs = 'Validating Webhook Configs',
+  MutatingWebhookConfigs = 'Mutating Webhooks',
+  ValidatingWebhookConfigs = 'Validating Webhooks',
   HorizontalPodAutoscalers = 'Horizontal Pod Autoscalers',
 }
 

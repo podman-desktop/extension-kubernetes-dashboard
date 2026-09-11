@@ -125,9 +125,9 @@ export class KubernetesBar {
         return new KubernetesResourcePage(this.page, 'priority classes');
       case 'Runtime Classes':
         return new KubernetesResourcePage(this.page, 'runtime classes');
-      case 'Mutating Webhook Configs':
+      case 'Mutating Webhooks':
         return new KubernetesResourcePage(this.page, 'mutating webhook configurations');
-      case 'Validating Webhook Configs':
+      case 'Validating Webhooks':
         return new KubernetesResourcePage(this.page, 'validating webhook configurations');
       case 'Horizontal Pod Autoscalers':
         return new KubernetesResourcePage(this.page, 'horizontal pod autoscalers');
