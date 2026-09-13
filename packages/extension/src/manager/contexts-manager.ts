@@ -29,7 +29,7 @@ import {
   type KubernetesObject,
   type ObjectCache,
 } from '@kubernetes/client-node';
-import { request as httpsRequest } from 'node:https';
+import https, { request as httpsRequest } from 'node:https';
 import { request as httpRequest } from 'node:http';
 
 import type {
@@ -105,7 +105,6 @@ import { ValidatingWebhooksResourceFactory } from '/@/resources/validating-webho
 import { HpasResourceFactory } from '/@/resources/hpas-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
-import https from 'node:https';
 import {
   ConnectOptions,
   ContextPermission,

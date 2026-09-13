@@ -26,7 +26,7 @@ import type {
 } from '@kubernetes/client-node';
 import { ApiException, KubeConfig, PatchStrategy } from '@kubernetes/client-node';
 import { EventEmitter } from 'node:events';
-import https from 'node:https';
+import https, { request as httpsRequest } from 'node:https';
 
 import { type Uri, Disposable, type TelemetryLogger } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -47,7 +47,6 @@ import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
 import type { CacheUpdatedEvent, ObjectDeletedEvent, ResourceInformer } from '/@/types/resource-informer.js';
 import { vol } from 'memfs';
 import type { ConnectOptions } from '@podman-desktop/kubernetes-dashboard-extension-api';
-import { request as httpsRequest } from 'node:https';
 import type { IncomingMessage, ClientRequest } from 'node:http';
 
 const resource4DeleteObjectMock = vi.fn();
