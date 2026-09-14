@@ -72,8 +72,8 @@ importers:
         specifier: ^10.0.5
         version: 10.0.5
       cronstrue:
-        specifier: ^3.24.0
-        version: 3.24.0
+        specifier: ^3.26.0
+        version: 3.26.0
       eslint:
         specifier: ^10.10.0
         version: 10.10.0(jiti@2.7.0)(supports-color@10.2.2)
@@ -255,8 +255,8 @@ importers:
   packages/webview:
     dependencies:
       cronstrue:
-        specifier: ^3.24.0
-        version: 3.24.0
+        specifier: ^3.26.0
+        version: 3.26.0
       inversify:
         specifier: ^7.11.0
         version: 7.11.0(reflect-metadata@0.2.2)
@@ -2220,8 +2220,8 @@ packages:
     resolution: {integrity: sha512-XGpFGbMLHwSt74YLTKho7Ib242qi6O8MSX+sRokV4oz7iKXvQWGYZthjIhjRGMxjzVkAubBO512dKGYcefmX3Q==}
     engines: {node: '>=6.4.0'}
 
-  cronstrue@3.24.0:
-    resolution: {integrity: sha512-t/Ji3Ur2c/pzhIAWNwC0ftl3JAE4dLfCjAdZoTZXmPDZwcispnS1PaMcMS4OmIIXyIVouAz+yw+mfQiE3hz5OQ==}
+  cronstrue@3.26.0:
+    resolution: {integrity: sha512-PEXTHEir/KllAWMsOQOsv3ZXjI6Y1PA1eVAEM/WhCaesAcCYHldra9pr2jkFH6r/ynbEOAPOGoWYz9NkjP0huA==}
     hasBin: true
 
   cross-spawn@7.0.6:
@@ -6275,7 +6275,7 @@ snapshots:
     dependencies:
       browserslist: 4.28.9
 
-  cronstrue@3.24.0: {}
+  cronstrue@3.26.0: {}
 
   cross-spawn@7.0.6:
     dependencies:
