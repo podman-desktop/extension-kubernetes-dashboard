@@ -30,7 +30,7 @@ permissions:
 jobs:
   publish:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    uses: podman-desktop/gh-extensions-actions/.github/workflows/publish-oci-pr.yml@0dfd06899ce71f9a469ac745e97f8449d42529bb
+    uses: podman-desktop/gh-extensions-actions/.github/workflows/publish-oci-pr.yml@cc290a6766db1ba8367bf6fc4ca97a7e66937fa0
     permissions:
       contents: read
       id-token: write
