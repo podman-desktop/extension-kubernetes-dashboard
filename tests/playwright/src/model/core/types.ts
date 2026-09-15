@@ -66,7 +66,7 @@ export enum KubernetesResources {
 
 export const KubernetesResourceAttributes: Record<KubernetesResources, string[]> = {
   [KubernetesResources.Namespaces]: ['Status', 'Name', 'Age', 'Actions'],
-  [KubernetesResources.Nodes]: ['Status', 'Name', 'Roles', 'Version', 'OS', 'Kernel', 'Age'],
+  [KubernetesResources.Nodes]: ['Status', 'Name', 'Roles', 'Internal IP', 'Version', 'OS', 'Kernel', 'Age'],
   [KubernetesResources.Deployments]: ['Selected', 'Status', 'Name', 'Conditions', 'Pods', 'Age', 'Actions'],
   [KubernetesResources.DaemonSets]: ['Status', 'Name', 'Ready', 'Up-to-date', 'Node Selector', 'Age'],
   [KubernetesResources.StatefulSets]: ['Selected', 'Status', 'Name', 'Replicas', 'Age', 'Actions'],
