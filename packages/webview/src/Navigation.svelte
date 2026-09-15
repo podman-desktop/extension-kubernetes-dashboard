@@ -34,40 +34,40 @@ function isUnderSection(sectionUrls: string[]): boolean {
 }
 
 const workloadUrls = [
-  navigator.kubernetesResourcesURL('Deployment'),
-  navigator.kubernetesResourcesURL('DaemonSet'),
-  navigator.kubernetesResourcesURL('StatefulSet'),
-  navigator.kubernetesResourcesURL('ReplicaSet'),
-  navigator.kubernetesResourcesURL('Pod'),
-  navigator.kubernetesResourcesURL('Job'),
   navigator.kubernetesResourcesURL('CronJob'),
+  navigator.kubernetesResourcesURL('DaemonSet'),
+  navigator.kubernetesResourcesURL('Deployment'),
+  navigator.kubernetesResourcesURL('Job'),
+  navigator.kubernetesResourcesURL('Pod'),
+  navigator.kubernetesResourcesURL('ReplicaSet'),
+  navigator.kubernetesResourcesURL('StatefulSet'),
 ];
 
 const configUrls = [
   navigator.kubernetesResourcesURL('ConfigMap'),
-  navigator.kubernetesResourcesURL('ServiceAccount'),
-  navigator.kubernetesResourcesURL('ResourceQuota'),
+  navigator.kubernetesResourcesURL('HorizontalPodAutoscaler'),
+  navigator.kubernetesResourcesURL('Lease'),
   navigator.kubernetesResourcesURL('LimitRange'),
+  navigator.kubernetesResourcesURL('MutatingWebhookConfiguration'),
   navigator.kubernetesResourcesURL('PodDisruptionBudget'),
   navigator.kubernetesResourcesURL('PriorityClass'),
+  navigator.kubernetesResourcesURL('ResourceQuota'),
   navigator.kubernetesResourcesURL('RuntimeClass'),
-  navigator.kubernetesResourcesURL('Lease'),
-  navigator.kubernetesResourcesURL('MutatingWebhookConfiguration'),
+  navigator.kubernetesResourcesURL('ServiceAccount'),
   navigator.kubernetesResourcesURL('ValidatingWebhookConfiguration'),
-  navigator.kubernetesResourcesURL('HorizontalPodAutoscaler'),
 ];
 
 const networkUrls = [
-  navigator.kubernetesResourcesURL('Service'),
-  navigator.kubernetesResourcesURL('Endpoints'),
   navigator.kubernetesResourcesURL('EndpointSlice'),
-  navigator.kubernetesResourcesURL('Ingress'),
-  navigator.kubernetesResourcesURL('NetworkPolicy'),
-  navigator.kubernetesResourcesURL('IngressClass'),
+  navigator.kubernetesResourcesURL('Endpoints'),
   navigator.kubernetesResourcesURL('GatewayClass'),
   navigator.kubernetesResourcesURL('Gateway'),
   navigator.kubernetesResourcesURL('HTTPRoute'),
+  navigator.kubernetesResourcesURL('IngressClass'),
+  navigator.kubernetesResourcesURL('Ingress'),
+  navigator.kubernetesResourcesURL('NetworkPolicy'),
   '/portForward',
+  navigator.kubernetesResourcesURL('Service'),
 ];
 
 const storageUrls = [
@@ -77,10 +77,10 @@ const storageUrls = [
 ];
 
 const accessControlUrls = [
-  navigator.kubernetesResourcesURL('Role'),
-  navigator.kubernetesResourcesURL('RoleBinding'),
-  navigator.kubernetesResourcesURL('ClusterRole'),
   navigator.kubernetesResourcesURL('ClusterRoleBinding'),
+  navigator.kubernetesResourcesURL('ClusterRole'),
+  navigator.kubernetesResourcesURL('RoleBinding'),
+  navigator.kubernetesResourcesURL('Role'),
 ];
 
 const STORAGE_KEY = 'nav-sections-expanded';
@@ -155,56 +155,56 @@ $effect(() => {
     <!-- Compute section -->
     <NavItem title="Compute" icon={faCubes} section={true} bind:expanded={workloadsExpanded} href="" />
     {#if workloadsExpanded}
-      <NavItem title="Deployments" child={true} href={navigator.kubernetesResourcesURL('Deployment')} />
-      <NavItem title="DaemonSets" child={true} href={navigator.kubernetesResourcesURL('DaemonSet')} />
-      <NavItem title="StatefulSets" child={true} href={navigator.kubernetesResourcesURL('StatefulSet')} />
-      <NavItem title="ReplicaSets" child={true} href={navigator.kubernetesResourcesURL('ReplicaSet')} />
-      <NavItem title="Pods" child={true} href={navigator.kubernetesResourcesURL('Pod')} />
-      <NavItem title="Jobs" child={true} href={navigator.kubernetesResourcesURL('Job')} />
       <NavItem title="CronJobs" child={true} href={navigator.kubernetesResourcesURL('CronJob')} />
+      <NavItem title="DaemonSets" child={true} href={navigator.kubernetesResourcesURL('DaemonSet')} />
+      <NavItem title="Deployments" child={true} href={navigator.kubernetesResourcesURL('Deployment')} />
+      <NavItem title="Jobs" child={true} href={navigator.kubernetesResourcesURL('Job')} />
+      <NavItem title="Pods" child={true} href={navigator.kubernetesResourcesURL('Pod')} />
+      <NavItem title="ReplicaSets" child={true} href={navigator.kubernetesResourcesURL('ReplicaSet')} />
+      <NavItem title="StatefulSets" child={true} href={navigator.kubernetesResourcesURL('StatefulSet')} />
     {/if}
 
     <!-- Config section -->
     <NavItem title="Config" icon={faGear} section={true} bind:expanded={configExpanded} href="" />
     {#if configExpanded}
       <NavItem title="ConfigMaps &amp; Secrets" child={true} href={navigator.kubernetesResourcesURL('ConfigMap')} />
-      <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
-      <NavItem title="Resource Quotas" child={true} href={navigator.kubernetesResourcesURL('ResourceQuota')} />
-      <NavItem title="Limit Ranges" child={true} href={navigator.kubernetesResourcesURL('LimitRange')} />
       <NavItem
-        title="Pod Disruption Budgets"
+        title="Horizontal Pod Autoscalers"
         child={true}
-        href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
-      <NavItem title="Priority Classes" child={true} href={navigator.kubernetesResourcesURL('PriorityClass')} />
-      <NavItem title="Runtime Classes" child={true} href={navigator.kubernetesResourcesURL('RuntimeClass')} />
+        href={navigator.kubernetesResourcesURL('HorizontalPodAutoscaler')} />
       <NavItem title="Leases" child={true} href={navigator.kubernetesResourcesURL('Lease')} />
+      <NavItem title="Limit Ranges" child={true} href={navigator.kubernetesResourcesURL('LimitRange')} />
       <NavItem
         title="Mutating Webhook Configs"
         child={true}
         href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
       <NavItem
+        title="Pod Disruption Budgets"
+        child={true}
+        href={navigator.kubernetesResourcesURL('PodDisruptionBudget')} />
+      <NavItem title="Priority Classes" child={true} href={navigator.kubernetesResourcesURL('PriorityClass')} />
+      <NavItem title="Resource Quotas" child={true} href={navigator.kubernetesResourcesURL('ResourceQuota')} />
+      <NavItem title="Runtime Classes" child={true} href={navigator.kubernetesResourcesURL('RuntimeClass')} />
+      <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
+      <NavItem
         title="Validating Webhook Configs"
         child={true}
         href={navigator.kubernetesResourcesURL('ValidatingWebhookConfiguration')} />
-      <NavItem
-        title="Horizontal Pod Autoscalers"
-        child={true}
-        href={navigator.kubernetesResourcesURL('HorizontalPodAutoscaler')} />
     {/if}
 
     <!-- Network section -->
     <NavItem title="Network" icon={faNetworkWired} section={true} bind:expanded={networkExpanded} href="" />
     {#if networkExpanded}
-      <NavItem title="Services" child={true} href={navigator.kubernetesResourcesURL('Service')} />
-      <NavItem title="Endpoints" child={true} href={navigator.kubernetesResourcesURL('Endpoints')} />
       <NavItem title="Endpoint Slices" child={true} href={navigator.kubernetesResourcesURL('EndpointSlice')} />
-      <NavItem title="Ingresses &amp; Routes" child={true} href={navigator.kubernetesResourcesURL('Ingress')} />
-      <NavItem title="Network Policies" child={true} href={navigator.kubernetesResourcesURL('NetworkPolicy')} />
-      <NavItem title="Ingress Classes" child={true} href={navigator.kubernetesResourcesURL('IngressClass')} />
+      <NavItem title="Endpoints" child={true} href={navigator.kubernetesResourcesURL('Endpoints')} />
       <NavItem title="Gateway Classes" child={true} href={navigator.kubernetesResourcesURL('GatewayClass')} />
       <NavItem title="Gateways" child={true} href={navigator.kubernetesResourcesURL('Gateway')} />
       <NavItem title="HTTPRoutes" child={true} href={navigator.kubernetesResourcesURL('HTTPRoute')} />
+      <NavItem title="Ingress Classes" child={true} href={navigator.kubernetesResourcesURL('IngressClass')} />
+      <NavItem title="Ingresses &amp; Routes" child={true} href={navigator.kubernetesResourcesURL('Ingress')} />
+      <NavItem title="Network Policies" child={true} href={navigator.kubernetesResourcesURL('NetworkPolicy')} />
       <NavItem title="Port Forwarding" child={true} href="/portForward" />
+      <NavItem title="Services" child={true} href={navigator.kubernetesResourcesURL('Service')} />
     {/if}
 
     <!-- Storage section -->
@@ -226,13 +226,13 @@ $effect(() => {
       bind:expanded={accessControlExpanded}
       href="" />
     {#if accessControlExpanded}
-      <NavItem title="Roles" child={true} href={navigator.kubernetesResourcesURL('Role')} />
-      <NavItem title="Role Bindings" child={true} href={navigator.kubernetesResourcesURL('RoleBinding')} />
-      <NavItem title="Cluster Roles" child={true} href={navigator.kubernetesResourcesURL('ClusterRole')} />
       <NavItem
         title="Cluster Role Bindings"
         child={true}
         href={navigator.kubernetesResourcesURL('ClusterRoleBinding')} />
+      <NavItem title="Cluster Roles" child={true} href={navigator.kubernetesResourcesURL('ClusterRole')} />
+      <NavItem title="Role Bindings" child={true} href={navigator.kubernetesResourcesURL('RoleBinding')} />
+      <NavItem title="Roles" child={true} href={navigator.kubernetesResourcesURL('Role')} />
     {/if}
 
     <NavItem title="Namespaces" icon={faLayerGroup} href={navigator.kubernetesResourcesURL('Namespace')} />
