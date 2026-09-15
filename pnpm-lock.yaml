@@ -347,8 +347,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       humanize-duration:
-        specifier: ^3.34.1
-        version: 3.34.1
+        specifier: ^3.35.0
+        version: 3.35.0
       jsdom:
         specifier: ^30.0.1
         version: 30.0.1
@@ -2853,8 +2853,8 @@ packages:
     resolution: {integrity: sha512-CV9TW3Y3f8/wT0BRFc1/KAVQ3TUHiXmaAb6VW9vtiMFf7SLoMd1PdAc4W3KFOFETBJUb90KatHqlsZMWV+R9Gg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
 
-  humanize-duration@3.34.1:
-    resolution: {integrity: sha512-YIiigjQ+O31rvcyDJPK1ptTZtvSErjBtmHy93VhbwxB/VwMG0FszKs2IB667tFxmOhNapePQQxa24luQRDkKFQ==}
+  humanize-duration@3.35.0:
+    resolution: {integrity: sha512-+KYh+R85n1yadHHwy/QXF0JgPq5NPPBNrvigA5aAKrlKFd0bJpMx7wE3Xd6rM0kEaBQMCFrdMihkaDSgWERNvQ==}
 
   hyperdyperid@1.2.0:
     resolution: {integrity: sha512-Y93lCzHYgGWdrJ66yIktxiaGULYc6oGiABxhcO5AufBeOyoIdZF7bIfLaOrbM0iGIOXQQgxxRrFEnb+Y6w1n4A==}
@@ -5199,7 +5199,7 @@ snapshots:
       '@fortawesome/free-brands-svg-icons': 7.3.1
       '@fortawesome/free-regular-svg-icons': 7.3.1
       '@fortawesome/free-solid-svg-icons': 7.3.1
-      humanize-duration: 3.34.1
+      humanize-duration: 3.35.0
       moment: 2.30.1
       svelte: 5.57.0(@typescript-eslint/types@8.70.0)
       svelte-fa: 4.0.4(svelte@5.57.0(@typescript-eslint/types@8.70.0))
@@ -7102,7 +7102,7 @@ snapshots:
     transitivePeerDependencies:
       - '@noble/hashes'
 
-  humanize-duration@3.34.1: {}
+  humanize-duration@3.35.0: {}
 
   hyperdyperid@1.2.0: {}
 
