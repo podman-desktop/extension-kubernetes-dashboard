@@ -41,6 +41,12 @@ let ageColumn = new TableColumn<NodeUI, Date | undefined>('Age', {
   comparator: (a, b): number => moment(b.created).diff(moment(a.created)),
 });
 
+let internalIPColumn = new TableColumn<NodeUI, string>('Internal IP', {
+  renderMapping: (node): string => node.internalIP,
+  renderer: TableSimpleColumn,
+  comparator: (a, b): number => a.internalIP.localeCompare(b.internalIP),
+});
+
 let versionColumn = new TableColumn<NodeUI, string>('Version', {
   renderMapping: (node): string => node.version,
   renderer: TableSimpleColumn,
@@ -60,7 +66,16 @@ let kernelVersionColumn = new TableColumn<NodeUI, string>('Kernel', {
   comparator: (a, b): number => a.kernelVersion.localeCompare(b.kernelVersion),
 });
 
-const columns = [statusColumn, nameColumn, rolesColumn, versionColumn, osImageColumn, kernelVersionColumn, ageColumn];
+const columns = [
+  statusColumn,
+  nameColumn,
+  rolesColumn,
+  internalIPColumn,
+  versionColumn,
+  osImageColumn,
+  kernelVersionColumn,
+  ageColumn,
+];
 
 const row = new TableRow<NodeUI>({});
 </script>

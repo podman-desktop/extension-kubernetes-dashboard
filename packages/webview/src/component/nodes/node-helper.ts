@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2023-2025 Red Hat, Inc.
+ * Copyright (C) 2023-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ export class NodeHelper {
     const osImage = node.status?.nodeInfo?.osImage ?? '';
     const kernelVersion = node.status?.nodeInfo?.kernelVersion ?? '';
     const containerRuntime = node.status?.nodeInfo?.containerRuntimeVersion ?? '';
+    const internalIP = node.status?.addresses?.find(addr => addr.type === 'InternalIP')?.address ?? '';
 
     return {
       kind: 'Node',
@@ -70,6 +71,7 @@ export class NodeHelper {
       osImage,
       kernelVersion,
       containerRuntime,
+      internalIP,
       hasGpu: this.hasGpu(node),
     };
   }
