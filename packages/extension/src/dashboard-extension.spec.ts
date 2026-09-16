@@ -154,7 +154,7 @@ test('api.getApiResources should delegate to ContextsManager.getApiResources', a
 
   await api.getApiResources('apps/v1');
 
-  expect(ContextsManager.prototype.getApiResources).toHaveBeenCalledWith('apps/v1');
+  expect(ContextsManager.prototype.getApiResources).toHaveBeenCalledWith('apps/v1', undefined);
 });
 
 test('subscriber.onResourceUpdate should subscribe to UPDATE_RESOURCE channel', async () => {

@@ -40,7 +40,7 @@ import {
   type ContextPermissionsRequest,
   type ContextResourcePermission,
 } from './context-permissions-checker.js';
-import { ContextsManager } from './contexts-manager.js';
+import { ApiResourceError, ContextsManager } from './contexts-manager.js';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceFactory } from '/@/resources/resource-factory.js';
 import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
@@ -2394,15 +2394,37 @@ describe('getApiResources', () => {
     expect(url.pathname).toBe('/apis/apps/v1');
   });
 
-  test('rejects with status error on non-2xx response', async () => {
+  test('rejects with ApiResourceError on non-2xx response', async () => {
     mockHttpsRequest(res => {
-      Object.assign(res, { statusCode: 403, statusMessage: 'Forbidden' });
+      Object.assign(res, { statusCode: 403, statusMessage: 'Forbidden', headers: {} });
       res.emit('end');
     });
 
-    await expect(manager.getApiResources('apps/v1')).rejects.toThrow(
-      'Failed to get API resources for apps/v1: 403 Forbidden',
-    );
+    const err: ApiResourceError = (await manager
+      .getApiResources('apps/v1')
+      .catch((e: unknown) => e)) as ApiResourceError;
+    expect(err).toBeInstanceOf(ApiResourceError);
+    expect(err.message).toBe('Failed to get API resources for apps/v1: 403 Forbidden');
+    expect(err.statusCode).toBe(403);
+    expect(err.retryAfter).toBeUndefined();
+  });
+
+  test('exposes Retry-After header on 429 response', async () => {
+    mockHttpsRequest(res => {
+      Object.assign(res, {
+        statusCode: 429,
+        statusMessage: 'Too Many Requests',
+        headers: { 'retry-after': '5' },
+      });
+      res.emit('end');
+    });
+
+    const err: ApiResourceError = (await manager
+      .getApiResources('apps/v1')
+      .catch((e: unknown) => e)) as ApiResourceError;
+    expect(err).toBeInstanceOf(ApiResourceError);
+    expect(err.statusCode).toBe(429);
+    expect(err.retryAfter).toBe('5');
   });
 
   test('rejects when the request emits an error', async () => {
@@ -2430,5 +2452,51 @@ describe('getApiResources', () => {
     });
 
     await expect(manager.getApiResources('apps/v1')).rejects.toThrow('connection reset');
+  });
+
+  test('sets timeout on the request', async () => {
+    const payload = { apiVersion: 'v1', kind: 'APIResourceList', resources: [] };
+    mockHttpsRequest(res => {
+      Object.assign(res, { statusCode: 200 });
+      res.emit('data', JSON.stringify(payload));
+      res.emit('end');
+    });
+
+    await manager.getApiResources('apps/v1');
+    const opts = vi.mocked(https.request).mock.calls[0]![1] as https.RequestOptions;
+    expect(opts.timeout).toBe(ContextsManager.DEFAULT_TIMEOUT_MS);
+  });
+
+  test('uses custom timeout when provided', async () => {
+    const payload = { apiVersion: 'v1', kind: 'APIResourceList', resources: [] };
+    mockHttpsRequest(res => {
+      Object.assign(res, { statusCode: 200 });
+      res.emit('data', JSON.stringify(payload));
+      res.emit('end');
+    });
+
+    await manager.getApiResources('apps/v1', { timeoutMs: 5_000 });
+    const opts = vi.mocked(https.request).mock.calls[0]![1] as https.RequestOptions;
+    expect(opts.timeout).toBe(5_000);
+  });
+
+  test('destroys request on timeout', async () => {
+    vi.spyOn(https, 'request').mockImplementation((...args: unknown[]) => {
+      const cb = args[args.length - 1] as (res: unknown) => void;
+      const res = new EventEmitter();
+      const req = new EventEmitter();
+      Object.assign(req, {
+        end: () => {
+          req.emit('timeout');
+        },
+        destroy: (err: Error) => {
+          req.emit('error', err);
+        },
+      });
+      cb(res);
+      return req as unknown as ReturnType<typeof https.request>;
+    });
+
+    await expect(manager.getApiResources('apps/v1')).rejects.toThrow('Timed out getting API resources for apps/v1');
   });
 });
