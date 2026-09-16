@@ -192,9 +192,42 @@ export interface KubernetesDashboardExtensionApi {
    *
    * The returned value maps the value returned by the `/apis/<groupVersion>` or `/api/<version>` endpoint directly.
    *
+   * On non-2xx responses, rejects with an {@link ApiResourceError} exposing `statusCode` and `retryAfter`.
+   *
    * @param groupVersion - The group/version to get resources for (e.g., 'v1', 'apps/v1').
+   * @param options - Optional request options.
    */
-  getApiResources(groupVersion: string): Promise<ApiResourceList>;
+  getApiResources(groupVersion: string, options?: ApiResourceRequestOptions): Promise<ApiResourceList>;
+}
+
+/**
+ * Options for {@link KubernetesDashboardExtensionApi.getApiResources}.
+ */
+export interface ApiResourceRequestOptions {
+  /**
+   * Request timeout in milliseconds. Defaults to 10 000 ms.
+   */
+  timeoutMs?: number;
+}
+
+/**
+ * Shape of the error thrown when {@link KubernetesDashboardExtensionApi.getApiResources} receives a non-2xx response.
+ *
+ * Check `error.name` to identify it at runtime:
+ *
+ * ```ts
+ * try {
+ *   await api.getApiResources('apps/v1');
+ * } catch (error) {
+ *   if (error instanceof Error && error.name === 'ApiResourceError') {
+ *     const { statusCode, retryAfter } = error as ApiResourceError;
+ *   }
+ * }
+ * ```
+ */
+export interface ApiResourceError extends Error {
+  readonly statusCode: number | undefined;
+  readonly retryAfter: string | undefined;
 }
 
 /**

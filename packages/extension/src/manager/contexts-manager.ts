@@ -116,6 +116,17 @@ const DEFAULT_NAMESPACE = 'default';
 const FIELD_MANAGER = 'kubernetes-dashboard';
 const LAZY_INFORMER_GRACE_PERIOD_MS = 30_000;
 
+export class ApiResourceError extends Error {
+  constructor(
+    message: string,
+    readonly statusCode: number | undefined,
+    readonly retryAfter: string | undefined,
+  ) {
+    super(message);
+    this.name = 'ApiResourceError';
+  }
+}
+
 /**
  * ContextsManager receives new KubeConfig updates
  * and manages the monitoring for each context of the KubeConfig.
@@ -1211,6 +1222,8 @@ export class ContextsManager implements ContextsApi {
     };
   }
 
+  static readonly DEFAULT_TIMEOUT_MS = 10_000;
+
   static validateGroupVersion(groupVersion: string): void {
     for (const part of groupVersion.split('/')) {
       if (part === '' || part === '.' || part === '..') {
@@ -1219,7 +1232,7 @@ export class ContextsManager implements ContextsApi {
     }
   }
 
-  async getApiResources(groupVersion: string): Promise<ApiResourceList> {
+  async getApiResources(groupVersion: string, options?: { timeoutMs?: number }): Promise<ApiResourceList> {
     ContextsManager.validateGroupVersion(groupVersion);
     const kubeConfig = this.getCurrentKubeConfig();
     const cluster = kubeConfig.getCurrentCluster();
@@ -1228,12 +1241,14 @@ export class ContextsManager implements ContextsApi {
     }
     const apiPath = groupVersion === 'v1' ? '/api/v1' : `/apis/${groupVersion}`;
     const url = new URL(cluster.server + apiPath);
+    const timeoutMs = options?.timeoutMs ?? ContextsManager.DEFAULT_TIMEOUT_MS;
     const opts: https.RequestOptions = {
       hostname: url.hostname,
       port: url.port,
       path: url.pathname,
       method: 'GET',
       headers: { Accept: 'application/json' },
+      timeout: timeoutMs,
     };
     await kubeConfig.applyToHTTPSOptions(opts);
 
@@ -1253,10 +1268,17 @@ export class ContextsManager implements ContextsApi {
             }
           } else {
             reject(
-              new Error(`Failed to get API resources for ${groupVersion}: ${res.statusCode} ${res.statusMessage}`),
+              new ApiResourceError(
+                `Failed to get API resources for ${groupVersion}: ${res.statusCode} ${res.statusMessage}`,
+                res.statusCode,
+                res.headers['retry-after'] as string | undefined,
+              ),
             );
           }
         });
+      });
+      req.on('timeout', () => {
+        req.destroy(new Error(`Timed out getting API resources for ${groupVersion}`));
       });
       req.on('error', reject);
       req.end();

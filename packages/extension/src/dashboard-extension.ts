@@ -55,6 +55,7 @@ import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 import { ChannelSubscriber } from '/@/subscriber/channel-subscriber';
 import type {
+  ApiResourceRequestOptions,
   ConnectOptions,
   ContextsHealthsInfo,
   ContextsPermissionsInfo,
@@ -181,8 +182,8 @@ export class DashboardExtension {
       getApiVersions: () => {
         return this.#contextsManager.getApiVersions();
       },
-      getApiResources: (groupVersion: string) => {
-        return this.#contextsManager.getApiResources(groupVersion);
+      getApiResources: (groupVersion: string, options?: ApiResourceRequestOptions) => {
+        return this.#contextsManager.getApiResources(groupVersion, options);
       },
     } as KubernetesDashboardExtensionApi;
   }
