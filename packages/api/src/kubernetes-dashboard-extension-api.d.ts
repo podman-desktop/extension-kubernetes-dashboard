@@ -211,9 +211,9 @@ export interface ApiResourceRequestOptions {
 }
 
 /**
- * Error thrown when {@link KubernetesDashboardExtensionApi.getApiResources} receives a non-2xx response.
+ * Shape of the error thrown when {@link KubernetesDashboardExtensionApi.getApiResources} receives a non-2xx response.
  *
- * Because this is a type-only declaration, use `error.name` to identify it at runtime:
+ * Check `error.name` to identify it at runtime:
  *
  * ```ts
  * try {
@@ -225,10 +225,9 @@ export interface ApiResourceRequestOptions {
  * }
  * ```
  */
-export declare class ApiResourceError extends Error {
+export interface ApiResourceError extends Error {
   readonly statusCode: number | undefined;
   readonly retryAfter: string | undefined;
-  constructor(message: string, statusCode: number | undefined, retryAfter: string | undefined);
 }
 
 /**
