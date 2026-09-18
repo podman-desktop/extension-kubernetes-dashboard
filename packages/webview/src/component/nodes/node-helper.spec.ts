@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,10 @@ describe('Node UI conversion', () => {
       },
       status: {
         conditions: [{ type: 'Ready', status: 'True' }],
+        addresses: [
+          { type: 'InternalIP', address: '10.0.0.1' },
+          { type: 'Hostname', address: 'kube-node' },
+        ],
         nodeInfo: {
           kubeletVersion: 'v1.20.4',
           osImage: 'CentOS',
@@ -69,6 +73,7 @@ describe('Node UI conversion', () => {
     expect(nodeUI.osImage).toEqual('CentOS');
     expect(nodeUI.kernelVersion).toEqual('5.4.0-42-generic');
     expect(nodeUI.containerRuntime).toEqual('containerd://1.2.3');
+    expect(nodeUI.internalIP).toEqual('10.0.0.1');
   });
 
   test('expect node UI conversion with degraded status', async () => {
@@ -91,6 +96,7 @@ describe('Node UI conversion', () => {
     expect(nodeUI.status).toEqual('DEGRADED');
     expect(nodeUI.role).toEqual('node'); // Default to node if no specific role label is found
     expect(nodeUI.version).toEqual('v1.20.4');
+    expect(nodeUI.internalIP).toEqual('');
   });
 });
 

@@ -432,6 +432,19 @@ test.describe('With resources', { tag: '@integration' }, () => {
     await playExpect.poll(async () => kubernetesResourceDetails.getState()).toBe(KubernetesResourceState.Running);
   });
 
+  test('nodes list displays internal IP', async () => {
+    const nodesPage = await navigation.openTabPage(KubernetesResources.Nodes);
+    await playExpect(nodesPage.heading).toBeVisible();
+
+    const node1Row = await nodesPage.fetchKubernetesResource('node1');
+    const node1IP = await nodesPage.getAttributeByRow(node1Row, 'Internal IP', KubernetesResources.Nodes);
+    await playExpect(node1IP).toContainText('127.0.0.1');
+
+    const node2Row = await nodesPage.fetchKubernetesResource('node2');
+    const node2IP = await nodesPage.getAttributeByRow(node2Row, 'Internal IP', KubernetesResources.Nodes);
+    await playExpect(node2IP).toContainText('192.168.1.162');
+  });
+
   test('go to default namespace page', async () => {
     const namespacesPage = await navigation.openTabPage(KubernetesResources.Namespaces);
     await playExpect(namespacesPage.heading).toBeVisible();
