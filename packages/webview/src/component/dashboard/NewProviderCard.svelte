@@ -27,11 +27,11 @@ async function navigateToExtensionsCatalog(): Promise<void> {
   </div>
   <h1 class="text-lg font-semibold mb-4">New provider</h1>
 
-  <p class="text-sm text-(--pd-content-text) mb-6">
-    {#if markdownText}
+  {#if markdownText}
+    <p class="text-sm text-(--pd-content-text) mb-6">
       <Markdown markdown={markdownText}></Markdown>
-    {/if}
-  </p>
+    </p>
+  {/if}
 
   <Button
     type="secondary"
