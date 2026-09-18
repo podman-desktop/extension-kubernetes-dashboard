@@ -1,129 +1,220 @@
-# Kubernetes Dashboard Podman Desktop Extension
+# Kubernetes dashboard for Podman Desktop
 
-![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
 
-Kubernetes Dashboard is an open source extension for Podman Desktop to monitor Kubernetes clusters.
+![Selkie on boat](https://raw.githubusercontent.com/podman-desktop/extension-kubernetes-dashboard/main/docs/img/boat_selkie.png)
 
-The Kubernetes Dashboard detects your Kubeconfig file, and connects to the current Kubernetes context.
-Any change of Kubernetes context (either from Podman Desktop or by editing the Kubeconfig file with another tool)
-is detected by the dashboard, which disconnects from the previous current context and connects to the new one.
+Monitor Kubernetes clusters from Podman Desktop.
 
-## Resources
+## Topics
 
-A Dashboard page provides a synthetic view of the main resources present in the Kubernetes context:
+- [Technology](#technology)
+- [Use case](#use-case)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Advanced usage](#advanced-usage)
+- [Preferences](#preferences)
+- [Known issues](#known-issues)
+- [Contributing](#contributing)
 
-- non-namespaced resources: nodes and namespaces,
-- namespaced resources: workloads (deployments, pods, jobs, cronjobs), services (services, ingresses, routes) and configuration and storage (persistent volume claims, configmaps, secrets).
+## Technology
 
-You can access from the dashboard, or from the menu, the list of resources of a specific kind (for example, the list of Pods).
+![Kubernetes dashboard overview](https://raw.githubusercontent.com/podman-desktop/extension-kubernetes-dashboard/main/docs/img/dashboard-overview.png)
 
-From this list, you have access to the details for a specific resource, including:
+Kubernetes dashboard uses
+[`@kubernetes/client-node`](https://github.com/kubernetes-client/javascript) to access
+the current Kubernetes context. Resource watches keep the dashboard current after
+cluster changes.
 
-- a summary of the resource (extracted from the metadata, spec and status of the resource),
-- a raw JSON representation of the resource,
-- a utility to patch the resource definition, using [strategic merge patch](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-object-kubectl-patch/).
+The extension service sends state through an RPC layer. A Svelte 5 webview presents
+the cluster resources in Podman Desktop.
 
-For Pods, you also have access to:
-
-- the logs of the containers running in the pod,
-- a terminal on each container running in the pod.
-
-You can switch the namespace you want to explore from the Dashboard page or from any list of namespaced resources. The extension will disconnect from the previous namespace and connect to the new one.
-
-## Port forwardings
-
-From the Summary page of Deployments, Pods and Services, you can create port forwardings on exposed ports.
-
-A dedicated page lists the existing port forwardings, from which you can visit each port forward in your browser, and manage them (delete).
-
-## Permissions
-
-The Kubernetes Dashboard checks Read permissions on each resource, and indicates in the Dashboard and in the pages listing the resources if the current user does not have read access on a resource.
-
-## Annotations
-
-The user interface supports configuration using annotations on resources. The following annotations are supported:
-
-### On Pods
-
-- `kubernetes-dashboard.podman-desktop.io/logs-colors: "log level colors"`  
-  Colorize logs levels (by default)
-- `kubernetes-dashboard.podman-desktop.io/logs-colors: "no colors"`  
-  Disable colorization of logs
-- `kubernetes-dashboard.podman-desktop.io/logs-timestamps: "true"`  
-  Prefix the logs of the pod's containers with timestamps.
-- `kubernetes-dashboard.podman-desktop.io/logs-tail-lines: "10"`  
-  Fetch the last _n_ lines of the logs only.
-- `kubernetes-dashboard.podman-desktop.io/logs-since-seconds: "60"`  
-  Fetch the logs emitted since _n_ seconds only.
-
-# Compatibility
-
-The Kubernetes Dashboard extension is compatible with Podman Desktop v1.26.0 and later. The Kubernetes Dashboard internal to Podman Desktop is deactivated when this extension is installed and active.
-
-# Installation
-
-## Install latest release
-
-Install the custom extension `ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest` to try the latest extension.
-
-## Development version
-
-Install the custom extension `ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:next` to try the extension published after each commit.
-
-# Contributing
-
-First clone this repository on your disk, then run `pnpm i` in the root directory of the sources, then watch the changes in the `packages/webview` directory:
-
-```
-$ git clone git@github.com:podman-desktop/extension-kubernetes-dashboard.git
-$ cd extension-kubernetes-dashboard
-$ pnpm i
-[...]
-$ cd packages/webview
-$ pnpm watch
-[ do not stop this command, as it waiting for changes to rebuild the webview ]
+```text
+Kubernetes API
+      ↕
+@kubernetes/client-node
+      ↕
+Extension service ↔ RPC ↔ Svelte webview
 ```
 
-## Using the production version of Podman Desktop
+## Use Case
 
-- In Settings > Preferences, in the Extensions section, enable the Development mode
-- In Extensions > Local Extensions, select `Add a local folder extension...` and select the sub-directory `packages/extension` of the sources you cloned previously.
+The Kubernetes dashboard extension is intended to provide an overview / informative peak to your Kubernetes cluster with some light administration work.
 
-You can now make changes to the sources. The project is composed of two parts, which are built separately: the extension code, and the webview code. The extension code is rebuilt after each change by Podman Desktop itself, and the webview part is rebuilt by the `pnpm watch` command you started previously.
+- Review cluster workloads without a separate dashboard, done all within Podman Desktop.
+- Inspect resource status, events, YAML files, and permissions.
+- Apply YAML, patch resources, and delete resources.
+- Read pod logs and open container terminals.
+- Create and manage port forwards for local access.
 
-> Note that when you only change code in the webview part, the webview is built, and the result is included in the extension, which triggers the rebuild of the extension.
+## Requirements
 
-After each change, you may have to restart the extension from the `Extensions > Local Extensions` page.
+- [Podman Desktop 1.26.0+](https://github.com/podman-desktop/podman-desktop)
+- Valid `~/.kube/config` connected to a cluster.
 
-## Running e2e tests
+**Note:** The native built-in Kubernetes dashboard is "replaced" when this extension is installed and active.
 
-### On macOS (Apple Silicon)
+## Installation
 
-#### Pre-requisites
+### Stable release
 
-- Install Go and kubectl:
+1. Open **Extensions** in Podman Desktop.
+2. Select the **Catalog** tab.
+3. Look for **Kubernetes dashboard**.
+4. Select **Install**.
+
+![Install Kubernetes dashboard from the catalog](https://raw.githubusercontent.com/podman-desktop/extension-kubernetes-dashboard/main/docs/img/catalog-installation.png)
+
+### Nightly version
+
+The `next` image contains unreleased changes from the default branch.
+
+1. Open **Extensions** in Podman Desktop.
+2. Select the **Catalog** tab.
+3. Select **Install custom...**.
+4. Enter this image reference:
+
+```text
+ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:next
+```
+
+5. Select **Install**.
+
+## Usage
+
+1. Add a Kubernetes cluster to kubeconfig (or configure one with Kind/Minikube/etc.)
+2. Open **Kubernetes dashboard** in Podman Desktop.
+3. Select a namespace for namespaced resources, view your cluster.
+4. 
+![Kubernetes nodes](https://raw.githubusercontent.com/podman-desktop/extension-kubernetes-dashboard/main/docs/img/nodes-list.png)
+
+![Kubernetes deployments](https://raw.githubusercontent.com/podman-desktop/extension-kubernetes-dashboard/main/docs/img/deployments-list.png)
+
+![Kubernetes pods](https://raw.githubusercontent.com/podman-desktop/extension-kubernetes-dashboard/main/docs/img/pods-list.png)
+
+### Supported resources
+
+| Group          | Resources                                                                                                                                                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Cluster        | Nodes and Namespaces                                                                                                                                                                                                           |
+| Compute        | CronJobs, DaemonSets, Deployments, Jobs, Pods, ReplicaSets, and StatefulSets                                                                                                                                                   |
+| Config         | ConfigMaps, Secrets, HorizontalPodAutoscalers, Leases, LimitRanges, MutatingWebhookConfigurations, PodDisruptionBudgets, PriorityClasses, ResourceQuotas, RuntimeClasses, ServiceAccounts, and ValidatingWebhookConfigurations |
+| Network        | EndpointSlices, Endpoints, GatewayClasses, Gateways, HTTPRoutes, IngressClasses, Ingresses, OpenShift Routes, NetworkPolicies, and Services                                                                                    |
+| Storage        | PersistentVolumeClaims, PersistentVolumes, and StorageClasses                                                                                                                                                                  |
+| Access Control | ClusterRoleBindings, ClusterRoles, RoleBindings, and Roles                                                                                                                                                                     |
+
+**Note:** The dashboard marks resources that the current credentials cannot read.
+
+
+## Advanced Usage
+
+### Inspect, update and apply resources
+
+1. Open a resource from its list page.
+2. **Summary** to review status and events.
+3. **Inspect** to review the resource as JSON.
+4. **Patch** to edit supported fields as YAML.
+
+Select **Apply YAML** from a resource list to create or update resources
+
+### Pod logs and terminals
+
+1. Open a pod.
+2. Select **Logs** to read logs from one container or all containers.
+3. Set the colorizer, timestamps, previous logs, stream, line count, or time range.
+4. Select **Terminal** to open a shell in an active container.
+
+![Pod logs](https://raw.githubusercontent.com/podman-desktop/extension-kubernetes-dashboard/main/docs/img/pod-logs.png)
+
+![Pod terminal](https://raw.githubusercontent.com/podman-desktop/extension-kubernetes-dashboard/main/docs/img/pod-terminal.png)
+
+### Port forwarding
+
+1. Open a Deployment, Pod, or Service.
+2. Select the **Summary** tab.
+3. Add a local port for an exposed port.
+4. Open **Network > Port Forwarding** to open or remove the port forward.
+
+![Manage port forwards](https://raw.githubusercontent.com/podman-desktop/extension-kubernetes-dashboard/main/docs/img/port-forwarding.png)
+
+#### Pod log annotations
+
+Pod annotations can define the initial log options without having to configure anything within the Kubernetes dashboard.
+
+| Annotation                                                  | Effect                                                                                          |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `kubernetes-dashboard.podman-desktop.io/logs-colors`        | Sets the colorizer. The default value is `log level colors`. Use `no colors` to disable colors. |
+| `kubernetes-dashboard.podman-desktop.io/logs-timestamps`    | Set this value to `true` to show timestamps.                                                    |
+| `kubernetes-dashboard.podman-desktop.io/logs-tail-lines`    | Sets the initial number of recent lines.                                                        |
+| `kubernetes-dashboard.podman-desktop.io/logs-since-seconds` | Sets the initial time range in seconds.                                                         |
+
+The log view also supports JSON and logfmt colorizers.
+
+## Preferences
+
+At the moment, the extension does not add entries under **Settings > Preferences**. The current
+Kubernetes context and selected namespace control all resource views.
+
+## Known Issues
+
+Review the repository's
+[open issues](https://github.com/podman-desktop/extension-kubernetes-dashboard/issues)
+for current limitations and workarounds.
+
+## Contributing
+
+Clone this repository, install dependencies, then watch the webview for changes:
+
+```sh
+git clone git@github.com:podman-desktop/extension-kubernetes-dashboard.git
+cd extension-kubernetes-dashboard
+pnpm i
+cd packages/webview
+pnpm watch
+# Do not stop this command. It waits for changes to rebuild the webview.
+```
+
+### Using the production version of Podman Desktop
+
+1. Enable **Development mode** under **Settings > Preferences > Extensions**.
+2. Open **Extensions > Local Extensions**.
+3. Select **Add a local folder extension...** and select the `packages/extension` directory.
+
+The project has two parts that are built separately: the extension code and the webview code. Podman Desktop rebuilds the extension code after each change. The `pnpm watch` command rebuilds the webview part.
+
+> When you change code in the webview part only, the webview is built and the result is included in the extension. This triggers the rebuild of the extension.
+
+Restart the extension from the **Extensions > Local Extensions** page after each change.
+
+### Running e2e tests
+
+#### On macOS (Apple Silicon)
+
+##### Pre-requisites
+
+Install Go and kubectl:
 
 ```sh
 brew install go kubectl
 ```
 
-- Add Go binaries to your PATH (also add this to your `~/.zshrc`):
+Add Go binaries to your PATH (also add this to your `~/.zshrc`):
 
 ```sh
 export PATH="$PATH:$(go env GOPATH)/bin"
 ```
 
-- Install envtest tools:
+Install envtest tools:
 
 ```sh
 go install github.com/feloy/envtest-start@v0.3.0
 go install sigs.k8s.io/controller-runtime/tools/setup-envtest@release-0.24
 ```
 
-#### Run the tests
+##### Run the tests
 
-##### Step 1: Install a Podman Desktop testing binary
+###### Step 1: Install a Podman Desktop testing binary
 
 Download and install the latest nightly build from https://github.com/podman-desktop/testing-prereleases:
 
@@ -142,7 +233,7 @@ hdiutil detach /tmp/podman-desktop-dmg
 codesign --force --deep --sign - "tests/playwright/tests/PodmanDesktop/Podman Desktop.app"
 ```
 
-##### Step 2: Build the extension plugin
+###### Step 2: Build the extension plugin
 
 ```sh
 pnpm install
@@ -156,7 +247,7 @@ podman rm -f $CONTAINER_ID
 podman rmi -f localhost/local_image:latest
 ```
 
-##### Step 3: Start the envtest Kubernetes cluster
+###### Step 3: Start the envtest Kubernetes cluster
 
 ```sh
 export KUBEBUILDER_ASSETS=$(setup-envtest use -p path)
@@ -168,7 +259,7 @@ while [ ! -f /tmp/envtest-kubeconfig ]; do sleep 1; done
 "$KUBEBUILDER_ASSETS/kubectl" --kubeconfig /tmp/envtest-kubeconfig get all | grep "service/kubernetes"
 ```
 
-##### Step 4: Run the tests
+###### Step 4: Run the tests
 
 ```sh
 cp /tmp/envtest-kubeconfig tests/resources/envtest-kubeconfig
@@ -181,17 +272,17 @@ NODE_OPTIONS=--no-experimental-strip-types \
 pnpm test:e2e:integration
 ```
 
-##### Step 5: Stop the cluster when done
+###### Step 5: Stop the cluster when done
 
 ```sh
 kill $ENVTEST_START_PID
 ```
 
-#### Restarting the tests
+##### Restarting the tests
 
-**Quick restart** — the extension is already installed in the Podman Desktop profile; only the cluster needs to be restarted: redo steps 3 and 4, keeping `EXTENSION_PREINSTALLED=true`.
+**Quick restart** -- the extension is already installed in the Podman Desktop profile; only the cluster needs a restart: redo steps 3 and 4, keeping `EXTENSION_PREINSTALLED=true`.
 
-**Full clean restart** (e.g. after modifying extension sources) — after stopping the cluster, reset the Podman Desktop profile and reinstall the extension from scratch:
+**Full clean restart** (for example, after modifying extension sources) -- after stopping the cluster, reset the Podman Desktop profile and reinstall the extension from scratch:
 
 ```sh
 rm -rf tests/playwright/tests/playwright/
@@ -199,7 +290,7 @@ rm -rf tests/playwright/tests/playwright/
 
 Then redo steps 2, 3, and 4.
 
-#### Cleanup
+##### Cleanup
 
 After stopping the cluster (step 5), remove all generated files:
 
@@ -208,3 +299,5 @@ rm -rf tests/playwright/tests/
 rm -f tests/resources/envtest-kubeconfig tests/resources/envtest-kubeconfig-user1
 rm -f /tmp/envtest-kubeconfig /tmp/user1-kubeconfig
 ```
+
+This project uses the [Apache License 2.0](LICENSE).
