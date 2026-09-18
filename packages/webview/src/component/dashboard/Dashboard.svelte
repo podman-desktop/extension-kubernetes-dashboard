@@ -10,11 +10,9 @@ import { API_SYSTEM } from '@kubernetes-dashboard/channels';
 import { States } from '/@/state/states';
 import DashboardGuideCard from './DashboardGuideCard.svelte';
 
-import deployAndTestKubernetesImage from './images/DeployAndTestKubernetes.png';
-import shareYourLocalProdmanImagesWithTheKubernetesImage from './images/ShareYourLocalPodmanImagesWithTheKubernetes.png';
-import workingWithKubernetesImage from './images/WorkingWithKubernetes.png';
 import type { Unsubscriber } from 'svelte/store';
 import CheckConnection from '/@/component/connection/CheckConnection.svelte';
+import product from '/@/../../../product.json' with { type: 'json' };
 
 const states = getContext<States>(States);
 const currentContext = states.stateCurrentContextInfoUI;
@@ -24,7 +22,7 @@ const remote = getContext<Remote>(Remote);
 const systemApi = remote.getProxy(API_SYSTEM);
 
 async function openKubernetesDocumentation(): Promise<void> {
-  await systemApi.openExternal('https://podman-desktop.io/docs/kubernetes');
+  await systemApi.openExternal(product.links?.kubernetesDocumentation);
 }
 
 let unsubscribers: Unsubscriber[] = [];
@@ -59,9 +57,11 @@ onDestroy(() => {
           viewing workloads like deployments and services.
         </div>
         <div>Get up and running by clicking one of the menu items!</div>
-        <div>
-          <Link class="place-self-start" on:click={openKubernetesDocumentation}>Kubernetes documentation</Link>
-        </div>
+        {#if product.links?.kubernetesDocumentation}
+          <div>
+            <Link class="place-self-start" on:click={openKubernetesDocumentation}>Kubernetes documentation</Link>
+          </div>
+        {/if}
       </div>
     </Expandable>
   </div>
@@ -79,26 +79,22 @@ onDestroy(() => {
             <DashboardResources />
           {/if}
           <!-- Articles and blog posts - collapsible -->
-          <div class="flex flex-1 flex-col pt-2">
-            <Expandable>
-              <!-- eslint-disable-next-line sonarjs/no-unused-vars -->
-              {#snippet title()}<div class="text-xl">Explore articles and blog posts</div>{/snippet}
-              <div class="grid grid-cols-3 gap-4 pt-2">
-                <DashboardGuideCard
-                  title="Deploy and test Kubernetes containers using Podman Desktop"
-                  image={deployAndTestKubernetesImage}
-                  link="https://developers.redhat.com/articles/2023/06/09/deploy-and-test-kubernetes-containers-using-podman-desktop" />
-                <DashboardGuideCard
-                  title="Working with Kubernetes in Podman Desktop"
-                  image={workingWithKubernetesImage}
-                  link="https://developers.redhat.com/articles/2023/11/06/working-kubernetes-podman-desktop" />
-                <DashboardGuideCard
-                  title="Share your local podman images with the Kubernetes cluster"
-                  image={shareYourLocalProdmanImagesWithTheKubernetesImage}
-                  link="https://podman-desktop.io/blog/sharing-podman-images-with-kubernetes-cluster" />
-              </div>
-            </Expandable>
-          </div>
+          {#if product.dashboardGuidesCards}
+            <div class="flex flex-1 flex-col pt-2">
+              <Expandable>
+                <!-- eslint-disable-next-line sonarjs/no-unused-vars -->
+                {#snippet title()}<div class="text-xl">Explore articles and blog posts</div>{/snippet}
+                <div class="grid grid-cols-3 gap-4 pt-2">
+                  {#each product.dashboardGuidesCards as card}
+                    <DashboardGuideCard
+                      title={card.title}
+                      image={`${card.image}`}
+                      link={card.link} />
+                  {/each}
+                </div>
+              </Expandable>
+            </div>
+          {/if}
         </div>
       </div>
     </div>
