@@ -145,9 +145,7 @@ $effect(() => {
       <p class="text-xl font-semibold text-(--pd-secondary-nav-header-text) pl-1">Kubernetes</p>
     </a>
   </div>
-  <div
-    class="h-full overflow-hidden hover:overflow-y-auto [&_svg]:w-[1.25em] [&_div.pl-\[34px\]]:!pl-[36px]"
-    style="margin-bottom:auto">
+  <div class="h-full overflow-y-auto [&_svg]:w-[1.25em] [&_div.pl-\[34px\]]:!pl-[36px]" style="margin-bottom:auto">
     <NavItem title="Dashboard" icon={faHouse} href="/" />
 
     <NavItem title="Nodes" icon={faServer} href={navigator.kubernetesResourcesURL('Node')} />
@@ -175,7 +173,7 @@ $effect(() => {
       <NavItem title="Leases" child={true} href={navigator.kubernetesResourcesURL('Lease')} />
       <NavItem title="Limit Ranges" child={true} href={navigator.kubernetesResourcesURL('LimitRange')} />
       <NavItem
-        title="Mutating Webhook Configs"
+        title="Mutating Webhooks"
         child={true}
         href={navigator.kubernetesResourcesURL('MutatingWebhookConfiguration')} />
       <NavItem
@@ -187,7 +185,7 @@ $effect(() => {
       <NavItem title="Runtime Classes" child={true} href={navigator.kubernetesResourcesURL('RuntimeClass')} />
       <NavItem title="Service Accounts" child={true} href={navigator.kubernetesResourcesURL('ServiceAccount')} />
       <NavItem
-        title="Validating Webhook Configs"
+        title="Validating Webhooks"
         child={true}
         href={navigator.kubernetesResourcesURL('ValidatingWebhookConfiguration')} />
     {/if}
