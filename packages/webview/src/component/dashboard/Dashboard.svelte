@@ -86,10 +86,7 @@ onDestroy(() => {
                 {#snippet title()}<div class="text-xl">Explore articles and blog posts</div>{/snippet}
                 <div class="grid grid-cols-3 gap-4 pt-2">
                   {#each product.dashboardGuidesCards as card}
-                    <DashboardGuideCard
-                      title={card.title}
-                      image={`${card.image}`}
-                      link={card.link} />
+                    <DashboardGuideCard title={card.title} image={`${card.image}`} link={card.link} />
                   {/each}
                 </div>
               </Expandable>

@@ -30,7 +30,7 @@ async function navigateToExtensionsCatalog(): Promise<void> {
   <p class="text-sm text-(--pd-content-text) mb-6">
     {#if markdownText}
       <Markdown markdown={markdownText}></Markdown>
-    {/if}    
+    {/if}
   </p>
 
   <Button
