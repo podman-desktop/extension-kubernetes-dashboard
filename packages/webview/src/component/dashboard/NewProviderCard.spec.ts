@@ -26,7 +26,13 @@ import { RemoteMocks } from '/@/tests/remote-mocks';
 import NewProviderCard from '/@/component/dashboard/NewProviderCard.svelte';
 import userEvent from '@testing-library/user-event';
 
+// eslint-disable-next-line no-restricted-imports
+import product from '/@/../../../product.json' with { type: 'json' };
+import Markdown from '/@/markdown/Markdown.svelte';
+
 vi.mock(import('/@/component/icons/NewProvider.svelte'));
+vi.mock(import('/@/../../../product.json'));
+vi.mock(import('/@/markdown/Markdown.svelte'));
 
 const statesMocks = new StatesMocks();
 const remoteMocks = new RemoteMocks();
@@ -36,6 +42,9 @@ beforeEach(() => {
   statesMocks.reset();
   remoteMocks.reset();
 
+  // Mock product.json data
+  vi.mocked(product).providerMarkdownText = 'Test provider markdown text';
+
   remoteMocks.mock(API_NAVIGATION, {
     navigateToExtensionsCatalog: vi.fn(),
   } as unknown as NavigationApi);
@@ -43,6 +52,28 @@ beforeEach(() => {
   remoteMocks.mock(API_TELEMETRY, {
     track: vi.fn().mockResolvedValue(undefined),
   } as unknown as TelemetryApi);
+});
+
+test('should render provider markdown text from product.json', () => {
+  render(NewProviderCard);
+
+  // Check that the Markdown component was called with the correct markdown text
+  expect(Markdown).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.objectContaining({
+      markdown: 'Test provider markdown text',
+    }),
+  );
+});
+
+test('should not render markdown component when providerMarkdownText is not defined', () => {
+  // Set providerMarkdownText to undefined
+  vi.mocked(product).providerMarkdownText = undefined as unknown as string;
+
+  render(NewProviderCard);
+
+  // Check that the Markdown component was not called
+  expect(Markdown).not.toHaveBeenCalled();
 });
 
 test('should send telemetry when button clicked', async () => {
