@@ -4,7 +4,7 @@
   "homepage": "https://github.com/podman-desktop/extension-kubernetes-dashboard#readme",
   "displayName": "Mono repository for Kubernetes Dashboard extension for Podman Desktop",
   "description": "Root repository",
-  "version": "0.6.0-next",
+  "version": "0.6.0",
   "publisher": "podman-desktop",
   "private": true,
   "engines": {
