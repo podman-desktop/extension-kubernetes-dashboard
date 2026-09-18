@@ -12,6 +12,8 @@ import DashboardGuideCard from './DashboardGuideCard.svelte';
 
 import type { Unsubscriber } from 'svelte/store';
 import CheckConnection from '/@/component/connection/CheckConnection.svelte';
+
+// eslint-disable-next-line no-restricted-imports
 import product from '/@/../../../product.json' with { type: 'json' };
 
 const states = getContext<States>(States);
@@ -85,7 +87,7 @@ onDestroy(() => {
                 <!-- eslint-disable-next-line sonarjs/no-unused-vars -->
                 {#snippet title()}<div class="text-xl">Explore articles and blog posts</div>{/snippet}
                 <div class="grid grid-cols-3 gap-4 pt-2">
-                  {#each product.dashboardGuidesCards as card}
+                  {#each product.dashboardGuidesCards as card (card.title)}
                     <DashboardGuideCard title={card.title} image={`${card.image}`} link={card.link} />
                   {/each}
                 </div>

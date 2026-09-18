@@ -25,6 +25,8 @@ import { API_NAVIGATION, API_TELEMETRY, type NavigationApi, type TelemetryApi } 
 import { RemoteMocks } from '/@/tests/remote-mocks';
 import NewProviderCard from '/@/component/dashboard/NewProviderCard.svelte';
 import userEvent from '@testing-library/user-event';
+
+// eslint-disable-next-line no-restricted-imports
 import product from '/@/../../../product.json' with { type: 'json' };
 import Markdown from '/@/markdown/Markdown.svelte';
 

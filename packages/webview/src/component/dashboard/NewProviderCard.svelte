@@ -7,6 +7,8 @@ import { getContext } from 'svelte';
 import { Remote } from '/@/remote/remote';
 import { API_NAVIGATION, API_TELEMETRY } from '@kubernetes-dashboard/channels';
 import Markdown from '/@/markdown/Markdown.svelte';
+
+// eslint-disable-next-line no-restricted-imports
 import product from '/@/../../../product.json' with { type: 'json' };
 
 const remote = getContext<Remote>(Remote);
