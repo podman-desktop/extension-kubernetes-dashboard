@@ -18,7 +18,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
-    "cronstrue": "^3.26.0",
+    "cronstrue": "^3.27.0",
     "inversify": "^7.11.0",
     "moment": "^2.31.0",
     "svelte-preprocess": "^6.0.5",
