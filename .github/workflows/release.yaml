@@ -132,7 +132,7 @@ jobs:
     steps:
       - name: Build OCI
         id: build
-        uses: podman-desktop/gh-extensions-actions/.github/actions/oci-build@0abcba929bec797400b7fc1d6229f2907e1d4c1d # v0.2.0
+        uses: podman-desktop/gh-extensions-actions/.github/actions/oci-build@dde0e72aec31e5df8918d82db9ca8d298a37d305 # v0.7.0
         with:
           ref: ${{ needs.tag.outputs.githubTag }}
           containerfile: Containerfile
