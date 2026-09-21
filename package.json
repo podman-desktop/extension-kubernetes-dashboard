@@ -59,7 +59,7 @@
     "eslint-plugin-svelte": "^3.23.0",
     "eslint-plugin-unicorn": "^74.0.0",
     "node-gyp": "^13.0.2",
-    "prettier": "^3.9.6",
+    "prettier": "^3.9.8",
     "prettier-plugin-svelte": "^4.1.1",
     "svelte": "5.57.0",
     "svelte-check": "^4.7.6",
