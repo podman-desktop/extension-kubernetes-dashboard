@@ -65,7 +65,7 @@ jobs:
       # Installing Podman Desktop
       # ==============================================
       - name: Install Podman Desktop
-        uses: podman-desktop/gh-extensions-actions/.github/actions/podman-desktop-install@b3bb8515d9f255a05c0ff37ead1002435c75dcd1 # v0.3.0
+        uses: podman-desktop/gh-extensions-actions/.github/actions/podman-desktop-install@dde0e72aec31e5df8918d82db9ca8d298a37d305 # v0.7.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
