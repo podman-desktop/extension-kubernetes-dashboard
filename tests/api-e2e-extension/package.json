@@ -1,0 +1,25 @@
+{
+  "name": "@kubernetes-dashboard/api-e2e-extension",
+  "displayName": "Kubernetes Dashboard API E2E",
+  "description": "Test-only consumer of the Kubernetes Dashboard extension API",
+  "version": "0.0.1",
+  "private": true,
+  "publisher": "podman-desktop",
+  "license": "Apache-2.0",
+  "engines": {
+    "podman-desktop": ">=1.26.0"
+  },
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "vite build",
+    "prepare:e2e": "pnpm run build && node ./scripts/install.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@podman-desktop/api": "1.29.1",
+    "@podman-desktop/kubernetes-dashboard-extension-api": "workspace:*",
+    "@types/node": "^24",
+    "typescript": "5.9.3",
+    "vite": "^8.3"
+  }
+}
