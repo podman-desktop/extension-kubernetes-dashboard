@@ -58,7 +58,9 @@ jobs:
 
       - name: tag
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # A GitHub App/PAT token is required here: pushes made with
+          # GITHUB_TOKEN do not trigger the npm publish workflow.
+          GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
         run: |
           git config --local user.name ${{ github.actor }}
           git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
@@ -79,6 +81,7 @@ jobs:
           echo "Tagging with ${{ steps.TAG_UTIL.outputs.githubTag }}"
           git tag ${{ steps.TAG_UTIL.outputs.githubTag }}
           git push origin ${{ steps.TAG_UTIL.outputs.githubTag }}
+          git remote set-url origin https://github.com/${{ github.repository }}.git
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
