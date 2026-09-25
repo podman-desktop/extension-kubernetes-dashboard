@@ -35,6 +35,7 @@ import { KubernetesResources } from './model/core/types';
 import { createKubernetesResource } from '/@/utility/kubernetes';
 import { anonymousUserTests } from './anonymous-user';
 import { podLogsTests } from './pod-logs';
+import { dashboardApiTests } from './dashboard-api';
 
 const EXTENSION_OCI_IMAGE =
   process.env.EXTENSION_OCI_IMAGE ?? 'ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest';
@@ -143,6 +144,10 @@ test.describe(`Configure kubeconfig file`, { tag: ['@integration', '@anonymous']
     const statusbar = new StatusBar(page);
     await statusbar.validateKubernetesContext('envtest');
   });
+});
+
+test.describe('Dashboard extension API', { tag: '@integration' }, () => {
+  dashboardApiTests();
 });
 
 test.describe(`Extension usage`, { tag: '@integration' }, () => {
