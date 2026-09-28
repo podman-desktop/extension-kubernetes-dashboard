@@ -1045,6 +1045,51 @@ test.describe.serial('Pod logs', { tag: ['@integration'] }, () => {
   podLogsTests();
 });
 
+test.describe('Watch cleanup', { tag: '@integration' }, () => {
+  test('only eager resource watches remain after the admin tests', async ({ runner, page, navigationBar }) => {
+    const proxyUrl = process.env.E2E_MITMPROXY_URL;
+    if (!proxyUrl) {
+      test.skip(true, 'Watch metrics are available only in the mitmproxy job');
+      return;
+    }
+    test.setTimeout(90_000);
+
+    const [, webview] = await handleWebview(runner, page, navigationBar);
+    const navigation = new KubernetesBar(webview);
+    const dashboardPage = await navigation.openKubernetesDashboardPage();
+    playExpect(await dashboardPage.getStatus()).toContain('Connected');
+
+    // OpenShift Routes are eager too, but the envtest cluster does not install that API.
+    const eagerPaths = [
+      '/api/v1/namespaces',
+      '/api/v1/namespaces/default/configmaps',
+      '/api/v1/namespaces/default/persistentvolumeclaims',
+      '/api/v1/namespaces/default/pods',
+      '/api/v1/namespaces/default/secrets',
+      '/api/v1/namespaces/default/services',
+      '/api/v1/nodes',
+      '/apis/apps/v1/namespaces/default/deployments',
+      '/apis/batch/v1/namespaces/default/cronjobs',
+      '/apis/batch/v1/namespaces/default/jobs',
+      '/apis/discovery.k8s.io/v1/namespaces/default/endpointslices',
+      '/apis/networking.k8s.io/v1/namespaces/default/ingresses',
+    ];
+    const expectedWatches = eagerPaths
+      .map(path => [path, 1] as const)
+      .sort(([left], [right]) => left.localeCompare(right));
+
+    await playExpect
+      .poll(
+        async () => {
+          const metrics = await getProxyWatchMetrics(proxyUrl);
+          return Object.entries(metrics.active_by_path).sort(([left], [right]) => left.localeCompare(right));
+        },
+        { timeout: 45_000 },
+      )
+      .toEqual(expectedWatches);
+  });
+});
+
 test.describe(`Anonymous user`, { tag: ['@integration', '@anonymous'] }, () => {
   anonymousUserTests();
 });
