@@ -179,6 +179,7 @@ jobs:
           KUBECONFIG_USER1: ${{ steps.run-envtest.outputs.KUBECONFIG_USER1 }}
           DEBUGGING_PORT: 9222
           PODMAN_DESKTOP_BINARY: ${{ env.PODMAN_DESKTOP_BINARY }}
+          E2E_MITMPROXY_URL: ${{ matrix.proxy == 'mitmproxy' && 'http://127.0.0.1:3129' || '' }}
 
       - name: Verify Kubernetes traffic crossed mitmproxy
         if: matrix.proxy == 'mitmproxy'
