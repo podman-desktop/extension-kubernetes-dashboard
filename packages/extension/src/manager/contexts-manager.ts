@@ -319,16 +319,12 @@ export class ContextsManager implements ContextsApi {
     }
     this.#grantedPermissions.set(contextName, resource, event.kubeConfig);
     if (factory.eagerStart) {
-      console.log(`[informer] starting eager informer: ${resource} on ${contextName}`);
       this.createAndStartInformer(contextName, resource, event.kubeConfig);
     } else {
       const key = `${contextName}/${resource}`;
       const subs = this.#resourceSubscriptions.get(key);
       if (subs && subs.size > 0) {
-        console.log(`[informer] starting lazy informer: ${resource} on ${contextName} (existing subscribers)`);
         this.createAndStartInformer(contextName, resource, event.kubeConfig);
-      } else {
-        console.log(`[informer] permission granted for lazy resource: ${resource} on ${contextName} (deferred)`);
       }
     }
   }
@@ -602,7 +598,6 @@ export class ContextsManager implements ContextsApi {
   stopResourceInformer(contextName: string, resource: string): void {
     const informer = this.#informers.get(contextName, resource);
     if (informer) {
-      console.log(`[informer] stopping lazy informer: ${resource} on ${contextName}`);
       informer.dispose();
       this.#informers.remove(contextName, resource);
       this.#objectCaches.remove(contextName, resource);
@@ -622,16 +617,10 @@ export class ContextsManager implements ContextsApi {
     subs.add(subscriptionId);
 
     if (this.#informers.get(contextName, resourceName)) {
-      console.log(
-        `[informer] resource subscription added: ${resourceName} on ${contextName} (already running, ${subs.size} subscribers)`,
-      );
       return;
     }
     const kubeConfig = this.#grantedPermissions.get(contextName, resourceName);
     if (kubeConfig) {
-      console.log(
-        `[informer] starting lazy informer on demand: ${resourceName} on ${contextName} (${subs.size} subscribers)`,
-      );
       this.createAndStartInformer(contextName, resourceName, kubeConfig);
     }
   }
@@ -645,15 +634,8 @@ export class ContextsManager implements ContextsApi {
         this.#resourceSubscriptions.delete(key);
         const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName);
         if (factory && !factory.eagerStart && this.#informers.get(contextName, resourceName)) {
-          console.log(
-            `[informer] no subscribers left for ${resourceName} on ${contextName}, scheduling grace period (${LAZY_INFORMER_GRACE_PERIOD_MS}ms)`,
-          );
           this.scheduleGraceTimer(contextName, resourceName);
         }
-      } else {
-        console.log(
-          `[informer] resource subscription removed: ${resourceName} on ${contextName} (${subs.size} remaining)`,
-        );
       }
     }
   }
@@ -663,7 +645,6 @@ export class ContextsManager implements ContextsApi {
     this.cancelGraceTimer(key);
     const timer = setTimeout(() => {
       this.#graceTimers.delete(key);
-      console.log(`[informer] grace period expired for ${resourceName} on ${contextName}, stopping informer`);
       this.stopResourceInformer(contextName, resourceName);
     }, LAZY_INFORMER_GRACE_PERIOD_MS);
     this.#graceTimers.set(key, timer);
