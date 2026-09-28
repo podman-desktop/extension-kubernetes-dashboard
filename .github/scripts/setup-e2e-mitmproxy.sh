@@ -30,6 +30,7 @@ ca_cert="${MITM_DIR}/mitmproxy-ca-cert.pem"
 
 umask 077
 mkdir -p "$MITM_DIR"
+cp "$(dirname "${BASH_SOURCE[0]}")/e2e-watch-metrics.py" "$MITM_DIR/watch-metrics.py"
 
 # envtest uses its own CA and distinct client certificates for the admin and
 # restricted users. TLS interception needs the original CA and matching client
@@ -61,6 +62,7 @@ start_proxy() {
   podman run -d --name "e2e-mitmproxy-$name" --network host \
     -v "$MITM_DIR:$container_dir" "$image" \
     mitmdump --mode regular --listen-host 127.0.0.1 --listen-port "$port" \
+    -s "$container_dir/watch-metrics.py" \
     --set flow_detail=1 --set http2=false --set stream_large_bodies=1 \
     --set "ssl_verify_upstream_trusted_ca=$container_dir/upstream-ca.pem" \
     --set "client_certs=$container_dir/$name-client.pem"

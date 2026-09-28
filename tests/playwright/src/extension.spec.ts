@@ -35,6 +35,7 @@ import { KubernetesResources } from './model/core/types';
 import { createKubernetesResource } from '/@/utility/kubernetes';
 import { anonymousUserTests } from './anonymous-user';
 import { podLogsTests } from './pod-logs';
+import { getProxyWatchMetrics } from './utils/proxy-watch-metrics';
 
 const EXTENSION_OCI_IMAGE =
   process.env.EXTENSION_OCI_IMAGE ?? 'ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest';
@@ -158,6 +159,49 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     const dashboardPage = await navigation.openKubernetesDashboardPage();
     const status = await dashboardPage.getStatus();
     playExpect(status).toContain('Connected');
+  });
+
+  test('eager watches stay open while lazy watches expire after leaving their page', async () => {
+    const proxyUrl = process.env.E2E_MITMPROXY_URL;
+    if (!proxyUrl) {
+      test.skip(true, 'Watch metrics are available only in the mitmproxy job');
+      return;
+    }
+    test.setTimeout(90_000);
+
+    const eagerPaths = [
+      '/api/v1/nodes',
+      '/api/v1/namespaces',
+      '/api/v1/namespaces/default/pods',
+      '/apis/apps/v1/namespaces/default/deployments',
+    ];
+    const leasesPath = '/apis/coordination.k8s.io/v1/namespaces/default/leases';
+    const roleBindingsPath = '/apis/rbac.authorization.k8s.io/v1/namespaces/default/rolebindings';
+    const lazyPaths = [leasesPath, roleBindingsPath];
+    const activeCounts = async (paths: string[]): Promise<number[]> => {
+      const metrics = await getProxyWatchMetrics(proxyUrl);
+      return paths.map(path => metrics.active_by_path[path] ?? 0);
+    };
+
+    await playExpect.poll(() => activeCounts(eagerPaths), { timeout: 15_000 }).toEqual([1, 1, 1, 1]);
+    playExpect(await activeCounts(lazyPaths)).toEqual([0, 0]);
+
+    const leasesPage = await navigation.openTabPage(KubernetesResources.Leases);
+    await playExpect(leasesPage.heading).toBeVisible();
+    await playExpect.poll(() => activeCounts([leasesPath]), { timeout: 15_000 }).toEqual([1]);
+
+    const roleBindingsPage = await navigation.openTabPage(KubernetesResources.RoleBindings);
+    await playExpect(roleBindingsPage.heading).toBeVisible();
+    await playExpect.poll(() => activeCounts([roleBindingsPath]), { timeout: 15_000 }).toEqual([1]);
+
+    await navigation.openKubernetesDashboardPage();
+    playExpect(await activeCounts(lazyPaths)).toEqual([1, 1]);
+    // Lazy informers keep their watches open for 30 seconds after the last subscriber leaves.
+    await new Promise(resolve => setTimeout(resolve, 20_000));
+    playExpect(await activeCounts(lazyPaths)).toEqual([1, 1]);
+    await playExpect.poll(() => activeCounts(lazyPaths), { timeout: 45_000 }).toEqual([0, 0]);
+
+    await playExpect.poll(() => activeCounts(eagerPaths), { timeout: 15_000 }).toEqual([1, 1, 1, 1]);
   });
 
   test('go to nodes page', async () => {
