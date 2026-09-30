@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { KubernetesObject } from '@kubernetes/client-node';
 import type { TableColumn, TableRow } from '@podman-desktop/ui-svelte';
-import { Button, FilteredEmptyScreen, NavPage, Table } from '@podman-desktop/ui-svelte';
+import { Button, FilteredEmptyScreen, NavPage, Table, Tooltip } from '@podman-desktop/ui-svelte';
 import { getContext, onDestroy, onMount, type Snippet } from 'svelte';
 import { type Unsubscriber } from 'svelte/store';
 
@@ -118,7 +118,12 @@ function waitThrottleDelay(): Promise<void> {
 
   {#snippet bottomAdditionalActions()}
     {#if selectedItemsNumber > 0}
-      <Button on:click={deleteSelectedObjects} title="Delete {selectedItemsNumber} selected items" icon={faTrash} />
+      <Tooltip tip="Delete {selectedItemsNumber} selected items">
+        <Button
+          on:click={deleteSelectedObjects}
+          aria-label="Delete {selectedItemsNumber} selected items"
+          icon={faTrash} />
+      </Tooltip>
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
     {#if isNamespaced}

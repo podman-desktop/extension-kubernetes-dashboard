@@ -266,7 +266,7 @@ describe('port forwarding', () => {
   });
 
   test('existing forward should display localhost port and copy', async () => {
-    const { getByTitle, getByRole } = render(KubePort, {
+    const { getByLabelText, getByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/TCP',
@@ -279,7 +279,7 @@ describe('port forwarding', () => {
     });
 
     const expected = 'http://localhost:55076';
-    const copySpan = getByTitle(expected);
+    const copySpan = getByLabelText(`${expected} copy to clipboard`);
     expect(copySpan).toBeDefined();
 
     const button = getByRole('button', { name: 'Copy To Clipboard' });

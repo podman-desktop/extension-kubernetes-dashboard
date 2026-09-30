@@ -1,6 +1,6 @@
 <script lang="ts">
 import Fa from 'svelte-fa';
-import { isFontAwesomeIcon } from '@podman-desktop/ui-svelte';
+import { isFontAwesomeIcon, Tooltip } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import type { IconDefinition } from '@fortawesome/free-regular-svg-icons';
 
@@ -66,22 +66,23 @@ function handleClick(): void {
 }
 </script>
 
-<button
-  title={title}
-  aria-label={title}
-  onclick={handleClick}
-  class="{styleClass} relative"
-  class:disabled={inProgress}
-  class:hidden={hidden}
-  class:inline-flex={!hidden}
-  disabled={!enabled}>
-  {#if fontAwesomeIcon}
-    <Fa class="h-4 w-4 {iconOffset}" icon={fontAwesomeIcon} />
-  {/if}
+<Tooltip tip={title} containerClass={hidden ? 'hidden' : undefined}>
+  <button
+    aria-label={title}
+    onclick={handleClick}
+    class="{styleClass} relative"
+    class:disabled={inProgress}
+    class:hidden={hidden}
+    class:inline-flex={!hidden}
+    disabled={!enabled}>
+    {#if fontAwesomeIcon}
+      <Fa class="h-4 w-4 {iconOffset}" icon={fontAwesomeIcon} />
+    {/if}
 
-  <div
-    aria-label="spinner"
-    class="w-6 h-6 rounded-full animate-spin border border-solid border-(--pd-action-button-spinner) border-t-transparent absolute {positionTopClass} {positionLeftClass}"
-    class:hidden={!inProgress}>
-  </div>
-</button>
+    <div
+      aria-label="spinner"
+      class="w-6 h-6 rounded-full animate-spin border border-solid border-(--pd-action-button-spinner) border-t-transparent absolute {positionTopClass} {positionLeftClass}"
+      class:hidden={!inProgress}>
+    </div>
+  </button>
+</Tooltip>

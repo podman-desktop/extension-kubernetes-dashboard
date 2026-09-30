@@ -35,8 +35,7 @@ let dotClass = getStatusColor(status);
     class="w-2 h-2 mr-0.5 rounded-full text-center {dotClass.includes('outline')
       ? 'outline-2 outline-offset-[-2px] outline'
       : ''} {getStatusColor(status)} {number ? 'mt-3' : ''}"
-    data-testid="status-dot"
-    title={tooltip}>
+    data-testid="status-dot">
   </div>
   <!-- If text -->
   {#if number}

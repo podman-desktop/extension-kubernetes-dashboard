@@ -56,7 +56,7 @@ test('name should be visible', () => {
 });
 
 test('click on name should redirect to pod page', async () => {
-  const { getByTitle } = render(NameColumn, {
+  const { getByRole } = render(NameColumn, {
     object: {
       id: 'dummy-id',
       name: 'dummy-pod-name',
@@ -66,7 +66,7 @@ test('click on name should redirect to pod page', async () => {
     },
   });
 
-  const openBtn = getByTitle('Open pod details');
+  const openBtn = getByRole('button', { name: 'Open pod details' });
   expect(openBtn).toBeDefined();
 
   await fireEvent.click(openBtn);

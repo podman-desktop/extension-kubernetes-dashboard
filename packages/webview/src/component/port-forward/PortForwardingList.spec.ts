@@ -204,7 +204,7 @@ test('Column sorting should reorder the table data', async () => {
   };
 
   // 1. Initial state: Should be sorted by Name (default)
-  expect(getColumnData(2)).toEqual(['alpha-svc ', 'middle-dep ', 'zebra-pod ']);
+  expect(getColumnData(2)).toEqual(['alpha-svc  ', 'middle-dep  ', 'zebra-pod  ']);
 
   // 2. Sort by "Local Port" (ascending)
   const localPortHeader = getByRole('columnheader', { name: 'Local Port' });

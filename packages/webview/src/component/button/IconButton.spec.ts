@@ -33,7 +33,7 @@ test('expect button to not have inline-flex when hidden is true', async () => {
     hidden: true,
   });
 
-  const buttonSpan = screen.getByTitle(title);
+  const buttonSpan = screen.getByRole('button', { name: title, hidden: true });
   expect(buttonSpan).toHaveClass('hidden');
   expect(buttonSpan).not.toHaveClass('inline-flex');
 });
@@ -47,7 +47,7 @@ test('expect button to have inline-flex when hidden is false', async () => {
     hidden: false,
   });
 
-  const buttonSpan = screen.getByTitle(title);
+  const buttonSpan = screen.getByRole('button', { name: title, hidden: true });
   expect(buttonSpan).not.toHaveClass('hidden');
   expect(buttonSpan).toHaveClass('inline-flex');
 });

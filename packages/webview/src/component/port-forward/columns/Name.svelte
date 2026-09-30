@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { getContext } from 'svelte';
 import { WorkloadKind, type ForwardConfig } from '@kubernetes-dashboard/channels';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
@@ -32,17 +33,19 @@ async function openResourceDetails(): Promise<void> {
 }
 </script>
 
-<button
-  title="Open pod details"
-  class="hover:cursor-pointer flex flex-col max-w-full"
-  disabled={object.kind !== WorkloadKind.POD}
-  onclick={openResourceDetails}>
-  <div class="text-(--pd-table-body-text-highlight) max-w-full overflow-hidden text-ellipsis">
-    {object.name}
-  </div>
-  <div class="flex flex-row text-sm gap-1">
-    {#if object.namespace}
-      <div class="font-extra-light text-(--pd-table-body-text)">{object.namespace}</div>
-    {/if}
-  </div>
-</button>
+<Tooltip tip="Open pod details" containerClass="relative inline-block max-w-full">
+  <button
+    aria-label="Open pod details"
+    class="hover:cursor-pointer flex flex-col max-w-full"
+    disabled={object.kind !== WorkloadKind.POD}
+    onclick={openResourceDetails}>
+    <div class="text-(--pd-table-body-text-highlight) max-w-full overflow-hidden text-ellipsis">
+      {object.name}
+    </div>
+    <div class="flex flex-row text-sm gap-1">
+      {#if object.namespace}
+        <div class="font-extra-light text-(--pd-table-body-text)">{object.namespace}</div>
+      {/if}
+    </div>
+  </button>
+</Tooltip>
