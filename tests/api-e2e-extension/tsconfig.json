@@ -2,10 +2,11 @@
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "lib": ["ES2023"],
     "module": "esnext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "rootDirs": ["src", "scripts"],
     "outDir": "dist",
     "skipLibCheck": true,
     "sourceMap": true,
