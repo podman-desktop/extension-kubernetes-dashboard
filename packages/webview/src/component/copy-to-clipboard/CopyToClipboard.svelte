@@ -24,7 +24,7 @@ async function copyTextToClipboard(): Promise<void> {
     </button>
   </Tooltip>
 </div>
-<Tooltip bottom tip={title}>
+<Tooltip bottom tip={title} containerClass="relative inline-block min-w-0 max-w-full">
   <div class="mt-1 my-auto text-xs truncate {$$props.class ?? ''}" aria-label="{title} copy to clipboard">
     {title}
   </div>

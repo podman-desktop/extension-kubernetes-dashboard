@@ -66,7 +66,7 @@ test('click on name should redirect to pod page', async () => {
     },
   });
 
-  const openBtn = getByRole('button', { name: 'Open pod details' });
+  const openBtn = getByRole('button', { name: /dummy-pod-name/ });
   expect(openBtn).toBeDefined();
 
   await fireEvent.click(openBtn);

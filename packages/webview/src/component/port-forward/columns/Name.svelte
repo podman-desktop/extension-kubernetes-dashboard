@@ -35,7 +35,6 @@ async function openResourceDetails(): Promise<void> {
 
 <Tooltip tip="Open pod details" containerClass="relative inline-block max-w-full">
   <button
-    aria-label="Open pod details"
     class="hover:cursor-pointer flex flex-col max-w-full"
     disabled={object.kind !== WorkloadKind.POD}
     onclick={openResourceDetails}>
