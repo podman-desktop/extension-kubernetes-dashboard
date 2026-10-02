@@ -104,7 +104,7 @@ import { ValidatingWebhooksResourceFactory } from '/@/resources/validating-webho
 import { HpasResourceFactory } from '/@/resources/hpas-resource-factory.js';
 import { parseAllDocuments, stringify, type Tags } from 'yaml';
 import { writeFile } from 'node:fs/promises';
-import https, { request as httpsRequest } from 'node:https';
+import https from 'node:https';
 import {
   ConnectOptions,
   ContextPermission,
@@ -113,6 +113,7 @@ import {
   type ApiResourceList,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { TelemetryLoggerSymbol } from '/@/inject/symbol.js';
+import { KubernetesApiValidator } from './kubernetes-api-validator.js';
 import { DEFAULT_FIELD_MANAGER, resolveResourcePatchOptions } from './resource-patch-options.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
@@ -185,6 +186,9 @@ export class ContextsManager implements ContextsApi {
 
   @inject(TelemetryLoggerSymbol)
   protected telemetryLogger: TelemetryLogger;
+
+  @inject(KubernetesApiValidator)
+  protected kubernetesApiValidator: KubernetesApiValidator;
 
   constructor() {
     this.#currentKubeConfig = new KubeConfig();
@@ -1141,12 +1145,6 @@ export class ContextsManager implements ContextsApi {
     }
   }
 
-  private static validateSubresourcePathSegment(segment: string): void {
-    if (!segment || segment === '.' || segment === '..' || segment.search(/[/\\?#%\s]/) !== -1) {
-      throw new Error(`patch subresource: invalid path segment ${JSON.stringify(segment)}`);
-    }
-  }
-
   async patchSubresource(
     apiVersion: string,
     resource: string,
@@ -1155,16 +1153,16 @@ export class ContextsManager implements ContextsApi {
     body: object,
     namespace?: string,
   ): Promise<void> {
-    ContextsManager.validateGroupVersion(apiVersion);
+    this.kubernetesApiValidator.validateGroupVersion(apiVersion);
     const apiVersionParts = apiVersion.split('/');
     if (apiVersionParts.length > 2) {
       throw new Error(`patch subresource: invalid apiVersion ${JSON.stringify(apiVersion)}`);
     }
     for (const segment of [...apiVersionParts, resource, name, subresource]) {
-      ContextsManager.validateSubresourcePathSegment(segment);
+      this.kubernetesApiValidator.validateSubresourcePathSegment(segment);
     }
     if (namespace !== undefined) {
-      ContextsManager.validateSubresourcePathSegment(namespace);
+      this.kubernetesApiValidator.validateSubresourcePathSegment(namespace);
     }
 
     const kubeConfig = this.currentContext?.getKubeConfig();
@@ -1202,7 +1200,7 @@ export class ContextsManager implements ContextsApi {
     };
     await kubeConfig.applyToHTTPSOptions(opts);
 
-    const doRequest = serverUrl.protocol === 'https:' ? httpsRequest : httpRequest;
+    const doRequest = serverUrl.protocol === 'https:' ? https.request : httpRequest;
 
     await new Promise<void>((resolve, reject) => {
       const req = doRequest(serverUrl, opts, res => {
@@ -1217,13 +1215,14 @@ export class ContextsManager implements ContextsApi {
           if (statusCode >= 200 && statusCode < 300) {
             resolve();
           } else {
-            const responseHeaders: Record<string, string> = {};
-            for (const [key, value] of Object.entries(res.headers)) {
-              if (value !== undefined) {
-                responseHeaders[key] = Array.isArray(value) ? value.join(', ') : value;
-              }
-            }
-            reject(new ApiException(statusCode, 'patch subresource failed', responseBody, responseHeaders));
+            const responseDetail = responseBody ? `: ${responseBody}` : '';
+            reject(
+              new ApiResourceError(
+                `patch subresource failed: ${statusCode}${responseDetail}`,
+                res.statusCode,
+                res.headers['retry-after'],
+              ),
+            );
           }
         });
       });
@@ -1352,16 +1351,8 @@ export class ContextsManager implements ContextsApi {
 
   static readonly DEFAULT_TIMEOUT_MS = 10_000;
 
-  static validateGroupVersion(groupVersion: string): void {
-    for (const part of groupVersion.split('/')) {
-      if (part === '' || part === '.' || part === '..') {
-        throw new Error(`invalid groupVersion: ${JSON.stringify(groupVersion)}`);
-      }
-    }
-  }
-
   async getApiResources(groupVersion: string, options?: { timeoutMs?: number }): Promise<ApiResourceList> {
-    ContextsManager.validateGroupVersion(groupVersion);
+    this.kubernetesApiValidator.validateGroupVersion(groupVersion);
     const kubeConfig = this.getCurrentKubeConfig();
     const cluster = kubeConfig.getCurrentCluster();
     if (!cluster) {
