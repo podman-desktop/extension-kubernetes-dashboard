@@ -205,9 +205,11 @@ export interface KubernetesDashboardExtensionApi {
    *
    * Accepts one or more YAML documents (separated by `---`) describing the resources to patch.
    * Each resource must have `apiVersion`, `kind`, and `metadata.name` set.
+   * All resource patches are attempted. Successful patches are not rolled back when another patch fails.
    *
    * @param yamlDocuments - The YAML documents describing the resources to patch.
    * @param options - Options controlling patch strategy and field manager.
+   * @throws {AggregateError} If any resource patches fail, with their failures in `errors`, in document order.
    */
   patchResources(yamlDocuments: string, options?: PatchResourcesOptions): Promise<void>;
 

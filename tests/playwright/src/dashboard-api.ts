@@ -104,7 +104,16 @@ export function dashboardApiTests(): void {
     });
 
     test.afterEach(() => {
-      kubectl(['delete', 'configmap', name, secondName, `${name}-missing`, '--ignore-not-found', '--wait=false']);
+      kubectl([
+        'delete',
+        'configmap',
+        name,
+        secondName,
+        `${name}-missing`,
+        `${name}-missing-second`,
+        '--ignore-not-found',
+        '--wait=false',
+      ]);
       kubectl(['delete', 'deployment', name, '--ignore-not-found', '--wait=false']);
     });
 
@@ -227,9 +236,11 @@ data:
       );
     });
 
-    test('does not create missing resources with the default patch strategy', async () => {
+    test('collects failures while patching the remaining documents', async () => {
       const missingName = `${name}-missing`;
-      await client.patchResources(`
+      const secondMissingName = `${name}-missing-second`;
+      await playExpect(
+        client.patchResources(`
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -237,8 +248,34 @@ metadata:
   namespace: default
 data:
   value: patched
-`);
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${name}
+  namespace: default
+data:
+  value: patched
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${secondMissingName}
+  namespace: default
+data:
+  value: patched
+`),
+      ).rejects.toMatchObject({
+        name: 'AggregateError',
+        errors: [
+          playExpect.objectContaining({ message: playExpect.stringContaining(missingName) }),
+          playExpect.objectContaining({ message: playExpect.stringContaining(secondMissingName) }),
+        ],
+      });
       playExpect(kubectl(['get', 'configmap', missingName, '--ignore-not-found', '-o', 'name']).trim()).toBe('');
+      playExpect(kubectl(['get', 'configmap', secondMissingName, '--ignore-not-found', '-o', 'name']).trim()).toBe('');
+      const result = JSON.parse(kubectl(['get', 'configmap', name, '-o', 'json'])) as ConfigMapResult;
+      playExpect(result.data).toEqual({ value: 'patched', preserved: 'keep' });
     });
 
     test('rejects invalid YAML without modifying resources', async () => {

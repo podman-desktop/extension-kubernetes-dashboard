@@ -804,9 +804,12 @@ export class ContextsManager implements ContextsApi {
     }
   }
 
-  private handleResult(result: KubernetesObject | V1Status, actionMsg: string): void {
+  private handleResult(result: KubernetesObject | V1Status, actionMsg: string, failures?: unknown[]): void {
     if (this.isV1Status(result) && this.isFailureStatus(result)) {
       this.handleStatus(result, actionMsg);
+      failures?.push(
+        new ApiResourceError(`${actionMsg}: ${result.message ?? result.reason ?? 'failed'}`, result.code, undefined),
+      );
     }
     // Ignore if result is a KubernetesObject or a successful Status
   }
@@ -838,6 +841,15 @@ export class ContextsManager implements ContextsApi {
 
   private isConflict(error: unknown): boolean {
     return error instanceof ApiException && error.code === 409;
+  }
+
+  private collectPatchFailure(error: unknown, actionMsg: string, failures: unknown[]): void {
+    failures.push(error);
+    try {
+      this.handleApiException(error, actionMsg);
+    } catch {
+      // The failure is already collected; continue patching the remaining documents.
+    }
   }
 
   // The API returns a Status object as the result of a successful operation for some kinds
@@ -1084,6 +1096,7 @@ export class ContextsManager implements ContextsApi {
     }
     const fieldManager = options?.fieldManager ?? FIELD_MANAGER;
     const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
+    const failures: unknown[] = [];
     for (const manifest of manifests) {
       // the API server does not serve strategic merge patch for kinds provided by a
       // CustomResourceDefinition (it accepts only json-patch, merge-patch and apply-patch),
@@ -1110,9 +1123,9 @@ export class ContextsManager implements ContextsApi {
           serverSideApply ? true : undefined, // force: take ownership from the other field managers
           strategy,
         );
-        this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
+        this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`, failures);
       } catch (error: unknown) {
-        this.handleApiException(error, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
+        this.collectPatchFailure(error, `patch of ${manifest.kind} ${manifest.metadata?.name}`, failures);
       }
     }
     const telemetryOptions: Record<string, unknown> = {
@@ -1120,6 +1133,9 @@ export class ContextsManager implements ContextsApi {
       kinds: manifests?.map(manifest => manifest.kind).join(','),
     };
     this.telemetryLogger.logUsage('apply.resources', telemetryOptions);
+    if (failures.length > 0) {
+      throw new AggregateError(failures, `${failures.length} resource patch(es) failed`);
+    }
   }
 
   async applyYaml(yamlDocuments: string): Promise<{ kind?: string }[]> {
