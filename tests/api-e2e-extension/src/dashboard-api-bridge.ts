@@ -31,7 +31,7 @@ import type {
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { extensions, type Disposable } from '@podman-desktop/api';
 
-import type { BridgeConfig, ConnectRequest, SubscriptionRequest } from './types';
+import type { BridgeConfig, ConnectRequest, PatchResourcesRequest, SubscriptionRequest } from './types';
 
 const DASHBOARD_EXTENSION_ID = 'podman-desktop.kubernetes-dashboard';
 const HOST = '127.0.0.1';
@@ -109,6 +109,9 @@ export class DashboardApiBridge implements Disposable {
       case 'POST /contexts/connect':
         await this.handleConnect(request, response);
         break;
+      case 'POST /resources/patch':
+        await this.handlePatchResources(request, response);
+        break;
       case 'POST /subscriptions/next':
         await this.handleNextSubscription(request, response);
         break;
@@ -143,6 +146,15 @@ export class DashboardApiBridge implements Disposable {
   private async handleNextSubscription(request: IncomingMessage, response: ServerResponse): Promise<void> {
     const body = await this.readJson<SubscriptionRequest>(request);
     this.sendSuccess(response, await this.nextSubscriptionEvent(this.requireDashboardApi(), body));
+  }
+
+  private async handlePatchResources(request: IncomingMessage, response: ServerResponse): Promise<void> {
+    const body = await this.readJson<PatchResourcesRequest>(request);
+    if (typeof body.yamlDocuments !== 'string') {
+      throw new HttpError('yamlDocuments must be a string', 400);
+    }
+    await this.requireDashboardApi().patchResources(body.yamlDocuments, body.options);
+    this.sendSuccess(response, undefined);
   }
 
   private authorize(request: IncomingMessage): void {
