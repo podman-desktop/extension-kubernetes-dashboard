@@ -206,10 +206,14 @@ export interface KubernetesDashboardExtensionApi {
    * Accepts one or more YAML documents (separated by `---`) describing the resources to patch.
    * Each resource must have `apiVersion`, `kind`, and `metadata.name` set.
    * All resource patches are attempted. Successful patches are not rolled back when another patch fails.
+   * Errors are reported to the caller without displaying dashboard notifications.
    *
    * @param yamlDocuments - The YAML documents describing the resources to patch.
    * @param options - Options controlling patch strategy and field manager.
+   * @throws {Error} If there is no current context or the YAML documents cannot be parsed.
    * @throws {AggregateError} If any resource patches fail, with their failures in `errors`, in document order.
+   * API-server failures are {@link ApiResourceError} instances exposing `statusCode` and `retryAfter`.
+   * Transport and per-resource validation failures retain their original errors.
    */
   patchResources(yamlDocuments: string, options?: PatchResourcesOptions): Promise<void>;
 
@@ -246,7 +250,7 @@ export interface ApiResourceRequestOptions {
 }
 
 /**
- * Shape of the error thrown when {@link KubernetesDashboardExtensionApi.getApiResources} receives a non-2xx response.
+ * Shape of an API-server error exposing the HTTP status and retry information.
  *
  * Check `error.name` to identify it at runtime:
  *

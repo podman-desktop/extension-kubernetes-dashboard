@@ -282,8 +282,16 @@ data:
       ).rejects.toMatchObject({
         name: 'AggregateError',
         errors: [
-          playExpect.objectContaining({ message: playExpect.stringContaining(missingName) }),
-          playExpect.objectContaining({ message: playExpect.stringContaining(secondMissingName) }),
+          playExpect.objectContaining({
+            name: 'ApiResourceError',
+            statusCode: 404,
+            message: playExpect.stringContaining(missingName),
+          }),
+          playExpect.objectContaining({
+            name: 'ApiResourceError',
+            statusCode: 404,
+            message: playExpect.stringContaining(secondMissingName),
+          }),
         ],
       });
       playExpect((await kubectl(['get', 'configmap', missingName, '--ignore-not-found', '-o', 'name'])).trim()).toBe(
