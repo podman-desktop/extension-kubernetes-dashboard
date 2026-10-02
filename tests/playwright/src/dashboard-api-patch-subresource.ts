@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
@@ -24,6 +24,7 @@ import { expect as playExpect, test } from '@podman-desktop/tests-playwright';
 
 import { DashboardApiClient } from './utility/dashboard-api-client';
 
+const KUBECTL_TIMEOUT_MS = process.platform === 'win32' ? 30_000 : 10_000;
 const kubeconfig = fileURLToPath(new URL('../../resources/envtest-kubeconfig', import.meta.url));
 // Public test CSR; its private key is not needed for approval and is not stored.
 const certificateRequest = `-----BEGIN CERTIFICATE REQUEST-----
@@ -35,18 +36,33 @@ SAAwRQIhAN+rJeJlV3M4gEYX+HuO8E09+wO5ddxfqphM0eBYTpBTAiAZ/CzCtkZn
 -----END CERTIFICATE REQUEST-----
 `;
 
-function kubectl(args: string[], input?: object): string {
-  // eslint-disable-next-line sonarjs/os-command
-  return execFileSync(
-    // eslint-disable-next-line sonarjs/no-os-command-from-path
-    'kubectl',
-    ['--kubeconfig', kubeconfig, '--context', 'envtest', '--namespace', 'default', ...args],
-    { encoding: 'utf8', input: input === undefined ? undefined : JSON.stringify(input), timeout: 10_000 },
-  );
+function kubectl(args: string[], input?: object): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // eslint-disable-next-line sonarjs/os-command
+    const child = execFile(
+      // eslint-disable-next-line sonarjs/no-os-command-from-path
+      'kubectl',
+      ['--kubeconfig', kubeconfig, '--context', 'envtest', '--namespace', 'default', ...args],
+      { encoding: 'utf8', timeout: KUBECTL_TIMEOUT_MS },
+      (error, stdout) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(stdout);
+        }
+      },
+    );
+    child.stdin?.on('error', reject);
+    child.stdin?.end(input === undefined ? undefined : JSON.stringify(input));
+  });
 }
 
 export function dashboardApiPatchSubresourceTests(): void {
   test.describe('patchSubresource', () => {
+    if (process.platform === 'win32') {
+      test.setTimeout(120_000);
+    }
+
     let client: DashboardApiClient;
     let name: string;
 
@@ -58,14 +74,14 @@ export function dashboardApiPatchSubresourceTests(): void {
       name = `dashboard-subresource-${randomUUID()}`;
     });
 
-    test.afterEach(() => {
+    test.afterEach(async () => {
       for (const resource of ['replicationcontroller', 'deployment', 'node', 'certificatesigningrequest']) {
-        kubectl(['delete', resource, name, '--ignore-not-found', '--wait=false']);
+        await kubectl(['delete', resource, name, '--ignore-not-found', '--wait=false']);
       }
     });
 
     test('patches a namespaced core resource scale', async () => {
-      kubectl(['create', '-f', '-'], {
+      await kubectl(['create', '-f', '-'], {
         apiVersion: 'v1',
         kind: 'ReplicationController',
         metadata: { name },
@@ -85,7 +101,7 @@ export function dashboardApiPatchSubresourceTests(): void {
         'default',
       );
 
-      const result = JSON.parse(kubectl(['get', 'replicationcontroller', name, '-o', 'json'])) as {
+      const result = JSON.parse(await kubectl(['get', 'replicationcontroller', name, '-o', 'json'])) as {
         spec: { replicas: number; selector: { app: string } };
       };
       playExpect(result.spec.replicas).toBe(3);
@@ -93,7 +109,7 @@ export function dashboardApiPatchSubresourceTests(): void {
     });
 
     test('patches a namespaced grouped resource scale', async () => {
-      kubectl(['create', '-f', '-'], {
+      await kubectl(['create', '-f', '-'], {
         apiVersion: 'apps/v1',
         kind: 'Deployment',
         metadata: { name },
@@ -106,7 +122,7 @@ export function dashboardApiPatchSubresourceTests(): void {
 
       await client.patchSubresource('apps/v1', 'deployments', name, 'scale', { spec: { replicas: 2 } }, 'default');
 
-      const result = JSON.parse(kubectl(['get', 'deployment', name, '-o', 'json'])) as {
+      const result = JSON.parse(await kubectl(['get', 'deployment', name, '-o', 'json'])) as {
         spec: { replicas: number; template: { spec: { containers: { name: string; image: string }[] } } };
       };
       playExpect(result.spec.replicas).toBe(2);
@@ -116,7 +132,7 @@ export function dashboardApiPatchSubresourceTests(): void {
     });
 
     test('patches a cluster-scoped core resource status using merge semantics', async () => {
-      kubectl(['create', '-f', '-'], {
+      await kubectl(['create', '-f', '-'], {
         apiVersion: 'v1',
         kind: 'Node',
         metadata: { name },
@@ -126,7 +142,7 @@ export function dashboardApiPatchSubresourceTests(): void {
       await client.patchSubresource('v1', 'nodes', name, 'status', { status: { capacity: { cpu: '2' } } });
       await client.patchSubresource('v1', 'nodes', name, 'status', { status: { capacity: { memory: '1Gi' } } });
 
-      const result = JSON.parse(kubectl(['get', 'node', name, '-o', 'json'])) as {
+      const result = JSON.parse(await kubectl(['get', 'node', name, '-o', 'json'])) as {
         spec: { unschedulable: boolean };
         status: { capacity: Record<string, string> };
       };
@@ -135,7 +151,7 @@ export function dashboardApiPatchSubresourceTests(): void {
     });
 
     test('patches a cluster-scoped grouped resource approval', async () => {
-      kubectl(['create', '-f', '-'], {
+      await kubectl(['create', '-f', '-'], {
         apiVersion: 'certificates.k8s.io/v1',
         kind: 'CertificateSigningRequest',
         metadata: { name },
@@ -154,7 +170,7 @@ export function dashboardApiPatchSubresourceTests(): void {
         },
       });
 
-      const result = JSON.parse(kubectl(['get', 'certificatesigningrequest', name, '-o', 'json'])) as {
+      const result = JSON.parse(await kubectl(['get', 'certificatesigningrequest', name, '-o', 'json'])) as {
         spec: { signerName: string };
         status: { conditions: { type: string; status: string; reason: string }[] };
       };
@@ -171,7 +187,7 @@ export function dashboardApiPatchSubresourceTests(): void {
         name: 'Error',
         message: playExpect.stringContaining('patch subresource failed with status 404:'),
       });
-      playExpect(kubectl(['get', 'deployment', name, '--ignore-not-found', '-o', 'name']).trim()).toBe('');
+      playExpect((await kubectl(['get', 'deployment', name, '--ignore-not-found', '-o', 'name'])).trim()).toBe('');
     });
   });
 }
