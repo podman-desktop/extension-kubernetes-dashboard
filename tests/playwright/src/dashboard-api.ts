@@ -281,7 +281,9 @@ data:
     });
 
     test('rejects invalid YAML without modifying resources', async () => {
-      await playExpect(client.patchResources('metadata: [')).rejects.toMatchObject({ name: 'YAMLException' });
+      await playExpect(client.patchResources('metadata: [')).rejects.toThrow(
+        'Document with errors cannot be stringified',
+      );
       const result = JSON.parse(kubectl(['get', 'configmap', name, '-o', 'json'])) as ConfigMapResult;
       playExpect(result.data).toEqual({ value: 'original', preserved: 'keep' });
     });
