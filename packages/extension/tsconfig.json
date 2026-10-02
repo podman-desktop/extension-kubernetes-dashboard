@@ -5,7 +5,7 @@
     "module": "esnext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
-    "lib": ["ES2017", "webworker", "dom"],
+    "lib": ["ES2017", "ES2021.Promise", "webworker", "dom"],
     "sourceMap": true,
     "outDir": "dist",
     "esModuleInterop": true,

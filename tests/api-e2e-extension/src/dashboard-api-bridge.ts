@@ -39,6 +39,7 @@ const MAX_REQUEST_BYTES = 64 * 1024;
 const DEFAULT_SUBSCRIPTION_TIMEOUT_MS = 10_000;
 
 interface ErrorResponse {
+  errors?: ErrorResponse[];
   message: string;
   name: string;
   retryAfter?: string;
@@ -274,6 +275,9 @@ export class DashboardApiBridge implements Disposable {
       message: error instanceof Error ? error.message : String(error),
       name: error instanceof Error ? error.name : 'Error',
     };
+    if (error instanceof AggregateError) {
+      result.errors = error.errors.map((failure: unknown) => this.serializeError(failure));
+    }
     if (error && typeof error === 'object') {
       if ('statusCode' in error && typeof error.statusCode === 'number') {
         result.statusCode = error.statusCode;

@@ -60,6 +60,7 @@ interface BridgeHandshake {
 }
 
 interface BridgeErrorResponse {
+  errors?: BridgeErrorResponse[];
   message: string;
   name: string;
   retryAfter?: string;
@@ -79,12 +80,14 @@ interface HealthResponse {
 type SubscriptionType = 'contexts-health' | 'contexts-permissions' | 'resources-count' | 'resource-update';
 
 export class DashboardApiBridgeError extends Error {
+  readonly errors: DashboardApiBridgeError[] | undefined;
   readonly retryAfter: string | undefined;
   readonly statusCode: number | undefined;
 
   constructor(error: BridgeErrorResponse) {
     super(error.message);
     this.name = error.name;
+    this.errors = error.errors?.map(failure => new DashboardApiBridgeError(failure));
     this.retryAfter = error.retryAfter;
     this.statusCode = error.statusCode;
   }

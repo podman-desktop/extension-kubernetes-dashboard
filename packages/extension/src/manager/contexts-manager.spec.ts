@@ -2071,6 +2071,110 @@ describe('applyResources patch strategy', () => {
   });
 });
 
+describe('applyResources collected failures', () => {
+  const patchMock = vi.fn();
+  let manager: TestContextsManager;
+
+  const manifests = ['first', 'second', 'third', 'fourth', 'fifth']
+    .map(name => `apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: ${name}\n`)
+    .join('---\n');
+
+  beforeEach(async () => {
+    const kc = new KubeConfig();
+    kc.loadFromOptions(kcWithContext1asDefault);
+    manager = new TestContextsManager();
+    vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+    vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+    vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue({
+      getKubeConfig: vi.fn().mockReturnValue({
+        makeApiClient: vi.fn().mockReturnValue({ patch: patchMock } as unknown as KubernetesObjectApi),
+      }),
+      getNamespace: vi.fn().mockReturnValue('ns1'),
+    } as unknown as KubeConfigSingleContext);
+    await manager.update(kc);
+  });
+
+  test('rejects with all failures in document order after attempting every patch', async () => {
+    const failedStatus: V1Status = {
+      kind: 'Status',
+      status: 'Failure',
+      code: 403,
+      reason: 'Forbidden',
+      message: 'first is forbidden',
+    };
+    const exceptionStatus: V1Status = {
+      kind: 'Status',
+      status: 'Failure',
+      code: 404,
+      reason: 'NotFound',
+      message: 'third was not found',
+    };
+    const apiError = new ApiException(404, 'Not Found', JSON.stringify(exceptionStatus), {});
+    const connectionError = new Error('connection reset');
+    patchMock
+      .mockResolvedValueOnce(failedStatus)
+      .mockResolvedValueOnce({ kind: 'ConfigMap', metadata: { name: 'second' } })
+      .mockRejectedValueOnce(apiError)
+      .mockRejectedValueOnce(connectionError)
+      .mockResolvedValueOnce({ kind: 'Status', status: 'Success' });
+
+    await expect(manager.applyResources(manifests)).rejects.toMatchObject({
+      name: 'AggregateError',
+      message: '3 resource patch(es) failed',
+      errors: [
+        expect.objectContaining({
+          name: 'ApiResourceError',
+          message: 'patch of ConfigMap first: first is forbidden',
+          statusCode: 403,
+        }),
+        apiError,
+        connectionError,
+      ],
+    });
+
+    expect(patchMock.mock.calls.map(call => (call[0] as KubernetesObject).metadata?.name)).toEqual([
+      'first',
+      'second',
+      'third',
+      'fourth',
+      'fifth',
+    ]);
+    expect(window.showNotification).toHaveBeenCalledTimes(2);
+    expect(window.showNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'patch of ConfigMap first', body: 'first is forbidden' }),
+    );
+    expect(window.showNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'patch of ConfigMap third', body: 'third was not found' }),
+    );
+    expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('api.error', expect.objectContaining({ code: 404 }));
+    expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('apply.resources', {
+      manifestsSize: 5,
+      kinds: 'ConfigMap,ConfigMap,ConfigMap,ConfigMap,ConfigMap',
+    });
+  });
+
+  test('resolves when every patch succeeds, including successful Status responses', async () => {
+    patchMock.mockResolvedValue({ kind: 'Status', status: 'Success' });
+
+    await expect(manager.applyResources(manifests)).resolves.toBeUndefined();
+
+    expect(patchMock).toHaveBeenCalledTimes(5);
+    expect(window.showNotification).not.toHaveBeenCalled();
+  });
+
+  test('preserves an unstructured API exception and continues processing', async () => {
+    const error = new ApiException(500, 'Internal Server Error', 'invalid JSON', {});
+    patchMock.mockRejectedValueOnce(error).mockResolvedValue({ kind: 'Status', status: 'Success' });
+
+    await expect(manager.applyResources(manifests)).rejects.toMatchObject({
+      name: 'AggregateError',
+      errors: [error],
+    });
+
+    expect(patchMock).toHaveBeenCalledTimes(5);
+  });
+});
+
 test('applyResources uses default strategy and field manager', async () => {
   const patchMock = vi.fn();
   const kc = new KubeConfig();
