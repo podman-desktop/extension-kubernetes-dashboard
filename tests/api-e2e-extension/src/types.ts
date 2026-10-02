@@ -37,6 +37,12 @@ export interface PatchResourcesRequest {
   options?: PatchResourcesOptions;
 }
 
+export interface DeleteResourceRequest {
+  kind: string;
+  name: string;
+  namespace?: string;
+}
+
 export type SubscriptionType = 'contexts-health' | 'contexts-permissions' | 'resources-count' | 'resource-update';
 
 export interface SubscriptionRequest {

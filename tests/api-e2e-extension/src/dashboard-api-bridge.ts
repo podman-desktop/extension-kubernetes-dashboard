@@ -34,6 +34,7 @@ import { extensions, type Disposable } from '@podman-desktop/api';
 import type {
   BridgeConfig,
   ConnectRequest,
+  DeleteResourceRequest,
   PatchResourcesRequest,
   PatchSubresourceRequest,
   SubscriptionRequest,
@@ -125,6 +126,9 @@ export class DashboardApiBridge implements Disposable {
       case 'POST /subresources/patch':
         await this.handlePatchSubresource(request, response);
         break;
+      case 'POST /resources/delete':
+        await this.handleDeleteResource(request, response);
+        break;
       default:
         throw new HttpError(`Unsupported route: ${route}`, 404);
     }
@@ -164,6 +168,12 @@ export class DashboardApiBridge implements Disposable {
       throw new HttpError('yamlDocuments must be a string', 400);
     }
     await this.requireDashboardApi().patchResources(body.yamlDocuments, body.options);
+    this.sendSuccess(response, undefined);
+  }
+
+  private async handleDeleteResource(request: IncomingMessage, response: ServerResponse): Promise<void> {
+    const body = await this.readJson<DeleteResourceRequest>(request);
+    await this.requireDashboardApi().deleteResource(body.kind, body.name, body.namespace);
     this.sendSuccess(response, undefined);
   }
 
