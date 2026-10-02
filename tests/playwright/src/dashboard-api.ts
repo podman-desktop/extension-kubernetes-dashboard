@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
@@ -26,20 +26,28 @@ import { expect as playExpect, test } from '@podman-desktop/tests-playwright';
 import { DashboardApiClient } from './utility/dashboard-api-client';
 
 const CONTEXT_NAME = 'envtest';
+const KUBECTL_TIMEOUT_MS = process.platform === 'win32' ? 30_000 : 10_000;
 const kubeconfig = fileURLToPath(new URL('../../resources/envtest-kubeconfig', import.meta.url));
 
-function kubectl(args: string[], input?: string): string {
-  // eslint-disable-next-line sonarjs/os-command
-  return execFileSync(
-    // eslint-disable-next-line sonarjs/no-os-command-from-path
-    'kubectl',
-    ['--kubeconfig', kubeconfig, '--context', CONTEXT_NAME, '--namespace', 'default', ...args],
-    {
-      encoding: 'utf8',
-      input,
-      timeout: 10_000,
-    },
-  );
+function kubectl(args: string[], input?: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // eslint-disable-next-line sonarjs/os-command
+    const child = execFile(
+      // eslint-disable-next-line sonarjs/no-os-command-from-path
+      'kubectl',
+      ['--kubeconfig', kubeconfig, '--context', CONTEXT_NAME, '--namespace', 'default', ...args],
+      { encoding: 'utf8', timeout: KUBECTL_TIMEOUT_MS },
+      (error, stdout) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(stdout);
+        }
+      },
+    );
+    child.stdin?.on('error', reject);
+    child.stdin?.end(input);
+  });
 }
 
 interface ConfigMapResult {
@@ -87,14 +95,18 @@ export function dashboardApiTests(): void {
   });
 
   test.describe('patchResources', () => {
+    if (process.platform === 'win32') {
+      test.setTimeout(120_000);
+    }
+
     let name: string;
     let secondName: string;
 
-    test.beforeEach(() => {
+    test.beforeEach(async () => {
       name = `dashboard-api-${randomUUID()}`;
       secondName = `${name}-second`;
       for (const configMapName of [name, secondName]) {
-        kubectl([
+        await kubectl([
           'create',
           'configmap',
           configMapName,
@@ -104,8 +116,8 @@ export function dashboardApiTests(): void {
       }
     });
 
-    test.afterEach(() => {
-      kubectl([
+    test.afterEach(async () => {
+      await kubectl([
         'delete',
         'configmap',
         name,
@@ -115,7 +127,7 @@ export function dashboardApiTests(): void {
         '--ignore-not-found',
         '--wait=false',
       ]);
-      kubectl(['delete', 'deployment', name, '--ignore-not-found', '--wait=false']);
+      await kubectl(['delete', 'deployment', name, '--ignore-not-found', '--wait=false']);
     });
 
     test('patches multiple YAML documents with default options and namespace', async () => {
@@ -141,7 +153,7 @@ data:
         [secondName, 'second-patched'],
       ]) {
         const result = JSON.parse(
-          kubectl(['get', 'configmap', configMapName, '-o', 'json', '--show-managed-fields']),
+          await kubectl(['get', 'configmap', configMapName, '-o', 'json', '--show-managed-fields']),
         ) as ConfigMapResult;
         playExpect(result.data).toEqual({ value, preserved: 'keep' });
         playExpect(result.metadata.namespace).toBe('default');
@@ -154,7 +166,7 @@ data:
     const strategies: (PatchStrategyType | undefined)[] = [undefined, 'strategic-merge-patch', 'merge-patch'];
     for (const strategy of strategies) {
       test(`uses ${strategy ?? 'default strategic merge'} semantics for container lists`, async () => {
-        kubectl(
+        await kubectl(
           ['create', '-f', '-'],
           JSON.stringify({
             apiVersion: 'apps/v1',
@@ -193,7 +205,7 @@ spec:
           strategy === undefined ? undefined : { strategy },
         );
 
-        const result = JSON.parse(kubectl(['get', 'deployment', name, '-o', 'json'])) as {
+        const result = JSON.parse(await kubectl(['get', 'deployment', name, '-o', 'json'])) as {
           spec: { template: { spec: { containers: { name: string; image: string }[] } } };
         };
         const containers = result.spec.template.spec.containers;
@@ -223,7 +235,7 @@ data:
       );
 
       const result = JSON.parse(
-        kubectl(['get', 'configmap', name, '-o', 'json', '--show-managed-fields']),
+        await kubectl(['get', 'configmap', name, '-o', 'json', '--show-managed-fields']),
       ) as ConfigMapResult;
       playExpect(result.data).toEqual({ value: 'original', preserved: 'keep', owned: 'applied' });
       playExpect(result.metadata.annotations?.['kubectl.kubernetes.io/last-applied-configuration']).toBeUndefined();
@@ -274,9 +286,13 @@ data:
           playExpect.objectContaining({ message: playExpect.stringContaining(secondMissingName) }),
         ],
       });
-      playExpect(kubectl(['get', 'configmap', missingName, '--ignore-not-found', '-o', 'name']).trim()).toBe('');
-      playExpect(kubectl(['get', 'configmap', secondMissingName, '--ignore-not-found', '-o', 'name']).trim()).toBe('');
-      const result = JSON.parse(kubectl(['get', 'configmap', name, '-o', 'json'])) as ConfigMapResult;
+      playExpect((await kubectl(['get', 'configmap', missingName, '--ignore-not-found', '-o', 'name'])).trim()).toBe(
+        '',
+      );
+      playExpect(
+        (await kubectl(['get', 'configmap', secondMissingName, '--ignore-not-found', '-o', 'name'])).trim(),
+      ).toBe('');
+      const result = JSON.parse(await kubectl(['get', 'configmap', name, '-o', 'json'])) as ConfigMapResult;
       playExpect(result.data).toEqual({ value: 'patched', preserved: 'keep' });
     });
 
@@ -284,7 +300,7 @@ data:
       await playExpect(client.patchResources('metadata: [')).rejects.toThrow(
         'Document with errors cannot be stringified',
       );
-      const result = JSON.parse(kubectl(['get', 'configmap', name, '-o', 'json'])) as ConfigMapResult;
+      const result = JSON.parse(await kubectl(['get', 'configmap', name, '-o', 'json'])) as ConfigMapResult;
       playExpect(result.data).toEqual({ value: 'original', preserved: 'keep' });
     });
   });
