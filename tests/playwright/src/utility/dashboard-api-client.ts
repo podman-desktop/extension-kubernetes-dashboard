@@ -176,6 +176,17 @@ export class DashboardApiClient {
     return this.request('/subscriptions/next', { options, timeoutMs, type }, (timeoutMs ?? DEFAULT_TIMEOUT_MS) + 1_000);
   }
 
+  async patchSubresource(
+    apiVersion: string,
+    resource: string,
+    name: string,
+    subresource: string,
+    body: object,
+    namespace?: string,
+  ): Promise<void> {
+    await this.request('/subresources/patch', { apiVersion, resource, name, subresource, body, namespace });
+  }
+
   private async request<T>(path: string, body?: unknown, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<T> {
     const response = await fetch(new URL(path, this.baseUrl), {
       body: body === undefined ? undefined : JSON.stringify(body),
