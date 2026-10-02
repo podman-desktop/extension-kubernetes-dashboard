@@ -152,6 +152,10 @@ export class DashboardApiClient {
     await this.request('/contexts/connect', { contextName, options });
   }
 
+  async deleteResource(kind: string, name: string, namespace?: string): Promise<void> {
+    await this.request('/resources/delete', { kind, name, namespace });
+  }
+
   nextContextsHealth(timeoutMs?: number): Promise<ContextsHealthsInfo> {
     return this.nextSubscriptionEvent('contexts-health', undefined, timeoutMs);
   }

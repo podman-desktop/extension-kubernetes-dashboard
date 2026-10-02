@@ -150,7 +150,7 @@ export class DashboardExtension {
 
     return {
       deleteResource: (kind: string, name: string, namespace?: string) => {
-        return this.#contextsManager.deleteObjectImmediately(kind, name, namespace);
+        return this.#contextsManager.deleteObjectInternal(kind, name, namespace, false);
       },
       getSubscriber: () => {
         const subscriber = new ApiSubscriber();
