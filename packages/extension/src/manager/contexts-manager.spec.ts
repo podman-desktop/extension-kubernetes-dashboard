@@ -26,7 +26,7 @@ import type {
 } from '@kubernetes/client-node';
 import { ApiException, KubeConfig, PatchStrategy } from '@kubernetes/client-node';
 import { EventEmitter } from 'node:events';
-import https, { request as httpsRequest } from 'node:https';
+import https from 'node:https';
 
 import { type Uri, Disposable, type TelemetryLogger } from '@podman-desktop/api';
 import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -41,6 +41,7 @@ import {
   type ContextResourcePermission,
 } from './context-permissions-checker.js';
 import { ApiResourceError, ContextsManager } from './contexts-manager.js';
+import { KubernetesApiValidator } from './kubernetes-api-validator.js';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceFactory } from '/@/resources/resource-factory.js';
 import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
@@ -88,6 +89,7 @@ class TestContextsManager extends ContextsManager {
   constructor() {
     super();
     this.telemetryLogger = telemetryLoggerMock;
+    this.kubernetesApiValidator = new KubernetesApiValidator();
   }
   override getResourceFactories(): ResourceFactory[] {
     return [
@@ -1530,7 +1532,7 @@ test('deleteObject handler throws a non-ApiException', async () => {
 
 describe('patchSubresource', () => {
   function createMockResponse(statusCode: number, body: string, headers: Record<string, string> = {}): void {
-    vi.mocked(httpsRequest).mockImplementation(
+    vi.mocked(https.request).mockImplementation(
       (_url: unknown, _opts: unknown, callback?: (res: IncomingMessage) => void) => {
         const res = {
           statusCode,
@@ -1594,7 +1596,7 @@ describe('patchSubresource', () => {
       'my-ns',
     );
 
-    expect(httpsRequest).toHaveBeenCalledWith(
+    expect(https.request).toHaveBeenCalledWith(
       new URL(
         '/apis/certificates.k8s.io/v1/namespaces/my-ns/certificatesigningrequests/my-csr/approval',
         'https://k8s.example.com',
@@ -1610,7 +1612,7 @@ describe('patchSubresource', () => {
 
     await manager.patchSubresource('v1', 'nodes', 'my-node', 'status', { status: {} });
 
-    expect(httpsRequest).toHaveBeenCalledWith(
+    expect(https.request).toHaveBeenCalledWith(
       new URL('/api/v1/nodes/my-node/status', 'https://k8s.example.com'),
       expect.objectContaining({ method: 'PATCH' }),
       expect.any(Function),
@@ -1624,7 +1626,7 @@ describe('patchSubresource', () => {
 
     await manager.patchSubresource('apps/v1', 'deployments', 'my-deploy', 'scale', body, 'default');
 
-    expect(httpsRequest).toHaveBeenCalledWith(
+    expect(https.request).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
         method: 'PATCH',
@@ -1634,21 +1636,23 @@ describe('patchSubresource', () => {
       }),
       expect.any(Function),
     );
-    const mockReq = vi.mocked(httpsRequest).mock.results[0]?.value as ClientRequest;
+    const mockReq = vi.mocked(https.request).mock.results[0]?.value as ClientRequest;
     expect(mockReq.write).toHaveBeenCalledWith(JSON.stringify(body));
   });
 
-  test('rejects on non-2xx status', async () => {
+  test('rejects with ApiResourceError on non-2xx status without displaying a notification', async () => {
     createMockResponse(409, '{"message":"conflict"}');
     const manager = await createManagerWithCluster('https://k8s.example.com');
 
     const failure = manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {});
-    await expect(failure).rejects.toBeInstanceOf(ApiException);
+    await expect(failure).rejects.toBeInstanceOf(ApiResourceError);
     await expect(failure).rejects.toMatchObject({
-      code: 409,
-      body: '{"message":"conflict"}',
-      headers: {},
+      name: 'ApiResourceError',
+      statusCode: 409,
+      retryAfter: undefined,
+      message: expect.stringContaining('conflict'),
     });
+    expect(window.showNotification).not.toHaveBeenCalled();
   });
 
   test('preserves Retry-After on a throttled response', async () => {
@@ -1656,9 +1660,10 @@ describe('patchSubresource', () => {
     const manager = await createManagerWithCluster('https://k8s.example.com');
 
     await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toMatchObject({
-      code: 429,
-      body: '{"message":"too many requests"}',
-      headers: { 'retry-after': '5' },
+      name: 'ApiResourceError',
+      statusCode: 429,
+      retryAfter: '5',
+      message: expect.stringContaining('too many requests'),
     });
     expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
   });
@@ -1671,7 +1676,7 @@ describe('patchSubresource', () => {
 
       await manager.patchSubresource('apps/v1', 'deployments', 'my-deploy', 'scale', {}, 'default');
 
-      expect(httpsRequest).toHaveBeenCalledWith(
+      expect(https.request).toHaveBeenCalledWith(
         new URL('https://k8s.example.com/k8s/clusters/c-1/apis/apps/v1/namespaces/default/deployments/my-deploy/scale'),
         expect.anything(),
         expect.any(Function),
@@ -1695,7 +1700,7 @@ describe('patchSubresource', () => {
     const manager = await createManagerWithCluster('https://k8s.example.com');
 
     await expect(manager.patchSubresource(apiVersion, 'pods', 'my-pod', 'status', {})).rejects.toThrow();
-    expect(httpsRequest).not.toHaveBeenCalled();
+    expect(https.request).not.toHaveBeenCalled();
   });
 
   describe.each(['resource', 'name', 'subresource', 'namespace'] as const)('validates %s', field => {
@@ -1714,13 +1719,13 @@ describe('patchSubresource', () => {
         await expect(
           manager.patchSubresource('v1', target.resource, target.name, target.subresource, {}, target.namespace),
         ).rejects.toThrow('invalid path segment');
-        expect(httpsRequest).not.toHaveBeenCalled();
+        expect(https.request).not.toHaveBeenCalled();
       },
     );
   });
 
   function mockRequestEvents(respond: (res: EventEmitter, req: EventEmitter) => void): void {
-    vi.mocked(httpsRequest).mockImplementation(
+    vi.mocked(https.request).mockImplementation(
       (_url: unknown, _opts: unknown, callback?: (res: IncomingMessage) => void) => {
         const res = new EventEmitter();
         Object.assign(res, { setEncoding: vi.fn() });
@@ -1768,12 +1773,12 @@ describe('patchSubresource', () => {
     await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toThrow(
       'patch subresource: request timed out',
     );
-    expect(httpsRequest).toHaveBeenCalledWith(
+    expect(https.request).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({ timeout: ContextsManager.DEFAULT_TIMEOUT_MS }),
       expect.any(Function),
     );
-    const req = vi.mocked(httpsRequest).mock.results[0]?.value as ClientRequest;
+    const req = vi.mocked(https.request).mock.results[0]?.value as ClientRequest;
     expect(req.destroy).toHaveBeenCalledWith(expect.any(Error));
     expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
   });
@@ -2542,27 +2547,6 @@ describe('lazy informer lifecycle', () => {
     });
 
     expect(createdLazyInformerMock.start).not.toHaveBeenCalled();
-  });
-});
-
-describe('validateGroupVersion', () => {
-  test.each(['v1', 'apps/v1', 'batch/v1', 'networking.k8s.io/v1', 'rbac.authorization.k8s.io/v1beta1'])(
-    'accepts valid groupVersion %s',
-    (gv: string) => {
-      expect(() => ContextsManager.validateGroupVersion(gv)).not.toThrow();
-    },
-  );
-
-  test.each([
-    '../../api/v1/secrets',
-    '../api/v1/namespaces/kube-system/secrets',
-    'apps/../v1/secrets',
-    './v1',
-    '',
-    'apps/',
-    '/v1',
-  ])('rejects invalid groupVersion %s', (gv: string) => {
-    expect(() => ContextsManager.validateGroupVersion(gv)).toThrow('invalid groupVersion');
   });
 });
 
