@@ -184,8 +184,8 @@ export function dashboardApiPatchSubresourceTests(): void {
       await playExpect(
         client.patchSubresource('apps/v1', 'deployments', name, 'scale', { spec: { replicas: 1 } }, 'default'),
       ).rejects.toMatchObject({
-        name: 'Error',
-        message: playExpect.stringContaining('patch subresource failed with status 404:'),
+        statusCode: 404,
+        message: playExpect.stringContaining('patch subresource failed'),
       });
       playExpect((await kubectl(['get', 'deployment', name, '--ignore-not-found', '-o', 'name'])).trim()).toBe('');
     });

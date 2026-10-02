@@ -278,13 +278,22 @@ export class DashboardApiBridge implements Disposable {
       message: error instanceof Error ? error.message : String(error),
       name: error instanceof Error ? error.name : 'Error',
     };
-    if (error && typeof error === 'object') {
-      if ('statusCode' in error && typeof error.statusCode === 'number') {
-        result.statusCode = error.statusCode;
-      }
-      if ('retryAfter' in error && typeof error.retryAfter === 'string') {
-        result.retryAfter = error.retryAfter;
-      }
+    if (!error || typeof error !== 'object') {
+      return result;
+    }
+    const details = error as {
+      statusCode?: unknown;
+      code?: unknown;
+      retryAfter?: unknown;
+      headers?: Record<string, unknown>;
+    };
+    const statusCode = details.statusCode ?? details.code;
+    const retryAfter = details.retryAfter ?? details.headers?.['retry-after'];
+    if (typeof statusCode === 'number') {
+      result.statusCode = statusCode;
+    }
+    if (typeof retryAfter === 'string') {
+      result.retryAfter = retryAfter;
     }
     return result;
   }
