@@ -112,10 +112,10 @@ import {
   type ApiResourceList,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { TelemetryLoggerSymbol } from '/@/inject/symbol.js';
+import { DEFAULT_FIELD_MANAGER, resolveResourcePatchOptions } from './resource-patch-options.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 const DEFAULT_NAMESPACE = 'default';
-const FIELD_MANAGER = 'kubernetes-dashboard';
 const LAZY_INFORMER_GRACE_PERIOD_MS = 30_000;
 
 export class ApiResourceError extends Error {
@@ -128,12 +128,6 @@ export class ApiResourceError extends Error {
     this.name = 'ApiResourceError';
   }
 }
-
-const PATCH_STRATEGY_MAP: Record<NonNullable<ApplyResourcesOptions['strategy']>, PatchStrategy> = {
-  'merge-patch': PatchStrategy.MergePatch,
-  'strategic-merge-patch': PatchStrategy.StrategicMergePatch,
-  'server-side-apply': PatchStrategy.ServerSideApply,
-};
 
 /**
  * ContextsManager receives new KubeConfig updates
@@ -1093,20 +1087,16 @@ export class ContextsManager implements ContextsApi {
     if (!client) {
       throw new Error('apply resources: unable to get client for current context');
     }
-    const fieldManager = options?.fieldManager ?? FIELD_MANAGER;
     const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
     const failures: unknown[] = [];
     for (const manifest of manifests) {
-      // The API server does not serve strategic merge patch for kinds provided by a
-      // CustomResourceDefinition, so these resources default to server-side apply.
       const factory = this.#resourceFactoryHandler.getResourceFactoryByKind(manifest.kind ?? '');
-      const serverSideApply = factory?.isCustomResource ?? false;
-      const defaultStrategy = serverSideApply ? PatchStrategy.ServerSideApply : PatchStrategy.StrategicMergePatch;
-      const strategy = options?.strategy ? PATCH_STRATEGY_MAP[options.strategy] : defaultStrategy;
+      const isCustomResource = factory?.isCustomResource ?? false;
+      const patchOptions = resolveResourcePatchOptions(isCustomResource, options);
 
       manifest.metadata ??= {};
       manifest.metadata.namespace ??= this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
-      if (!serverSideApply) {
+      if (patchOptions.addLastAppliedAnnotation) {
         // last-applied-configuration is a client-side apply artifact,
         // server-side apply tracks ownership in metadata.managedFields instead
         manifest.metadata.annotations ??= {};
@@ -1117,9 +1107,9 @@ export class ContextsManager implements ContextsApi {
           manifest,
           undefined, // pretty
           undefined, // dryRun
-          fieldManager,
-          serverSideApply ? true : undefined, // force: take ownership from the other field managers
-          strategy,
+          patchOptions.fieldManager,
+          patchOptions.force,
+          patchOptions.strategy,
         );
         this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`, failures);
       } catch (error: unknown) {
@@ -1186,7 +1176,7 @@ export class ContextsManager implements ContextsApi {
           manifest,
           undefined, // pretty
           undefined, // dryRun
-          FIELD_MANAGER,
+          DEFAULT_FIELD_MANAGER,
           undefined, // force
           PatchStrategy.StrategicMergePatch,
         );

@@ -46,6 +46,7 @@ interface ConfigMapResult {
   data: Record<string, string>;
   metadata: {
     namespace: string;
+    annotations?: Record<string, string>;
     managedFields: { manager: string; operation: string; fieldsV1: Record<string, unknown> }[];
   };
 }
@@ -225,6 +226,7 @@ data:
         kubectl(['get', 'configmap', name, '-o', 'json', '--show-managed-fields']),
       ) as ConfigMapResult;
       playExpect(result.data).toEqual({ value: 'original', preserved: 'keep', owned: 'applied' });
+      playExpect(result.metadata.annotations?.['kubectl.kubernetes.io/last-applied-configuration']).toBeUndefined();
       playExpect(result.metadata.managedFields).toContainEqual(
         playExpect.objectContaining({
           manager: fieldManager,

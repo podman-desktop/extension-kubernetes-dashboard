@@ -2069,6 +2069,49 @@ describe('applyResources patch strategy', () => {
     const patchedManifest = patchMock.mock.calls[0]?.[0] as KubernetesObject;
     expect(patchedManifest.metadata?.annotations).toBeUndefined();
   });
+
+  test('explicit server-side apply on a built-in resource omits the annotation and does not force ownership', async () => {
+    const manager = await createManager();
+
+    await manager.applyResources('apiVersion: v1\nkind: Resource2\nmetadata:\n  name: resource-name\n', {
+      strategy: 'server-side-apply',
+    });
+
+    expect(patchMock).toHaveBeenCalledWith(
+      expect.anything(),
+      undefined,
+      undefined,
+      'kubernetes-dashboard',
+      undefined,
+      PatchStrategy.ServerSideApply,
+    );
+    const patchedManifest = patchMock.mock.calls[0]?.[0] as KubernetesObject;
+    expect(patchedManifest.metadata?.annotations).toBeUndefined();
+  });
+
+  test('explicit merge patch on a custom resource omits force and adds the last-applied annotation', async () => {
+    const manager = await createManager();
+
+    await manager.applyResources(
+      'apiVersion: example.com/v1\nkind: CustomResource1\nmetadata:\n  name: resource-name\n',
+      { strategy: 'merge-patch' },
+    );
+
+    expect(patchMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({
+          annotations: expect.objectContaining({
+            'kubectl.kubernetes.io/last-applied-configuration': expect.any(String),
+          }),
+        }),
+      }),
+      undefined,
+      undefined,
+      'kubernetes-dashboard',
+      undefined,
+      PatchStrategy.MergePatch,
+    );
+  });
 });
 
 describe('applyResources collected failures', () => {
