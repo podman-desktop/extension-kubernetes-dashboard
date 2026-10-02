@@ -35,6 +35,7 @@ import { KubernetesResources } from './model/core/types';
 import { createKubernetesResource } from '/@/utility/kubernetes';
 import { anonymousUserTests } from './anonymous-user';
 import { podLogsTests } from './pod-logs';
+import { getProxyWatchMetrics } from './utils/proxy-watch-metrics';
 
 const EXTENSION_OCI_IMAGE =
   process.env.EXTENSION_OCI_IMAGE ?? 'ghcr.io/podman-desktop/podman-desktop-extension-kubernetes-dashboard:latest';
@@ -158,6 +159,49 @@ test.describe(`Extension usage`, { tag: '@integration' }, () => {
     const dashboardPage = await navigation.openKubernetesDashboardPage();
     const status = await dashboardPage.getStatus();
     playExpect(status).toContain('Connected');
+  });
+
+  test('eager watches stay open while lazy watches expire after leaving their page', async () => {
+    const proxyUrl = process.env.E2E_MITMPROXY_URL;
+    if (!proxyUrl) {
+      test.skip(true, 'Watch metrics are available only in the mitmproxy job');
+      return;
+    }
+    test.setTimeout(90_000);
+
+    const eagerPaths = [
+      '/api/v1/nodes',
+      '/api/v1/namespaces',
+      '/api/v1/namespaces/default/pods',
+      '/apis/apps/v1/namespaces/default/deployments',
+    ];
+    const leasesPath = '/apis/coordination.k8s.io/v1/namespaces/default/leases';
+    const roleBindingsPath = '/apis/rbac.authorization.k8s.io/v1/namespaces/default/rolebindings';
+    const lazyPaths = [leasesPath, roleBindingsPath];
+    const activeCounts = async (paths: string[]): Promise<number[]> => {
+      const metrics = await getProxyWatchMetrics(proxyUrl);
+      return paths.map(path => metrics.active_by_path[path] ?? 0);
+    };
+
+    await playExpect.poll(() => activeCounts(eagerPaths), { timeout: 15_000 }).toEqual([1, 1, 1, 1]);
+    playExpect(await activeCounts(lazyPaths)).toEqual([0, 0]);
+
+    const leasesPage = await navigation.openTabPage(KubernetesResources.Leases);
+    await playExpect(leasesPage.heading).toBeVisible();
+    await playExpect.poll(() => activeCounts([leasesPath]), { timeout: 15_000 }).toEqual([1]);
+
+    const roleBindingsPage = await navigation.openTabPage(KubernetesResources.RoleBindings);
+    await playExpect(roleBindingsPage.heading).toBeVisible();
+    await playExpect.poll(() => activeCounts([roleBindingsPath]), { timeout: 15_000 }).toEqual([1]);
+
+    await navigation.openKubernetesDashboardPage();
+    playExpect(await activeCounts(lazyPaths)).toEqual([1, 1]);
+    // Lazy informers keep their watches open for 30 seconds after the last subscriber leaves.
+    await new Promise(resolve => setTimeout(resolve, 20_000));
+    playExpect(await activeCounts(lazyPaths)).toEqual([1, 1]);
+    await playExpect.poll(() => activeCounts(lazyPaths), { timeout: 45_000 }).toEqual([0, 0]);
+
+    await playExpect.poll(() => activeCounts(eagerPaths), { timeout: 15_000 }).toEqual([1, 1, 1, 1]);
   });
 
   test('go to nodes page', async () => {
@@ -999,6 +1043,51 @@ test.describe('Namespace change', { tag: '@integration' }, () => {
 
 test.describe.serial('Pod logs', { tag: ['@integration'] }, () => {
   podLogsTests();
+});
+
+test.describe('Watch cleanup', { tag: '@integration' }, () => {
+  test('only eager resource watches remain after the admin tests', async ({ runner, page, navigationBar }) => {
+    const proxyUrl = process.env.E2E_MITMPROXY_URL;
+    if (!proxyUrl) {
+      test.skip(true, 'Watch metrics are available only in the mitmproxy job');
+      return;
+    }
+    test.setTimeout(90_000);
+
+    const [, webview] = await handleWebview(runner, page, navigationBar);
+    const navigation = new KubernetesBar(webview);
+    const dashboardPage = await navigation.openKubernetesDashboardPage();
+    playExpect(await dashboardPage.getStatus()).toContain('Connected');
+
+    // OpenShift Routes are eager too, but the envtest cluster does not install that API.
+    const eagerPaths = [
+      '/api/v1/namespaces',
+      '/api/v1/namespaces/default/configmaps',
+      '/api/v1/namespaces/default/persistentvolumeclaims',
+      '/api/v1/namespaces/default/pods',
+      '/api/v1/namespaces/default/secrets',
+      '/api/v1/namespaces/default/services',
+      '/api/v1/nodes',
+      '/apis/apps/v1/namespaces/default/deployments',
+      '/apis/batch/v1/namespaces/default/cronjobs',
+      '/apis/batch/v1/namespaces/default/jobs',
+      '/apis/discovery.k8s.io/v1/namespaces/default/endpointslices',
+      '/apis/networking.k8s.io/v1/namespaces/default/ingresses',
+    ];
+    const expectedWatches = eagerPaths
+      .map(path => [path, 1] as const)
+      .sort(([left], [right]) => left.localeCompare(right));
+
+    await playExpect
+      .poll(
+        async () => {
+          const metrics = await getProxyWatchMetrics(proxyUrl);
+          return Object.entries(metrics.active_by_path).sort(([left], [right]) => left.localeCompare(right));
+        },
+        { timeout: 45_000 },
+      )
+      .toEqual(expectedWatches);
+  });
 });
 
 test.describe(`Anonymous user`, { tag: ['@integration', '@anonymous'] }, () => {
