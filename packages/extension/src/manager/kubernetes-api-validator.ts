@@ -16,31 +16,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ConnectOptions, ResourceUpdateOptions } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import { injectable } from 'inversify';
 
-export interface BridgeConfig {
-  handshakeFile: string;
-  token: string;
-}
+@injectable()
+export class KubernetesApiValidator {
+  validateGroupVersion(groupVersion: string): void {
+    for (const part of groupVersion.split('/')) {
+      if (part === '' || part === '.' || part === '..') {
+        throw new Error(`invalid groupVersion: ${JSON.stringify(groupVersion)}`);
+      }
+    }
+  }
 
-export interface ConnectRequest {
-  contextName: string;
-  options?: ConnectOptions;
-}
-
-export type SubscriptionType = 'contexts-health' | 'contexts-permissions' | 'resources-count' | 'resource-update';
-
-export interface SubscriptionRequest {
-  options?: ResourceUpdateOptions;
-  timeoutMs?: number;
-  type: SubscriptionType;
-}
-
-export interface PatchSubresourceRequest {
-  apiVersion: string;
-  resource: string;
-  name: string;
-  subresource: string;
-  body: object;
-  namespace?: string;
+  validateSubresourcePathSegment(segment: string): void {
+    if (!segment || segment === '.' || segment === '..' || segment.search(/[/\\?#%\s]/) !== -1) {
+      throw new Error(`patch subresource: invalid path segment ${JSON.stringify(segment)}`);
+    }
+  }
 }
