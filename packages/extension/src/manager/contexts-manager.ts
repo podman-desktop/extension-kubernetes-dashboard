@@ -1113,6 +1113,12 @@ export class ContextsManager implements ContextsApi {
     this.telemetryLogger.logUsage('apply.resources', telemetryOptions);
   }
 
+  private static validateSubresourcePathSegment(segment: string): void {
+    if (!segment || segment === '.' || segment === '..' || segment.search(/[/\\?#%\s]/) !== -1) {
+      throw new Error(`patch subresource: invalid path segment ${JSON.stringify(segment)}`);
+    }
+  }
+
   async patchSubresource(
     apiVersion: string,
     resource: string,
@@ -1121,6 +1127,18 @@ export class ContextsManager implements ContextsApi {
     body: object,
     namespace?: string,
   ): Promise<void> {
+    ContextsManager.validateGroupVersion(apiVersion);
+    const apiVersionParts = apiVersion.split('/');
+    if (apiVersionParts.length > 2) {
+      throw new Error(`patch subresource: invalid apiVersion ${JSON.stringify(apiVersion)}`);
+    }
+    for (const segment of [...apiVersionParts, resource, name, subresource]) {
+      ContextsManager.validateSubresourcePathSegment(segment);
+    }
+    if (namespace !== undefined) {
+      ContextsManager.validateSubresourcePathSegment(namespace);
+    }
+
     const kubeConfig = this.currentContext?.getKubeConfig();
     if (!kubeConfig) {
       throw new Error('patch subresource: no current context');
@@ -1131,28 +1149,24 @@ export class ContextsManager implements ContextsApi {
       throw new Error('patch subresource: no current cluster');
     }
 
-    const slashIndex = apiVersion.indexOf('/');
-    let basePath: string;
-    if (slashIndex === -1) {
-      basePath = `/api/${apiVersion}`;
-    } else {
-      const group = apiVersion.substring(0, slashIndex);
-      const version = apiVersion.substring(slashIndex + 1);
-      basePath = `/apis/${group}/${version}`;
+    const apiRoot = apiVersionParts.length === 1 ? 'api' : 'apis';
+    const pathParts = [apiRoot, ...apiVersionParts];
+    if (namespace !== undefined) {
+      pathParts.push('namespaces', namespace);
     }
-
-    let path: string;
-    if (namespace) {
-      path = `${basePath}/namespaces/${namespace}/${resource}/${name}/${subresource}`;
-    } else {
-      path = `${basePath}/${resource}/${name}/${subresource}`;
+    pathParts.push(resource, name, subresource);
+    const path = `/${pathParts.map(segment => encodeURIComponent(segment)).join('/')}`;
+    const serverUrl = new URL(cluster.server);
+    let serverPath = serverUrl.pathname;
+    while (serverPath.endsWith('/')) {
+      serverPath = serverPath.slice(0, -1);
     }
-
-    const serverUrl = new URL(path, cluster.server);
+    serverUrl.pathname = serverPath + path;
     const jsonBody = JSON.stringify(body);
 
-    const opts: Record<string, unknown> = {
+    const opts: https.RequestOptions = {
       method: 'PATCH',
+      timeout: ContextsManager.DEFAULT_TIMEOUT_MS,
       headers: {
         'Content-Type': 'application/merge-patch+json',
         'Content-Length': Buffer.byteLength(jsonBody),
@@ -1164,17 +1178,29 @@ export class ContextsManager implements ContextsApi {
 
     await new Promise<void>((resolve, reject) => {
       const req = doRequest(serverUrl, opts, res => {
-        const chunks: Buffer[] = [];
-        res.on('data', (chunk: Buffer) => chunks.push(chunk));
+        let responseBody = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk: string) => {
+          responseBody += chunk;
+        });
+        res.on('error', reject);
         res.on('end', () => {
           const statusCode = res.statusCode ?? 0;
           if (statusCode >= 200 && statusCode < 300) {
             resolve();
           } else {
-            const responseBody = Buffer.concat(chunks).toString();
-            reject(new Error(`patch subresource failed with status ${statusCode}: ${responseBody}`));
+            const responseHeaders: Record<string, string> = {};
+            for (const [key, value] of Object.entries(res.headers)) {
+              if (value !== undefined) {
+                responseHeaders[key] = Array.isArray(value) ? value.join(', ') : value;
+              }
+            }
+            reject(new ApiException(statusCode, 'patch subresource failed', responseBody, responseHeaders));
           }
         });
+      });
+      req.on('timeout', () => {
+        req.destroy(new Error('patch subresource: request timed out'));
       });
       req.on('error', reject);
       req.write(jsonBody);

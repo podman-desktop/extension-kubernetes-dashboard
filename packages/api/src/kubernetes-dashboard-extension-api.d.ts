@@ -183,6 +183,8 @@ export interface KubernetesDashboardExtensionApi {
    *
    * Builds the subresource URL from the provided parameters and sends a raw HTTP PATCH
    * with content-type `application/merge-patch+json`.
+   * Rejects unsafe path components and times out after 10 seconds of request inactivity.
+   * A transport failure does not prove the patch was unapplied; check server state before retrying.
    *
    * @param apiVersion - The API version (e.g., 'v1', 'certificates.k8s.io/v1').
    * @param resource - The resource plural name (e.g., 'pods', 'certificatesigningrequests').
@@ -190,6 +192,9 @@ export interface KubernetesDashboardExtensionApi {
    * @param subresource - The subresource to patch (e.g., 'status', 'approval', 'scale').
    * @param body - The patch body object.
    * @param namespace - The namespace of the resource. Omit for cluster-scoped resources.
+   * @throws {Error} If target components are invalid or the request fails or times out.
+   * @throws {ApiException} On an unsuccessful API-server response, with the HTTP `code`,
+   * response `body`, and `headers`, including `retry-after` when provided.
    */
   patchSubresource(
     apiVersion: string,

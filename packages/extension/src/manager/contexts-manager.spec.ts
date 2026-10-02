@@ -1529,11 +1529,13 @@ test('deleteObject handler throws a non-ApiException', async () => {
 });
 
 describe('patchSubresource', () => {
-  function createMockResponse(statusCode: number, body: string): void {
+  function createMockResponse(statusCode: number, body: string, headers: Record<string, string> = {}): void {
     vi.mocked(httpsRequest).mockImplementation(
       (_url: unknown, _opts: unknown, callback?: (res: IncomingMessage) => void) => {
         const res = {
           statusCode,
+          headers,
+          setEncoding: vi.fn(),
           on: vi.fn((event: string, handler: (chunk?: Buffer) => void) => {
             if (event === 'data') {
               handler(Buffer.from(body));
@@ -1640,9 +1642,140 @@ describe('patchSubresource', () => {
     createMockResponse(409, '{"message":"conflict"}');
     const manager = await createManagerWithCluster('https://k8s.example.com');
 
-    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toThrow(
-      'patch subresource failed with status 409',
+    const failure = manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {});
+    await expect(failure).rejects.toBeInstanceOf(ApiException);
+    await expect(failure).rejects.toMatchObject({
+      code: 409,
+      body: '{"message":"conflict"}',
+      headers: {},
+    });
+  });
+
+  test('preserves Retry-After on a throttled response', async () => {
+    createMockResponse(429, '{"message":"too many requests"}', { 'retry-after': '5' });
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toMatchObject({
+      code: 429,
+      body: '{"message":"too many requests"}',
+      headers: { 'retry-after': '5' },
+    });
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
+  });
+
+  test.each(['https://k8s.example.com/k8s/clusters/c-1', 'https://k8s.example.com/k8s/clusters/c-1/'])(
+    'preserves the cluster server path prefix in %s',
+    async server => {
+      createMockResponse(200, '{}');
+      const manager = await createManagerWithCluster(server);
+
+      await manager.patchSubresource('apps/v1', 'deployments', 'my-deploy', 'scale', {}, 'default');
+
+      expect(httpsRequest).toHaveBeenCalledWith(
+        new URL('https://k8s.example.com/k8s/clusters/c-1/apis/apps/v1/namespaces/default/deployments/my-deploy/scale'),
+        expect.anything(),
+        expect.any(Function),
+      );
+    },
+  );
+
+  test.each([
+    '',
+    '.',
+    '..',
+    '/v1',
+    'apps/',
+    'apps/v1/extra',
+    'apps/../v1',
+    'v1?x=1',
+    'v1#status',
+    'apps\\v1',
+    '%2e%2e',
+  ])('rejects invalid API version %j before sending a request', async apiVersion => {
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource(apiVersion, 'pods', 'my-pod', 'status', {})).rejects.toThrow();
+    expect(httpsRequest).not.toHaveBeenCalled();
+  });
+
+  describe.each(['resource', 'name', 'subresource', 'namespace'] as const)('validates %s', field => {
+    test.each(['', '.', '..', 'x/../y', 'x\\y', 'x?y', 'x#y', '%2e%2e', 'x y', 'x\ny'])(
+      'rejects unsafe path segment %j before sending a request',
+      async segment => {
+        const manager = await createManagerWithCluster('https://k8s.example.com');
+        const target = {
+          resource: 'pods',
+          name: 'my-pod',
+          subresource: 'status',
+          namespace: 'default',
+          [field]: segment,
+        };
+
+        await expect(
+          manager.patchSubresource('v1', target.resource, target.name, target.subresource, {}, target.namespace),
+        ).rejects.toThrow('invalid path segment');
+        expect(httpsRequest).not.toHaveBeenCalled();
+      },
     );
+  });
+
+  function mockRequestEvents(respond: (res: EventEmitter, req: EventEmitter) => void): void {
+    vi.mocked(httpsRequest).mockImplementation(
+      (_url: unknown, _opts: unknown, callback?: (res: IncomingMessage) => void) => {
+        const res = new EventEmitter();
+        Object.assign(res, { setEncoding: vi.fn() });
+        const req = new EventEmitter();
+        Object.assign(req, {
+          write: vi.fn(),
+          end: (): void => {
+            callback?.(res as IncomingMessage);
+            respond(res, req);
+          },
+          destroy: vi.fn((error: Error): void => {
+            req.emit('error', error);
+          }),
+        });
+        return req as ClientRequest;
+      },
+    );
+  }
+
+  test('rejects request errors without reporting success', async () => {
+    const error = new Error('ECONNREFUSED');
+    mockRequestEvents((_res, req) => req.emit('error', error));
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toBe(error);
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
+  });
+
+  test('rejects an interrupted response without reporting success', async () => {
+    const error = new Error('connection reset');
+    mockRequestEvents(res => {
+      res.emit('data', Buffer.from('{"partial":'));
+      res.emit('error', error);
+    });
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toBe(error);
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
+  });
+
+  test('destroys a stalled request and rejects on timeout', async () => {
+    mockRequestEvents((_res, req) => req.emit('timeout'));
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toThrow(
+      'patch subresource: request timed out',
+    );
+    expect(httpsRequest).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ timeout: ContextsManager.DEFAULT_TIMEOUT_MS }),
+      expect.any(Function),
+    );
+    const req = vi.mocked(httpsRequest).mock.results[0]?.value as ClientRequest;
+    expect(req.destroy).toHaveBeenCalledWith(expect.any(Error));
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
   });
 });
 
