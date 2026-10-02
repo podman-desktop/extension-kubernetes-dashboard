@@ -43,7 +43,8 @@ export type PatchStrategyType = 'merge-patch' | 'strategic-merge-patch' | 'serve
 
 export interface PatchResourcesOptions {
   /**
-   * The patch strategy to use. Defaults to `'strategic-merge-patch'`.
+   * The patch strategy to use. Defaults to `'server-side-apply'` for recognized custom resources
+   * and `'strategic-merge-patch'` otherwise.
    */
   strategy?: PatchStrategyType;
   /**

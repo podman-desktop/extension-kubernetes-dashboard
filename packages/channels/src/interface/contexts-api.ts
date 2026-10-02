@@ -32,6 +32,10 @@ export interface AppliedResource {
 export type PatchStrategyType = 'merge-patch' | 'strategic-merge-patch' | 'server-side-apply';
 
 export interface ApplyResourcesOptions {
+  /**
+   * The patch strategy to use. Defaults to `'server-side-apply'` for recognized custom resources
+   * and `'strategic-merge-patch'` otherwise.
+   */
   strategy?: PatchStrategyType;
   fieldManager?: string;
 }
