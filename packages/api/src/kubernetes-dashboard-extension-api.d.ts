@@ -178,6 +178,22 @@ export interface KubernetesDashboardExtensionApi {
    */
   getSubscriber(): KubernetesDashboardSubscriber;
 
+  /**
+   * Deletes a Kubernetes resource.
+   *
+   * Resolves when the API server accepts the deletion; finalizers may delay removal.
+   * Errors are reported to the caller without displaying dashboard confirmations or notifications.
+   *
+   * @param kind - The kind of the resource to delete (e.g., 'Pod', 'Deployment').
+   * @param name - The name of the resource to delete.
+   * @param namespace - The namespace of the resource. If not set, defaults to the current namespace.
+   * @throws {Error} If there is no current context, the resource kind cannot be deleted,
+   * or validation or transport fails.
+   * @throws {ApiResourceError} On an unsuccessful API-server response, exposing `statusCode`
+   * and `retryAfter` when provided.
+   */
+  deleteResource(kind: string, name: string, namespace?: string): Promise<void>;
+
   readonly contexts: typeof contexts;
 
   /**
@@ -211,7 +227,7 @@ export interface ApiResourceRequestOptions {
 }
 
 /**
- * Shape of the error thrown when {@link KubernetesDashboardExtensionApi.getApiResources} receives a non-2xx response.
+ * Shape of an API-server error exposing the HTTP status and retry information.
  *
  * Check `error.name` to identify it at runtime:
  *

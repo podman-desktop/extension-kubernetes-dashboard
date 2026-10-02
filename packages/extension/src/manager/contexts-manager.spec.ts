@@ -1525,6 +1525,130 @@ test('deleteObject handler throws a non-ApiException', async () => {
   expect(manager.handleStatus).not.toHaveBeenCalled();
 });
 
+describe('deleteObjectInternal without notifications', () => {
+  let manager: TestContextsManager;
+
+  beforeEach(async () => {
+    const kc = new KubeConfig();
+    kc.loadFromOptions(kcWithContext1asDefault);
+    manager = new TestContextsManager();
+    vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+    vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+    await manager.update(kc);
+  });
+
+  function expectNoUserInteraction(): void {
+    expect(window.showInformationMessage).not.toHaveBeenCalled();
+    expect(window.showNotification).not.toHaveBeenCalled();
+    expect(window.showErrorMessage).not.toHaveBeenCalled();
+  }
+
+  test('deletes in the requested namespace without prompting', async () => {
+    resource4DeleteObjectMock.mockResolvedValue({ kind: 'Status', status: 'Success' });
+
+    await manager.deleteObjectInternal('Resource4', 'resource-name', 'other-ns', false);
+
+    expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
+    expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('delete.resource4');
+    expectNoUserInteraction();
+  });
+
+  test('defaults to the current context namespace', async () => {
+    resource4DeleteObjectMock.mockResolvedValue({ kind: 'Resource4', metadata: { name: 'resource-name' } });
+
+    await manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false);
+
+    expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'ns1');
+    expectNoUserInteraction();
+  });
+
+  test('rejects a missing current context before calling the handler', async () => {
+    vi.spyOn(manager, 'currentContext', 'get').mockReturnValue(undefined);
+
+    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toThrow(
+      'no current context',
+    );
+    expect(resource4DeleteObjectMock).not.toHaveBeenCalled();
+    expectNoUserInteraction();
+  });
+
+  test.each(['Unknown', 'NonDeletable'])('rejects a resource kind without a delete handler: %s', async kind => {
+    await expect(manager.deleteObjectInternal(kind, 'resource-name', undefined, false)).rejects.toThrow(
+      `no handler for kind ${kind}`,
+    );
+    expect(resource4DeleteObjectMock).not.toHaveBeenCalled();
+    expectNoUserInteraction();
+  });
+
+  test.each([403, 404, 409, 429])('exposes HTTP %i failures as ApiResourceError with retry information', async code => {
+    const error = new ApiException(code, 'request failed', JSON.stringify({ kind: 'Status', code }), {
+      'retry-after': '5',
+    });
+    resource4DeleteObjectMock.mockRejectedValue(error);
+
+    const failure = manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false);
+    await expect(failure).rejects.toBeInstanceOf(ApiResourceError);
+    await expect(failure).rejects.toMatchObject({
+      name: 'ApiResourceError',
+      message: error.message,
+      statusCode: code,
+      retryAfter: '5',
+    });
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('delete.resource4');
+    expectNoUserInteraction();
+  });
+
+  test('normalizes an API failure with an unstructured body', async () => {
+    const error = new ApiException(500, 'Internal Server Error', 'invalid JSON', {});
+    resource4DeleteObjectMock.mockRejectedValue(error);
+
+    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toMatchObject({
+      name: 'ApiResourceError',
+      message: error.message,
+      statusCode: 500,
+      retryAfter: undefined,
+    });
+    expectNoUserInteraction();
+  });
+
+  test('normalizes an API failure with a deserialized Status body', async () => {
+    const error = new ApiException(404, 'Not Found', { kind: 'Status', code: 404, message: 'not found' }, {});
+    resource4DeleteObjectMock.mockRejectedValue(error);
+
+    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toMatchObject({
+      name: 'ApiResourceError',
+      message: error.message,
+      statusCode: 404,
+      retryAfter: undefined,
+    });
+    expectNoUserInteraction();
+  });
+
+  test.each([
+    { kind: 'Status', status: 'Failure', code: 403, message: 'forbidden' },
+    { kind: 'Status', code: 403, reason: 'Forbidden' },
+  ])('rejects an unsuccessful Status response: %j', async status => {
+    resource4DeleteObjectMock.mockResolvedValue(status);
+
+    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toMatchObject({
+      name: 'ApiResourceError',
+      statusCode: 403,
+      retryAfter: undefined,
+    });
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('delete.resource4');
+    expectNoUserInteraction();
+  });
+
+  test('preserves the original transport error', async () => {
+    const error = new Error('ECONNRESET');
+    resource4DeleteObjectMock.mockRejectedValue(error);
+
+    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toBe(error);
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('delete.resource4');
+    expectNoUserInteraction();
+  });
+});
+
 test('searchBySelector when no current context', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithNoCurrentContext);

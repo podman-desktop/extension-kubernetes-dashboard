@@ -31,7 +31,7 @@ import type {
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { extensions, type Disposable } from '@podman-desktop/api';
 
-import type { BridgeConfig, ConnectRequest, SubscriptionRequest } from './types';
+import type { BridgeConfig, ConnectRequest, DeleteResourceRequest, SubscriptionRequest } from './types';
 
 const DASHBOARD_EXTENSION_ID = 'podman-desktop.kubernetes-dashboard';
 const HOST = '127.0.0.1';
@@ -112,6 +112,9 @@ export class DashboardApiBridge implements Disposable {
       case 'POST /subscriptions/next':
         await this.handleNextSubscription(request, response);
         break;
+      case 'POST /resources/delete':
+        await this.handleDeleteResource(request, response);
+        break;
       default:
         throw new HttpError(`Unsupported route: ${route}`, 404);
     }
@@ -143,6 +146,12 @@ export class DashboardApiBridge implements Disposable {
   private async handleNextSubscription(request: IncomingMessage, response: ServerResponse): Promise<void> {
     const body = await this.readJson<SubscriptionRequest>(request);
     this.sendSuccess(response, await this.nextSubscriptionEvent(this.requireDashboardApi(), body));
+  }
+
+  private async handleDeleteResource(request: IncomingMessage, response: ServerResponse): Promise<void> {
+    const body = await this.readJson<DeleteResourceRequest>(request);
+    await this.requireDashboardApi().deleteResource(body.kind, body.name, body.namespace);
+    this.sendSuccess(response, undefined);
   }
 
   private authorize(request: IncomingMessage): void {
