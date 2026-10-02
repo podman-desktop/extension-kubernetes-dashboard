@@ -2170,7 +2170,12 @@ describe('applyResources collected failures', () => {
           message: 'patch of ConfigMap first: first is forbidden',
           statusCode: 403,
         }),
-        apiError,
+        expect.objectContaining({
+          name: 'ApiResourceError',
+          message: apiError.message,
+          statusCode: 404,
+          retryAfter: undefined,
+        }),
         connectionError,
       ],
     });
@@ -2205,16 +2210,75 @@ describe('applyResources collected failures', () => {
     expect(window.showNotification).not.toHaveBeenCalled();
   });
 
-  test('preserves an unstructured API exception and continues processing', async () => {
+  test('normalizes an unstructured API exception and continues processing', async () => {
     const error = new ApiException(500, 'Internal Server Error', 'invalid JSON', {});
     patchMock.mockRejectedValueOnce(error).mockResolvedValue({ kind: 'Status', status: 'Success' });
 
     await expect(manager.applyResources(manifests)).rejects.toMatchObject({
       name: 'AggregateError',
-      errors: [error],
+      errors: [
+        expect.objectContaining({
+          name: 'ApiResourceError',
+          message: error.message,
+          statusCode: 500,
+          retryAfter: undefined,
+        }),
+      ],
     });
 
     expect(patchMock).toHaveBeenCalledTimes(5);
+  });
+
+  test('patchResources exposes consistent server failures and original transport errors without notifications', async () => {
+    const apiError = new ApiException(429, 'Too Many Requests', 'throttled', { 'retry-after': '5' });
+    const connectionError = new Error('connection reset');
+    patchMock
+      .mockResolvedValueOnce({ kind: 'Status', status: 'Failure', code: 403, message: 'first is forbidden' })
+      .mockResolvedValueOnce({ kind: 'ConfigMap', metadata: { name: 'second' } })
+      .mockRejectedValueOnce(apiError)
+      .mockRejectedValueOnce(connectionError)
+      .mockResolvedValueOnce({ kind: 'Status', status: 'Success' });
+
+    const failure = manager.patchResources(manifests);
+    await expect(failure).rejects.toBeInstanceOf(AggregateError);
+    await expect(failure).rejects.toMatchObject({
+      errors: [
+        expect.objectContaining({
+          name: 'ApiResourceError',
+          message: 'patch of ConfigMap first: first is forbidden',
+          statusCode: 403,
+          retryAfter: undefined,
+        }),
+        expect.objectContaining({
+          name: 'ApiResourceError',
+          message: apiError.message,
+          statusCode: 429,
+          retryAfter: '5',
+        }),
+        connectionError,
+      ],
+    });
+    expect(patchMock).toHaveBeenCalledTimes(5);
+    expect(window.showNotification).not.toHaveBeenCalled();
+  });
+
+  test('patchResources rejects invalid YAML before attempting a patch', async () => {
+    const failure = manager.patchResources('metadata: [');
+
+    await expect(failure).rejects.toThrow('Document with errors cannot be stringified');
+    await expect(failure).rejects.not.toBeInstanceOf(AggregateError);
+    expect(patchMock).not.toHaveBeenCalled();
+    expect(window.showNotification).not.toHaveBeenCalled();
+  });
+
+  test('patchResources rejects a missing current context before attempting a patch', async () => {
+    vi.spyOn(ContextsManager.prototype, 'currentContext', 'get').mockReturnValue(undefined);
+    const failure = manager.patchResources(manifests);
+
+    await expect(failure).rejects.toThrow('unable to get client for current context');
+    await expect(failure).rejects.not.toBeInstanceOf(AggregateError);
+    expect(patchMock).not.toHaveBeenCalled();
+    expect(window.showNotification).not.toHaveBeenCalled();
   });
 });
 

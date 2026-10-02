@@ -150,7 +150,7 @@ export class DashboardExtension {
 
     return {
       patchResources: (yamlDocuments: string, options?) => {
-        return this.#contextsManager.applyResources(yamlDocuments, options);
+        return this.#contextsManager.patchResources(yamlDocuments, options);
       },
       getSubscriber: () => {
         const subscriber = new ApiSubscriber();

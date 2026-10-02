@@ -797,12 +797,9 @@ export class ContextsManager implements ContextsApi {
     }
   }
 
-  private handleResult(result: KubernetesObject | V1Status, actionMsg: string, failures?: unknown[]): void {
+  private handleResult(result: KubernetesObject | V1Status, actionMsg: string): void {
     if (this.isV1Status(result) && this.isFailureStatus(result)) {
       this.handleStatus(result, actionMsg);
-      failures?.push(
-        new ApiResourceError(`${actionMsg}: ${result.message ?? result.reason ?? 'failed'}`, result.code, undefined),
-      );
     }
     // Ignore if result is a KubernetesObject or a successful Status
   }
@@ -836,8 +833,15 @@ export class ContextsManager implements ContextsApi {
     return error instanceof ApiException && error.code === 409;
   }
 
-  private collectPatchFailure(error: unknown, actionMsg: string, failures: unknown[]): void {
-    failures.push(error);
+  private collectPatchFailure(error: unknown, actionMsg: string, failures: unknown[], notifyFailures: boolean): void {
+    failures.push(
+      error instanceof ApiException
+        ? new ApiResourceError(error.message, error.code, error.headers['retry-after'])
+        : error,
+    );
+    if (!notifyFailures) {
+      return;
+    }
     try {
       this.handleApiException(error, actionMsg);
     } catch {
@@ -1083,6 +1087,18 @@ export class ContextsManager implements ContextsApi {
   }
 
   async applyResources(yamlDocuments: string, options?: ApplyResourcesOptions): Promise<void> {
+    await this.patchResourcesInternal(yamlDocuments, options, true);
+  }
+
+  async patchResources(yamlDocuments: string, options?: ApplyResourcesOptions): Promise<void> {
+    await this.patchResourcesInternal(yamlDocuments, options, false);
+  }
+
+  private async patchResourcesInternal(
+    yamlDocuments: string,
+    options: ApplyResourcesOptions | undefined,
+    notifyFailures: boolean,
+  ): Promise<void> {
     const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
     if (!client) {
       throw new Error('apply resources: unable to get client for current context');
@@ -1111,9 +1127,26 @@ export class ContextsManager implements ContextsApi {
           patchOptions.force,
           patchOptions.strategy,
         );
-        this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`, failures);
+        const actionMsg = `patch of ${manifest.kind} ${manifest.metadata?.name}`;
+        if (this.isV1Status(result) && this.isFailureStatus(result)) {
+          failures.push(
+            new ApiResourceError(
+              `${actionMsg}: ${result.message ?? result.reason ?? 'failed'}`,
+              result.code,
+              undefined,
+            ),
+          );
+        }
+        if (notifyFailures) {
+          this.handleResult(result, actionMsg);
+        }
       } catch (error: unknown) {
-        this.collectPatchFailure(error, `patch of ${manifest.kind} ${manifest.metadata?.name}`, failures);
+        this.collectPatchFailure(
+          error,
+          `patch of ${manifest.kind} ${manifest.metadata?.name}`,
+          failures,
+          notifyFailures,
+        );
       }
     }
     const telemetryOptions: Record<string, unknown> = {
