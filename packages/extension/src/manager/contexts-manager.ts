@@ -37,6 +37,7 @@ import type {
   V1Route,
   KubernetesTroubleshootingInformation,
   ContextsApi,
+  ApplyResourcesOptions,
 } from '@kubernetes-dashboard/channels';
 import { kubernetes, TelemetryLogger, window } from '@podman-desktop/api';
 import * as jsYaml from 'js-yaml';
@@ -111,10 +112,10 @@ import {
   type ApiResourceList,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { TelemetryLoggerSymbol } from '/@/inject/symbol.js';
+import { DEFAULT_FIELD_MANAGER, resolveResourcePatchOptions } from './resource-patch-options.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 const DEFAULT_NAMESPACE = 'default';
-const FIELD_MANAGER = 'kubernetes-dashboard';
 const LAZY_INFORMER_GRACE_PERIOD_MS = 30_000;
 
 export class ApiResourceError extends Error {
@@ -832,6 +833,22 @@ export class ContextsManager implements ContextsApi {
     return error instanceof ApiException && error.code === 409;
   }
 
+  private collectPatchFailure(error: unknown, actionMsg: string, failures: unknown[], notifyFailures: boolean): void {
+    failures.push(
+      error instanceof ApiException
+        ? new ApiResourceError(error.message, error.code, error.headers['retry-after'])
+        : error,
+    );
+    if (!notifyFailures) {
+      return;
+    }
+    try {
+      this.handleApiException(error, actionMsg);
+    } catch {
+      // The failure is already collected; continue patching the remaining documents.
+    }
+  }
+
   // The API returns a Status object as the result of a successful operation for some kinds
   // (Ingress, ConfigMap, Deployment, etc.), while others return the object itself.
   // Only a Status not explicitly marked as successful is an error.
@@ -1069,23 +1086,33 @@ export class ContextsManager implements ContextsApi {
     return '';
   }
 
-  async applyResources(yamlDocuments: string): Promise<void> {
+  async applyResources(yamlDocuments: string, options?: ApplyResourcesOptions): Promise<void> {
+    await this.patchResourcesInternal(yamlDocuments, options, true);
+  }
+
+  async patchResources(yamlDocuments: string, options?: ApplyResourcesOptions): Promise<void> {
+    await this.patchResourcesInternal(yamlDocuments, options, false);
+  }
+
+  private async patchResourcesInternal(
+    yamlDocuments: string,
+    options: ApplyResourcesOptions | undefined,
+    notifyFailures: boolean,
+  ): Promise<void> {
     const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
     if (!client) {
       throw new Error('apply resources: unable to get client for current context');
     }
     const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
+    const failures: unknown[] = [];
     for (const manifest of manifests) {
-      // the API server does not serve strategic merge patch for kinds provided by a
-      // CustomResourceDefinition (it accepts only json-patch, merge-patch and apply-patch),
-      // these resources are patched using server-side apply instead
       const factory = this.#resourceFactoryHandler.getResourceFactoryByKind(manifest.kind ?? '');
-      const serverSideApply = factory?.isCustomResource ?? false;
-      const strategy = serverSideApply ? PatchStrategy.ServerSideApply : PatchStrategy.StrategicMergePatch;
+      const isCustomResource = factory?.isCustomResource ?? false;
+      const patchOptions = resolveResourcePatchOptions(isCustomResource, options);
 
       manifest.metadata ??= {};
       manifest.metadata.namespace ??= this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
-      if (!serverSideApply) {
+      if (patchOptions.addLastAppliedAnnotation) {
         // last-applied-configuration is a client-side apply artifact,
         // server-side apply tracks ownership in metadata.managedFields instead
         manifest.metadata.annotations ??= {};
@@ -1096,13 +1123,30 @@ export class ContextsManager implements ContextsApi {
           manifest,
           undefined, // pretty
           undefined, // dryRun
-          FIELD_MANAGER,
-          serverSideApply ? true : undefined, // force: take ownership from the other field managers
-          strategy,
+          patchOptions.fieldManager,
+          patchOptions.force,
+          patchOptions.strategy,
         );
-        this.handleResult(result, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
+        const actionMsg = `patch of ${manifest.kind} ${manifest.metadata?.name}`;
+        if (this.isV1Status(result) && this.isFailureStatus(result)) {
+          failures.push(
+            new ApiResourceError(
+              `${actionMsg}: ${result.message ?? result.reason ?? 'failed'}`,
+              result.code,
+              undefined,
+            ),
+          );
+        }
+        if (notifyFailures) {
+          this.handleResult(result, actionMsg);
+        }
       } catch (error: unknown) {
-        this.handleApiException(error, `patch of ${manifest.kind} ${manifest.metadata?.name}`);
+        this.collectPatchFailure(
+          error,
+          `patch of ${manifest.kind} ${manifest.metadata?.name}`,
+          failures,
+          notifyFailures,
+        );
       }
     }
     const telemetryOptions: Record<string, unknown> = {
@@ -1110,6 +1154,9 @@ export class ContextsManager implements ContextsApi {
       kinds: manifests?.map(manifest => manifest.kind).join(','),
     };
     this.telemetryLogger.logUsage('apply.resources', telemetryOptions);
+    if (failures.length > 0) {
+      throw new AggregateError(failures, `${failures.length} resource patch(es) failed`);
+    }
   }
 
   async applyYaml(yamlDocuments: string): Promise<{ kind?: string }[]> {
@@ -1162,7 +1209,7 @@ export class ContextsManager implements ContextsApi {
           manifest,
           undefined, // pretty
           undefined, // dryRun
-          FIELD_MANAGER,
+          DEFAULT_FIELD_MANAGER,
           undefined, // force
           PatchStrategy.StrategicMergePatch,
         );

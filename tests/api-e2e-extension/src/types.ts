@@ -16,7 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ConnectOptions, ResourceUpdateOptions } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import type {
+  ConnectOptions,
+  PatchResourcesOptions,
+  ResourceUpdateOptions,
+} from '@podman-desktop/kubernetes-dashboard-extension-api';
 
 export interface BridgeConfig {
   handshakeFile: string;
@@ -26,6 +30,11 @@ export interface BridgeConfig {
 export interface ConnectRequest {
   contextName: string;
   options?: ConnectOptions;
+}
+
+export interface PatchResourcesRequest {
+  yamlDocuments: string;
+  options?: PatchResourcesOptions;
 }
 
 export type SubscriptionType = 'contexts-health' | 'contexts-permissions' | 'resources-count' | 'resource-update';
