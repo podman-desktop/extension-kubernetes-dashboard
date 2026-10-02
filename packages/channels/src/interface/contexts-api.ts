@@ -25,12 +25,11 @@ export interface AppliedResource {
 /**
  * Patch strategy for Kubernetes resource operations.
  *
- * - `'json-patch'` — `application/json-patch+json` (RFC 6902)
  * - `'merge-patch'` — `application/merge-patch+json` (RFC 7386)
  * - `'strategic-merge-patch'` — `application/strategic-merge-patch+json` (Kubernetes-specific)
  * - `'server-side-apply'` — `application/apply-patch+yaml` (server-side field management)
  */
-export type PatchStrategyType = 'json-patch' | 'merge-patch' | 'strategic-merge-patch' | 'server-side-apply';
+export type PatchStrategyType = 'merge-patch' | 'strategic-merge-patch' | 'server-side-apply';
 
 export interface ApplyResourcesOptions {
   strategy?: PatchStrategyType;

@@ -130,7 +130,6 @@ export class ApiResourceError extends Error {
 }
 
 const PATCH_STRATEGY_MAP: Record<NonNullable<ApplyResourcesOptions['strategy']>, PatchStrategy> = {
-  'json-patch': PatchStrategy.JsonPatch,
   'merge-patch': PatchStrategy.MergePatch,
   'strategic-merge-patch': PatchStrategy.StrategicMergePatch,
   'server-side-apply': PatchStrategy.ServerSideApply,
@@ -1098,9 +1097,8 @@ export class ContextsManager implements ContextsApi {
     const manifests = loadAllYaml(this.convertYamlFrom11to12(yamlDocuments)).filter(manifest => !!manifest);
     const failures: unknown[] = [];
     for (const manifest of manifests) {
-      // the API server does not serve strategic merge patch for kinds provided by a
-      // CustomResourceDefinition (it accepts only json-patch, merge-patch and apply-patch),
-      // these resources are patched using server-side apply instead
+      // The API server does not serve strategic merge patch for kinds provided by a
+      // CustomResourceDefinition, so these resources default to server-side apply.
       const factory = this.#resourceFactoryHandler.getResourceFactoryByKind(manifest.kind ?? '');
       const serverSideApply = factory?.isCustomResource ?? false;
       const defaultStrategy = serverSideApply ? PatchStrategy.ServerSideApply : PatchStrategy.StrategicMergePatch;
