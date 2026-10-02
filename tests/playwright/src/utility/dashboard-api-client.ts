@@ -26,6 +26,7 @@ import type {
   ConnectOptions,
   ContextsHealthsInfo,
   ContextsPermissionsInfo,
+  PatchResourcesOptions,
   ResourcesCountInfo,
   ResourceUpdateInfo,
   ResourceUpdateOptions,
@@ -150,6 +151,10 @@ export class DashboardApiClient {
 
   async connect(contextName: string, options?: ConnectOptions): Promise<void> {
     await this.request('/contexts/connect', { contextName, options });
+  }
+
+  async patchResources(yamlDocuments: string, options?: PatchResourcesOptions): Promise<void> {
+    await this.request('/resources/patch', { yamlDocuments, options });
   }
 
   nextContextsHealth(timeoutMs?: number): Promise<ContextsHealthsInfo> {
