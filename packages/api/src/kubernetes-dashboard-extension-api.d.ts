@@ -185,6 +185,7 @@ export interface KubernetesDashboardExtensionApi {
    * with content-type `application/merge-patch+json`.
    * Rejects unsafe path components and times out after 10 seconds of request inactivity.
    * A transport failure does not prove the patch was unapplied; check server state before retrying.
+   * Errors are reported to the caller without displaying dashboard notifications.
    *
    * @param apiVersion - The API version (e.g., 'v1', 'certificates.k8s.io/v1').
    * @param resource - The resource plural name (e.g., 'pods', 'certificatesigningrequests').
@@ -193,8 +194,8 @@ export interface KubernetesDashboardExtensionApi {
    * @param body - The patch body object.
    * @param namespace - The namespace of the resource. Omit for cluster-scoped resources.
    * @throws {Error} If target components are invalid or the request fails or times out.
-   * @throws {ApiException} On an unsuccessful API-server response, with the HTTP `code`,
-   * response `body`, and `headers`, including `retry-after` when provided.
+   * @throws {ApiResourceError} On a non-2xx API-server response, exposing `statusCode`
+   * and `retryAfter`, with the response body included in the error message when provided.
    */
   patchSubresource(
     apiVersion: string,
@@ -238,7 +239,7 @@ export interface ApiResourceRequestOptions {
 }
 
 /**
- * Shape of the error thrown when {@link KubernetesDashboardExtensionApi.getApiResources} receives a non-2xx response.
+ * Shape of an API-server error exposing the HTTP status and retry information.
  *
  * Check `error.name` to identify it at runtime:
  *

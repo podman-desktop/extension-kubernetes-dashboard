@@ -184,6 +184,7 @@ export function dashboardApiPatchSubresourceTests(): void {
       await playExpect(
         client.patchSubresource('apps/v1', 'deployments', name, 'scale', { spec: { replicas: 1 } }, 'default'),
       ).rejects.toMatchObject({
+        name: 'ApiResourceError',
         statusCode: 404,
         message: playExpect.stringContaining('patch subresource failed'),
       });
