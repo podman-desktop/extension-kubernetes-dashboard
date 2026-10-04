@@ -43,6 +43,12 @@ type ErrorVerb = ERROR | CONNECT;
  * The events are emitted as the informers of @kubernetes/client-node do for their initial list
  * (`add` for each new object, `update` for each existing one, `delete` for each removed one when started again),
  * and an error during the list is emitted as an `error` event.
+ *
+ * All the listed objects are kept, even when several of them have the same namespace and name: unlike stored
+ * resources, the resources computed by an aggregated API can break this uniqueness (the OLM packageserver returns
+ * one PackageManifest per catalog providing a package, all with the name of the package).
+ * Such computed resources are not stored and have no `uid` to distinguish them: the objects with the same namespace
+ * and name are distinguished by their position in the list, and `get` returns the first of them.
  */
 export class ListOnceInformer<T extends KubernetesObject> implements Informer<T>, ObjectCache<T> {
   #listFn: ListPromise<T>;
@@ -96,7 +102,7 @@ export class ListOnceInformer<T extends KubernetesObject> implements Informer<T>
       return;
     }
     const previous = this.#objects;
-    this.#objects = new Map(items.map(item => [keyOf(item), item]));
+    this.#objects = keyedObjects(items);
     for (const [key, item] of this.#objects) {
       this.#emitObject(previous.has(key) ? 'update' : 'add', item);
     }
@@ -135,4 +141,18 @@ export class ListOnceInformer<T extends KubernetesObject> implements Informer<T>
 
 function keyOf(object: KubernetesObject): string {
   return `${object.metadata?.namespace ?? ''}/${object.metadata?.name ?? ''}`;
+}
+
+// keys the objects by namespace and name, distinguishing the objects with the same namespace and name
+// by their position among them: the first one is keyed by its namespace and name only
+function keyedObjects<T extends KubernetesObject>(items: T[]): Map<string, T> {
+  const objects = new Map<string, T>();
+  const occurrences = new Map<string, number>();
+  for (const item of items) {
+    const key = keyOf(item);
+    const occurrence = occurrences.get(key) ?? 0;
+    occurrences.set(key, occurrence + 1);
+    objects.set(occurrence === 0 ? key : `${key}#${occurrence}`, item);
+  }
+  return objects;
 }
