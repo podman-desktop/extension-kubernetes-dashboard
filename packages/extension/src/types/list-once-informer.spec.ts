@@ -125,3 +125,34 @@ test('off removes a callback', async () => {
   await informer.start();
   expect(onAdd).not.toHaveBeenCalled();
 });
+
+test('objects with the same namespace and name are all kept', async () => {
+  // as the PackageManifests returned by the OLM packageserver for a package provided by several catalogs
+  listFn.mockResolvedValueOnce({
+    items: [
+      { metadata: { name: 'pkg', namespace: 'olm', labels: { catalog: 'catalog1' } } },
+      { metadata: { name: 'pkg', namespace: 'olm', labels: { catalog: 'catalog2' } } },
+    ],
+  });
+  const informer = new ListOnceInformer(listFn);
+  const onAdd = vi.fn();
+  informer.on(ADD, onAdd);
+
+  await informer.start();
+
+  expect(onAdd).toHaveBeenCalledTimes(2);
+  expect(informer.list().map(o => o.metadata?.labels?.['catalog'])).toEqual(['catalog1', 'catalog2']);
+  expect(informer.get('pkg', 'olm')?.metadata?.labels?.['catalog']).toEqual('catalog1');
+
+  // listing again without the duplicate removes it
+  listFn.mockResolvedValueOnce({
+    items: [{ metadata: { name: 'pkg', namespace: 'olm', labels: { catalog: 'catalog1' } } }],
+  });
+  const onDelete = vi.fn();
+  informer.on(DELETE, onDelete);
+  await informer.start();
+  expect(onDelete).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({ metadata: expect.objectContaining({ labels: { catalog: 'catalog2' } }) }),
+  );
+  expect(informer.list()).toHaveLength(1);
+});
