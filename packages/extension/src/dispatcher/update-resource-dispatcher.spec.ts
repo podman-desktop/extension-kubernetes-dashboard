@@ -46,3 +46,20 @@ test('getData with implicit context name', () => {
   expect(contextsManager.getResources).toHaveBeenCalledWith('resource1', undefined);
   expect(contextsManager.getResources).toHaveBeenCalledWith('resource2', undefined);
 });
+
+test('getData with a namespace', () => {
+  vi.mocked(contextsManager.getResources).mockReturnValue([]);
+  const dispatcher = new UpdateResourceDispatcher(contextsManager);
+  const result = dispatcher.getData([
+    { resourceName: 'catalogsources.operators.coreos.com', contextName: 'context1', namespace: 'olm' },
+  ]);
+  expect(contextsManager.getResources).toHaveBeenCalledWith('catalogsources.operators.coreos.com@olm', 'context1');
+  expect(result.resources).toEqual([
+    {
+      items: [],
+      resourceName: 'catalogsources.operators.coreos.com',
+      namespace: 'olm',
+      contextName: 'context1',
+    },
+  ]);
+});

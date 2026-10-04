@@ -40,6 +40,13 @@ export interface ContextPermission {
   contextName: string;
   // the resource name is a generic string type and not a string literal type, as we want to handle CRDs names
   resourceName: string;
+  // the namespace in which the permission has been checked, undefined for a cluster-scoped resource.
+  // The same resource can have several permissions in a context, one per namespace:
+  // the namespace of the context, and the namespaces pinned by subscriptions (see `ResourceUpdateOptions.namespace`),
+  // possibly including the namespace of the context itself.
+  // To know if a resource is permitted in a namespace, match the context name, the resource name and the namespace:
+  // matching only on the resource name can return the permission checked in another namespace.
+  namespace?: string;
   // permitted if allowed and not denied
   // > When multiple authorization modules are configured, each is checked in sequence.
   // > If any authorizer approves or denies a request, that decision is immediately returned
@@ -74,12 +81,37 @@ export interface ResourcesCountInfo {
 export interface ResourceUpdateOptions {
   /**
    * The resource name to subscribe to (e.g., 'pods', 'deployments', 'services').
+   *
+   * Any other resource served by the cluster, typically a custom resource, can be subscribed to
+   * with its plural name and its API group, as `<plural>.<group>` (e.g., 'catalogsources.operators.coreos.com').
+   * The most preferred version of the group serving the resource is used.
    */
   resourceName: string;
   /**
    * The context name to subscribe to. If not set, defaults to the current context.
    */
   contextName?: string;
+  /**
+   * The namespace to watch, for a namespaced resource. Ignored for a cluster-scoped resource.
+   *
+   * - When not set, the resources are watched in the namespace of the context, and the subscription
+   *   **follows** this namespace: if the namespace of the context changes in the kubeconfig, the resources
+   *   of the new namespace are sent. This is the namespace displayed by the Kubernetes Dashboard.
+   * - When set, the subscription is **pinned** to this namespace, whatever the namespace of the context.
+   *
+   * Leave it unset to watch the namespace of the context: setting it to the current namespace of the context
+   * does not reuse the watch of the Kubernetes Dashboard, but starts a separate watch on the same objects,
+   * which stays on this namespace if the namespace of the context changes.
+   *
+   * The resources of the namespace of the context are favored by the Kubernetes Dashboard: their permissions
+   * are checked as soon as the context is reached, some of them are watched even without subscription,
+   * and they are counted in `onResourcesCount`. The resources of a pinned namespace are watched only while
+   * subscribed (and a short grace period after), their permission is checked on subscription,
+   * and they are not counted in `onResourcesCount`.
+   *
+   * The items received in {@link ResourceUpdateInfo} for this subscription have the same `namespace`.
+   */
+  namespace?: string;
 }
 
 /**
@@ -100,6 +132,11 @@ export interface KubernetesObject {
 export interface ContextResourceItems {
   contextName?: string;
   resourceName: string;
+  /**
+   * The namespace pinned by the subscription (see {@link ResourceUpdateOptions.namespace}),
+   * undefined when the subscription follows the namespace of the context.
+   */
+  namespace?: string;
   items: readonly KubernetesObject[];
 }
 
