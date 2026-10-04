@@ -667,7 +667,8 @@ export class ContextsManager implements ContextsApi {
       const permissionsRequests = factory?.permissions?.permissionsRequests ?? [];
       const attrs = permissionsRequests[permissionsRequests.length - 1];
       if (!factory?.informer || !factory.permissions || !attrs) {
-        console.warn(`[informer] no factory is able to watch ${resourceName} on ${contextName}`);
+        // the resource is not served by the cluster, or can be neither listed nor watched
+        console.warn(`[informer] no factory is able to list or watch ${resourceName} on ${contextName}`);
         return;
       }
       this.#onDemandFactories.set(contextName, resourceKey, factory);

@@ -57,6 +57,9 @@ export interface CustomResourceFactoryOptions {
   version: string;
   plural: string;
   namespaced: boolean;
+  // false if the resource cannot be watched (`watch` is not in the verbs of the resource returned by API discovery):
+  // the resources are then listed once when the informer starts, and never updated (default: true)
+  watchable?: boolean;
 }
 
 /**
@@ -65,6 +68,7 @@ export interface CustomResourceFactoryOptions {
  *
  * Its informer watches the objects of the namespace of the kubeconfig for a namespaced resource,
  * and the objects of the cluster for a cluster-scoped resource.
+ * For a resource which cannot be watched, the objects are listed once, when the informer starts.
  *
  * Use `CustomResourceFactory.resolve` to build the factory from the information discovered on a cluster.
  */
@@ -73,6 +77,7 @@ export class CustomResourceFactory extends ResourceFactoryBase implements Resour
   #version: string;
   #plural: string;
   #namespaced: boolean;
+  #watchable: boolean;
 
   constructor(options: CustomResourceFactoryOptions) {
     super({
@@ -83,13 +88,14 @@ export class CustomResourceFactory extends ResourceFactoryBase implements Resour
     this.#version = options.version;
     this.#plural = options.plural;
     this.#namespaced = options.namespaced;
+    this.#watchable = options.watchable ?? true;
 
     this.setIsCustomResource();
     this.setPermissions({
       isNamespaced: options.namespaced,
       permissionsRequests: [
         {
-          verb: 'watch',
+          verb: this.#watchable ? 'watch' : 'list',
           group: options.group,
           resource: options.plural,
         },
@@ -105,7 +111,8 @@ export class CustomResourceFactory extends ResourceFactoryBase implements Resour
   // As the resources of a group can be served by different versions, the versions are tried
   // in order of preference (the preferred version first, then the versions as ordered by the API server),
   // and the first version serving the resource is used.
-  // It returns undefined if the resource is not served by the cluster, or cannot be listed and watched.
+  // It returns undefined if the resource is not served by the cluster, or cannot be listed.
+  // A resource which can be listed but not watched is listed once when its informer starts.
   static async resolve(discovery: ApiDiscovery, resourceName: string): Promise<CustomResourceFactory | undefined> {
     const name = parseCustomResourceName(resourceName);
     if (!name) {
@@ -128,7 +135,7 @@ export class CustomResourceFactory extends ResourceFactoryBase implements Resour
       if (!resource) {
         continue;
       }
-      if (!['list', 'watch'].every(verb => resource.verbs.includes(verb))) {
+      if (!resource.verbs.includes('list')) {
         return undefined;
       }
       return new CustomResourceFactory({
@@ -138,6 +145,7 @@ export class CustomResourceFactory extends ResourceFactoryBase implements Resour
         version,
         plural: name.plural,
         namespaced: resource.namespaced,
+        watchable: resource.verbs.includes('watch'),
       });
     }
     return undefined;
@@ -149,6 +157,10 @@ export class CustomResourceFactory extends ResourceFactoryBase implements Resour
 
   get version(): string {
     return this.#version;
+  }
+
+  get watchable(): boolean {
+    return this.#watchable;
   }
 
   createInformer(kubeconfig: KubeConfigSingleContext): ResourceInformer<KubernetesObject> {
@@ -179,6 +191,7 @@ export class CustomResourceFactory extends ResourceFactoryBase implements Resour
       kind: this.kind,
       // the informer reports its events with the name of the resource, as `<plural>.<group>`
       plural: this.resource,
+      watch: this.#watchable,
     });
   }
 }

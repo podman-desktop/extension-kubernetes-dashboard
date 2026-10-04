@@ -85,6 +85,18 @@ export interface ResourceUpdateOptions {
    * Any other resource served by the cluster, typically a custom resource, can be subscribed to
    * with its plural name and its API group, as `<plural>.<group>` (e.g., 'catalogsources.operators.coreos.com').
    * The most preferred version of the group serving the resource is used.
+   *
+   * Resources are watched, and an event is sent at each change. A resource which cannot be watched
+   * (`watch` is not in its verbs returned by the API discovery, as for some resources served by aggregated APIs,
+   * e.g. 'packagemanifests.packages.operators.coreos.com') is listed once instead: the items received are
+   * a snapshot taken when the resource is subscribed, and are not updated while the subscription is active.
+   * The resource is listed again when subscribed again after all its subscriptions have been disposed
+   * for some time.
+   *
+   * A resource which can be neither listed nor watched cannot be subscribed to: no event is sent for it,
+   * as for a resource which is not served by the cluster. This is the case of the resources which only accept
+   * requests (e.g. 'tokenreviews.authentication.k8s.io' or 'selfsubjectaccessreviews.authorization.k8s.io',
+   * whose only verb is `create`), and of subresources (e.g. 'packagemanifests/icon.packages.operators.coreos.com').
    */
   resourceName: string;
   /**

@@ -106,6 +106,13 @@ const OPERATORS_V1ALPHA1_RESOURCES: ApiResourceList = {
       kind: 'NoWatch',
       verbs: ['get', 'list'],
     },
+    {
+      name: 'nolists',
+      singularName: 'nolist',
+      namespaced: false,
+      kind: 'NoList',
+      verbs: ['get'],
+    },
   ],
 };
 
@@ -153,6 +160,7 @@ describe('resolve', () => {
     expect(factory?.group).toEqual('operators.coreos.com');
     expect(factory?.version).toEqual('v1alpha1');
     expect(factory?.isCustomResource).toBeTruthy();
+    expect(factory?.watchable).toBeTruthy();
     expect(factory?.permissions).toEqual({
       isNamespaced: true,
       permissionsRequests: [{ verb: 'watch', group: 'operators.coreos.com', resource: 'catalogsources' }],
@@ -182,8 +190,17 @@ describe('resolve', () => {
     ).resolves.toBeUndefined();
   });
 
-  test('returns undefined when the resource cannot be watched', async () => {
-    await expect(CustomResourceFactory.resolve(discovery, 'nowatches.operators.coreos.com')).resolves.toBeUndefined();
+  test('builds a factory listing the resources once when the resource cannot be watched', async () => {
+    const factory = await CustomResourceFactory.resolve(discovery, 'nowatches.operators.coreos.com');
+    expect(factory?.watchable).toBeFalsy();
+    expect(factory?.permissions).toEqual({
+      isNamespaced: false,
+      permissionsRequests: [{ verb: 'list', group: 'operators.coreos.com', resource: 'nowatches' }],
+    });
+  });
+
+  test('returns undefined when the resource cannot be listed', async () => {
+    await expect(CustomResourceFactory.resolve(discovery, 'nolists.operators.coreos.com')).resolves.toBeUndefined();
   });
 });
 
@@ -224,6 +241,7 @@ describe('createInformer', () => {
       listFn: expect.any(Function),
       kind: 'CatalogSource',
       plural: 'catalogsources.operators.coreos.com',
+      watch: true,
     });
     const listFn = vi.mocked(ResourceInformer).mock.calls[0]![0].listFn as () => Promise<KubernetesObject>;
     await listFn();
@@ -255,5 +273,19 @@ describe('createInformer', () => {
       version: 'v1',
       plural: 'clustercatalogs',
     });
+  });
+
+  test('lists the resources once for a resource which cannot be watched', () => {
+    const factory = new CustomResourceFactory({
+      resource: 'packagemanifests.packages.operators.coreos.com',
+      kind: 'PackageManifest',
+      group: 'packages.operators.coreos.com',
+      version: 'v1',
+      plural: 'packagemanifests',
+      namespaced: true,
+      watchable: false,
+    });
+    factory.createInformer(kubeconfig);
+    expect(ResourceInformer).toHaveBeenCalledWith(expect.objectContaining({ watch: false }));
   });
 });
