@@ -48,7 +48,7 @@
     "vite": "^8.3",
     "vitest": "^5",
     "isomorphic-ws": "^5.0.0",
-    "@types/ws": "^8.18.0",
+    "@types/ws": "^8.18.2",
     "@podman-desktop/kubernetes-dashboard-extension-api": "workspace:*"
   },
   "dependencies": {
