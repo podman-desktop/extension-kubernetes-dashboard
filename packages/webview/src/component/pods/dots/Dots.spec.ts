@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2025 Red Hat, Inc.
+ * Copyright (C) 2022-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,9 +110,9 @@ test('organizeContainers returns a record of containers organized by status', ()
 });
 
 test('randomly re-order the containers and ensure they are still organized correctly after in the correct order', () => {
-  // Copy mockContainers array and shuffle it
+  // Shuffle a copy of mockContainers
   // eslint-disable-next-line sonarjs/pseudo-random
-  const shuffledContainers = [...mockContainers].sort(() => Math.random() - 0.5);
+  const shuffledContainers = mockContainers.toSorted(() => Math.random() - 0.5);
 
   // Organize the shuffled containers
   const organizedContainers = organizeContainers(shuffledContainers);
