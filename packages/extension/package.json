@@ -40,7 +40,6 @@
     "eslint-plugin-etc": "^2.0.3",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-no-null": "^1.0.2",
-    "eslint-plugin-redundant-undefined": "^1.0.0",
     "eslint-plugin-sonarjs": "^4.2.2",
     "memfs": "^4.80.0",
     "prettier": "^3.9.9",
