@@ -713,15 +713,18 @@ export class ContextsManager implements ContextsApi {
       return;
     }
 
-    await this.deleteObjectInternal(kind, name, namespace, true);
+    await this.deleteObjectInternal(undefined, kind, name, namespace, true);
   }
 
   async deleteObjectInternal(
+    apiVersion: string | undefined,
     kind: string,
     name: string,
     namespace: string | undefined,
     notifyFailures: boolean,
   ): Promise<void> {
+    // apiVersion is accepted by the public API but is not used while each managed resource kind has one handler.
+    // Use it to disambiguate resources when CRD support is added.
     const context = this.currentContext;
     if (!context) {
       if (notifyFailures) {
@@ -892,7 +895,7 @@ export class ContextsManager implements ContextsApi {
     }
     for (const object of objects) {
       try {
-        await this.deleteObjectInternal(object.kind, object.name, object.namespace, true);
+        await this.deleteObjectInternal(undefined, object.kind, object.name, object.namespace, true);
       } catch {
         // do nothing here:
         // - we don't want to stop the deletion of other objects
