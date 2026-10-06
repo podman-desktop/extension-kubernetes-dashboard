@@ -150,7 +150,7 @@ export class DashboardApiBridge implements Disposable {
 
   private async handleDeleteResource(request: IncomingMessage, response: ServerResponse): Promise<void> {
     const body = await this.readJson<DeleteResourceRequest>(request);
-    await this.requireDashboardApi().deleteResource(body.kind, body.name, body.namespace);
+    await this.requireDashboardApi().deleteResource(body.apiVersion, body.kind, body.name, body.namespace);
     this.sendSuccess(response, undefined);
   }
 

@@ -161,9 +161,9 @@ test('api.deleteResource should delegate to ContextsManager.deleteObjectInternal
   ContextsManager.prototype.deleteObjectInternal = vi.fn();
   const api = await dashboardExtension.activate();
 
-  await api.deleteResource('Pod', 'my-pod', 'default');
+  await api.deleteResource('v1', 'Pod', 'my-pod', 'default');
 
-  expect(ContextsManager.prototype.deleteObjectInternal).toHaveBeenCalledWith('Pod', 'my-pod', 'default', false);
+  expect(ContextsManager.prototype.deleteObjectInternal).toHaveBeenCalledWith('v1', 'Pod', 'my-pod', 'default', false);
 });
 
 test('subscriber.onResourceUpdate should subscribe to UPDATE_RESOURCE channel', async () => {

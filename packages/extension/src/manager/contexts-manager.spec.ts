@@ -1546,7 +1546,7 @@ describe('deleteObjectInternal without notifications', () => {
   test('deletes in the requested namespace without prompting', async () => {
     resource4DeleteObjectMock.mockResolvedValue({ kind: 'Status', status: 'Success' });
 
-    await manager.deleteObjectInternal('Resource4', 'resource-name', 'other-ns', false);
+    await manager.deleteObjectInternal('example.com/v1', 'Resource4', 'resource-name', 'other-ns', false);
 
     expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'other-ns');
     expect(telemetryLoggerMock.logUsage).toHaveBeenCalledWith('delete.resource4');
@@ -1556,7 +1556,7 @@ describe('deleteObjectInternal without notifications', () => {
   test('defaults to the current context namespace', async () => {
     resource4DeleteObjectMock.mockResolvedValue({ kind: 'Resource4', metadata: { name: 'resource-name' } });
 
-    await manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false);
+    await manager.deleteObjectInternal(undefined, 'Resource4', 'resource-name', undefined, false);
 
     expect(resource4DeleteObjectMock).toHaveBeenCalledWith(expect.anything(), 'resource-name', 'ns1');
     expectNoUserInteraction();
@@ -1565,15 +1565,15 @@ describe('deleteObjectInternal without notifications', () => {
   test('rejects a missing current context before calling the handler', async () => {
     vi.spyOn(manager, 'currentContext', 'get').mockReturnValue(undefined);
 
-    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toThrow(
-      'no current context',
-    );
+    await expect(
+      manager.deleteObjectInternal(undefined, 'Resource4', 'resource-name', undefined, false),
+    ).rejects.toThrow('no current context');
     expect(resource4DeleteObjectMock).not.toHaveBeenCalled();
     expectNoUserInteraction();
   });
 
   test.each(['Unknown', 'NonDeletable'])('rejects a resource kind without a delete handler: %s', async kind => {
-    await expect(manager.deleteObjectInternal(kind, 'resource-name', undefined, false)).rejects.toThrow(
+    await expect(manager.deleteObjectInternal(undefined, kind, 'resource-name', undefined, false)).rejects.toThrow(
       `no handler for kind ${kind}`,
     );
     expect(resource4DeleteObjectMock).not.toHaveBeenCalled();
@@ -1586,7 +1586,7 @@ describe('deleteObjectInternal without notifications', () => {
     });
     resource4DeleteObjectMock.mockRejectedValue(error);
 
-    const failure = manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false);
+    const failure = manager.deleteObjectInternal(undefined, 'Resource4', 'resource-name', undefined, false);
     await expect(failure).rejects.toBeInstanceOf(ApiResourceError);
     await expect(failure).rejects.toMatchObject({
       name: 'ApiResourceError',
@@ -1602,7 +1602,9 @@ describe('deleteObjectInternal without notifications', () => {
     const error = new ApiException(500, 'Internal Server Error', 'invalid JSON', {});
     resource4DeleteObjectMock.mockRejectedValue(error);
 
-    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toMatchObject({
+    await expect(
+      manager.deleteObjectInternal(undefined, 'Resource4', 'resource-name', undefined, false),
+    ).rejects.toMatchObject({
       name: 'ApiResourceError',
       message: error.message,
       statusCode: 500,
@@ -1615,7 +1617,9 @@ describe('deleteObjectInternal without notifications', () => {
     const error = new ApiException(404, 'Not Found', { kind: 'Status', code: 404, message: 'not found' }, {});
     resource4DeleteObjectMock.mockRejectedValue(error);
 
-    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toMatchObject({
+    await expect(
+      manager.deleteObjectInternal(undefined, 'Resource4', 'resource-name', undefined, false),
+    ).rejects.toMatchObject({
       name: 'ApiResourceError',
       message: error.message,
       statusCode: 404,
@@ -1630,7 +1634,9 @@ describe('deleteObjectInternal without notifications', () => {
   ])('rejects an unsuccessful Status response: %j', async status => {
     resource4DeleteObjectMock.mockResolvedValue(status);
 
-    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toMatchObject({
+    await expect(
+      manager.deleteObjectInternal(undefined, 'Resource4', 'resource-name', undefined, false),
+    ).rejects.toMatchObject({
       name: 'ApiResourceError',
       statusCode: 403,
       retryAfter: undefined,
@@ -1643,7 +1649,9 @@ describe('deleteObjectInternal without notifications', () => {
     const error = new Error('ECONNRESET');
     resource4DeleteObjectMock.mockRejectedValue(error);
 
-    await expect(manager.deleteObjectInternal('Resource4', 'resource-name', undefined, false)).rejects.toBe(error);
+    await expect(manager.deleteObjectInternal(undefined, 'Resource4', 'resource-name', undefined, false)).rejects.toBe(
+      error,
+    );
     expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('delete.resource4');
     expectNoUserInteraction();
   });
