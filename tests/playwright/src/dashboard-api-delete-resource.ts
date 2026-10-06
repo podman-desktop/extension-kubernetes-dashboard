@@ -105,7 +105,7 @@ export function dashboardApiDeleteResourceTests(): void {
     test('deletes only the requested namespaced resource without a confirmation dialog', async () => {
       await createConfigMaps();
 
-      await client.deleteResource('ConfigMap', name, 'ns2');
+      await client.deleteResource('v1', 'ConfigMap', name, 'ns2');
 
       await playExpect
         .poll(async () =>
@@ -120,7 +120,7 @@ export function dashboardApiDeleteResourceTests(): void {
     test('defaults to the current namespace when namespace is omitted', async () => {
       await createConfigMaps();
 
-      await client.deleteResource('ConfigMap', name);
+      await client.deleteResource('v1', 'ConfigMap', name);
 
       await playExpect
         .poll(async () =>
@@ -142,7 +142,7 @@ export function dashboardApiDeleteResourceTests(): void {
         rules: [],
       });
 
-      await client.deleteResource('ClusterRole', name);
+      await client.deleteResource('rbac.authorization.k8s.io/v1', 'ClusterRole', name);
 
       await playExpect
         .poll(async () => (await kubectl(['get', 'clusterrole', name, '--ignore-not-found', '-o', 'name'])).trim())
@@ -150,7 +150,7 @@ export function dashboardApiDeleteResourceTests(): void {
     });
 
     test('propagates ApiResourceError for a missing resource', async () => {
-      await playExpect(client.deleteResource('ConfigMap', name, 'default')).rejects.toMatchObject({
+      await playExpect(client.deleteResource('v1', 'ConfigMap', name, 'default')).rejects.toMatchObject({
         name: 'ApiResourceError',
         statusCode: 404,
         message: playExpect.stringContaining(name),
@@ -158,7 +158,7 @@ export function dashboardApiDeleteResourceTests(): void {
     });
 
     test('rejects an unsupported resource kind', async () => {
-      await playExpect(client.deleteResource('UnknownKind', name, 'default')).rejects.toMatchObject({
+      await playExpect(client.deleteResource('v1', 'UnknownKind', name, 'default')).rejects.toMatchObject({
         name: 'Error',
         message: playExpect.stringContaining('no handler for kind UnknownKind'),
       });

@@ -160,8 +160,8 @@ export class DashboardApiClient {
     await this.request('/resources/patch', { yamlDocuments, options });
   }
 
-  async deleteResource(kind: string, name: string, namespace?: string): Promise<void> {
-    await this.request('/resources/delete', { kind, name, namespace });
+  async deleteResource(apiVersion: string, kind: string, name: string, namespace?: string): Promise<void> {
+    await this.request('/resources/delete', { apiVersion, kind, name, namespace });
   }
 
   nextContextsHealth(timeoutMs?: number): Promise<ContextsHealthsInfo> {

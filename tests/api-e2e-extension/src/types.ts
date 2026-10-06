@@ -38,6 +38,7 @@ export interface PatchResourcesRequest {
 }
 
 export interface DeleteResourceRequest {
+  apiVersion: string;
   kind: string;
   name: string;
   namespace?: string;
