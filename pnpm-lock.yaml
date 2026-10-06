@@ -109,8 +109,8 @@ importers:
         specifier: ^76.0.0
         version: 76.0.0(eslint@10.12.0(jiti@2.7.0)(supports-color@10.2.2))
       node-gyp:
-        specifier: ^13.0.2
-        version: 13.0.2
+        specifier: ^13.1.0
+        version: 13.1.0
       prettier:
         specifier: ^3.9.9
         version: 3.9.9
@@ -3296,8 +3296,8 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
-  node-gyp@13.0.2:
-    resolution: {integrity: sha512-SXTvw3PxznpowYhJSOD9mVQBgDaCTWXffX+wQZsQ7PbcTV86TsXCUcSZhHnskFQvrvn/OdSzJPMsptT2pIj9ww==}
+  node-gyp@13.1.0:
+    resolution: {integrity: sha512-FpNzOLFACKG0oRBYbZ5WOeWD1EqRTIWX90MaRIWTO18lVYPx8fqIjrdS3pihjnCkSmgop6zVGkSqg1vXZLksuw==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
     hasBin: true
 
@@ -7196,7 +7196,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  node-gyp@13.0.2:
+  node-gyp@13.1.0:
     dependencies:
       env-paths: 2.2.1
       exponential-backoff: 3.1.3
