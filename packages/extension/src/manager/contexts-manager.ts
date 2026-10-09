@@ -61,6 +61,8 @@ import { NodesResourceFactory } from '/@/resources/nodes-resource-factory.js';
 import { PodsResourceFactory } from '/@/resources/pods-resource-factory.js';
 import { PVCsResourceFactory } from '/@/resources/pvcs-resource-factory.js';
 import type { ResourceFactory, SelectorOptions } from '/@/resources/resource-factory.js';
+import { CustomResourceFactory } from '/@/resources/custom-resource-factory.js';
+import { parseResourceKey } from '/@/resources/resource-key.js';
 import { ResourceFactoryHandler } from '/@/manager/resource-factory-handler.js';
 import type {
   CacheUpdatedEvent,
@@ -147,6 +149,12 @@ export class ContextsManager implements ContextsApi {
   #grantedPermissions: ContextResourceRegistry<KubeConfigSingleContext>;
   #graceTimers: Map<string, NodeJS.Timeout>;
   #resourceSubscriptions: Map<string, Set<string>>;
+  // kubeconfigs of the contexts which have been reached, indexed by context name
+  #reachableContexts: Map<string, KubeConfigSingleContext>;
+  // factories resolved on demand, for resource keys not covered by the permissions checked on context reach
+  #onDemandFactories: ContextResourceRegistry<ResourceFactory>;
+  // `<context>/<resource key>` of the on-demand resources being resolved
+  #pendingOnDemandChecks: Set<string>;
   #currentContext?: KubeConfigSingleContext;
   #currentKubeConfig: KubeConfig;
 
@@ -198,6 +206,9 @@ export class ContextsManager implements ContextsApi {
     this.#grantedPermissions = new ContextResourceRegistry<KubeConfigSingleContext>();
     this.#graceTimers = new Map<string, NodeJS.Timeout>();
     this.#resourceSubscriptions = new Map<string, Set<string>>();
+    this.#reachableContexts = new Map<string, KubeConfigSingleContext>();
+    this.#onDemandFactories = new ContextResourceRegistry<ResourceFactory>();
+    this.#pendingOnDemandChecks = new Set<string>();
     this.#dispatcher = new ContextsDispatcher();
     this.#dispatcher.onUpdate(this.onUpdate.bind(this));
     this.#dispatcher.onDelete(this.onDelete.bind(this));
@@ -346,15 +357,25 @@ export class ContextsManager implements ContextsApi {
 
   /* getPermissions returns the current permissions */
   getPermissions(): ContextPermission[] {
-    return this.#permissionsCheckers.flatMap(permissionsChecker => permissionsChecker.getPermissions());
+    return this.#permissionsCheckers
+      .flatMap(permissionsChecker => permissionsChecker.getPermissions())
+      .map(permission => ({
+        ...permission,
+        // the permissions of on-demand resources are registered with their resource key, possibly including a namespace
+        resourceName: parseResourceKey(permission.resourceName).resourceName,
+        namespace: permission.attrs.namespace,
+      }));
   }
 
   getResourcesCount(): ResourceCount[] {
-    return this.#objectCaches.getAll().map(informer => ({
-      contextName: informer.contextName,
-      resourceName: informer.resourceName,
-      count: informer.value.list().length,
-    }));
+    return this.#objectCaches
+      .getAll()
+      .filter(informer => !this.isNamespaceRestricted(informer.resourceName))
+      .map(informer => ({
+        contextName: informer.contextName,
+        resourceName: informer.resourceName,
+        count: informer.value.list().length,
+      }));
   }
 
   // getActiveResourcesCount returns the count of filtered resources for each context/resource
@@ -362,8 +383,9 @@ export class ContextsManager implements ContextsApi {
   getActiveResourcesCount(): ResourceCount[] {
     return this.#objectCaches
       .getAll()
+      .filter(informer => !this.isNamespaceRestricted(informer.resourceName))
       .map(informer => {
-        const isActive = this.#resourceFactoryHandler.getResourceFactoryByResourceName(informer.resourceName)?.isActive;
+        const isActive = this.getResourceFactory(informer.contextName, informer.resourceName)?.isActive;
         return isActive
           ? {
               contextName: informer.contextName,
@@ -510,6 +532,9 @@ export class ContextsManager implements ContextsApi {
         checker.dispose();
       }
 
+      this.#reachableContexts.set(state.contextName, state.kubeConfig);
+      this.checkOnDemandSubscribedResources(state.contextName, state.kubeConfig);
+
       const namespace = state.kubeConfig.getNamespace();
       const permissionRequests = this.#resourceFactoryHandler.getPermissionsRequests(namespace);
       for (const permissionRequest of permissionRequests) {
@@ -557,14 +582,127 @@ export class ContextsManager implements ContextsApi {
     this.#informers.removeForContext(contextName);
     this.#objectCaches.removeForContext(contextName);
     this.#grantedPermissions.removeForContext(contextName);
+    this.#reachableContexts.delete(contextName);
+    this.#onDemandFactories.removeForContext(contextName);
+    for (const key of this.#pendingOnDemandChecks) {
+      if (key.startsWith(`${contextName}/`)) {
+        this.#pendingOnDemandChecks.delete(key);
+      }
+    }
     this.clearGraceTimersForContext(contextName);
+  }
+
+  // getResourceFactory returns the factory handling the resource key in the context
+  private getResourceFactory(contextName: string, resourceKey: string): ResourceFactory | undefined {
+    return (
+      this.#onDemandFactories.get(contextName, resourceKey) ??
+      this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceKey)
+    );
+  }
+
+  private isNamespaceRestricted(resourceKey: string): boolean {
+    return parseResourceKey(resourceKey).namespace !== undefined;
+  }
+
+  // isOnDemand returns true if the permissions for the resource key are not checked when the context is reached,
+  // either because the resource is not handled by a predefined factory (custom resources),
+  // or because the resource is restricted to a namespace different from the namespace of the context
+  private isOnDemand(resourceKey: string): boolean {
+    const { resourceName, namespace } = parseResourceKey(resourceKey);
+    return namespace !== undefined || !this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName);
+  }
+
+  private checkOnDemandSubscribedResources(contextName: string, kubeConfig: KubeConfigSingleContext): void {
+    for (const [key, subscriptions] of this.#resourceSubscriptions.entries()) {
+      if (!key.startsWith(`${contextName}/`) || !subscriptions.size) {
+        continue;
+      }
+      const resourceKey = key.slice(contextName.length + 1);
+      if (this.isOnDemand(resourceKey)) {
+        this.checkOnDemandResource(contextName, resourceKey, kubeConfig).catch((err: unknown) =>
+          console.warn(`[informer] unable to watch ${resourceKey} on ${contextName}`, String(err)),
+        );
+      }
+    }
+  }
+
+  // resolveCustomResourceFactory builds a factory for a custom resource, named `<plural>.<group>`,
+  // from the API groups and resources served by the cluster
+  protected async resolveCustomResourceFactory(
+    kubeConfig: KubeConfigSingleContext,
+    resourceName: string,
+  ): Promise<ResourceFactory | undefined> {
+    return CustomResourceFactory.resolve(
+      {
+        getApiVersions: () => this.getApiVersionsForKubeConfig(kubeConfig.getKubeConfig()),
+        getApiResources: (groupVersion: string) =>
+          this.getApiResourcesForKubeConfig(kubeConfig.getKubeConfig(), groupVersion),
+      },
+      resourceName,
+    );
+  }
+
+  // checkOnDemandResource resolves the factory for the resource key, checks the permission to watch it,
+  // and starts its informer if permitted and still subscribed
+  private async checkOnDemandResource(
+    contextName: string,
+    resourceKey: string,
+    kubeConfig: KubeConfigSingleContext,
+  ): Promise<void> {
+    const pendingKey = `${contextName}/${resourceKey}`;
+    if (this.#pendingOnDemandChecks.has(pendingKey) || this.#onDemandFactories.get(contextName, resourceKey)) {
+      return;
+    }
+    this.#pendingOnDemandChecks.add(pendingKey);
+    try {
+      const { resourceName, namespace } = parseResourceKey(resourceKey);
+      const factory =
+        this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName) ??
+        (await this.resolveCustomResourceFactory(kubeConfig, resourceName));
+      if (this.#reachableContexts.get(contextName) !== kubeConfig || !this.#pendingOnDemandChecks.has(pendingKey)) {
+        // the monitoring of the context has been restarted or stopped during the resolution
+        return;
+      }
+      // the last permission request of a factory is the most specific one
+      const permissionsRequests = factory?.permissions?.permissionsRequests ?? [];
+      const attrs = permissionsRequests[permissionsRequests.length - 1];
+      if (!factory?.informer || !factory.permissions || !attrs) {
+        // the resource is not served by the cluster, or can be neither listed nor watched
+        console.warn(`[informer] no factory is able to list or watch ${resourceName} on ${contextName}`);
+        return;
+      }
+      this.#onDemandFactories.set(contextName, resourceKey, factory);
+      const scopedKubeConfig = namespace ? kubeConfig.withNamespace(namespace) : kubeConfig;
+      const permissionChecker = new ContextPermissionsChecker(scopedKubeConfig, contextName, {
+        attrs: {
+          ...attrs,
+          namespace: factory.permissions.isNamespaced ? scopedKubeConfig.getNamespace() : undefined,
+        },
+        resources: [resourceKey],
+      });
+      this.#permissionsCheckers.push(permissionChecker);
+      permissionChecker.onPermissionResult(this.onPermissionResult.bind(this));
+      permissionChecker.onPermissionResult((event: ContextPermissionResult) => {
+        if (!event.permitted) {
+          return;
+        }
+        this.#grantedPermissions.set(contextName, resourceKey, event.kubeConfig);
+        if (this.#resourceSubscriptions.get(pendingKey)?.size) {
+          console.log(`[informer] starting on-demand informer: ${resourceKey} on ${contextName}`);
+          this.createAndStartInformer(contextName, resourceKey, event.kubeConfig);
+        }
+      });
+      await permissionChecker.start();
+    } finally {
+      this.#pendingOnDemandChecks.delete(pendingKey);
+    }
   }
 
   protected createAndStartInformer(contextName: string, resource: string, kubeConfig: KubeConfigSingleContext): void {
     if (this.#informers.get(contextName, resource)) {
       return;
     }
-    const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resource);
+    const factory = this.getResourceFactory(contextName, resource);
     if (!factory?.informer) {
       return;
     }
@@ -612,6 +750,9 @@ export class ContextsManager implements ContextsApi {
     }
   }
 
+  // subscribeToResource subscribes to the resources identified by `resourceName` in the context.
+  // `resourceName` is a resource key (see `toResourceKey`): the name of a resource handled by a factory,
+  // or of a custom resource as `<plural>.<group>`, optionally restricted to a namespace
   subscribeToResource(contextName: string, resourceName: string, subscriptionId: string): void {
     const key = `${contextName}/${resourceName}`;
     this.cancelGraceTimer(key);
@@ -635,6 +776,13 @@ export class ContextsManager implements ContextsApi {
         `[informer] starting lazy informer on demand: ${resourceName} on ${contextName} (${subs.size} subscribers)`,
       );
       this.createAndStartInformer(contextName, resourceName, kubeConfig);
+      return;
+    }
+    const reachableKubeConfig = this.#reachableContexts.get(contextName);
+    if (reachableKubeConfig && this.isOnDemand(resourceName)) {
+      this.checkOnDemandResource(contextName, resourceName, reachableKubeConfig).catch((err: unknown) =>
+        console.warn(`[informer] unable to watch ${resourceName} on ${contextName}`, String(err)),
+      );
     }
   }
 
@@ -645,8 +793,10 @@ export class ContextsManager implements ContextsApi {
       subs.delete(subscriptionId);
       if (subs.size === 0) {
         this.#resourceSubscriptions.delete(key);
-        const factory = this.#resourceFactoryHandler.getResourceFactoryByResourceName(resourceName);
-        if (factory && !factory.eagerStart && this.#informers.get(contextName, resourceName)) {
+        // informers started on demand are always lazy, even if their factory declares an eager start
+        const factory = this.getResourceFactory(contextName, resourceName);
+        const lazy = this.isOnDemand(resourceName) || !factory?.eagerStart;
+        if (factory && lazy && this.#informers.get(contextName, resourceName)) {
           console.log(
             `[informer] no subscribers left for ${resourceName} on ${contextName}, scheduling grace period (${LAZY_INFORMER_GRACE_PERIOD_MS}ms)`,
           );
@@ -1217,7 +1367,10 @@ export class ContextsManager implements ContextsApi {
   }
 
   async getApiVersions(): Promise<ApiGroupList> {
-    const kubeConfig = this.getCurrentKubeConfig();
+    return this.getApiVersionsForKubeConfig(this.getCurrentKubeConfig());
+  }
+
+  protected async getApiVersionsForKubeConfig(kubeConfig: KubeConfig): Promise<ApiGroupList> {
     const result = await kubeConfig.makeApiClient(ApisApi).getAPIVersions();
     return {
       groups: result.groups,
@@ -1235,8 +1388,15 @@ export class ContextsManager implements ContextsApi {
   }
 
   async getApiResources(groupVersion: string, options?: { timeoutMs?: number }): Promise<ApiResourceList> {
+    return this.getApiResourcesForKubeConfig(this.getCurrentKubeConfig(), groupVersion, options);
+  }
+
+  protected async getApiResourcesForKubeConfig(
+    kubeConfig: KubeConfig,
+    groupVersion: string,
+    options?: { timeoutMs?: number },
+  ): Promise<ApiResourceList> {
     ContextsManager.validateGroupVersion(groupVersion);
-    const kubeConfig = this.getCurrentKubeConfig();
     const cluster = kubeConfig.getCurrentCluster();
     if (!cluster) {
       throw new Error('no current cluster');

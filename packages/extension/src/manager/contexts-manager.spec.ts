@@ -1157,11 +1157,63 @@ test('getPermissions calls getPermissions for each permissions checker', async (
     return Disposable.create(() => {});
   });
   ContextPermissionsChecker.prototype.onPermissionResult = vi.fn();
+  vi.mocked(ContextPermissionsChecker.prototype.getPermissions).mockReturnValue([]);
 
   await manager.update(kc);
   manager.getPermissions();
 
   expect(ContextPermissionsChecker.prototype.getPermissions).toHaveBeenCalledTimes(2);
+});
+
+test('getPermissions reports the resource name and the namespace of each permission', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const manager = new TestContextsManager();
+
+  const kcSingle1 = new KubeConfigSingleContext(kc, context1);
+  ContextHealthChecker.prototype.onStateChange = vi.fn();
+  ContextHealthChecker.prototype.onReachable = vi.fn().mockImplementation((f: (e: ContextHealthState) => unknown) => {
+    f({ kubeConfig: kcSingle1, contextName: 'context1', checking: false, reachable: true });
+    return Disposable.create(() => {});
+  });
+  ContextPermissionsChecker.prototype.onPermissionResult = vi.fn();
+  // the first permissions checker returns all the permissions, the others none
+  vi.mocked(ContextPermissionsChecker.prototype.getPermissions).mockReturnValue([]);
+  vi.mocked(ContextPermissionsChecker.prototype.getPermissions).mockReturnValueOnce([
+    {
+      contextName: 'context1',
+      resourceName: 'pods',
+      attrs: { verb: 'watch', resource: 'pods', namespace: 'ns1' },
+      permitted: true,
+    },
+    {
+      contextName: 'context1',
+      resourceName: 'nodes',
+      attrs: { verb: 'watch', resource: 'nodes' },
+      permitted: true,
+    },
+    {
+      contextName: 'context1',
+      resourceName: 'catalogsources.operators.coreos.com@olm',
+      attrs: { verb: 'watch', group: 'operators.coreos.com', resource: 'catalogsources', namespace: 'olm' },
+      permitted: false,
+      reason: 'denied',
+    },
+  ]);
+
+  await manager.update(kc);
+
+  expect(manager.getPermissions()).toEqual([
+    expect.objectContaining({ contextName: 'context1', resourceName: 'pods', namespace: 'ns1', permitted: true }),
+    expect.objectContaining({ contextName: 'context1', resourceName: 'nodes', namespace: undefined, permitted: true }),
+    expect.objectContaining({
+      contextName: 'context1',
+      resourceName: 'catalogsources.operators.coreos.com',
+      namespace: 'olm',
+      permitted: false,
+      reason: 'denied',
+    }),
+  ]);
 });
 
 test('dispose calls dispose for each health checker', async () => {
@@ -2288,6 +2340,210 @@ describe('lazy informer lifecycle', () => {
     });
 
     expect(createdLazyInformerMock.start).not.toHaveBeenCalled();
+  });
+});
+
+describe('on-demand informers', () => {
+  const lazyInformerMock = {
+    onCacheUpdated: vi.fn(),
+    onOffline: vi.fn(),
+    onObjectDeleted: vi.fn(),
+    start: vi.fn(),
+    dispose: vi.fn(),
+    isOffline: vi.fn().mockReturnValue(false),
+  } as unknown as ResourceInformer<KubernetesObject>;
+
+  const customInformerMock = {
+    onCacheUpdated: vi.fn(),
+    onOffline: vi.fn(),
+    onObjectDeleted: vi.fn(),
+    start: vi.fn(),
+    dispose: vi.fn(),
+    isOffline: vi.fn().mockReturnValue(false),
+  } as unknown as ResourceInformer<KubernetesObject>;
+
+  const createLazyInformer = vi.fn<(kubeconfig: KubeConfigSingleContext) => ResourceInformer<KubernetesObject>>();
+  const createCustomInformer = vi.fn<(kubeconfig: KubeConfigSingleContext) => ResourceInformer<KubernetesObject>>();
+  const resolveCustomResourceFactory =
+    vi.fn<(kubeConfig: KubeConfigSingleContext, resourceName: string) => Promise<ResourceFactory | undefined>>();
+
+  const customFactory = new ResourceFactoryBase({ kind: 'Widget', resource: 'widgets.example.com' })
+    .setPermissions({
+      isNamespaced: true,
+      permissionsRequests: [{ verb: 'watch', group: 'example.com', resource: 'widgets' }],
+    })
+    .setInformer({ createInformer: createCustomInformer });
+
+  class OnDemandTestContextsManager extends ContextsManager {
+    constructor() {
+      super();
+      this.telemetryLogger = telemetryLoggerMock;
+    }
+    override getResourceFactories(): ResourceFactory[] {
+      return [
+        new ResourceFactoryBase({ kind: 'LazyResource', resource: 'lazy-resource' })
+          .setEagerStart()
+          .setPermissions({
+            isNamespaced: true,
+            permissionsRequests: [
+              { group: '*', resource: '*', verb: 'watch' },
+              { group: '', resource: 'lazy-resource', verb: 'watch' },
+            ],
+          })
+          .setInformer({ createInformer: createLazyInformer }),
+      ];
+    }
+
+    protected override resolveCustomResourceFactory(
+      kubeConfig: KubeConfigSingleContext,
+      resourceName: string,
+    ): Promise<ResourceFactory | undefined> {
+      return resolveCustomResourceFactory(kubeConfig, resourceName);
+    }
+
+    public override async startMonitoring(config: KubeConfigSingleContext, contextName: string): Promise<void> {
+      return super.startMonitoring(config, contextName);
+    }
+  }
+
+  let manager: OnDemandTestContextsManager;
+  let kcSingle: KubeConfigSingleContext;
+  const cacheMock = { list: vi.fn(), get: vi.fn() };
+
+  async function reach(callIndex = 0): Promise<void> {
+    const healthCheckCallback = vi.mocked(ContextHealthChecker.prototype.onReachable).mock.calls[callIndex]![0];
+    await healthCheckCallback!({ kubeConfig: kcSingle, contextName: 'context1', checking: false, reachable: true });
+  }
+
+  // returns the request and the callback deciding to start informers, for the last permission checker created
+  function lastPermissionChecker(): {
+    kubeConfig: KubeConfigSingleContext;
+    request: ContextPermissionsRequest;
+    grant: (permitted: boolean) => void;
+  } {
+    const checkerCalls = vi.mocked(ContextPermissionsChecker).mock.calls;
+    const [kubeConfig, , request] = checkerCalls[checkerCalls.length - 1]!;
+    const callbackCalls = vi.mocked(ContextPermissionsChecker.prototype.onPermissionResult).mock.calls;
+    const callback = callbackCalls[callbackCalls.length - 1]![0];
+    return {
+      kubeConfig,
+      request,
+      grant: (permitted: boolean): void => {
+        callback({ kubeConfig, resources: request.resources, permitted, attrs: request.attrs });
+      },
+    };
+  }
+
+  beforeEach(async () => {
+    ContextHealthChecker.prototype.onStateChange = vi.fn();
+    ContextHealthChecker.prototype.onReachable = vi.fn();
+    ContextPermissionsChecker.prototype.onPermissionResult = vi.fn();
+    vi.mocked(ContextPermissionsChecker.prototype.start).mockResolvedValue();
+    cacheMock.list.mockReturnValue([{ metadata: { name: 'obj1' } }]);
+    createLazyInformer.mockReturnValue(lazyInformerMock);
+    createCustomInformer.mockReturnValue(customInformerMock);
+    vi.mocked(lazyInformerMock.start).mockReturnValue(cacheMock as unknown as ObjectCache<KubernetesObject>);
+    vi.mocked(customInformerMock.start).mockReturnValue(cacheMock as unknown as ObjectCache<KubernetesObject>);
+    resolveCustomResourceFactory.mockImplementation(async (_kubeConfig, resourceName) =>
+      resourceName === 'widgets.example.com' ? customFactory : undefined,
+    );
+    const kc = new KubeConfig();
+    kc.loadFromOptions(kcWithContext1asDefault);
+    kcSingle = new KubeConfigSingleContext(kc, context1);
+    manager = new OnDemandTestContextsManager();
+    await manager.startMonitoring(kcSingle, 'context1');
+  });
+
+  test('a custom resource subscribed before the context is reached is resolved when reached', async () => {
+    manager.subscribeToResource('context1', 'widgets.example.com', 'sub1');
+    expect(resolveCustomResourceFactory).not.toHaveBeenCalled();
+
+    await reach();
+    await vi.waitFor(() => expect(resolveCustomResourceFactory).toHaveBeenCalledWith(kcSingle, 'widgets.example.com'));
+    await vi.waitFor(() =>
+      expect(lastPermissionChecker().request).toEqual({
+        attrs: { verb: 'watch', group: 'example.com', resource: 'widgets', namespace: 'ns1' },
+        resources: ['widgets.example.com'],
+      }),
+    );
+
+    lastPermissionChecker().grant(true);
+    expect(createCustomInformer).toHaveBeenCalledWith(kcSingle);
+    expect(customInformerMock.start).toHaveBeenCalledOnce();
+    expect(manager.getResources('widgets.example.com', 'context1')).toEqual([{ metadata: { name: 'obj1' } }]);
+  });
+
+  test('a custom resource subscribed after the context is reached is resolved immediately', async () => {
+    await reach();
+    manager.subscribeToResource('context1', 'widgets.example.com', 'sub1');
+    await vi.waitFor(() => expect(lastPermissionChecker().request.resources).toEqual(['widgets.example.com']));
+    lastPermissionChecker().grant(true);
+    expect(customInformerMock.start).toHaveBeenCalledOnce();
+  });
+
+  test('no informer is started when the permission is denied', async () => {
+    await reach();
+    manager.subscribeToResource('context1', 'widgets.example.com', 'sub1');
+    await vi.waitFor(() => expect(lastPermissionChecker().request.resources).toEqual(['widgets.example.com']));
+    lastPermissionChecker().grant(false);
+    expect(createCustomInformer).not.toHaveBeenCalled();
+  });
+
+  test('no permission is checked for a resource the cluster does not serve', async () => {
+    await reach();
+    const checkersCount = vi.mocked(ContextPermissionsChecker).mock.calls.length;
+    manager.subscribeToResource('context1', 'unknowns.example.com', 'sub1');
+    await vi.waitFor(() => expect(resolveCustomResourceFactory).toHaveBeenCalledWith(kcSingle, 'unknowns.example.com'));
+    expect(vi.mocked(ContextPermissionsChecker).mock.calls).toHaveLength(checkersCount);
+  });
+
+  test('a resource restricted to a namespace is watched in this namespace', async () => {
+    await reach();
+    manager.subscribeToResource('context1', 'lazy-resource@other', 'sub1');
+    await vi.waitFor(() => expect(lastPermissionChecker().request.resources).toEqual(['lazy-resource@other']));
+    const checker = lastPermissionChecker();
+    expect(resolveCustomResourceFactory).not.toHaveBeenCalled();
+    expect(checker.kubeConfig.getNamespace()).toEqual('other');
+    expect(checker.request.attrs).toEqual({ group: '', resource: 'lazy-resource', verb: 'watch', namespace: 'other' });
+
+    checker.grant(true);
+    expect(createLazyInformer).toHaveBeenCalledOnce();
+    expect(vi.mocked(createLazyInformer).mock.calls[0]![0].getNamespace()).toEqual('other');
+    expect(manager.getResources('lazy-resource@other', 'context1')).toHaveLength(1);
+    // the counts are reported for the namespace of the context only
+    expect(manager.getResourcesCount()).toEqual([]);
+  });
+
+  test('an on-demand informer is stopped after the grace period, even for an eager factory', async () => {
+    await reach();
+    manager.subscribeToResource('context1', 'lazy-resource@other', 'sub1');
+    await vi.waitFor(() => expect(lastPermissionChecker().request.resources).toEqual(['lazy-resource@other']));
+    lastPermissionChecker().grant(true);
+
+    vi.useFakeTimers();
+    try {
+      manager.unsubscribeFromResource('context1', 'lazy-resource@other', 'sub1');
+      vi.advanceTimersByTime(30_000);
+      expect(lazyInformerMock.dispose).toHaveBeenCalledOnce();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('on-demand resources still subscribed are checked again when monitoring restarts', async () => {
+    await reach();
+    manager.subscribeToResource('context1', 'widgets.example.com', 'sub1');
+    await vi.waitFor(() => expect(lastPermissionChecker().request.resources).toEqual(['widgets.example.com']));
+    lastPermissionChecker().grant(true);
+    expect(customInformerMock.start).toHaveBeenCalledOnce();
+
+    await manager.startMonitoring(kcSingle, 'context1');
+    expect(customInformerMock.dispose).toHaveBeenCalledOnce();
+    await reach(1);
+    await vi.waitFor(() => expect(resolveCustomResourceFactory).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(lastPermissionChecker().request.resources).toEqual(['widgets.example.com']));
+    lastPermissionChecker().grant(true);
+    expect(customInformerMock.start).toHaveBeenCalledTimes(2);
   });
 });
 
