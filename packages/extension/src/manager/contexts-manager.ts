@@ -713,28 +713,57 @@ export class ContextsManager implements ContextsApi {
       return;
     }
 
-    await this.deleteObjectInternal(kind, name, namespace);
+    await this.deleteObjectInternal(undefined, kind, name, namespace, true);
   }
 
-  private async deleteObjectInternal(kind: string, name: string, namespace?: string): Promise<void> {
-    if (!this.currentContext) {
-      console.warn('delete object: no current context');
-      return;
+  async deleteObjectInternal(
+    apiVersion: string | undefined,
+    kind: string,
+    name: string,
+    namespace: string | undefined,
+    notifyFailures: boolean,
+  ): Promise<void> {
+    // apiVersion is accepted by the public API but is not used while each managed resource kind has one handler.
+    // Use it to disambiguate resources when CRD support is added.
+    const context = this.currentContext;
+    if (!context) {
+      if (notifyFailures) {
+        console.warn('delete object: no current context');
+        return;
+      }
+      throw new Error('delete resource: no current context');
     }
 
     const handler = this.#resourceFactoryHandler.getResourceFactoryByKind(kind);
     if (!handler?.deleteObject) {
-      console.error(`delete object: no handler for kind ${kind}`);
-      return;
+      if (notifyFailures) {
+        console.error(`delete object: no handler for kind ${kind}`);
+        return;
+      }
+      throw new Error(`delete resource: no handler for kind ${kind}`);
     }
 
-    const ns = namespace ?? this.currentContext.getNamespace();
     try {
-      const result = await handler.deleteObject(this.currentContext, name, ns);
-      this.handleResult(result, `deletion of ${kind} ${name}`);
+      const result = await handler.deleteObject(context, name, namespace ?? context.getNamespace());
+      if (notifyFailures) {
+        this.handleResult(result, `deletion of ${kind} ${name}`);
+      } else if (this.isV1Status(result) && this.isFailureStatus(result)) {
+        throw new ApiResourceError(
+          `deletion of ${kind} ${name}: ${result.message ?? result.reason ?? 'failed'}`,
+          result.code,
+          undefined,
+        );
+      }
       this.telemetryLogger.logUsage(`delete.${kind.toLowerCase()}`);
     } catch (error: unknown) {
-      this.handleApiException(error, `deletion of ${kind} ${name}`);
+      if (notifyFailures) {
+        this.handleApiException(error, `deletion of ${kind} ${name}`);
+        return;
+      }
+      if (error instanceof ApiException) {
+        throw new ApiResourceError(error.message, error.code, error.headers['retry-after']);
+      }
+      throw error;
     }
   }
 
@@ -866,7 +895,7 @@ export class ContextsManager implements ContextsApi {
     }
     for (const object of objects) {
       try {
-        await this.deleteObjectInternal(object.kind, object.name, object.namespace);
+        await this.deleteObjectInternal(undefined, object.kind, object.name, object.namespace, true);
       } catch {
         // do nothing here:
         // - we don't want to stop the deletion of other objects
