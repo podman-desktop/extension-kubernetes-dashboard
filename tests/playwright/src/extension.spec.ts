@@ -147,10 +147,6 @@ test.describe(`Configure kubeconfig file`, { tag: ['@integration', '@anonymous']
   });
 });
 
-test.describe('Dashboard extension API', { tag: '@integration' }, () => {
-  dashboardApiTests();
-});
-
 test.describe(`Extension usage`, { tag: '@integration' }, () => {
   let navigation: KubernetesBar;
 
@@ -1081,18 +1077,22 @@ test.describe('Watch cleanup', { tag: '@integration' }, () => {
     ];
     const expectedWatches = eagerPaths
       .map(path => [path, 1] as const)
-      .sort(([left], [right]) => left.localeCompare(right));
+      .toSorted(([left], [right]) => left.localeCompare(right));
 
     await playExpect
       .poll(
         async () => {
           const metrics = await getProxyWatchMetrics(proxyUrl);
-          return Object.entries(metrics.active_by_path).sort(([left], [right]) => left.localeCompare(right));
+          return Object.entries(metrics.active_by_path).toSorted(([left], [right]) => left.localeCompare(right));
         },
         { timeout: 45_000 },
       )
       .toEqual(expectedWatches);
   });
+});
+
+test.describe('Dashboard extension API', { tag: '@integration' }, () => {
+  dashboardApiTests();
 });
 
 test.describe(`Anonymous user`, { tag: ['@integration', '@anonymous'] }, () => {
