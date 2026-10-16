@@ -18,6 +18,7 @@
 
 import { expect as playExpect, test } from '@podman-desktop/tests-playwright';
 
+import { dashboardApiPatchSubresourceTests } from './dashboard-api-patch-subresource';
 import { DashboardApiClient } from './utility/dashboard-api-client';
 
 const CONTEXT_NAME = 'envtest';
@@ -111,4 +112,6 @@ export function dashboardApiTests(): void {
       playExpect.objectContaining({ contextName: CONTEXT_NAME, resourceName: 'pods' }),
     );
   });
+
+  dashboardApiPatchSubresourceTests();
 }

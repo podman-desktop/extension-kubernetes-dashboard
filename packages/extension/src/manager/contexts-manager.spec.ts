@@ -41,12 +41,14 @@ import {
   type ContextResourcePermission,
 } from './context-permissions-checker.js';
 import { ApiResourceError, ContextsManager } from './contexts-manager.js';
+import { KubernetesApiValidator } from './kubernetes-api-validator.js';
 import { KubeConfigSingleContext } from '/@/types/kubeconfig-single-context.js';
 import type { ResourceFactory } from '/@/resources/resource-factory.js';
 import { ResourceFactoryBase } from '/@/resources/resource-factory.js';
 import type { CacheUpdatedEvent, ObjectDeletedEvent, ResourceInformer } from '/@/types/resource-informer.js';
 import { vol } from 'memfs';
 import type { ConnectOptions } from '@podman-desktop/kubernetes-dashboard-extension-api';
+import type { IncomingMessage, ClientRequest } from 'node:http';
 
 const resource4DeleteObjectMock = vi.fn();
 const resource4SearchBySelectorMock = vi.fn();
@@ -87,6 +89,7 @@ class TestContextsManager extends ContextsManager {
   constructor() {
     super();
     this.telemetryLogger = telemetryLoggerMock;
+    this.kubernetesApiValidator = new KubernetesApiValidator();
   }
   override getResourceFactories(): ResourceFactory[] {
     return [
@@ -343,6 +346,8 @@ const kcWithNoCurrentContext = {
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:fs'));
+vi.mock(import('node:https'));
+vi.mock(import('node:http'));
 vi.mock(import('./context-health-checker.js'));
 vi.mock(import('./context-permissions-checker.js'));
 
@@ -1525,6 +1530,260 @@ test('deleteObject handler throws a non-ApiException', async () => {
   expect(manager.handleStatus).not.toHaveBeenCalled();
 });
 
+describe('patchSubresource', () => {
+  function createMockResponse(statusCode: number, body: string, headers: Record<string, string> = {}): void {
+    vi.mocked(https.request).mockImplementation(
+      (_url: unknown, _opts: unknown, callback?: (res: IncomingMessage) => void) => {
+        const res = {
+          statusCode,
+          headers,
+          setEncoding: vi.fn(),
+          on: vi.fn((event: string, handler: (chunk?: Buffer) => void) => {
+            if (event === 'data') {
+              handler(Buffer.from(body));
+            }
+            if (event === 'end') {
+              handler();
+            }
+          }),
+        } as unknown as IncomingMessage;
+        callback?.(res);
+        return {
+          on: vi.fn(),
+          write: vi.fn(),
+          end: vi.fn(),
+        } as unknown as ClientRequest;
+      },
+    );
+  }
+
+  async function createManagerWithCluster(server: string): Promise<TestContextsManager> {
+    const kc = new KubeConfig();
+    kc.loadFromOptions({
+      contexts: [{ name: 'ctx', cluster: 'cluster', user: 'user', namespace: 'ns1' }],
+      clusters: [{ name: 'cluster', server }],
+      users: [{ name: 'user' }],
+      currentContext: 'ctx',
+    });
+    const manager = new TestContextsManager();
+    vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+    vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+    await manager.update(kc);
+    return manager;
+  }
+
+  test('throws when no current context', async () => {
+    const kc = new KubeConfig();
+    kc.loadFromOptions(kcWithNoCurrentContext);
+    const manager = new TestContextsManager();
+    vi.spyOn(manager, 'startMonitoring').mockImplementation(async (): Promise<void> => {});
+    vi.spyOn(manager, 'stopMonitoring').mockImplementation((): void => {});
+    await manager.update(kc);
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toThrow('no current context');
+  });
+
+  test('builds correct URL for grouped API version with namespace', async () => {
+    createMockResponse(200, '{}');
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await manager.patchSubresource(
+      'certificates.k8s.io/v1',
+      'certificatesigningrequests',
+      'my-csr',
+      'approval',
+      { status: {} },
+      'my-ns',
+    );
+
+    expect(https.request).toHaveBeenCalledWith(
+      new URL(
+        '/apis/certificates.k8s.io/v1/namespaces/my-ns/certificatesigningrequests/my-csr/approval',
+        'https://k8s.example.com',
+      ),
+      expect.objectContaining({ method: 'PATCH' }),
+      expect.any(Function),
+    );
+  });
+
+  test('builds correct URL for core API version without namespace', async () => {
+    createMockResponse(200, '{}');
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await manager.patchSubresource('v1', 'nodes', 'my-node', 'status', { status: {} });
+
+    expect(https.request).toHaveBeenCalledWith(
+      new URL('/api/v1/nodes/my-node/status', 'https://k8s.example.com'),
+      expect.objectContaining({ method: 'PATCH' }),
+      expect.any(Function),
+    );
+  });
+
+  test('sends merge-patch content type and JSON body', async () => {
+    createMockResponse(200, '{}');
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+    const body = { spec: { replicas: 3 } };
+
+    await manager.patchSubresource('apps/v1', 'deployments', 'my-deploy', 'scale', body, 'default');
+
+    expect(https.request).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        method: 'PATCH',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/merge-patch+json',
+        }),
+      }),
+      expect.any(Function),
+    );
+    const mockReq = vi.mocked(https.request).mock.results[0]?.value as ClientRequest;
+    expect(mockReq.write).toHaveBeenCalledWith(JSON.stringify(body));
+  });
+
+  test('rejects with ApiResourceError on non-2xx status without displaying a notification', async () => {
+    createMockResponse(409, '{"message":"conflict"}');
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    const failure = manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {});
+    await expect(failure).rejects.toBeInstanceOf(ApiResourceError);
+    await expect(failure).rejects.toMatchObject({
+      name: 'ApiResourceError',
+      statusCode: 409,
+      retryAfter: undefined,
+      message: expect.stringContaining('conflict'),
+    });
+    expect(window.showNotification).not.toHaveBeenCalled();
+  });
+
+  test('preserves Retry-After on a throttled response', async () => {
+    createMockResponse(429, '{"message":"too many requests"}', { 'retry-after': '5' });
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toMatchObject({
+      name: 'ApiResourceError',
+      statusCode: 429,
+      retryAfter: '5',
+      message: expect.stringContaining('too many requests'),
+    });
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
+  });
+
+  test.each(['https://k8s.example.com/k8s/clusters/c-1', 'https://k8s.example.com/k8s/clusters/c-1/'])(
+    'preserves the cluster server path prefix in %s',
+    async server => {
+      createMockResponse(200, '{}');
+      const manager = await createManagerWithCluster(server);
+
+      await manager.patchSubresource('apps/v1', 'deployments', 'my-deploy', 'scale', {}, 'default');
+
+      expect(https.request).toHaveBeenCalledWith(
+        new URL('https://k8s.example.com/k8s/clusters/c-1/apis/apps/v1/namespaces/default/deployments/my-deploy/scale'),
+        expect.anything(),
+        expect.any(Function),
+      );
+    },
+  );
+
+  test.each([
+    '',
+    '.',
+    '..',
+    '/v1',
+    'apps/',
+    'apps/v1/extra',
+    'apps/../v1',
+    'v1?x=1',
+    'v1#status',
+    'apps\\v1',
+    '%2e%2e',
+  ])('rejects invalid API version %j before sending a request', async apiVersion => {
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource(apiVersion, 'pods', 'my-pod', 'status', {})).rejects.toThrow();
+    expect(https.request).not.toHaveBeenCalled();
+  });
+
+  describe.each(['resource', 'name', 'subresource', 'namespace'] as const)('validates %s', field => {
+    test.each(['', '.', '..', 'x/../y', 'x\\y', 'x?y', 'x#y', '%2e%2e', 'x y', 'x\ny'])(
+      'rejects unsafe path segment %j before sending a request',
+      async segment => {
+        const manager = await createManagerWithCluster('https://k8s.example.com');
+        const target = {
+          resource: 'pods',
+          name: 'my-pod',
+          subresource: 'status',
+          namespace: 'default',
+          [field]: segment,
+        };
+
+        await expect(
+          manager.patchSubresource('v1', target.resource, target.name, target.subresource, {}, target.namespace),
+        ).rejects.toThrow('invalid path segment');
+        expect(https.request).not.toHaveBeenCalled();
+      },
+    );
+  });
+
+  function mockRequestEvents(respond: (res: EventEmitter, req: EventEmitter) => void): void {
+    vi.mocked(https.request).mockImplementation(
+      (_url: unknown, _opts: unknown, callback?: (res: IncomingMessage) => void) => {
+        const res = new EventEmitter();
+        Object.assign(res, { setEncoding: vi.fn() });
+        const req = new EventEmitter();
+        Object.assign(req, {
+          write: vi.fn(),
+          end: (): void => {
+            callback?.(res as IncomingMessage);
+            respond(res, req);
+          },
+          destroy: vi.fn((error: Error): void => {
+            req.emit('error', error);
+          }),
+        });
+        return req as ClientRequest;
+      },
+    );
+  }
+
+  test('rejects request errors without reporting success', async () => {
+    const error = new Error('ECONNREFUSED');
+    mockRequestEvents((_res, req) => req.emit('error', error));
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toBe(error);
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
+  });
+
+  test('rejects an interrupted response without reporting success', async () => {
+    const error = new Error('connection reset');
+    mockRequestEvents(res => {
+      res.emit('data', Buffer.from('{"partial":'));
+      res.emit('error', error);
+    });
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toBe(error);
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
+  });
+
+  test('destroys a stalled request and rejects on timeout', async () => {
+    mockRequestEvents((_res, req) => req.emit('timeout'));
+    const manager = await createManagerWithCluster('https://k8s.example.com');
+
+    await expect(manager.patchSubresource('v1', 'pods', 'my-pod', 'status', {})).rejects.toThrow(
+      'patch subresource: request timed out',
+    );
+    expect(https.request).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ timeout: ContextsManager.DEFAULT_TIMEOUT_MS }),
+      expect.any(Function),
+    );
+    const req = vi.mocked(https.request).mock.results[0]?.value as ClientRequest;
+    expect(req.destroy).toHaveBeenCalledWith(expect.any(Error));
+    expect(telemetryLoggerMock.logUsage).not.toHaveBeenCalledWith('patch.subresource', expect.anything());
+  });
+});
+
 test('searchBySelector when no current context', async () => {
   const kc = new KubeConfig();
   kc.loadFromOptions(kcWithNoCurrentContext);
@@ -2288,27 +2547,6 @@ describe('lazy informer lifecycle', () => {
     });
 
     expect(createdLazyInformerMock.start).not.toHaveBeenCalled();
-  });
-});
-
-describe('validateGroupVersion', () => {
-  test.each(['v1', 'apps/v1', 'batch/v1', 'networking.k8s.io/v1', 'rbac.authorization.k8s.io/v1beta1'])(
-    'accepts valid groupVersion %s',
-    (gv: string) => {
-      expect(() => ContextsManager.validateGroupVersion(gv)).not.toThrow();
-    },
-  );
-
-  test.each([
-    '../../api/v1/secrets',
-    '../api/v1/namespaces/kube-system/secrets',
-    'apps/../v1/secrets',
-    './v1',
-    '',
-    'apps/',
-    '/v1',
-  ])('rejects invalid groupVersion %s', (gv: string) => {
-    expect(() => ContextsManager.validateGroupVersion(gv)).toThrow('invalid groupVersion');
   });
 });
 

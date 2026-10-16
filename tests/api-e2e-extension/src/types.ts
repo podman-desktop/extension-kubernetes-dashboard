@@ -35,3 +35,12 @@ export interface SubscriptionRequest {
   timeoutMs?: number;
   type: SubscriptionType;
 }
+
+export interface PatchSubresourceRequest {
+  apiVersion: string;
+  resource: string;
+  name: string;
+  subresource: string;
+  body: object;
+  namespace?: string;
+}
