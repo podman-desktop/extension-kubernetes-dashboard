@@ -32,6 +32,7 @@ import type { Disposable } from '@podman-desktop/api';
 import type { Event } from './emitter.js';
 import { Emitter } from './emitter.js';
 import type { KubeConfigSingleContext } from './kubeconfig-single-context.js';
+import { ListOnceInformer } from './list-once-informer.js';
 
 interface BaseEvent {
   kubeconfig: KubeConfigSingleContext;
@@ -62,6 +63,9 @@ export interface ResourceInformerOptions<T extends KubernetesObject> {
   kind: string;
   // the name of the resource for the 'REST API' (pods, ...), appearing in the path above
   plural: string;
+  // false for a resource which cannot be watched: the resources are listed when the informer is started
+  // and never updated after (default: true)
+  watch?: boolean;
 }
 
 // how many consecutive 429 responses we retry before declaring the informer offline
@@ -80,6 +84,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
   #listFn: ListPromise<T>;
   #pluralName: string;
   #kindName: string;
+  #watch: boolean;
   #informer: Informer<T> | undefined;
   #offline: boolean = false;
   // timer of a pending retry after the server asked us to slow down (HTTP 429)
@@ -105,6 +110,7 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
     this.#listFn = options.listFn;
     this.#pluralName = options.plural;
     this.#kindName = options.kind;
+    this.#watch = options.watch ?? true;
   }
 
   // start the informer and returns a cache to the data
@@ -263,6 +269,9 @@ export class ResourceInformer<T extends KubernetesObject> implements Disposable 
   }
 
   makeInformer(kubeConfig: KubeConfig, path: string, listFn: ListPromise<T>): Informer<T> & ObjectCache<T> {
+    if (!this.#watch) {
+      return new ListOnceInformer(listFn);
+    }
     return makeInformer(kubeConfig, path, listFn);
   }
 }

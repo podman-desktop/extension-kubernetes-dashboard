@@ -44,6 +44,7 @@ import { ChannelSubscriber } from '/@/subscriber/channel-subscriber.js';
 import { PortForwardServiceProvider } from '/@/port-forward/port-forward-service.js';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers.js';
 import { StateSubscriber } from '/@/subscriber/state-subscriber.js';
+import { toResourceKey } from '/@/resources/resource-key.js';
 
 @injectable()
 export class ContextsStatesDispatcher {
@@ -199,20 +200,21 @@ export class ContextsStatesDispatcher {
     for (const options of subscriptions) {
       const contextName = options.contextName ?? currentContextName;
       if (!contextName) continue;
-      const subscriptionId = `${subscriber.constructor.name}:${channelName}:${contextName}:${options.resourceName}`;
+      const resourceKey = toResourceKey(options.resourceName, options.namespace);
+      const subscriptionId = `${subscriber.constructor.name}:${channelName}:${contextName}:${resourceKey}`;
 
       let tracked = this.#subscriberResourceTracker.get(subscriber);
       if (!tracked) {
         tracked = new Map();
         this.#subscriberResourceTracker.set(subscriber, tracked);
       }
-      const key = `${contextName}/${options.resourceName}`;
+      const key = `${contextName}/${resourceKey}`;
       if (!tracked.has(key)) {
         tracked.set(key, new Set());
       }
       tracked.get(key)!.add(subscriptionId);
 
-      this.manager.subscribeToResource(contextName, options.resourceName, subscriptionId);
+      this.manager.subscribeToResource(contextName, resourceKey, subscriptionId);
     }
   }
 
@@ -227,7 +229,7 @@ export class ContextsStatesDispatcher {
       (subscriber.getSubscriptions(channelName) as UpdateResourceOptions[])
         .map(options => {
           const contextName = options.contextName ?? this.manager.currentContext?.getKubeConfig().currentContext;
-          return contextName ? `${contextName}/${options.resourceName}` : undefined;
+          return contextName ? `${contextName}/${toResourceKey(options.resourceName, options.namespace)}` : undefined;
         })
         .filter((key): key is string => key !== undefined),
     );
