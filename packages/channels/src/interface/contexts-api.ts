@@ -22,6 +22,24 @@ export interface AppliedResource {
   kind?: string;
 }
 
+/**
+ * Patch strategy for Kubernetes resource operations.
+ *
+ * - `'merge-patch'` — `application/merge-patch+json` (RFC 7386)
+ * - `'strategic-merge-patch'` — `application/strategic-merge-patch+json` (Kubernetes-specific)
+ * - `'server-side-apply'` — `application/apply-patch+yaml` (server-side field management)
+ */
+export type PatchStrategyType = 'merge-patch' | 'strategic-merge-patch' | 'server-side-apply';
+
+export interface ApplyResourcesOptions {
+  /**
+   * The patch strategy to use. Defaults to `'server-side-apply'` for recognized custom resources
+   * and `'strategic-merge-patch'` otherwise.
+   */
+  strategy?: PatchStrategyType;
+  fieldManager?: string;
+}
+
 export interface ContextsApi {
   setCurrentContext(contextName: string): Promise<void>;
   refreshContextState(contextName: string): Promise<void>;
@@ -30,6 +48,6 @@ export interface ContextsApi {
   scaleObject(kind: string, name: string, namespace: string, replicas: number): Promise<void>;
   setCurrentNamespace(namespace: string): Promise<void>;
   restartObject(kind: string, name: string, namespace: string): Promise<void>;
-  applyResources(yamlDocuments: string): Promise<void>;
+  applyResources(yamlDocuments: string, options?: ApplyResourcesOptions): Promise<void>;
   applyYaml(yamlDocuments: string): Promise<AppliedResource[]>;
 }

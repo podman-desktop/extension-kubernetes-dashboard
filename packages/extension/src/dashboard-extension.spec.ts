@@ -157,6 +157,33 @@ test('api.getApiResources should delegate to ContextsManager.getApiResources', a
   expect(ContextsManager.prototype.getApiResources).toHaveBeenCalledWith('apps/v1', undefined);
 });
 
+test('api.patchResources should delegate to ContextsManager.patchResources', async () => {
+  ContextsManager.prototype.patchResources = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  await api.patchResources('apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test');
+
+  expect(ContextsManager.prototype.patchResources).toHaveBeenCalledWith(
+    'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test',
+    undefined,
+  );
+});
+
+test('api.patchResources should forward options to ContextsManager.patchResources', async () => {
+  ContextsManager.prototype.patchResources = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  await api.patchResources('apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test', {
+    strategy: 'merge-patch',
+    fieldManager: 'custom-manager',
+  });
+
+  expect(ContextsManager.prototype.patchResources).toHaveBeenCalledWith(
+    'apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: test',
+    { strategy: 'merge-patch', fieldManager: 'custom-manager' },
+  );
+});
+
 test('subscriber.onResourceUpdate should subscribe to UPDATE_RESOURCE channel', async () => {
   const api = await dashboardExtension.activate();
   const subscriber = api.getSubscriber();
