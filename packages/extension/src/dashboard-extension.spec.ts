@@ -201,6 +201,15 @@ test('api.patchSubresource should delegate to ContextsManager.patchSubresource',
   );
 });
 
+test('api.deleteResource should delegate to ContextsManager.deleteObjectInternal without notifications', async () => {
+  ContextsManager.prototype.deleteObjectInternal = vi.fn();
+  const api = await dashboardExtension.activate();
+
+  await api.deleteResource('v1', 'Pod', 'my-pod', 'default');
+
+  expect(ContextsManager.prototype.deleteObjectInternal).toHaveBeenCalledWith('v1', 'Pod', 'my-pod', 'default', false);
+});
+
 test('subscriber.onResourceUpdate should subscribe to UPDATE_RESOURCE channel', async () => {
   const api = await dashboardExtension.activate();
   const subscriber = api.getSubscriber();

@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import type { PatchStrategyType } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { expect as playExpect, test } from '@podman-desktop/tests-playwright';
 
+import { dashboardApiDeleteResourceTests } from './dashboard-api-delete-resource';
 import { dashboardApiPatchSubresourceTests } from './dashboard-api-patch-subresource';
 import { DashboardApiClient } from './utility/dashboard-api-client';
 
@@ -370,4 +371,5 @@ data:
   });
 
   dashboardApiPatchSubresourceTests();
+  dashboardApiDeleteResourceTests();
 }
