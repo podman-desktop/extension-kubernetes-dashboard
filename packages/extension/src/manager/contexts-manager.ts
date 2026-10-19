@@ -29,6 +29,7 @@ import {
   type KubernetesObject,
   type ObjectCache,
 } from '@kubernetes/client-node';
+import { request as httpRequest } from 'node:http';
 
 import type {
   IDisposable,
@@ -112,6 +113,7 @@ import {
   type ApiResourceList,
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { TelemetryLoggerSymbol } from '/@/inject/symbol.js';
+import { KubernetesApiValidator } from './kubernetes-api-validator.js';
 import { DEFAULT_FIELD_MANAGER, resolveResourcePatchOptions } from './resource-patch-options.js';
 
 const HEALTH_CHECK_TIMEOUT_MS = 5_000;
@@ -184,6 +186,9 @@ export class ContextsManager implements ContextsApi {
 
   @inject(TelemetryLoggerSymbol)
   protected telemetryLogger: TelemetryLogger;
+
+  @inject(KubernetesApiValidator)
+  protected kubernetesApiValidator: KubernetesApiValidator;
 
   constructor() {
     this.#currentKubeConfig = new KubeConfig();
@@ -1140,6 +1145,98 @@ export class ContextsManager implements ContextsApi {
     }
   }
 
+  async patchSubresource(
+    apiVersion: string,
+    resource: string,
+    name: string,
+    subresource: string,
+    body: object,
+    namespace?: string,
+  ): Promise<void> {
+    this.kubernetesApiValidator.validateGroupVersion(apiVersion);
+    const apiVersionParts = apiVersion.split('/');
+    if (apiVersionParts.length > 2) {
+      throw new Error(`patch subresource: invalid apiVersion ${JSON.stringify(apiVersion)}`);
+    }
+    for (const segment of [...apiVersionParts, resource, name, subresource]) {
+      this.kubernetesApiValidator.validateSubresourcePathSegment(segment);
+    }
+    if (namespace !== undefined) {
+      this.kubernetesApiValidator.validateSubresourcePathSegment(namespace);
+    }
+
+    const kubeConfig = this.currentContext?.getKubeConfig();
+    if (!kubeConfig) {
+      throw new Error('patch subresource: no current context');
+    }
+
+    const cluster = kubeConfig.getCurrentCluster();
+    if (!cluster) {
+      throw new Error('patch subresource: no current cluster');
+    }
+
+    const apiRoot = apiVersionParts.length === 1 ? 'api' : 'apis';
+    const pathParts = [apiRoot, ...apiVersionParts];
+    if (namespace !== undefined) {
+      pathParts.push('namespaces', namespace);
+    }
+    pathParts.push(resource, name, subresource);
+    const path = `/${pathParts.map(segment => encodeURIComponent(segment)).join('/')}`;
+    const serverUrl = new URL(cluster.server);
+    let serverPath = serverUrl.pathname;
+    while (serverPath.endsWith('/')) {
+      serverPath = serverPath.slice(0, -1);
+    }
+    serverUrl.pathname = serverPath + path;
+    const jsonBody = JSON.stringify(body);
+
+    const opts: https.RequestOptions = {
+      method: 'PATCH',
+      timeout: ContextsManager.DEFAULT_TIMEOUT_MS,
+      headers: {
+        'Content-Type': 'application/merge-patch+json',
+        'Content-Length': Buffer.byteLength(jsonBody),
+      },
+    };
+    await kubeConfig.applyToHTTPSOptions(opts);
+
+    const doRequest = serverUrl.protocol === 'https:' ? https.request : httpRequest;
+
+    await new Promise<void>((resolve, reject) => {
+      const req = doRequest(serverUrl, opts, res => {
+        let responseBody = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk: string) => {
+          responseBody += chunk;
+        });
+        res.on('error', reject);
+        res.on('end', () => {
+          const statusCode = res.statusCode ?? 0;
+          if (statusCode >= 200 && statusCode < 300) {
+            resolve();
+          } else {
+            const responseDetail = responseBody ? `: ${responseBody}` : '';
+            reject(
+              new ApiResourceError(
+                `patch subresource failed: ${statusCode}${responseDetail}`,
+                res.statusCode,
+                res.headers['retry-after'],
+              ),
+            );
+          }
+        });
+      });
+      req.on('timeout', () => {
+        req.destroy(new Error('patch subresource: request timed out'));
+      });
+      req.on('error', reject);
+      req.write(jsonBody);
+      req.end();
+    });
+
+    this.telemetryLogger.logUsage('patch.subresource', { resource, subresource });
+  }
+
   async applyYaml(yamlDocuments: string): Promise<{ kind?: string }[]> {
     const client = this.currentContext?.getKubeConfig().makeApiClient(KubernetesObjectApi);
     const defaultNamespace = this.currentContext?.getNamespace() ?? DEFAULT_NAMESPACE;
@@ -1254,16 +1351,8 @@ export class ContextsManager implements ContextsApi {
 
   static readonly DEFAULT_TIMEOUT_MS = 10_000;
 
-  static validateGroupVersion(groupVersion: string): void {
-    for (const part of groupVersion.split('/')) {
-      if (part === '' || part === '.' || part === '..') {
-        throw new Error(`invalid groupVersion: ${JSON.stringify(groupVersion)}`);
-      }
-    }
-  }
-
   async getApiResources(groupVersion: string, options?: { timeoutMs?: number }): Promise<ApiResourceList> {
-    ContextsManager.validateGroupVersion(groupVersion);
+    this.kubernetesApiValidator.validateGroupVersion(groupVersion);
     const kubeConfig = this.getCurrentKubeConfig();
     const cluster = kubeConfig.getCurrentCluster();
     if (!cluster) {

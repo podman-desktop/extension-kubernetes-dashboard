@@ -29,8 +29,10 @@ import { NavigationApiImpl } from '/@/manager/navigation-api';
 import { KubernetesProvidersManager } from '/@/manager/kubernetes-providers';
 import { OpenDialogApiImpl } from './open-dialog-api';
 import { TelemetryApiImpl } from './telemetry-api';
+import { KubernetesApiValidator } from './kubernetes-api-validator';
 
 const managersModule = new ContainerModule(options => {
+  options.bind<KubernetesApiValidator>(KubernetesApiValidator).toSelf().inSingletonScope();
   options.bind<ContextsManager>(ContextsManager).toSelf().inSingletonScope();
   options.bind<ContextsStatesDispatcher>(ContextsStatesDispatcher).toSelf().inSingletonScope();
   options.bind<SystemApiImpl>(SystemApiImpl).toSelf().inSingletonScope();

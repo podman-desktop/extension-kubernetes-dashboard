@@ -31,7 +31,13 @@ import type {
 } from '@podman-desktop/kubernetes-dashboard-extension-api';
 import { extensions, type Disposable } from '@podman-desktop/api';
 
-import type { BridgeConfig, ConnectRequest, PatchResourcesRequest, SubscriptionRequest } from './types';
+import type {
+  BridgeConfig,
+  ConnectRequest,
+  PatchResourcesRequest,
+  PatchSubresourceRequest,
+  SubscriptionRequest,
+} from './types';
 
 const DASHBOARD_EXTENSION_ID = 'podman-desktop.kubernetes-dashboard';
 const HOST = '127.0.0.1';
@@ -116,6 +122,9 @@ export class DashboardApiBridge implements Disposable {
       case 'POST /subscriptions/next':
         await this.handleNextSubscription(request, response);
         break;
+      case 'POST /subresources/patch':
+        await this.handlePatchSubresource(request, response);
+        break;
       default:
         throw new HttpError(`Unsupported route: ${route}`, 404);
     }
@@ -162,6 +171,19 @@ export class DashboardApiBridge implements Disposable {
     if (request.headers.authorization !== `Bearer ${this.config.token}`) {
       throw new HttpError('Unauthorized', 401);
     }
+  }
+
+  private async handlePatchSubresource(request: IncomingMessage, response: ServerResponse): Promise<void> {
+    const body = await this.readJson<PatchSubresourceRequest>(request);
+    await this.requireDashboardApi().patchSubresource(
+      body.apiVersion,
+      body.resource,
+      body.name,
+      body.subresource,
+      body.body,
+      body.namespace,
+    );
+    this.sendSuccess(response, undefined);
   }
 
   private getDashboardApi(): KubernetesDashboardExtensionApi | undefined {
@@ -278,13 +300,22 @@ export class DashboardApiBridge implements Disposable {
     if (error instanceof AggregateError) {
       result.errors = error.errors.map((failure: unknown) => this.serializeError(failure));
     }
-    if (error && typeof error === 'object') {
-      if ('statusCode' in error && typeof error.statusCode === 'number') {
-        result.statusCode = error.statusCode;
-      }
-      if ('retryAfter' in error && typeof error.retryAfter === 'string') {
-        result.retryAfter = error.retryAfter;
-      }
+    if (!error || typeof error !== 'object') {
+      return result;
+    }
+    const details = error as {
+      statusCode?: unknown;
+      code?: unknown;
+      retryAfter?: unknown;
+      headers?: Record<string, unknown>;
+    };
+    const statusCode = details.statusCode ?? details.code;
+    const retryAfter = details.retryAfter ?? details.headers?.['retry-after'];
+    if (typeof statusCode === 'number') {
+      result.statusCode = statusCode;
+    }
+    if (typeof retryAfter === 'string') {
+      result.retryAfter = retryAfter;
     }
     return result;
   }
