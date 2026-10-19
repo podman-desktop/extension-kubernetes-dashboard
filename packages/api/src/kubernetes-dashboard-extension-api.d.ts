@@ -254,7 +254,8 @@ export interface KubernetesDashboardExtensionApi {
    * @param apiVersion - The API version of the resource (e.g., 'v1', 'apps/v1').
    * @param kind - The kind of the resource to delete (e.g., 'Pod', 'Deployment').
    * @param name - The name of the resource to delete.
-   * @param namespace - The namespace of the resource. If not set, defaults to the current namespace.
+   * @param namespace - For namespaced resources, defaults to the current context's namespace when omitted,
+   * or `default` if that context has no namespace. Ignored for cluster-scoped resources.
    * @throws {Error} If there is no current context, the resource kind cannot be deleted,
    * or validation or transport fails.
    * @throws {ApiResourceError} On an unsuccessful API-server response, exposing `statusCode`
