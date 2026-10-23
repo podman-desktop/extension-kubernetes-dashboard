@@ -194,6 +194,7 @@ overrides:
   js-yaml@>=4.0.0 <5: ^4.3.2
   js-yaml@>=5.0.0: ^5.4.2
   browserslist@<=4.28.6: '>=4.28.7'
+  ip-address@<=10.7.3: ^10.7.4
 
 importers:
 
@@ -2916,8 +2917,8 @@ packages:
   inversify@7.11.0:
     resolution: {integrity: sha512-yZDprSSr8TyVeMGI/AOV4ws6gwjX22hj9Z8/oHAVpJORY6WRFTcUzhnZtibBUHEw2U8ArvHcR+i863DplQ3Cwg==}
 
-  ip-address@10.7.2:
-    resolution: {integrity: sha512-7H/2gFSIitxc0hG3nOI1glS8QLo/EHBFFLk8vEUjXY/xu0AdL8jZ9U1IzO2PUm0d2D/ofQcAifb0g6OBkt8U7w==}
+  ip-address@10.7.4:
+    resolution: {integrity: sha512-DWBMKyeM25D70nrIiTkgQth59/G+naKOTep6huF9j+GmeK3DMD60Zvxg5d5qQnz+38AHgou6ean2LECX+lrKDg==}
     engines: {node: '>= 12'}
 
   is-array-buffer@3.0.5:
@@ -6811,7 +6812,7 @@ snapshots:
     transitivePeerDependencies:
       - reflect-metadata
 
-  ip-address@10.7.2: {}
+  ip-address@10.7.4: {}
 
   is-array-buffer@3.0.5:
     dependencies:
@@ -7835,7 +7836,7 @@ snapshots:
 
   socks@2.8.9:
     dependencies:
-      ip-address: 10.7.2
+      ip-address: 10.7.4
       smart-buffer: 4.2.0
 
   source-map-js@1.2.2: {}
