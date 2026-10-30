@@ -264,3 +264,30 @@ test('removeSubscriber should clean up resource subscriptions', () => {
   dispatcher.removeSubscriber(apiSubscriber);
   expect(contextsManagerMock.unsubscribeFromResource).toHaveBeenCalledWith('ctx1', 'pods', expect.any(String));
 });
+
+test('subscription with a namespace subscribes to the resource key restricted to the namespace', () => {
+  vi.spyOn(dispatcher, 'dispatchByChannelName').mockResolvedValue();
+  dispatcher.init();
+
+  const apiSubscriber = new ApiSubscriber();
+  dispatcher.addSubscriber(apiSubscriber);
+
+  const disposable = apiSubscriber.subscribe(
+    UPDATE_RESOURCE,
+    { resourceName: 'catalogsources.operators.coreos.com', contextName: 'ctx1', namespace: 'olm' },
+    () => {},
+  );
+  expect(contextsManagerMock.subscribeToResource).toHaveBeenCalledWith(
+    'ctx1',
+    'catalogsources.operators.coreos.com@olm',
+    expect.any(String),
+  );
+
+  disposable.dispose();
+  expect(contextsManagerMock.unsubscribeFromResource).toHaveBeenCalledWith(
+    'ctx1',
+    'catalogsources.operators.coreos.com@olm',
+    expect.any(String),
+  );
+  dispatcher.removeSubscriber(apiSubscriber);
+});

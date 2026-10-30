@@ -3,6 +3,7 @@ import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { getContext, onDestroy, onMount, type ComponentProps } from 'svelte';
 import CheckConnection from '/@/component/connection/CheckConnection.svelte';
 import { States } from '/@/state/states';
+import { isPermitted } from '/@/component/objects/permissions';
 import type { Unsubscriber } from 'svelte/store';
 
 interface Props extends ComponentProps<EmptyScreen> {
@@ -64,10 +65,7 @@ const info: Info = $derived.by(() => {
 
   const atLeastOnePermitted =
     resources.filter(resource =>
-      contextsPermissions.data?.permissions.some(
-        permission =>
-          permission.contextName == currentContextName && permission.resourceName === resource && permission.permitted,
-      ),
+      isPermitted(contextsPermissions.data?.permissions ?? [], currentContext.data, resource),
     ).length > 0;
 
   if (!atLeastOnePermitted) {
