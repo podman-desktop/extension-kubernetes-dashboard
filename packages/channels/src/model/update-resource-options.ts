@@ -19,5 +19,9 @@
 export interface UpdateResourceOptions {
   // default context if not set
   contextName?: string;
+  // a resource name, or `<plural>.<group>` for a custom resource
   resourceName: string;
+  // pins the subscription to this namespace; when not set, the subscription follows the namespace of the context.
+  // Setting the namespace of the context starts a separate watch (see ResourceUpdateOptions in the API)
+  namespace?: string;
 }
