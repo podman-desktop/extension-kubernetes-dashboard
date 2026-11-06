@@ -321,8 +321,8 @@ importers:
   packages/extension:
     dependencies:
       '@kubernetes/client-node':
-        specifier: ^2.0.1
-        version: 2.0.1(supports-color@10.2.2)
+        specifier: ^2.0.2
+        version: 2.0.2(supports-color@10.2.2)
       inversify:
         specifier: ^7.11.0
         version: 7.11.0(reflect-metadata@0.2.2)
@@ -1131,8 +1131,8 @@ packages:
   '@keyv/serialize@1.1.1':
     resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
 
-  '@kubernetes/client-node@2.0.1':
-    resolution: {integrity: sha512-evJgmEtgArEYlj6DNkMGjK41IrFK/hEwb5lWVxx0VRBWybQpnvi+2TtA19mLgVfRHfqX5yjHObX6e9W7LEZBjw==}
+  '@kubernetes/client-node@2.0.2':
+    resolution: {integrity: sha512-AvVq87luFXIoo95dkBsNnzU6pIwKGJM5CZD/iLfxMPXPzVa4w8isIMvXmYly+4TkodQFf3fQzX3KDysVy1OYng==}
 
   '@microsoft/api-extractor-model@7.31.1':
     resolution: {integrity: sha512-Dhnip5OFKbl85rq/ICHBFGhV4RA5UQSl8AC/P/zoGvs+CBudPkatt5kIhMGiYgVPnUWmfR6fcp38+1AFLYNtUw==}
@@ -4920,7 +4920,7 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
-  '@kubernetes/client-node@2.0.1(supports-color@10.2.2)':
+  '@kubernetes/client-node@2.0.2(supports-color@10.2.2)':
     dependencies:
       '@types/js-yaml': 4.0.9
       '@types/node': 26.2.0
