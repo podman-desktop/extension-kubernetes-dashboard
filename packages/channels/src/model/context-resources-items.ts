@@ -22,5 +22,6 @@ export interface ContextResourceItems {
   // default context if not set
   contextName?: string;
   resourceName: string;
+  namespace?: string;
   items: readonly KubernetesObject[];
 }

@@ -23,6 +23,7 @@ import { afterEach, expect, test, vi } from 'vitest';
 
 import { KubeConfigSingleContext } from './kubeconfig-single-context.js';
 import { ResourceInformer } from './resource-informer.js';
+import { ListOnceInformer } from './list-once-informer.js';
 
 // the jitter added to the retry delays would make the tests non-deterministic
 vi.mock(import('node:crypto'), async importOriginal => ({
@@ -558,4 +559,60 @@ test('ResourceInformer should cancel a pending retry when reconnecting', () => {
   // the pending retry has been cancelled, the informer is not started twice
   vi.advanceTimersByTime(60_000);
   expect(startMock).not.toHaveBeenCalled();
+});
+
+test('ResourceInformer without watch lists the resources once, without watching', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const listFn = vi.fn();
+  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
+  const items = [{ metadata: { name: 'res1', namespace: 'ns1' } }, { metadata: { name: 'res2', namespace: 'ns1' } }];
+  listFn.mockResolvedValue({ apiVersion: 'v8', items: items });
+  const informer = new ResourceInformer<MyResource>({
+    kubeconfig,
+    path: '/a/path',
+    listFn,
+    kind: 'MyResource',
+    plural: 'myresources',
+    watch: false,
+  });
+  const makeInformerSpy = vi.spyOn(informer, 'makeInformer');
+  const onCacheUpdatedCB = vi.fn();
+  informer.onCacheUpdated(onCacheUpdatedCB);
+
+  const result = informer.start();
+
+  expect(makeInformerSpy.mock.results[0]?.value).toBeInstanceOf(ListOnceInformer);
+  await vi.waitFor(() => {
+    expect(result.list()).toEqual(items.map(i => ({ apiVersion: 'v8', kind: 'MyResource', ...i })));
+  });
+  expect(onCacheUpdatedCB).toHaveBeenCalledWith({ kubeconfig, resourceName: 'myresources', countChanged: true });
+  expect(listFn).toHaveBeenCalledOnce();
+  informer.dispose();
+});
+
+test('ResourceInformer without watch goes offline when the list fails', async () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const listFn = vi.fn();
+  const kubeconfig = new KubeConfigSingleContext(kc, contexts[0]!);
+  listFn.mockRejectedValue(new ApiException(500, 'internal error', 'boom', {}));
+  const informer = new ResourceInformer<MyResource>({
+    kubeconfig,
+    path: '/a/path',
+    listFn,
+    kind: 'MyResource',
+    plural: 'myresources',
+    watch: false,
+  });
+  const onOfflineCB = vi.fn();
+  informer.onOffline(onOfflineCB);
+
+  informer.start();
+
+  await vi.waitFor(() => {
+    expect(onOfflineCB).toHaveBeenCalledWith(expect.objectContaining({ resourceName: 'myresources', offline: true }));
+  });
+  expect(informer.isOffline()).toBeTruthy();
+  informer.dispose();
 });

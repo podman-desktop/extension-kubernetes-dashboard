@@ -21,6 +21,7 @@ import type { DispatcherObject } from './util/dispatcher-object';
 import { AbsDispatcherObjectImpl } from './util/dispatcher-object';
 import { ContextsManager } from '/@/manager/contexts-manager';
 import { UPDATE_RESOURCE, type UpdateResourceInfo, type UpdateResourceOptions } from '@kubernetes-dashboard/channels';
+import { toResourceKey } from '/@/resources/resource-key';
 
 @injectable()
 export class UpdateResourceDispatcher
@@ -34,8 +35,9 @@ export class UpdateResourceDispatcher
   getData(options: UpdateResourceOptions[]): UpdateResourceInfo {
     return {
       resources: options.map(option => ({
-        items: this.manager.getResources(option.resourceName, option.contextName),
+        items: this.manager.getResources(toResourceKey(option.resourceName, option.namespace), option.contextName),
         resourceName: option.resourceName,
+        namespace: option.namespace,
         contextName: option.contextName,
       })),
     };

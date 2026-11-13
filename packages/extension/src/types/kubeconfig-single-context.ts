@@ -50,6 +50,11 @@ export class KubeConfigSingleContext {
     return this.#context.namespace ?? 'default';
   }
 
+  // withNamespace returns a copy of this KubeConfigSingleContext, with `namespace` as namespace
+  withNamespace(namespace: string): KubeConfigSingleContext {
+    return new KubeConfigSingleContext(this.#value, { ...this.#context, namespace });
+  }
+
   equals(other: KubeConfigSingleContext | undefined): boolean {
     if (!other) {
       return false;

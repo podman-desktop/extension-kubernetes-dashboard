@@ -129,3 +129,15 @@ test('getNamespace', () => {
   const single2 = new KubeConfigSingleContext(kcWith2contexts, contexts[1]!);
   expect(single2.getNamespace()).toEqual('ns2');
 });
+
+test('withNamespace returns a copy with another namespace', () => {
+  const kc = new KubeConfig();
+  kc.loadFromOptions(kcWith2contexts);
+  const single = new KubeConfigSingleContext(kc, contexts[0]!);
+  const scoped = single.withNamespace('other');
+  expect(scoped.getNamespace()).toEqual('other');
+  expect(scoped.getKubeConfig().currentContext).toEqual('context1');
+  expect(scoped.getKubeConfig().getCurrentCluster()?.name).toEqual('cluster1');
+  expect(scoped.getKubeConfig().getCurrentUser()?.name).toEqual('user1');
+  expect(single.getNamespace()).toEqual('ns1');
+});

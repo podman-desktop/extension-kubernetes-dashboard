@@ -6,6 +6,7 @@ import KubernetesIcon from '/@/component/icons/KubernetesIcon.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { getContext, onDestroy, onMount } from 'svelte';
 import { States } from '/@/state/states';
+import { isPermitted } from '/@/component/objects/permissions';
 import { DependencyAccessor } from '/@/inject/dependency-accessor';
 import { Navigator } from '/@/navigation/navigator';
 import type { ResourceCount } from '@podman-desktop/kubernetes-dashboard-extension-api';
@@ -82,10 +83,7 @@ const permitted = $derived.by(() => {
     return false;
   }
   return resources.some(resource =>
-    contextsPermissions.data?.permissions.some(
-      permission =>
-        permission.contextName == currentContextName && permission.resourceName === resource && permission.permitted,
-    ),
+    isPermitted(contextsPermissions.data?.permissions ?? [], currentContext.data, resource),
   );
 });
 
