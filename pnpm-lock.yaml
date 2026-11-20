@@ -566,8 +566,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api
       '@podman-desktop/tests-playwright':
-        specifier: 1.30.5
-        version: 1.30.5
+        specifier: 1.30.7
+        version: 1.30.7
       '@types/node':
         specifier: ^24
         version: 24.19.2
@@ -1128,8 +1128,8 @@ packages:
     peerDependencies:
       eslint: '>=10'
 
-  '@podman-desktop/tests-playwright@1.30.5':
-    resolution: {integrity: sha512-ee+JQdu1Kci2ebcF8tavFppdEBltHyTFApkhxBwQKySTPB5smdaXvU+gqusQaW0HmIzF3MYEmP0e1r/Oj7INKw==}
+  '@podman-desktop/tests-playwright@1.30.7':
+    resolution: {integrity: sha512-VUSangdBV6p2iOumBDPyeoS8ONVi6ps85BtK2kXRqbqqGeUKT0pzxMkFkdsE9VaiYOusww9jK+jJYEBlNOzEOg==}
 
   '@podman-desktop/ui-svelte@1.30.5':
     resolution: {integrity: sha512-gJiXt7bQhEoNAwy6fi8dXZ9zr6WQVr6XGxlZrKl6LluL/nBcUCApjbbEZC+ws4icSoabSkrpCtN4p6VtvtTX9g==}
@@ -4837,7 +4837,7 @@ snapshots:
     dependencies:
       eslint: 10.15.0(jiti@2.7.0)(supports-color@10.2.2)
 
-  '@podman-desktop/tests-playwright@1.30.5': {}
+  '@podman-desktop/tests-playwright@1.30.7': {}
 
   '@podman-desktop/ui-svelte@1.30.5(svelte-fa@4.0.4(svelte@5.57.3(@typescript-eslint/types@8.72.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))':
     dependencies:
