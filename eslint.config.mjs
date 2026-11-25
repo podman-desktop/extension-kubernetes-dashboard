@@ -43,8 +43,6 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 });
 
-const TYPESCRIPT_PROJECTS = ['packages/*/tsconfig.json', 'tests/*/tsconfig.json'];
-
 export default [
   ...podmanDesktop,
   {
@@ -116,7 +114,9 @@ export default [
       parserOptions: {
         extraFileExtensions: ['.svelte'],
         warnOnUnsupportedTypeScriptVersion: false,
-        project: TYPESCRIPT_PROJECTS,
+        projectService: {
+          allowDefaultProject: ['types/*.d.ts'],
+        },
       },
     },
   },
